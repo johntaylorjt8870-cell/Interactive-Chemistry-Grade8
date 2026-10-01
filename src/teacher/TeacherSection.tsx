@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { BookGlyph, ClipboardCheckGlyph, KeyGlyph } from '@/components/Icons'
 import { routes } from '@/app/navigation'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { ScientificNotationText } from '@/scientific'
 import { bookActivitySolutions, bookQuestions, finalTest } from '@/data/curriculum/chemistryLesson1'
 import type { Question } from '@/assessment/types'
 import type { ReactNode } from 'react'
@@ -54,11 +55,11 @@ function TeacherQuestion({ question, index, showSolution }: { question: Question
         <span>·</span><span>{question.origin === 'textbook' ? 'من الكتاب المدرسي' : 'إضافة من المنصة'}</span>
         {question.source ? <span>· ص{question.source.page}{question.source.item ? ` — ${question.source.item}` : ''}</span> : null}
       </div>
-      <p className="teacher-answer__prompt">{question.prompt}</p>
+      <p className="teacher-answer__prompt"><ScientificNotationText>{question.prompt}</ScientificNotationText></p>
       <QuestionMaterial question={question} />
       {showSolution ? <>
-        <div className="teacher-answer__result"><strong>الإجابة:</strong> {answerOf(question)}</div>
-        {question.explanation ? <p className="teacher-answer__explanation"><strong>التفسير وخطوات الحل:</strong> {question.explanation}</p> : null}
+        <div className="teacher-answer__result"><strong>الإجابة:</strong> <ScientificAnswer>{answerOf(question)}</ScientificAnswer></div>
+        {question.explanation ? <p className="teacher-answer__explanation"><strong>التفسير وخطوات الحل:</strong> <ScientificNotationText>{question.explanation}</ScientificNotationText></p> : null}
         {question.type === 'short-answer' && question.rubric ? <div><p><strong>عناصر الإجابة المكتملة:</strong></p><ul>{question.rubric.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
       </> : <p className="teacher-answer__explanation">تظهر الإجابة المفصّلة في قسم «حلول الاختبار الشامل» داخل تبويب هذا الدرس.</p>}
     </li>
@@ -67,7 +68,7 @@ function TeacherQuestion({ question, index, showSolution }: { question: Question
 
 function QuestionMaterial({ question }: { question: Question }) {
   switch (question.type) {
-    case 'multiple-choice': return <ol type="a">{question.options.map((option) => <li key={option.id}>{option.label}</li>)}</ol>
+    case 'multiple-choice': return <ol type="a">{question.options.map((option) => <li key={option.id}><ScientificNotationText>{option.label}</ScientificNotationText></li>)}</ol>
     case 'true-false': return <p>اختر: صح / غلط.</p>
     case 'fill-blank': return <p dir="rtl">{question.template.replace(/\{[^}]+\}/g, '________')}</p>
     case 'ordering': return <ul>{question.items.map((item) => <li key={item.id}>{item.label}</li>)}</ul>
@@ -77,6 +78,10 @@ function QuestionMaterial({ question }: { question: Question }) {
     case 'numerical':
     case 'short-answer': return null
   }
+}
+
+function ScientificAnswer({ children }: { children: ReactNode }) {
+  return typeof children === 'string' ? <ScientificNotationText>{children}</ScientificNotationText> : children
 }
 
 function answerOf(question: Question): ReactNode {

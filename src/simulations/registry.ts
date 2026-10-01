@@ -34,6 +34,20 @@ export type InteractiveDefinition = {
 
 const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
   {
+    id: 'bohr-energy-transition',
+    title: 'انتقالات الطاقة في نموذج بور',
+    kind: 'simulation',
+    description: 'نقل إلكترون بين السويات وملاحظة امتصاص الطاقة أو إصدارها على شكل ضوء.',
+    load: () => import('./BohrEnergyTransition'),
+  },
+  {
+    id: 'ion-formation-lab',
+    title: 'تشكّل الأيونات',
+    kind: 'simulation',
+    description: 'تحريك الإلكترون ومقارنة أعداد البروتونات والإلكترونات والشحنة الناتجة.',
+    load: () => import('./IonFormationLab'),
+  },
+  {
     id: 'rutherford-scattering',
     title: 'محاكاة تجربة رذرفورد',
     kind: 'experiment',

@@ -108,7 +108,9 @@
   display: inline-block;
   direction: ltr;
   unicode-bidi: isolate;
+  isolation: isolate;
   max-width: 100%;
+  white-space: nowrap;
 }
 
 .math-formula .katex {
@@ -122,6 +124,8 @@
   margin-inline: auto;
   text-align: center;
   padding-block: var(--space-1);
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .math-formula--block .katex-display {

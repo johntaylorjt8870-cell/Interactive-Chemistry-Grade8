@@ -2738,3 +2738,89 @@
   .alpha { animation-duration: .001ms; }
   .shell-ring, .nucleus-builder { animation: none; }
 }
+
+/* Bohr energy-transition explanation — motion communicates state change. */
+.bohr-lab__current {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 8rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  background: var(--accent-tint);
+}
+.bohr-lab__current span { color: var(--text-muted); font-size: var(--fs-xs); }
+.bohr-lab__current strong { color: var(--text-strong); font-family: var(--font-latin); }
+.bohr-stage { display: grid; grid-template-columns: auto minmax(18rem, 1fr) minmax(11rem, auto); align-items: center; gap: var(--space-5); min-inline-size: 0; padding: var(--space-4); border: 1px solid var(--border-hairline); border-radius: var(--radius-xl); background: radial-gradient(circle at center, var(--accent-tint), transparent 62%), var(--surface-sunken); overflow: hidden; }
+.bohr-stage__energy { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); color: var(--text-muted); font-size: var(--fs-xs); text-align: center; }
+.bohr-stage__energy-arrow { color: var(--accent); font: 800 var(--fs-2xl)/1 var(--font-latin); }
+.bohr-stage__atom { position: relative; justify-self: center; inline-size: min(25rem, 70vw); aspect-ratio: 1; direction: ltr; }
+.bohr-nucleus { position: absolute; z-index: 5; inset: 50% auto auto 50%; display: grid; place-items: center; inline-size: 4.3rem; block-size: 4.3rem; translate: -50% -50%; border-radius: 50%; background: #bd4d48; box-shadow: 0 0 0 .45rem color-mix(in srgb, #bd4d48 18%, transparent); color: #fff; font-size: var(--fs-xs); font-weight: var(--fw-bold); line-height: 1.35; text-align: center; }
+.bohr-orbit { --diameter: calc(5rem + var(--orbit) * 4rem); position: absolute; inset: 50% auto auto 50%; inline-size: var(--diameter); block-size: var(--diameter); translate: -50% -50%; border: 1px solid var(--border-strong); border-radius: 50%; transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard); }
+.bohr-orbit[data-active='true'] { border: 2px solid var(--accent); box-shadow: 0 0 1rem var(--accent-glow); }
+.bohr-orbit__label { position: absolute; inset: 50% auto auto -.65rem; translate: 0 -50%; display: grid; place-items: center; inline-size: 1.5rem; block-size: 1.5rem; border-radius: 50%; background: var(--surface-raised); color: var(--text-strong); font: var(--fw-bold) var(--fs-xs)/1 var(--font-latin); }
+.bohr-electron { --radius: calc((5rem + var(--level) * 4rem) / 2); position: absolute; z-index: 6; inset: 50% auto auto 50%; display: grid; place-items: center; inline-size: 2rem; block-size: 2rem; translate: calc(-50% + var(--radius)) -50%; border: 2px solid var(--surface-raised); border-radius: 50%; background: var(--accent); box-shadow: 0 0 .8rem var(--accent-glow); color: var(--text-on-accent); font: var(--fw-bold) var(--fs-sm)/1 var(--font-latin); transition: translate 650ms var(--ease-emphasis), background-color var(--dur-fast) var(--ease-standard); }
+.bohr-electron sup { font-size: .65em; }
+.bohr-photon { position: absolute; z-index: 7; inset: 34% auto auto 56%; display: grid; place-items: center; inline-size: 3.2rem; block-size: 3.2rem; border-radius: 50%; background: #ffe687; color: #4d3900; font-size: var(--fs-xs); font-weight: var(--fw-bold); box-shadow: 0 0 0 .4rem #ffe68740, 0 0 2rem #ffe687; animation: photon-release 900ms ease-out both; }
+.bohr-photon--still { animation: none; }
+@keyframes photon-release { from { scale: .4; translate: 0 1rem; opacity: 0; } 40% { opacity: 1; } to { scale: 1; translate: 3.5rem -3.5rem; opacity: .9; } }
+.bohr-stage__transition { display: grid; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface-raised); box-shadow: var(--shadow-sm); }
+.bohr-stage__transition strong { color: var(--accent-strong); }
+.bohr-stage__transition span { color: var(--text-secondary); font-size: var(--fs-sm); }
+.lab__measurement-text { direction: rtl !important; unicode-bidi: isolate; font-family: var(--font-arabic) !important; font-size: var(--fs-sm) !important; line-height: var(--lh-normal) !important; }
+
+/* Ion transfer: before → electron action → measured charge → ion. */
+.ion-lab__picker { display: flex; flex-wrap: wrap; gap: var(--space-2); direction: ltr; }
+.ion-lab__choice { min-inline-size: 2.8rem; min-block-size: 2.8rem; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--text-strong); font: var(--fw-bold) var(--fs-base)/1 var(--font-latin); cursor: pointer; }
+.ion-lab__choice[aria-pressed='true'] { border-color: var(--accent); background: var(--accent); color: var(--text-on-accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+.ion-process { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(14rem, 1.15fr) minmax(7rem, auto) minmax(10rem, 1fr); align-items: center; gap: var(--space-4); padding: var(--space-4); border: 1px solid var(--border-hairline); border-radius: var(--radius-xl); background: var(--surface-sunken); overflow: hidden; }
+.ion-process__state { display: grid; place-items: center; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface-raised); text-align: center; }
+.ion-process__state--result { border: 1px solid var(--accent-border); }
+.ion-process__caption { color: var(--text-muted); font-size: var(--fs-xs); }
+.ion-process__symbol { font: var(--fw-bold) var(--fs-3xl)/1 var(--font-latin); }
+.ion-process__pending { color: var(--text-muted); }
+.ion-process__arrow { display: grid; place-items: center; gap: var(--space-1); min-inline-size: 6.5rem; color: var(--accent-strong); text-align: center; }
+.ion-process__arrow > span { font: var(--fw-bold) var(--fs-xl)/1 var(--font-latin); direction: ltr; unicode-bidi: isolate; }
+.ion-process__arrow small { color: var(--text-muted); }
+.ion-atom { position: relative; justify-self: center; inline-size: 13rem; block-size: 13rem; border: 1px solid var(--accent-border); border-radius: 50%; background: radial-gradient(circle, var(--accent-tint), transparent 68%); direction: ltr; }
+.ion-atom::before, .ion-atom::after { content: ''; position: absolute; inset: 1.4rem; border: 1px solid var(--border-strong); border-radius: 50%; }
+.ion-atom::after { inset: 3.4rem; }
+.ion-atom__nucleus { position: absolute; z-index: 4; inset: 50% auto auto 50%; display: grid; place-items: center; inline-size: 3.4rem; block-size: 3.4rem; translate: -50% -50%; border-radius: 50%; background: #bd4d48; color: #fff; }
+.ion-atom__nucleus b { font: var(--fw-bold) var(--fs-base)/1 var(--font-latin); }
+.ion-atom__nucleus small { font: var(--fs-2xs)/1 var(--font-latin); }
+.ion-electron { --angle: calc(var(--electron) * 47deg); position: absolute; z-index: 5; inset: 50% auto auto 50%; display: grid; place-items: center; inline-size: 1.25rem; block-size: 1.25rem; margin: -.625rem; transform: rotate(var(--angle)) translateX(5.25rem) rotate(calc(-1 * var(--angle))); border-radius: 50%; background: var(--accent); color: var(--text-on-accent); font: var(--fw-bold) var(--fs-xs)/1 var(--font-latin); transition: opacity 450ms ease, translate 450ms ease; }
+.ion-electron--incoming { --offset: calc(var(--incoming) * 1.7rem); inset: 8% auto auto calc(8% + var(--offset)); transform: none; animation: electron-wait 1.4s ease-in-out infinite alternate; }
+.ion-electron--still { animation: none; }
+.ion-transfer-particle { position: absolute; z-index: 8; inset: 50% auto auto 50%; display: grid; place-items: center; inline-size: 1.7rem; block-size: 1.7rem; margin: -.85rem; border-radius: 50%; background: var(--accent-strong); color: var(--text-on-accent); font: var(--fw-bold) var(--fs-xs)/1 var(--font-latin); box-shadow: 0 0 1rem var(--accent-glow); }
+.ion-transfer-particle--out { animation: electron-out 800ms var(--ease-emphasis) both; }
+.ion-transfer-particle--in { animation: electron-in 800ms var(--ease-emphasis) both; }
+.ion-transfer-particle--still { animation: none; }
+.ion-transfer-particle--out.ion-transfer-particle--still { translate: 7.5rem -5rem; }
+.ion-transfer-particle--in.ion-transfer-particle--still { translate: 4rem 0; }
+@keyframes electron-out { from { translate: 4rem 0; } to { translate: 7.5rem -5rem; opacity: .7; } }
+@keyframes electron-in { from { translate: -8rem -5rem; opacity: .65; } to { translate: 4rem 0; } }
+@keyframes electron-wait { to { translate: .45rem -.3rem; } }
+
+@media (max-width: 64rem) {
+  .bohr-stage { grid-template-columns: auto minmax(16rem, 1fr); }
+  .bohr-stage__transition { grid-column: 1 / -1; }
+  .ion-process { grid-template-columns: 1fr 1fr; }
+  .ion-process__arrow { grid-column: 1 / -1; grid-row: 2; }
+  .ion-process__state--result { grid-column: 2; grid-row: 3; }
+  .ion-atom { grid-column: 1; grid-row: 3; }
+}
+@media (max-width: 40rem) {
+  .bohr-stage { grid-template-columns: 1fr; padding: var(--space-3); }
+  .bohr-stage__energy { flex-direction: row-reverse; justify-content: center; }
+  .bohr-stage__energy-arrow { rotate: 90deg; }
+  .bohr-stage__atom { inline-size: min(20rem, 88vw); }
+  .bohr-orbit { --diameter: calc(4rem + var(--orbit) * 3.2rem); }
+  .bohr-electron { --radius: calc((4rem + var(--level) * 3.2rem) / 2); }
+  .ion-process { grid-template-columns: 1fr; }
+  .ion-process__state, .ion-process__arrow, .ion-process__state--result, .ion-atom { grid-column: 1; grid-row: auto; }
+  .ion-process__arrow > span { rotate: 90deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bohr-electron, .bohr-orbit { transition-duration: .001ms; }
+  .bohr-photon, .ion-electron { animation: none; }
+}

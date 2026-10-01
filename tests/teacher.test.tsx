@@ -175,7 +175,7 @@ describe('teacher area routes', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'حلول أسئلة الكتاب' })).toBeInTheDocument()
     expect(screen.getByText('الدرس الأول — كيمياء: الذرّة والعنصر', { selector: '.teacher-lesson-tab' })).toBeInTheDocument()
-    expect(screen.getByText(/K\(2\), L\(8\), M\(1\)/)).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.classList.contains('teacher-answer__result') === true && element.textContent?.includes('K(2), L(8), M(1)') === true)).toBeInTheDocument()
     expect(screen.getAllByText(/التفسير وخطوات الحل/).length).toBeGreaterThan(10)
   })
 

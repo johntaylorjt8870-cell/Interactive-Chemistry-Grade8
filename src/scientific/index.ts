@@ -4,6 +4,7 @@
  * Every component in this folder owns exactly one notation responsibility:
  *
  *  - <ScientificText />     mixed Arabic prose with automatic LTR isolation
+ *  - <ScientificNotationText /> promotes compact nuclides in mixed prose to structured DOM
  *  - <Sci />                explicit isolation of a scientific run
  *  - <MathFormula />        KaTeX mathematics (fractions, roots, powers)
  *  - <ChemicalFormula />    subscripts and groups (H₂O, Ca(OH)₂)
@@ -21,6 +22,8 @@
 
 export { Sci, ScientificText, SciSub, SciSup } from './ScientificText'
 export type { SciProps, ScientificTextProps, SciVariant, ScriptProps } from './ScientificText'
+export { ScientificNotationText } from './ScientificNotationText'
+export type { ScientificNotationTextProps } from './ScientificNotationText'
 
 export { MathFormula, EquationRow } from './MathFormula'
 export type { MathFormulaProps, EquationRowProps } from './MathFormula'
