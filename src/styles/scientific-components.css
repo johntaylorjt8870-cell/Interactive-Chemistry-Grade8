@@ -136,7 +136,6 @@
   unicode-bidi: isolate;
   position: static;
   inset: auto;
-  transform: translateY(-0.12em);
   margin-inline-start: 0.025em;
   font-family: var(--font-latin);
   font-size: 0.62em;
