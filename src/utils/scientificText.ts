@@ -6,9 +6,12 @@
  * layer (ScientificText) and the structured notation components.
  */
 
+/** Structured notations that get their own renderer instead of a generic isolate. */
+export type ScientificNotation = 'electron-configuration'
+
 export type ScientificRun =
   | { kind: 'prose'; value: string }
-  | { kind: 'science'; value: string }
+  | { kind: 'science'; value: string; notation?: ScientificNotation }
 
 /** Latin identifier / unit / symbol fragment, e.g. `N`, `mol`, `m/s²`, `°C`. */
 const UNIT = String.raw`[A-Za-zµΩÅ%°][A-Za-z0-9µΩÅ°⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺/^·\-]*`
@@ -17,8 +20,25 @@ const NUMBER = String.raw`\d+(?:[.,]\d+)?`
 const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺²³⁴⁵⁶⁷⁸⁹]+))?`
 
 /**
+ * A hyphen-joined numeric sequence: `2-8-8`, `2-8-18-8`, `2-8-8-2`.
+ *
+ * An electron configuration is one logical value, but the generic rules
+ * below would match `2`, `-8` and `-8` separately. Inside an RTL paragraph a
+ * chain of independent isolates is laid out right-to-left, so the
+ * configuration would be rendered reversed. Matching the whole sequence here
+ * keeps it a single value.
+ *
+ * The same shape covers any other hyphen-joined numeric sequence (for example
+ * a figure reference such as `4-2`), which for the same reason must never be
+ * split into runs the surrounding direction can reorder. Hyphen-minus is the
+ * textbook spelling; the typographic minus is accepted as well.
+ */
+const NUMERIC_HYPHEN_SEQUENCE = String.raw`\d+(?:[-\u2212]\d+)+`
+
+/**
  * Tokens that must be bidi-isolated (rendered LTR) inside Arabic prose:
  *
+ *  0. a hyphen-joined numeric sequence — `2-8-8`, never `2` + `-8` + `-8`
  *  1. a value with an optional scientific exponent and optional unit
  *     — `5 kg`, `25 °C`, `9.8 m/s²`, `6.02×10²³ mol⁻¹`
  *  2. a Latin word or identifier, optionally chained into a short expression
@@ -29,12 +49,24 @@ const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺²³⁴⁵
  */
 const SCIENTIFIC_RUN = new RegExp(
   [
+    String.raw`(?:${NUMERIC_HYPHEN_SEQUENCE})`,
     String.raw`(?:${NUMBER}${EXPONENT}(?:\s?${UNIT})?)`,
     String.raw`(?:[A-Za-z][A-Za-z0-9_'’.\-]*(?:(?:\s?[=+\-−×÷·]\s?)[A-Za-z0-9_'’.\-]+)*)`,
     String.raw`(?:[=+\-−×÷·]\s?${NUMBER})`,
   ].join('|'),
   'gu',
 )
+
+/**
+ * Builds a science run. Hyphen-joined numeric sequences that read as shell
+ * occupancies are tagged so the renderer can promote them to the structured
+ * <ElectronConfiguration /> notation instead of a generic isolate.
+ */
+function scienceRun(value: string): ScientificRun {
+  return isElectronConfiguration(value)
+    ? { kind: 'science', value, notation: 'electron-configuration' }
+    : { kind: 'science', value }
+}
 
 /**
  * Splits mixed Arabic/scientific prose into ordered runs.
@@ -61,7 +93,7 @@ export function splitScientificRuns(input: string): ScientificRun[] {
     if (match.index > cursor) {
       runs.push({ kind: 'prose', value: input.slice(cursor, match.index) })
     }
-    runs.push({ kind: 'science', value })
+    runs.push(scienceRun(value))
     cursor = match.index + value.length
   }
 
@@ -76,6 +108,89 @@ export function splitScientificRuns(input: string): ScientificRun[] {
 export function containsScientificRun(input: string): boolean {
   return splitScientificRuns(input).some((run) => run.kind === 'science')
 }
+
+/* ---------------------------------------------------------------------------
+ * Electron configurations (`2-8-8`, `2-8-18-8`)
+ * ------------------------------------------------------------------------ */
+
+/** One rendered piece of a configuration: a shell count or its separator. */
+export type ElectronConfigurationToken = {
+  kind: 'shell' | 'separator'
+  /** The exact character(s) from the source; never rewritten or reordered. */
+  value: string
+}
+
+export type ParsedElectronConfiguration = {
+  /** The value exactly as authored. */
+  value: string
+  /** Shell occupancies in textbook order, e.g. `['2', '8', '8']`. */
+  shells: string[]
+  /** Verbatim tokens, alternating shell counts and separators. */
+  tokens: ElectronConfigurationToken[]
+}
+
+/**
+ * Maximum number of electrons in the n-th principal shell (n is 1-based):
+ * the textbook rule y = 2n². Used only to tell a real shell occupancy list
+ * from an ordinary hyphen-joined number such as a figure reference (`4-2`).
+ */
+function shellCapacity(shellIndex: number): number {
+  return 2 * (shellIndex + 1) ** 2
+}
+
+/** Anchor the same shape used by the splitter, so both stay in step. */
+const NUMERIC_HYPHEN_SEQUENCE_PATTERN = new RegExp(`^${NUMERIC_HYPHEN_SEQUENCE}$`, 'u')
+
+/**
+ * Reads an electron configuration as shell occupancies.
+ *
+ * Returns `null` when the value is not a hyphen-joined numeric sequence or when
+ * the numbers could not be shell occupancies (each term must fit 2n² and be
+ * non-zero), so an unrelated number range is never labelled as a distribution.
+ * The parsed `value` and every token are the source characters verbatim — the
+ * helper never inserts, removes or reorders anything.
+ */
+export function parseElectronConfiguration(value: string): ParsedElectronConfiguration | null {
+  const input = value.trim()
+  if (!NUMERIC_HYPHEN_SEQUENCE_PATTERN.test(input)) return null
+
+  const shells: string[] = []
+  const separators: string[] = []
+  let index = 0
+  while (index < input.length) {
+    let digits = ''
+    while (index < input.length && /\d/.test(input[index]!)) {
+      digits += input[index]
+      index += 1
+    }
+    if (digits !== '') shells.push(digits)
+    if (index >= input.length) break
+    separators.push(input[index]!)
+    index += 1
+  }
+
+  if (shells.length !== separators.length + 1) return null
+
+  const plausible = shells.every((shell, position) => {
+    const count = Number(shell)
+    return Number.isInteger(count) && count >= 1 && count <= shellCapacity(position)
+  })
+  if (!plausible) return null
+
+  const tokens: ElectronConfigurationToken[] = []
+  shells.forEach((shell, position) => {
+    if (position > 0) tokens.push({ kind: 'separator', value: separators[position - 1]! })
+    tokens.push({ kind: 'shell', value: shell })
+  })
+
+  return { value: input, shells, tokens }
+}
+
+/** True when the value is a hyphen-joined sequence of plausible shell counts. */
+export function isElectronConfiguration(value: string): boolean {
+  return parseElectronConfiguration(value) !== null
+}
+
 
 /* ---------------------------------------------------------------------------
  * Charge handling (ions, standalone charge values, nuclear particles)

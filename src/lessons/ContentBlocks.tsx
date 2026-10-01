@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import {
   ChemicalEquation,
   ChemicalFormula,
+  ElectronConfiguration,
   IonNotation,
   LewisStructure,
   MathFormula,
@@ -17,6 +18,7 @@ import {
 } from '@/scientific'
 import { InteractiveHost } from '@/components/InteractiveHost'
 import { parseCompactNuclearNotation } from '@/scientific/NuclearNotation'
+import { isElectronConfiguration } from '@/utils/scientificText'
 import type { ContentBlock } from '@/data/curriculum/schema'
 
 export type ContentBlocksProps = {
@@ -280,6 +282,12 @@ function Block({
 }
 
 function renderScientificTableCell(value: string): ReactNode {
+  // A distribution column such as `2-8-8` is one value: never split it into
+  // runs the RTL table cell could reorder.
+  if (isElectronConfiguration(value)) {
+    return <ElectronConfiguration value={value} size="sm" />
+  }
+
   const nuclear = parseCompactNuclearNotation(value)
   if (nuclear) {
     return (

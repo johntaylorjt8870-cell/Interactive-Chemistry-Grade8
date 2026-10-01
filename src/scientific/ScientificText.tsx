@@ -1,5 +1,6 @@
 import type { CSSProperties, ElementType, ReactNode } from 'react'
 import { splitScientificRuns } from '@/utils/scientificText'
+import { ElectronConfiguration } from './ElectronConfiguration'
 
 /* ============================================================================
    ScientificText — the bidi boundary of the whole platform.
@@ -114,15 +115,19 @@ export function ScientificText<T extends ElementType = 'span'>({
 
   return (
     <Component className={className}>
-      {runs.map((run, index) =>
-        run.kind === 'science' ? (
+      {runs.map((run, index) => {
+        if (run.kind !== 'science') return <span key={index}>{run.value}</span>
+        // Electron configurations get one structured isolate instead of a
+        // chain of separate runs the RTL paragraph could reorder.
+        if (run.notation === 'electron-configuration') {
+          return <ElectronConfiguration key={index} value={run.value} />
+        }
+        return (
           <Sci key={index} variant={scienceVariant}>
             {run.value}
           </Sci>
-        ) : (
-          <span key={index}>{run.value}</span>
-        ),
-      )}
+        )
+      })}
     </Component>
   )
 }

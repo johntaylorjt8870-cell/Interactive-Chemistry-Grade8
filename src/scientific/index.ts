@@ -9,6 +9,7 @@
  *  - <MathFormula />        KaTeX mathematics (fractions, roots, powers)
  *  - <ChemicalFormula />    subscripts and groups (H₂O, Ca(OH)₂)
  *  - <ChemicalEquation />   balanced reaction chains (A + B → C)
+ *  - <ElectronConfiguration /> one LTR isolate for a distribution (2-8-8)
  *  - <IonNotation />        ions with conventional charge order (Ca²⁺, SO₄²⁻)
  *  - <ChargeValue />        standalone charges, sign first (−2, +2)
  *  - <NuclearNotation />    mass number / atomic number / symbol
@@ -22,6 +23,9 @@
 
 export { Sci, ScientificText, SciSub, SciSup } from './ScientificText'
 export type { SciProps, ScientificTextProps, SciVariant, ScriptProps } from './ScientificText'
+export { ElectronConfiguration } from './ElectronConfiguration'
+export type { ElectronConfigurationProps, ElectronConfigurationSize } from './ElectronConfiguration'
+
 export { ScientificNotationText } from './ScientificNotationText'
 export type { ScientificNotationTextProps } from './ScientificNotationText'
 
