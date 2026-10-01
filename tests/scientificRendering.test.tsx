@@ -10,6 +10,7 @@ import {
   NuclearNotation,
   PlatformAddition,
   ScientificTable,
+  ScientificNotationText,
   ScientificText,
   ScientificValue,
   SciSub,
@@ -191,6 +192,32 @@ describe('IonNotation and ChargeValue — the two charge conventions', () => {
 
     expect(scientificComponentsCss).toMatch(/\.ion-notation__magnitude,\s*\.chem-formula__charge-magnitude\s*\{[^}]*grid-column:\s*1/s)
     expect(scientificComponentsCss).toMatch(/\.ion-notation__sign,\s*\.chem-formula__charge-sign\s*\{[^}]*grid-column:\s*2/s)
+  })
+
+  it.each([
+    ['K⁺', ['+']],
+    ['F⁻', ['−']],
+    ['Ca²⁺', ['2', '+']],
+    ['Ca²⁻', ['2', '−']],
+    ['O²⁻', ['2', '−']],
+    ['SO₄²⁻', ['2', '−']],
+    ['Na⁺', ['+']],
+    ['Fe³⁺', ['3', '+']],
+    ['Al³⁻', ['3', '−']],
+  ])('promotes compact %s in Arabic prose to structured, ordered ion DOM', (compactIon, expectedChargeNodes) => {
+    const { container } = render(
+      <p dir="rtl"><ScientificNotationText>{`${compactIon} — التوزيع قبل الفقد`}</ScientificNotationText></p>,
+    )
+    const ion = container.querySelector('.ion-notation')!
+    const run = ion.querySelector('.ion-notation__charge-run')!
+
+    expect(ion).toHaveAttribute('dir', 'ltr')
+    expect([...ion.children].map((child) => child.className)).toEqual([
+      'ion-notation__body',
+      'sci-sup ion-notation__charge',
+    ])
+    expect([...run.children].map((child) => child.textContent)).toEqual(expectedChargeNodes)
+    expect(ion.nextSibling?.textContent).toBe(' — التوزيع قبل الفقد')
   })
 
   it('renders a polyatomic ion with its subscript and charge', () => {
