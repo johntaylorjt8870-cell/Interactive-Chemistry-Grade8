@@ -1,0 +1,172 @@
+/* ============================================================================
+   Scientific typography layer
+   Arabic flows RTL. Scientific material is LTR and isolated at the component
+   level (see src/scientific/). This layer styles the isolated runs.
+   ========================================================================= */
+
+/* --- The isolation primitive ---------------------------------------------
+   `unicode-bidi: isolate` creates a neutral boundary so surrounding Arabic
+   cannot reorder the enclosed Latin/technical run, and `direction: ltr`
+   guarantees numbers precede their units (5 kg, 25 °C, 9.8 m/s²). */
+.sci {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+  letter-spacing: var(--sci-letter-spacing);
+  white-space: nowrap;
+}
+
+/* Display form: Latin letters and digits keep the text font for a softer
+   reading rhythm in prose (H₂O, Ca²⁺), while still isolated LTR. */
+.sci--textual {
+  font-family: var(--font-latin);
+  font-feature-settings: 'ss01' on, 'cv05' on;
+}
+
+.sci--inline {
+  white-space: normal;
+}
+
+/* Arabic inside an isolated run must flip back to RTL */
+.sci .rtl,
+.rtl {
+  direction: rtl;
+  unicode-bidi: isolate;
+  font-family: var(--font-arabic);
+}
+
+/* --- Script positions ----------------------------------------------------- */
+.sci-sup,
+.sci-sub {
+  font-size: var(--sci-sub-size);
+  line-height: 0;
+  position: relative;
+  font-feature-settings: normal;
+}
+
+.sci-sup {
+  vertical-align: baseline;
+  top: calc(-1 * var(--sci-sup-raise));
+}
+
+.sci-sub {
+  vertical-align: baseline;
+  bottom: var(--sci-sub-drop);
+}
+
+/* Superscripts must never inherit Arabic letter-spacing quirks */
+.sci-sup,
+.sci-sub {
+  letter-spacing: 0;
+}
+
+/* --- Formulae ------------------------------------------------------------- */
+.sci-formula {
+  display: inline-flex;
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+
+/* --- Values with units ---------------------------------------------------- */
+.sci-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28ch;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sci-value__number {
+  font-weight: var(--fw-semibold);
+}
+
+.sci-value__unit {
+  font-family: var(--font-mono);
+  font-size: 0.94em;
+  color: inherit;
+}
+
+/* --- Notation blocks (nuclear, Lewis) ------------------------------------- */
+.sci-notation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* --- KaTeX integration ---------------------------------------------------- */
+.math-formula {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  max-width: 100%;
+}
+
+.math-formula .katex {
+  font-size: 1.06em;
+  direction: ltr;
+  text-align: initial;
+}
+
+.math-formula--block {
+  display: block;
+  margin-inline: auto;
+  text-align: center;
+  padding-block: var(--space-1);
+}
+
+.math-formula--block .katex-display {
+  margin: 0;
+}
+
+.math-formula--block .katex-display > .katex {
+  font-size: 1.22em;
+}
+
+/* KaTeX renders its own scope class; keep colour inherited from the block */
+.math-formula .katex,
+.math-formula .katex * {
+  color: inherit;
+}
+
+/* --- Scientific code / symbol runs in prose ------------------------------- */
+.sci-token {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.05em 0.34em;
+  border-radius: var(--radius-xs);
+  background: var(--surface-code);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+/* --- Platform-addition marking -------------------------------------------
+   Reserved for the lesson phase: anything the platform adds around textbook
+   content must be visibly attributable to the platform, never to the book. */
+.platform-addition-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.15em 0.6em;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--accent-border-strong);
+  background: var(--accent-tint);
+  color: var(--accent-strong);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  white-space: nowrap;
+}

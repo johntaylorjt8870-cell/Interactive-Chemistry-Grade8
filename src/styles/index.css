@@ -1,0 +1,11 @@
+/* Style entry point — order matters:
+   1. tokens     design variables (colour, type, space, radius, motion)
+   2. base       resets, document defaults, focus policy
+   3. components shell, navigation, surfaces, lessons, assessment, teacher
+   4. scientific bidi isolation primitives and scientific typography
+   5. scientific-components notation components (formulae, ions, tables…) */
+@import './tokens.css';
+@import './base.css';
+@import './components.css';
+@import './scientific.css';
+@import './scientific-components.css';
