@@ -40,9 +40,11 @@ function renderNodes(nodes: FormulaNode[]): ReactNode {
             {node.subscript ? <SciSub>{node.subscript}</SciSub> : null}
             {node.charge ? (
               <SciSup className="chem-formula__charge">
-                <span className="chem-formula__charge-magnitude">{node.charge.magnitude}</span>
-                <span className="chem-formula__charge-sign">
-                  {node.charge.sign === '+' ? '+' : '\u2212'}
+                <span className="chem-formula__charge-run" dir="ltr">
+                  <span className="chem-formula__charge-magnitude">{node.charge.magnitude}</span>
+                  <span className="chem-formula__charge-sign">
+                    {node.charge.sign === '+' ? '+' : '\u2212'}
+                  </span>
                 </span>
               </SciSup>
             ) : null}
@@ -51,8 +53,10 @@ function renderNodes(nodes: FormulaNode[]): ReactNode {
       case 'charge':
         return (
           <SciSup key={index} className="chem-formula__charge">
-            <span className="chem-formula__charge-magnitude">{node.magnitude}</span>
-            <span className="chem-formula__charge-sign">{node.sign === '+' ? '+' : '\u2212'}</span>
+            <span className="chem-formula__charge-run" dir="ltr">
+              <span className="chem-formula__charge-magnitude">{node.magnitude}</span>
+              <span className="chem-formula__charge-sign">{node.sign === '+' ? '+' : '\u2212'}</span>
+            </span>
           </SciSup>
         )
       case 'literal':

@@ -75,10 +75,12 @@ export function IonNotation({
         <ChemicalFormula formula={formula} size={size} />
       </span>
       <SciSup className="ion-notation__charge">
-        {parsed.magnitude ? (
-          <span className="ion-notation__magnitude">{parsed.magnitude}</span>
-        ) : null}
-        {sign ? <span className="ion-notation__sign">{sign}</span> : null}
+        <span className="ion-notation__charge-run" dir="ltr">
+          {parsed.magnitude ? (
+            <span className="ion-notation__magnitude">{parsed.magnitude}</span>
+          ) : null}
+          {sign ? <span className="ion-notation__sign">{sign}</span> : null}
+        </span>
       </SciSup>
     </span>
   )
@@ -153,9 +155,11 @@ export function SubscriptedIon({ symbol, index, charge, className }: Subscripted
       </span>
       {parsed ? (
         <SciSup className="ion-notation__charge">
-          <span className="ion-notation__magnitude">{parsed.magnitude}</span>
-          <span className="ion-notation__sign">
-            {parsed.sign === '+' ? '+' : parsed.sign === '-' ? '\u2212' : ''}
+          <span className="ion-notation__charge-run" dir="ltr">
+            <span className="ion-notation__magnitude">{parsed.magnitude}</span>
+            <span className="ion-notation__sign">
+              {parsed.sign === '+' ? '+' : parsed.sign === '-' ? '\u2212' : ''}
+            </span>
           </span>
         </SciSup>
       ) : null}

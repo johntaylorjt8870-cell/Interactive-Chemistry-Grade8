@@ -131,19 +131,44 @@
 .ion-notation__charge {
   grid-column: 2;
   grid-row: 1;
-  display: inline-flex;
-  flex-direction: row;
-  align-items: flex-start;
+  display: inline-block;
   direction: ltr;
   unicode-bidi: isolate;
   position: static;
   inset: auto;
   transform: translateY(-0.12em);
-  gap: 0.015em;
   margin-inline-start: 0.025em;
   font-family: var(--font-latin);
   font-size: 0.62em;
   line-height: 1;
+}
+
+.ion-notation__charge-run,
+.chem-formula__charge-run {
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  grid-template-rows: 1fr;
+  column-gap: 0.015em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  isolation: isolate;
+  white-space: nowrap;
+}
+
+.ion-notation__magnitude,
+.chem-formula__charge-magnitude {
+  grid-column: 1;
+  grid-row: 1;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.ion-notation__sign,
+.chem-formula__charge-sign {
+  grid-column: 2;
+  grid-row: 1;
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 .ion-stacked {
@@ -176,11 +201,24 @@
 }
 
 .ion-stacked__charge {
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  direction: ltr;
+  unicode-bidi: isolate;
+  isolation: isolate;
   font-family: var(--font-latin);
   font-size: 0.58em;
   line-height: 1;
   color: var(--accent-strong);
   padding-inline-end: 0.1em;
+}
+
+.ion-stacked__magnitude {
+  grid-column: 1;
+}
+
+.ion-stacked__sign {
+  grid-column: 2;
 }
 
 .ion-stacked__body {
