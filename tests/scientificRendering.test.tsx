@@ -10,12 +10,16 @@ import {
   NuclearNotation,
   PlatformAddition,
   ScientificTable,
+  ScientificNotationText,
   ScientificText,
   ScientificValue,
   SciSub,
   SciSup,
   TextbookSource,
 } from '@/scientific'
+import { readProjectFile } from './utils/projectFiles'
+
+const scientificComponentsCss = readProjectFile('src/styles/scientific-components.css')
 
 /** Every scientific component must declare its own direction explicitly. */
 function expectIsolatedLtr(element: Element) {
@@ -149,6 +153,73 @@ describe('IonNotation and ChargeValue — the two charge conventions', () => {
     expect(charge.querySelector('.ion-notation__sign')!.textContent).toBe('+')
   })
 
+  it.each([
+    ['Ca', '2+', '2+'],
+    ['K', '+', '+'],
+    ['F', '-', '−'],
+    ['O', '2-', '2−'],
+    ['Na', '+', '+'],
+    ['Cl', '-', '−'],
+    ['SO4', '2-', '2−'],
+  ])('keeps the charge at the upper-right of %s in magnitude-sign order', (formula, chargeInput, expectedCharge) => {
+    const { container } = render(<div dir="rtl"><IonNotation formula={formula} charge={chargeInput} /></div>)
+    const ion = container.querySelector('.ion-notation')!
+    const charge = ion.querySelector('.ion-notation__charge')!
+
+    expectIsolatedLtr(ion)
+    expect([...ion.children].map((child) => child.className)).toEqual([
+      'ion-notation__body',
+      'sci-sup ion-notation__charge',
+    ])
+    const chargeRun = charge.querySelector('.ion-notation__charge-run')!
+    expect(chargeRun).toHaveAttribute('dir', 'ltr')
+    expect([...chargeRun.children].map((child) => child.className)).toEqual(
+      expectedCharge.length === 1 ? ['ion-notation__sign'] : ['ion-notation__magnitude', 'ion-notation__sign'],
+    )
+    expect(charge.textContent).toBe(expectedCharge)
+    expect(ion.getAttribute('data-ion')).toBe(`${formula}${expectedCharge}`)
+  })
+
+  it('locks the Ca charge sign into the grid column physically right of its magnitude', () => {
+    const positive = render(<div dir="rtl"><IonNotation formula="Ca" charge="2+" /></div>)
+    const positiveRun = positive.container.querySelector('.ion-notation__charge-run')!
+    expect([...positiveRun.children].map((child) => child.textContent)).toEqual(['2', '+'])
+    positive.unmount()
+
+    const negative = render(<div dir="rtl"><IonNotation formula="Ca" charge="2-" /></div>)
+    const negativeRun = negative.container.querySelector('.ion-notation__charge-run')!
+    expect([...negativeRun.children].map((child) => child.textContent)).toEqual(['2', '−'])
+
+    expect(scientificComponentsCss).toMatch(/\.ion-notation__magnitude,\s*\.chem-formula__charge-magnitude\s*\{[^}]*grid-column:\s*1/s)
+    expect(scientificComponentsCss).toMatch(/\.ion-notation__sign,\s*\.chem-formula__charge-sign\s*\{[^}]*grid-column:\s*2/s)
+  })
+
+  it.each([
+    ['K⁺', ['+']],
+    ['F⁻', ['−']],
+    ['Ca²⁺', ['2', '+']],
+    ['Ca²⁻', ['2', '−']],
+    ['O²⁻', ['2', '−']],
+    ['SO₄²⁻', ['2', '−']],
+    ['Na⁺', ['+']],
+    ['Fe³⁺', ['3', '+']],
+    ['Al³⁻', ['3', '−']],
+  ])('promotes compact %s in Arabic prose to structured, ordered ion DOM', (compactIon, expectedChargeNodes) => {
+    const { container } = render(
+      <p dir="rtl"><ScientificNotationText>{`${compactIon} — التوزيع قبل الفقد`}</ScientificNotationText></p>,
+    )
+    const ion = container.querySelector('.ion-notation')!
+    const run = ion.querySelector('.ion-notation__charge-run')!
+
+    expect(ion).toHaveAttribute('dir', 'ltr')
+    expect([...ion.children].map((child) => child.className)).toEqual([
+      'ion-notation__body',
+      'sci-sup ion-notation__charge',
+    ])
+    expect([...run.children].map((child) => child.textContent)).toEqual(expectedChargeNodes)
+    expect(ion.nextSibling?.textContent).toBe(' — التوزيع قبل الفقد')
+  })
+
   it('renders a polyatomic ion with its subscript and charge', () => {
     const { container } = render(<IonNotation formula="SO4" charge="2-" />)
 
@@ -160,7 +231,7 @@ describe('IonNotation and ChargeValue — the two charge conventions', () => {
   it('renders a bare charge sign for single-charge ions', () => {
     const { container } = render(<IonNotation formula="Cl" charge="-" />)
     expect(container.querySelector('.ion-notation__sign')!.textContent).toBe('\u2212')
-    // A bare sign renders no magnitude element at all (no empty placeholder).
+    // A bare sign renders no magnitude element at all (no empty blank marker).
     expect(container.querySelector('.ion-notation__magnitude')).toBeNull()
   })
 
@@ -202,7 +273,7 @@ describe('NuclearNotation', () => {
     expect(notation.getAttribute('data-rows')).toBe('2')
   })
 
-  it('does not leave empty placeholder positions when a number is missing', () => {
+  it('does not leave empty blank marker positions when a number is missing', () => {
     const { container } = render(<NuclearNotation symbol="C" massNumber={12} />)
     const notation = container.querySelector('.nuclear-notation')!
 

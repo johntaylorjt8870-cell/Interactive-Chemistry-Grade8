@@ -7,13 +7,16 @@ import {
   MathFormula,
   NuclearNotation,
   PlatformAddition,
+  Sci,
   ScientificDiagram,
+  ScientificNotationText,
   ScientificTable,
   ScientificText,
   ScientificValue,
   TextbookSource,
 } from '@/scientific'
 import { InteractiveHost } from '@/components/InteractiveHost'
+import { parseCompactNuclearNotation } from '@/scientific/NuclearNotation'
 import type { ContentBlock } from '@/data/curriculum/schema'
 
 export type ContentBlocksProps = {
@@ -122,7 +125,7 @@ function Block({
       return (
         <span className="content-inline-notation">
           <ChemicalFormula formula={block.formula} display="block" size="lg" />
-          {block.caption ? <span className="content-inline-notation__caption">{block.caption}</span> : null}
+          {block.caption ? <ScientificNotationText as="span" className="content-inline-notation__caption">{block.caption}</ScientificNotationText> : null}
         </span>
       )
 
@@ -136,7 +139,7 @@ function Block({
             condition={block.condition}
             className="chem-equation--block"
           />
-          {block.caption ? <span className="content-inline-notation__caption">{block.caption}</span> : null}
+          {block.caption ? <ScientificNotationText as="span" className="content-inline-notation__caption">{block.caption}</ScientificNotationText> : null}
         </span>
       )
 
@@ -157,7 +160,7 @@ function Block({
       return (
         <span className="content-inline-notation">
           <IonNotation formula={block.formula} charge={block.charge} size="lg" />
-          {block.caption ? <span className="content-inline-notation__caption">{block.caption}</span> : null}
+          {block.caption ? <ScientificNotationText as="span" className="content-inline-notation__caption">{block.caption}</ScientificNotationText> : null}
         </span>
       )
 
@@ -170,7 +173,7 @@ function Block({
             atomicNumber={block.atomicNumber}
             size="lg"
           />
-          {block.caption ? <span className="content-inline-notation__caption">{block.caption}</span> : null}
+          {block.caption ? <ScientificNotationText as="span" className="content-inline-notation__caption">{block.caption}</ScientificNotationText> : null}
         </span>
       )
 
@@ -189,7 +192,14 @@ function Block({
         <ScientificTable
           caption={block.caption}
           columns={block.columns.map((column) => ({ ...column }))}
-          rows={block.rows.map((row) => ({ id: row.id, cells: row.cells, selected: row.selected, active: row.active }))}
+          rows={block.rows.map((row) => ({
+            id: row.id,
+            cells: Object.fromEntries(
+              Object.entries(row.cells).map(([key, value]) => [key, renderScientificTableCell(value)]),
+            ),
+            selected: row.selected,
+            active: row.active,
+          }))}
           footnote={block.footnote}
         />
       )
@@ -267,6 +277,26 @@ function Block({
         </div>
       )
   }
+}
+
+function renderScientificTableCell(value: string): ReactNode {
+  const nuclear = parseCompactNuclearNotation(value)
+  if (nuclear) {
+    return (
+      <NuclearNotation
+        symbol={nuclear.symbol}
+        massNumber={nuclear.massNumber}
+        atomicNumber={nuclear.atomicNumber}
+        size="sm"
+      />
+    )
+  }
+
+  if (/^[A-Za-z0-9₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹+−\-×÷=().,\s]+$/u.test(value) && /[A-Za-z0-9]/.test(value)) {
+    return <Sci variant="textual">{value}</Sci>
+  }
+
+  return <ScientificText scienceVariant="textual">{value}</ScientificText>
 }
 
 function Prose({ text }: { text: string }) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
-import { ScientificText, ScientificValue } from '@/scientific'
+import { IonNotation, ScientificText, ScientificValue } from '@/scientific'
 import { splitScientificRuns } from '@/utils/scientificText'
 import { readProjectFile } from './utils/projectFiles'
 
@@ -77,6 +77,18 @@ describe('unit ordering inside Arabic prose', () => {
     expect(text).not.toContain('°C 25')
     expect(text).toContain('5 kg')
     expect(text).toContain('25 °C')
+  })
+})
+
+describe('ionic charge ordering inside RTL', () => {
+  it('keeps formula then magnitude then sign in an explicit LTR isolate', () => {
+    const { container } = render(<p dir="rtl">أيون <IonNotation formula="Ca" charge="2+" /> هنا</p>)
+    const ion = container.querySelector('.ion-notation')!
+
+    expect(ion).toHaveAttribute('dir', 'ltr')
+    expect([...ion.children].map((child) => child.textContent)).toEqual(['Ca', '2+'])
+    expect(ion.textContent).toBe('Ca2+')
+    expect(ion.textContent).not.toBe('Ca+2')
   })
 })
 

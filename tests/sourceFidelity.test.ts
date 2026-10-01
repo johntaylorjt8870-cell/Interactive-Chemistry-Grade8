@@ -41,22 +41,25 @@ const verifiedSource: SourceReference = {
   },
 }
 
-describe('curriculum registry — empty until the textbook is supplied', () => {
+describe('curriculum registry — first verified chemistry lesson', () => {
   it('exposes both subjects', () => {
     expect(listSubjects().map((subject) => subject.id)).toEqual([...SUBJECT_IDS])
   })
 
-  it('has no invented units or lessons anywhere', () => {
-    for (const subject of SUBJECT_IDS) {
-      expect(listUnits(subject)).toEqual([])
-      expect(isSubjectPopulated(subject)).toBe(false)
-      expect(getSubjectDefinition(subject).status).toBe('awaiting-source')
-    }
-    expect(isCurriculumEmpty()).toBe(true)
-    expect(curriculumStats()).toEqual({ units: 0, lessons: 0, steps: 0 })
+  it('publishes only the verified chemistry unit and keeps physics pending', () => {
+    expect(listUnits('physics')).toEqual([])
+    expect(isSubjectPopulated('physics')).toBe(false)
+    expect(getSubjectDefinition('physics').status).toBe('awaiting-source')
+
+    expect(listUnits('chemistry')).toHaveLength(1)
+    expect(isSubjectPopulated('chemistry')).toBe(true)
+    expect(getSubjectDefinition('chemistry').status).toBe('source-verified')
+    expect(getLesson('chemistry', 'structural-chemistry', 'atom-and-element')?.title).toContain('الذرّة والعنصر')
+    expect(isCurriculumEmpty()).toBe(false)
+    expect(curriculumStats()).toEqual({ units: 1, lessons: 1, steps: 17 })
   })
 
-  it('returns nothing for unknown slugs instead of falling back to fake content', () => {
+  it('returns nothing for unknown slugs instead of falling back to fabricated content', () => {
     expect(getUnit('physics', 'unit-1')).toBeUndefined()
     expect(getLesson('physics', 'unit-1', 'lesson-1')).toBeUndefined()
     expect(getStep('chemistry', 'unit-1', 'lesson-1', 'step-1')).toBeUndefined()
@@ -195,8 +198,11 @@ describe('fidelity validators', () => {
     expect(summariseReadability(partial)).toContain('الأشكال: غير مقروء')
   })
 
-  it('ships both subjects with empty unit lists in the live registry', () => {
+  it('ships the verified lesson with pages 3–12 and leaves physics empty', () => {
     expect(curriculum.physics.units).toEqual([])
-    expect(curriculum.chemistry.units).toEqual([])
+    const lesson = curriculum.chemistry.units[0]!.lessons[0]!
+    expect(lesson.source.verified).toBe(true)
+    expect(lesson.source.pages.map((page) => page.page)).toEqual(['3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
+    expect(lesson.tests?.find((test) => test.id.endsWith('final'))?.questions).toHaveLength(15)
   })
 })

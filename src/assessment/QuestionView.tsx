@@ -1,6 +1,6 @@
 import { useId, useMemo } from 'react'
 import type { ReactNode } from 'react'
-import { ScientificTable } from '@/scientific'
+import { ScientificNotationText, ScientificTable } from '@/scientific'
 import type {
   Choice,
   MatchingQuestion,
@@ -56,7 +56,7 @@ export function QuestionView({
         </span>
         <div className="question__heading">
           <p className="question__prompt" id={`${groupId}-prompt`}>
-            {question.prompt}
+            <ScientificNotationText>{question.prompt}</ScientificNotationText>
           </p>
           <p className="question__meta">
             <span className="badge badge--ghost">
@@ -75,10 +75,10 @@ export function QuestionView({
 
       <div className="question__body">{renderControl()}</div>
 
-      {question.hint ? <p className="question__hint">تلميح: {question.hint}</p> : null}
+      {question.hint ? <p className="question__hint">تلميح: <ScientificNotationText>{question.hint}</ScientificNotationText></p> : null}
 
       {mode === 'solution' && question.explanation ? (
-        <p className="question__explanation">{question.explanation}</p>
+        <p className="question__explanation"><ScientificNotationText>{question.explanation}</ScientificNotationText></p>
       ) : null}
     </section>
   )
@@ -118,7 +118,7 @@ export function QuestionView({
                       }
                     }}
                   />
-                  <span className="choice__label">{option.label}</span>
+                  <ScientificNotationText as="span" className="choice__label">{option.label}</ScientificNotationText>
                   {isCorrect ? <span className="badge badge--success">الإجابة الصحيحة</span> : null}
                 </label>
               )
@@ -144,7 +144,7 @@ export function QuestionView({
                   checked={current === option.bool}
                   onChange={() => onChange({ type: 'boolean', value: option.bool })}
                 />
-                <span className="choice__label">{option.label}</span>
+                <ScientificNotationText as="span" className="choice__label">{option.label}</ScientificNotationText>
                 {mode === 'solution' && question.correctAnswer === option.bool ? (
                   <span className="badge badge--success">الإجابة الصحيحة</span>
                 ) : null}
@@ -246,7 +246,7 @@ export function QuestionView({
             </label>
             {mode === 'solution' ? (
               <div className="question__solution">
-                <p>الإجابة المرجعية: {question.referenceAnswer}</p>
+                <p>الإجابة المرجعية: <ScientificNotationText>{question.referenceAnswer}</ScientificNotationText></p>
                 {question.rubric ? (
                   <ul className="rubric">
                     {question.rubric.map((item, rubricIndex) => (
@@ -339,7 +339,7 @@ function OrderingControl({
             <span className="ordering__position" aria-hidden="true">
               {position + 1}
             </span>
-            <span className="ordering__label">{item.label}</span>
+            <ScientificNotationText as="span" className="ordering__label">{item.label}</ScientificNotationText>
             {mode === 'attempt' ? (
               <span className="ordering__actions">
                 <button
@@ -402,7 +402,7 @@ function MatchingControl({
         const correctRightId = question.pairs.find((pair) => pair.leftId === left.id)?.rightId
         return (
           <div className="matching__row" key={left.id}>
-            <span className="matching__left">{left.label}</span>
+            <ScientificNotationText as="span" className="matching__left">{left.label}</ScientificNotationText>
             <label className="field field--inline">
               <span className="visually-hidden">مطابقة {left.label}</span>
               <select

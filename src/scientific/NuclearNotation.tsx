@@ -1,6 +1,33 @@
 import type { ReactNode } from 'react'
 import { SciSup } from './ScientificText'
 
+const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
+const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
+
+function scriptDigitsToPlain(value: string, alphabet: string): string {
+  return [...value].map((digit) => String(alphabet.indexOf(digit))).join('')
+}
+
+/**
+ * Reads compact source text such as `³⁵₁₇Cl` or `₁₃Al` into structured values.
+ * Rendering still uses independent DOM elements; Unicode script characters
+ * are accepted only as a serialised input form for table data.
+ */
+export function parseCompactNuclearNotation(value: string): {
+  symbol: string
+  massNumber?: string
+  atomicNumber: string
+} | null {
+  const match = value.trim().match(/^([⁰¹²³⁴⁵⁶⁷⁸⁹]+)?([₀₁₂₃₄₅₆₇₈₉]+)([A-Z][a-z]?)$/u)
+  if (!match) return null
+  const [, mass = '', atomic, symbol] = match
+  return {
+    symbol: symbol!,
+    ...(mass ? { massNumber: scriptDigitsToPlain(mass, SUPERSCRIPT_DIGITS) } : {}),
+    atomicNumber: scriptDigitsToPlain(atomic!, SUBSCRIPT_DIGITS),
+  }
+}
+
 export type NuclearNotationProps = {
   /** Chemical symbol, e.g. `C`, `U`, `He`. */
   symbol: string
@@ -22,10 +49,10 @@ export type NuclearNotationProps = {
  *   mass number    → upper-left of the symbol
  *   atomic number  → lower-left of the symbol
  *
- * Absent values render nothing at all: no empty placeholder slots are left
- * behind. The layout adapts (one row when only one of the numbers is given,
- * two rows when both are), so the symbol always stays vertically centred on
- * the numbers that actually exist.
+ * Absent values render no decorative content. A compact two-row index stack
+ * keeps the mass number in the upper-left position and the atomic number in
+ * the lower-left position, while the Latin symbol remains vertically centred
+ * and visually attached to that stack.
  */
 export function NuclearNotation({
   symbol,

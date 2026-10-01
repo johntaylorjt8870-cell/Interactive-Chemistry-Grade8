@@ -172,7 +172,7 @@ export type LessonProgressView = {
   completed: boolean
 }
 
-/** Percentages are computed from real step ids only; nothing is faked. */
+/** Percentages are computed from real step ids only; nothing is fabricated. */
 export function computeLessonProgress(
   lesson: Pick<LessonDefinition, 'id' | 'steps'>,
   entry: LessonProgressEntry | undefined,

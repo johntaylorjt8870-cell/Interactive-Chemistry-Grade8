@@ -104,17 +104,79 @@
 
 /* --- Ions ----------------------------------------------------------------- */
 
-.ion-notation,
+.ion-notation {
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  grid-template-rows: 1fr;
+  align-items: start;
+  direction: ltr;
+  unicode-bidi: isolate;
+  isolation: isolate;
+  color: var(--text-strong);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.ion-notation__body {
+  grid-column: 1;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  line-height: 1;
+}
+
+.ion-notation__charge {
+  grid-column: 2;
+  grid-row: 1;
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  position: static;
+  inset: auto;
+  margin-inline-start: 0.025em;
+  font-family: var(--font-latin);
+  font-size: 0.62em;
+  line-height: 1;
+}
+
+.ion-notation__charge-run,
+.chem-formula__charge-run {
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  grid-template-rows: 1fr;
+  column-gap: 0.015em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  isolation: isolate;
+  white-space: nowrap;
+}
+
+.ion-notation__magnitude,
+.chem-formula__charge-magnitude {
+  grid-column: 1;
+  grid-row: 1;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.ion-notation__sign,
+.chem-formula__charge-sign {
+  grid-column: 2;
+  grid-row: 1;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 .ion-stacked {
   display: inline-flex;
   align-items: baseline;
   direction: ltr;
   unicode-bidi: isolate;
+  isolation: isolate;
   color: var(--text-strong);
-}
-
-.ion-notation__charge {
-  font-size: 0.62em;
 }
 
 .ion-notation--sm {
@@ -138,11 +200,24 @@
 }
 
 .ion-stacked__charge {
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  direction: ltr;
+  unicode-bidi: isolate;
+  isolation: isolate;
   font-family: var(--font-latin);
   font-size: 0.58em;
   line-height: 1;
   color: var(--accent-strong);
   padding-inline-end: 0.1em;
+}
+
+.ion-stacked__magnitude {
+  grid-column: 1;
+}
+
+.ion-stacked__sign {
+  grid-column: 2;
 }
 
 .ion-stacked__body {
@@ -191,48 +266,66 @@
 /* --- Nuclear notation ----------------------------------------------------- */
 
 .nuclear-notation {
-  display: inline-flex;
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  grid-template-rows: 1fr;
   align-items: center;
-  gap: 0.12em;
+  column-gap: 0.025em;
   direction: ltr;
   unicode-bidi: isolate;
+  isolation: isolate;
   font-family: var(--font-latin);
+  font-variant-ligatures: none;
   color: var(--text-strong);
   line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .nuclear-notation__numbers {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.08em;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  align-self: stretch;
+  align-items: center;
+  justify-items: end;
+  min-inline-size: 0.72em;
+  margin-inline-end: -0.02em;
 }
 
 .nuclear-notation__mass,
 .nuclear-notation__atomic {
-  font-size: 0.52em;
+  display: block;
+  font-size: 0.5em;
   font-variant-numeric: tabular-nums;
-  line-height: 1.05;
+  letter-spacing: -0.025em;
+  line-height: 0.92;
 }
 
 .nuclear-notation__mass {
+  grid-row: 1;
+  align-self: end;
   color: var(--accent-strong);
 }
 
 .nuclear-notation__atomic {
+  grid-row: 2;
+  align-self: start;
   color: var(--text-muted);
 }
 
 .nuclear-notation__symbol {
   display: inline-flex;
-  align-items: flex-start;
-  font-size: 1.5em;
+  align-items: center;
+  align-self: center;
+  font-size: 1.38em;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 
 .nuclear-notation__charge {
   font-size: 0.5em;
-  margin-inline-start: 0.06em;
+  margin-inline-start: 0.04em;
 }
 
 .nuclear-notation--sm {

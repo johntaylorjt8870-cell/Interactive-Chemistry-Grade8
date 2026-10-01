@@ -11,7 +11,7 @@ import { NotFound } from './NotFound'
 
 /**
  * Unit page. It renders the real unit when the registry contains one, and an
- * honest pending state when it does not — it never invents a placeholder unit.
+ * honest pending state when it does not — it never invents a blank marker unit.
  */
 export function UnitView() {
   const { subject, unitSlug } = useParams<{ subject: string; unitSlug: string }>()

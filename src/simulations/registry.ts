@@ -32,7 +32,47 @@ export type InteractiveDefinition = {
   load: () => Promise<{ default: ComponentType<InteractiveProps> }>
 }
 
-const registry = new Map<string, InteractiveDefinition>()
+const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
+  {
+    id: 'bohr-energy-transition',
+    title: 'انتقالات الطاقة في نموذج بور',
+    kind: 'simulation',
+    description: 'نقل إلكترون بين السويات وملاحظة امتصاص الطاقة أو إصدارها على شكل ضوء.',
+    load: () => import('./BohrEnergyTransition'),
+  },
+  {
+    id: 'ion-formation-lab',
+    title: 'تشكّل الأيونات',
+    kind: 'simulation',
+    description: 'تحريك الإلكترون ومقارنة أعداد البروتونات والإلكترونات والشحنة الناتجة.',
+    load: () => import('./IonFormationLab'),
+  },
+  {
+    id: 'rutherford-scattering',
+    title: 'محاكاة تجربة رذرفورد',
+    kind: 'experiment',
+    description: 'إطلاق جسيمات ألفا وقياس مسارات النفاذ والانحراف والارتداد.',
+    load: () => import('./RutherfordScattering'),
+  },
+  {
+    id: 'electron-shell-builder',
+    title: 'باني التوزيع الإلكتروني',
+    kind: 'simulation',
+    description: 'إضافة الإلكترونات فعلياً إلى السويات وقراءة التوزع الناتج.',
+    load: () => import('./ElectronShellBuilder'),
+  },
+  {
+    id: 'isotope-lab',
+    title: 'مختبر نظائر الأكسجين',
+    kind: 'simulation',
+    description: 'تغيير عدد النيوترونات مع تثبيت البروتونات ومراقبة العدد الكتلي.',
+    load: () => import('./IsotopeLab'),
+  },
+]
+
+const registry = new Map<string, InteractiveDefinition>(
+  BUILT_IN_INTERACTIVES.map((definition) => [definition.id, definition]),
+)
 
 /** Registers an interactive module. Throws on duplicate ids, loudly. */
 export function defineInteractive(definition: InteractiveDefinition): InteractiveDefinition {

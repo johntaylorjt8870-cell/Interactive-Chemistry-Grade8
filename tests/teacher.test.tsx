@@ -166,7 +166,7 @@ describe('teacher area routes', () => {
     expect(container.querySelectorAll('.teacher-section')).toHaveLength(3)
   })
 
-  it('shows honest empty states for the three teacher sections', async () => {
+  it('shows the lesson-specific book solutions after access', async () => {
     const user = userEvent.setup()
     renderApp('/teacher/book-solutions')
 
@@ -174,8 +174,9 @@ describe('teacher area routes', () => {
     await user.click(screen.getByRole('button', { name: 'دخول مساحة المعلم' }))
 
     expect(await screen.findByRole('heading', { level: 1, name: 'حلول أسئلة الكتاب' })).toBeInTheDocument()
-    expect(screen.getByText('لا توجد حلول بعد')).toBeInTheDocument()
-    expect(screen.getByText(/لن يُنشر أي حل لسؤال لم يُقرأ من الكتاب المدرسي/)).toBeInTheDocument()
+    expect(screen.getByText('الدرس الأول — كيمياء: الذرّة والعنصر', { selector: '.teacher-lesson-tab' })).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.classList.contains('teacher-answer__result') === true && element.textContent?.includes('K(2), L(8), M(1)') === true)).toBeInTheDocument()
+    expect(screen.getAllByText(/التفسير وخطوات الحل/).length).toBeGreaterThan(10)
   })
 
   it('does not present the teacher area as a modal inside a lesson', () => {

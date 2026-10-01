@@ -18,7 +18,7 @@ export function SiteFooter() {
             <p className="site-footer__title">منصة تفاعلية تعليمية للفيزياء والكيمياء للصف الثامن</p>
             <p className="site-footer__note">
               المصدر الوحيد للمحتوى الدراسي هو الكتاب المدرسي الرسمي. الوحدات المنشورة حالياً:{' '}
-              {stats.units} — والانتظار قائم على توفير صور الصفحات.
+              {stats.units} — والدروس المنشورة: {stats.lessons}.
             </p>
           </div>
         </div>

@@ -50,7 +50,7 @@ export function IonNotation({
         dir="ltr"
         role="math"
         aria-label={accessible}
-        data-ion={`${formula}${parsed.display}`}
+        data-ion={`${formula}${parsed.magnitude}${sign}`}
       >
         <span className="ion-stacked__charge sci" aria-hidden="true">
           <span className="ion-stacked__magnitude">{parsed.magnitude}</span>
@@ -69,14 +69,18 @@ export function IonNotation({
       dir="ltr"
       role="math"
       aria-label={accessible}
-      data-ion={`${formula}${parsed.display}`}
+      data-ion={`${formula}${parsed.magnitude}${sign}`}
     >
-      <ChemicalFormula formula={formula} size={size} />
+      <span className="ion-notation__body">
+        <ChemicalFormula formula={formula} size={size} />
+      </span>
       <SciSup className="ion-notation__charge">
-        {parsed.magnitude ? (
-          <span className="ion-notation__magnitude">{parsed.magnitude}</span>
-        ) : null}
-        {sign ? <span className="ion-notation__sign">{sign}</span> : null}
+        <span className="ion-notation__charge-run" dir="ltr">
+          {parsed.magnitude ? (
+            <span className="ion-notation__magnitude">{parsed.magnitude}</span>
+          ) : null}
+          {sign ? <span className="ion-notation__sign">{sign}</span> : null}
+        </span>
       </SciSup>
     </span>
   )
@@ -145,13 +149,17 @@ export function SubscriptedIon({ symbol, index, charge, className }: Subscripted
   const parsed = charge === undefined ? null : normalizeCharge(charge)
   return (
     <span className={['ion-notation', className].filter(Boolean).join(' ')} dir="ltr" role="math">
-      <span className="chem-formula__element">{symbol}</span>
-      <SciSub>{index}</SciSub>
+      <span className="ion-notation__body">
+        <span className="chem-formula__element">{symbol}</span>
+        <SciSub>{index}</SciSub>
+      </span>
       {parsed ? (
         <SciSup className="ion-notation__charge">
-          <span className="ion-notation__magnitude">{parsed.magnitude}</span>
-          <span className="ion-notation__sign">
-            {parsed.sign === '+' ? '+' : parsed.sign === '-' ? '\u2212' : ''}
+          <span className="ion-notation__charge-run" dir="ltr">
+            <span className="ion-notation__magnitude">{parsed.magnitude}</span>
+            <span className="ion-notation__sign">
+              {parsed.sign === '+' ? '+' : parsed.sign === '-' ? '\u2212' : ''}
+            </span>
           </span>
         </SciSup>
       ) : null}
