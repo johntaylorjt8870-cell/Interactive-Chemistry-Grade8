@@ -73,22 +73,22 @@ export function validateFinalTest(test: FinalTest, path: string): FidelityIssue[
 
         case 'fill-blank': {
           const declared = new Set(question.blanks.map((blank) => blank.id))
-          const placeholders = [...question.template.matchAll(/\{([a-zA-Z0-9_-]+)\}/g)].map((match) => match[1]!)
-          for (const placeholder of placeholders) {
-            if (!declared.has(placeholder)) {
+          const blankMarkers = [...question.template.matchAll(/\{([a-zA-Z0-9_-]+)\}/g)].map((match) => match[1]!)
+          for (const marker of blankMarkers) {
+            if (!declared.has(marker)) {
               issues.push({
                 severity: 'error',
                 code: 'question/undeclared-blank',
-                message: `Template references blank "${placeholder}" which is not declared.`,
+                message: `Template references blank "${marker}" which is not declared.`,
                 path: questionPath,
               })
             }
           }
-          if (placeholders.length !== declared.size) {
+          if (blankMarkers.length !== declared.size) {
             issues.push({
               severity: 'error',
               code: 'question/blank-count-mismatch',
-              message: 'Template placeholders and declared blanks do not match.',
+              message: 'Template blank markers and declared blanks do not match.',
               path: questionPath,
             })
           }

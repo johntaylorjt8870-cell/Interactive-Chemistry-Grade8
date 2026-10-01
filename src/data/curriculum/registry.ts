@@ -7,6 +7,7 @@ import {
   type SubjectId,
   type UnitDefinition,
 } from './schema'
+import { chemistryLesson1 } from './chemistryLesson1'
 
 /* ============================================================================
    Curriculum registry
@@ -41,15 +42,25 @@ const CHEMISTRY: SubjectDefinition = {
   title: 'الكيمياء',
   latinTitle: 'Chemistry',
   description:
-    'مسار الكيمياء في هذه المنصة. ستُبنى دروسه حرفياً من صفحات الكتاب المدرسي بعد توفير صور الصفحات وقراءتها واعتمادها.',
+    'مسار الكيمياء للصف الثامن، ويبدأ بالكيمياء البنيوية وبناء فهم دقيق للذرّة والعنصر.',
   motifs: [
     { label: 'ذرات', glyph: 'atom' },
     { label: 'جزيئات', glyph: 'lattice' },
     { label: 'تفاعلات', glyph: 'reaction' },
     { label: 'مختبر', glyph: 'flask' },
   ],
-  status: 'awaiting-source',
-  units: [],
+  status: 'source-verified',
+  units: [
+    {
+      id: 'chem-u1',
+      slug: 'structural-chemistry',
+      title: 'الوحدة الأولى — الكيمياء البنيوية',
+      order: 1,
+      status: 'source-verified',
+      source: { pages: Array.from({ length: 10 }, (_, index) => ({ page: String(index + 3) })), verified: true },
+      lessons: [chemistryLesson1],
+    },
+  ],
 }
 
 export const curriculum: Curriculum = {

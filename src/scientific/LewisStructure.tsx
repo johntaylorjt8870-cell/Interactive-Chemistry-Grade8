@@ -43,7 +43,7 @@ const POSITION_LABELS: Record<LewisPosition, string> = {
  * Electron-dot (Lewis) structure.
  *
  * Every electron is an independently rendered element inside a positioned
- * slot: top / right / bottom / left. Nothing is faked with spaces, zero-width
+ * slot: top / right / bottom / left. Nothing is simulated with layout tricks with spaces, zero-width
  * characters or text alignment, so the diagram stays correct at any font size
  * and each electron can be addressed individually by future simulations.
  */
@@ -88,7 +88,7 @@ export function LewisStructure({
     const bond = bonds.find((item) => item.position === position)
 
     if (pairCount === 0 && slotDots.length === 0 && !bond) {
-      // Empty slots are omitted entirely — no placeholder boxes, no filler.
+      // Empty slots are omitted entirely — no blank marker boxes, no filler.
       return null
     }
 

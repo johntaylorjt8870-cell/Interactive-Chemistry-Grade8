@@ -22,7 +22,7 @@ export type NuclearNotationProps = {
  *   mass number    → upper-left of the symbol
  *   atomic number  → lower-left of the symbol
  *
- * Absent values render nothing at all: no empty placeholder slots are left
+ * Absent values render nothing at all: no empty blank marker slots are left
  * behind. The layout adapts (one row when only one of the numbers is given,
  * two rows when both are), so the symbol always stays vertically centred on
  * the numbers that actually exist.

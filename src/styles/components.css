@@ -2667,3 +2667,74 @@
     inline-size: 9ch;
   }
 }
+
+/* Lesson-one interactive laboratories */
+.lab {
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(var(--space-4), 3vw, var(--space-7));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(145deg, var(--surface-raised), var(--surface-base));
+  overflow: hidden;
+}
+.lab__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.lab__header h3 { margin: 0; font-size: var(--text-xl); }
+.lab__phase { margin: 0 0 var(--space-1); color: var(--accent); font-size: var(--text-sm); font-weight: 700; }
+.lab__range { display: grid; gap: var(--space-2); min-inline-size: min(100%, 15rem); font-weight: 650; }
+.lab__range input { inline-size: 100%; accent-color: var(--accent); }
+.lab__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.lab__measurements { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.lab__measurements > div { display: grid; gap: var(--space-1); min-inline-size: 0; padding: var(--space-3); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.lab__measurements span { color: var(--text-muted); font-size: var(--text-sm); }
+.lab__measurements strong { color: var(--text-primary); font: 750 var(--text-xl)/1 var(--font-science); direction: ltr; unicode-bidi: isolate; }
+.lab__conclusion { margin: 0; padding-inline-start: var(--space-4); border-inline-start: 3px solid var(--accent); color: var(--text-primary); }
+.electron-counter { display: grid; place-items: center; inline-size: 5rem; block-size: 5rem; border: 1px solid var(--accent); border-radius: 50%; }
+.electron-counter span { font-size: var(--text-xs); color: var(--text-muted); }
+.electron-counter strong { font: 800 var(--text-2xl)/1 var(--font-science); }
+
+.rutherford-stage { position: relative; min-block-size: 19rem; border-radius: var(--radius-xl); background: radial-gradient(circle at 65% 50%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 20%), linear-gradient(90deg, color-mix(in srgb, var(--palette-ink-900) 7%, transparent), transparent); overflow: hidden; direction: ltr; }
+.rutherford-stage__source { position: absolute; inset-inline-start: 1rem; inset-block-start: 50%; display: grid; place-items: center; inline-size: 3rem; block-size: 5rem; translate: 0 -50%; border-radius: var(--radius-md); background: var(--palette-ink-900); color: var(--text-inverse); font: 800 var(--text-xl)/1 var(--font-science); }
+.rutherford-stage__foil { position: absolute; inset-inline-start: 61%; inset-block: 1rem; inline-size: .4rem; border-radius: 99px; background: linear-gradient(#e6b94f, #fff1a8, #b67e14); box-shadow: 0 0 1rem #e6b94f66; }
+.rutherford-stage__nucleus { position: absolute; z-index: 2; inset-inline-start: calc(61% - .85rem); inset-block-start: calc(50% - .85rem); display: grid; place-items: center; inline-size: 2rem; block-size: 2rem; border-radius: 50%; background: #d85a55; color: #fff; font-weight: 900; }
+.alpha { --start-y: calc(1.25rem + var(--lane) * 1.65rem); position: absolute; inset-inline-start: 4.5rem; inset-block-start: var(--start-y); color: var(--accent); font: 800 .72rem/1 var(--font-science); animation: alpha-straight 1.2s ease-in var(--delay) both; }
+.alpha--deflected { animation-name: alpha-deflected; }
+.alpha--rebounded { animation-name: alpha-rebounded; }
+@keyframes alpha-straight { from { translate: 0 0; opacity: 0; } 10% { opacity: 1; } to { translate: calc(min(70vw, 43rem)) 0; opacity: .35; } }
+@keyframes alpha-deflected { from { translate: 0 0; opacity: 0; } 10% { opacity: 1; } 58% { translate: calc(min(38vw, 22rem)) 0; } to { translate: calc(min(66vw, 39rem)) -5rem; opacity: .5; } }
+@keyframes alpha-rebounded { from { translate: 0 0; opacity: 0; } 10% { opacity: 1; } 58% { translate: calc(min(38vw, 22rem)) 0; } to { translate: 4rem 4rem; opacity: .45; } }
+
+.shell-model { position: relative; justify-self: center; inline-size: min(100%, 28rem); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 12%, transparent), transparent 65%); direction: ltr; }
+.shell-model__nucleus { position: absolute; z-index: 4; inset: 50% auto auto 50%; display: grid; place-items: center; inline-size: 3rem; block-size: 3rem; translate: -50% -50%; border-radius: 50%; background: #d85a55; color: white; font-size: 1.5rem; font-weight: 900; }
+.shell-ring { --size: calc(5.5rem + var(--ring) * 4.2rem); position: absolute; inset: 50% auto auto 50%; inline-size: var(--size); block-size: var(--size); translate: -50% -50%; border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border-soft)); border-radius: 50%; animation: shell-spin calc(15s + var(--ring) * 4s) linear infinite; }
+.shell-ring__label { position: absolute; inset: -.7rem auto auto 50%; translate: -50% 0; padding: 0 .25rem; background: var(--surface-base); color: var(--text-muted); font: 700 var(--text-xs)/1 var(--font-science); }
+.shell-electron { position: absolute; inset: 50% auto auto 50%; inline-size: .72rem; block-size: .72rem; margin: -.36rem; transform: rotate(var(--angle)) translateX(calc(var(--size) / 2)) rotate(calc(-1 * var(--angle))); border: 2px solid var(--surface-base); border-radius: 50%; background: var(--accent); box-shadow: 0 0 .5rem color-mix(in srgb, var(--accent) 55%, transparent); }
+.shell-model--still .shell-ring { animation: none; }
+@keyframes shell-spin { to { rotate: 1turn; } }
+
+.nucleus-builder { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: .35rem; justify-self: center; inline-size: min(100%, 18rem); min-block-size: 12rem; padding: var(--space-6); border-radius: 46% 54% 51% 49%; background: color-mix(in srgb, var(--accent) 9%, var(--surface-raised)); animation: nucleus-breathe 3s ease-in-out infinite alternate; }
+.nucleon { display: grid; place-items: center; inline-size: 2.15rem; block-size: 2.15rem; border-radius: 50%; color: #fff; font: 750 var(--text-sm)/1 var(--font-science); box-shadow: inset 0 -3px 7px #0003; }
+.nucleon--proton { background: #d85a55; }
+.nucleon--neutron { background: #55728e; }
+.nucleus-builder--still { animation: none; }
+@keyframes nucleus-breathe { to { scale: 1.02; border-radius: 53% 47% 45% 55%; } }
+
+.teacher-lesson-tabs { display: flex; gap: var(--space-2); margin-block: var(--space-5); padding-block-end: var(--space-2); overflow-x: auto; }
+.teacher-lesson-tab { flex: 0 0 auto; padding: var(--space-3) var(--space-4); border: 1px solid var(--accent); border-radius: 999px; background: color-mix(in srgb, var(--accent) 11%, var(--surface-base)); color: var(--text-primary); font-weight: 750; }
+.teacher-answer-list { display: grid; gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
+.teacher-answer { padding: clamp(var(--space-4), 3vw, var(--space-6)); border: 1px solid var(--border-soft); border-radius: var(--radius-xl); background: var(--surface-raised); }
+.teacher-answer__meta { display: flex; gap: var(--space-2); flex-wrap: wrap; color: var(--text-muted); font-size: var(--text-sm); }
+.teacher-answer__prompt { margin-block: var(--space-3); color: var(--text-primary); font-weight: 750; }
+.teacher-answer__result { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: color-mix(in srgb, var(--status-success-text) 12%, var(--surface-base)); color: var(--text-primary); }
+.teacher-answer__explanation { margin-block-end: 0; color: var(--text-muted); }
+
+@media (max-width: 42rem) {
+  .lab__measurements { grid-template-columns: 1fr; }
+  .rutherford-stage { min-block-size: 14rem; }
+  .shell-model { inline-size: 20rem; max-inline-size: 100%; }
+  .shell-ring { --size: calc(4rem + var(--ring) * 3.2rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .alpha { animation-duration: .001ms; }
+  .shell-ring, .nucleus-builder { animation: none; }
+}

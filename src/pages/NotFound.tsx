@@ -4,7 +4,7 @@ import { InfoGlyph } from '@/components/Icons'
 import { routes } from '@/app/navigation'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
-/** Route-level not-found state. Nothing is faked or redirected silently. */
+/** Route-level not-found state. Nothing is simulated with layout tricks or redirected silently. */
 export function NotFound() {
   const { pathname } = useLocation()
   useDocumentTitle('صفحة غير موجودة — منصة الفيزياء والكيمياء')
