@@ -913,3 +913,38 @@
   background: var(--status-danger-bg);
   color: var(--status-danger-text);
 }
+
+/* --- Electron configuration ------------------------------------------------ */
+
+/* `2-8-8` is one logical value. `direction: ltr` + `unicode-bidi: isolate`
+   keeps the surrounding Arabic from reordering it, and the flex row lays the
+   shell counts and separators out in source order. */
+.electron-configuration {
+  display: inline-flex;
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  isolation: isolate;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--sci-letter-spacing);
+  white-space: nowrap;
+}
+
+.electron-configuration__shell,
+.electron-configuration__separator {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.electron-configuration--sm {
+  font-size: var(--fs-sm);
+}
+
+.electron-configuration--md {
+  font-size: var(--fs-xl);
+}
+
+.electron-configuration--lg {
+  font-size: var(--fs-2xl);
+}

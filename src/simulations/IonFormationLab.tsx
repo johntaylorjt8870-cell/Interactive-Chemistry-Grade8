@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { IonNotation } from '@/scientific'
+import { ElectronConfiguration, IonNotation } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 type IonExample = {
@@ -51,7 +51,7 @@ export default function IonFormationLab({ reducedMotion }: InteractiveProps) {
           <span className="ion-process__caption">قبل الانتقال: ذرّة متعادلة</span>
           <strong className="ion-process__symbol" dir="ltr">{example.symbol}</strong>
           <span>{example.protons} بروتوناً = {example.protons} إلكتروناً</span>
-          <span dir="ltr">{example.neutralDistribution}</span>
+          <ElectronConfiguration value={example.neutralDistribution} />
         </div>
 
         <div className="ion-atom" aria-label={`${electrons} إلكتروناً حول نواة فيها ${example.protons} بروتوناً`}>

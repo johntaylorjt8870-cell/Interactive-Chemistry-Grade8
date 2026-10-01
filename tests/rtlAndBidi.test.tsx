@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
-import { IonNotation, ScientificText, ScientificValue } from '@/scientific'
+import { ElectronConfiguration, IonNotation, ScientificText, ScientificValue } from '@/scientific'
 import { splitScientificRuns } from '@/utils/scientificText'
 import { readProjectFile } from './utils/projectFiles'
 
 const tokensCss = readProjectFile('src/styles/tokens.css')
 const baseCss = readProjectFile('src/styles/base.css')
 const scientificCss = readProjectFile('src/styles/scientific.css')
+const scientificComponentsCss = readProjectFile('src/styles/scientific-components.css')
 const indexHtml = readProjectFile('index.html')
 
 describe('document direction', () => {
@@ -89,6 +90,64 @@ describe('ionic charge ordering inside RTL', () => {
     expect([...ion.children].map((child) => child.textContent)).toEqual(['Ca', '2+'])
     expect(ion.textContent).toBe('Ca2+')
     expect(ion.textContent).not.toBe('Ca+2')
+  })
+})
+
+describe('electron configuration ordering inside RTL', () => {
+  it.each([
+    ['التوزيع الإلكتروني: 2-8-8', '2-8-8'],
+    ['الإجابة: التوزيع الإلكتروني هو 2-8-7', '2-8-7'],
+    ['التوزيع الإلكتروني للعنصر هو 2-8-18-8.', '2-8-18-8'],
+  ])('keeps %s as one LTR value in the RTL flow', (sentence, configuration) => {
+    const { container } = render(
+      <p dir="rtl">
+        <ScientificText>{sentence}</ScientificText>
+      </p>,
+    )
+
+    // One isolate for the whole configuration: the RTL paragraph has nothing
+    // to reorder, because no run of the value is laid out separately.
+    const isolates = container.querySelectorAll('[data-sci="isolated"]')
+    expect(isolates).toHaveLength(1)
+
+    const value = isolates[0]!
+    expect(value.className).toContain('electron-configuration')
+    expect(value.getAttribute('dir')).toBe('ltr')
+    expect(value.textContent).toBe(configuration)
+
+    // Source order of the shells survives in the DOM, and the Arabic sentence
+    // remains one uninterrupted RTL string around the isolate.
+    expect([...value.querySelectorAll('.electron-configuration__shell')].map((shell) => shell.textContent))
+      .toEqual(configuration.split('-'))
+    expect(container.textContent).toBe(sentence)
+  })
+
+  it('never renders a configuration as a chain of independent runs', () => {
+    const { container } = render(
+      <p dir="rtl">
+        <ScientificText>التوزيع الإلكتروني: 2-8-8</ScientificText>
+      </p>,
+    )
+
+    const runs = [...container.querySelectorAll('.sci, .electron-configuration')]
+    expect(runs).toHaveLength(1)
+    expect(runs[0]!.textContent).toBe('2-8-8')
+  })
+
+  it('isolates the value with direction and unicode-bidi in CSS', () => {
+    const block = scientificComponentsCss.match(/\.electron-configuration\s*\{[^}]*\}/s)?.[0] ?? ''
+
+    expect(block).toContain('direction: ltr')
+    expect(block).toContain('unicode-bidi: isolate')
+  })
+
+  it('renders an explicitly authored configuration the same way', () => {
+    const { container } = render(<ElectronConfiguration value="2-8-8" />)
+    const value = container.querySelector('.electron-configuration')!
+
+    expect(value.getAttribute('dir')).toBe('ltr')
+    expect(value.getAttribute('data-configuration')).toBe('2-8-8')
+    expect(value.textContent).toBe('2-8-8')
   })
 })
 

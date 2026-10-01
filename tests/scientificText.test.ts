@@ -3,7 +3,9 @@ import {
   chargeGlyph,
   containsScientificRun,
   formulaToUnicode,
+  isElectronConfiguration,
   normalizeCharge,
+  parseElectronConfiguration,
   parseFormula,
   splitScientificRuns,
   toSubscript,
@@ -56,6 +58,66 @@ describe('splitScientificRuns — RTL/LTR separation', () => {
     for (const input of ['= = =', '+ - ×', 'x', '5', '=', 'kg']) {
       expect(() => splitScientificRuns(input)).not.toThrow()
     }
+  })
+})
+
+describe('electron configurations stay one logical run', () => {
+  it.each(['2-8-8', '2-8-1', '2-8-7', '2-8-8-1', '2-8-18-7', '2-8-18-8'])(
+    'matches %s as a single scientific run',
+    (value) => {
+      expect(splitScientificRuns(value)).toEqual([
+        { kind: 'science', value, notation: 'electron-configuration' },
+      ])
+      expect(containsScientificRun(value)).toBe(true)
+    },
+  )
+
+  it('does not produce 2, -8, -8 fragments', () => {
+    const values = splitScientificRuns('2-8-8').map((run) => run.value)
+
+    expect(values).toEqual(['2-8-8'])
+    expect(values).not.toContain('-8')
+  })
+
+  it('keeps the configuration in one run inside an Arabic sentence', () => {
+    const runs = splitScientificRuns('التوزيع الإلكتروني: 2-8-8')
+
+    expect(runs).toEqual([
+      { kind: 'prose', value: 'التوزيع الإلكتروني: ' },
+      { kind: 'science', value: '2-8-8', notation: 'electron-configuration' },
+    ])
+  })
+
+  it('parses shells in source order and keeps the tokens verbatim', () => {
+    const parsed = parseElectronConfiguration('2-8-18-8')
+
+    expect(parsed?.shells).toEqual(['2', '8', '18', '8'])
+    expect(parsed?.value).toBe('2-8-18-8')
+    expect(parsed?.tokens.map((token) => token.value).join('')).toBe('2-8-18-8')
+  })
+
+  it('accepts the typographic minus as a separator without rewriting it', () => {
+    const parsed = parseElectronConfiguration('2\u22128')
+
+    expect(parsed?.shells).toEqual(['2', '8'])
+    expect(parsed?.tokens.map((token) => token.value).join('')).toBe('2\u22128')
+  })
+
+  it('rejects values that cannot be shell occupancies', () => {
+    // 4 and 3 exceed the first shell capacity (2n² = 2), and 40 cannot sit in
+    // the third shell (2n² = 18). Their rendering is still one LTR run.
+    for (const value of ['4-2', '0-9', '3-1', '2-8-40', '2-18', '9-1']) {
+      expect(isElectronConfiguration(value), value).toBe(false)
+    }
+    expect(isElectronConfiguration('2-8')).toBe(true)
+  })
+
+  it('still isolates non-configuration number sequences as one run', () => {
+    expect(splitScientificRuns('انظر شكل 4-2 هنا')).toEqual([
+      { kind: 'prose', value: 'انظر شكل ' },
+      { kind: 'science', value: '4-2' },
+      { kind: 'prose', value: ' هنا' },
+    ])
   })
 })
 

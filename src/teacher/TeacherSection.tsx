@@ -72,7 +72,7 @@ function QuestionMaterial({ question }: { question: Question }) {
     case 'true-false': return <p>اختر: صح / غلط.</p>
     case 'fill-blank': return <p dir="rtl">{question.template.replace(/\{[^}]+\}/g, '________')}</p>
     case 'ordering': return <ul>{question.items.map((item) => <li key={item.id}>{item.label}</li>)}</ul>
-    case 'matching': return <div className="cluster"><ul>{question.left.map((item) => <li key={item.id}>{item.label}</li>)}</ul><ul>{question.right.map((item) => <li key={item.id}>{item.label}</li>)}</ul></div>
+    case 'matching': return <div className="cluster"><ul>{question.left.map((item) => <li key={item.id}>{item.label}</li>)}</ul><ul>{question.right.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul></div>
     case 'table-interpretation': return <p>{question.table.caption}</p>
     case 'diagram-interpretation': return <p>{question.diagramDescription}</p>
     case 'numerical':

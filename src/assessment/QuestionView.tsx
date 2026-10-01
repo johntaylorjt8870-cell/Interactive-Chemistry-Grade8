@@ -421,9 +421,9 @@ function MatchingControl({
               </select>
             </label>
             {mode === 'solution' && correctRightId ? (
-              <span className="matching__solution">
-                {question.right.find((right) => right.id === correctRightId)?.label}
-              </span>
+              <ScientificNotationText as="span" className="matching__solution">
+                {question.right.find((right) => right.id === correctRightId)?.label ?? ''}
+              </ScientificNotationText>
             ) : null}
           </div>
         )
