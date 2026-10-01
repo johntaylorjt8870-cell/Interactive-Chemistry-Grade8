@@ -104,17 +104,55 @@
 
 /* --- Ions ----------------------------------------------------------------- */
 
-.ion-notation,
+.ion-notation {
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  grid-template-rows: 1fr;
+  align-items: start;
+  direction: ltr;
+  unicode-bidi: isolate;
+  isolation: isolate;
+  color: var(--text-strong);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.ion-notation__body {
+  grid-column: 1;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  line-height: 1;
+}
+
+.ion-notation__charge {
+  grid-column: 2;
+  grid-row: 1;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  direction: ltr;
+  unicode-bidi: isolate;
+  position: static;
+  inset: auto;
+  transform: translateY(-0.12em);
+  gap: 0.015em;
+  margin-inline-start: 0.025em;
+  font-family: var(--font-latin);
+  font-size: 0.62em;
+  line-height: 1;
+}
+
 .ion-stacked {
   display: inline-flex;
   align-items: baseline;
   direction: ltr;
   unicode-bidi: isolate;
+  isolation: isolate;
   color: var(--text-strong);
-}
-
-.ion-notation__charge {
-  font-size: 0.62em;
 }
 
 .ion-notation--sm {

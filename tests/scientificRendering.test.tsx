@@ -149,6 +149,31 @@ describe('IonNotation and ChargeValue — the two charge conventions', () => {
     expect(charge.querySelector('.ion-notation__sign')!.textContent).toBe('+')
   })
 
+  it.each([
+    ['Ca', '2+', '2+'],
+    ['K', '+', '+'],
+    ['F', '-', '−'],
+    ['O', '2-', '2−'],
+    ['Na', '+', '+'],
+    ['Cl', '-', '−'],
+    ['SO4', '2-', '2−'],
+  ])('keeps the charge at the upper-right of %s in magnitude-sign order', (formula, chargeInput, expectedCharge) => {
+    const { container } = render(<div dir="rtl"><IonNotation formula={formula} charge={chargeInput} /></div>)
+    const ion = container.querySelector('.ion-notation')!
+    const charge = ion.querySelector('.ion-notation__charge')!
+
+    expectIsolatedLtr(ion)
+    expect([...ion.children].map((child) => child.className)).toEqual([
+      'ion-notation__body',
+      'sci-sup ion-notation__charge',
+    ])
+    expect([...charge.children].map((child) => child.className)).toEqual(
+      expectedCharge.length === 1 ? ['ion-notation__sign'] : ['ion-notation__magnitude', 'ion-notation__sign'],
+    )
+    expect(charge.textContent).toBe(expectedCharge)
+    expect(ion.getAttribute('data-ion')).toBe(`${formula}${expectedCharge}`)
+  })
+
   it('renders a polyatomic ion with its subscript and charge', () => {
     const { container } = render(<IonNotation formula="SO4" charge="2-" />)
 
