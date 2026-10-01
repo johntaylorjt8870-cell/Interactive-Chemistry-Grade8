@@ -1,0 +1,822 @@
+/* ============================================================================
+   Scientific notation components
+   Each block owns one notation, so subscripts, charges and dots can be styled
+   and tested independently.
+   ========================================================================= */
+
+/* --- Chemical formula ----------------------------------------------------- */
+
+.chem-formula {
+  display: inline-flex;
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+.chem-formula--block {
+  display: flex;
+  inline-size: 100%;
+  justify-content: center;
+}
+
+.chem-formula--sm {
+  font-size: var(--fs-sm);
+}
+
+.chem-formula--md {
+  font-size: var(--fs-xl);
+}
+
+.chem-formula--lg {
+  font-size: var(--fs-2xl);
+}
+
+.chem-formula__element,
+.chem-formula__paren,
+.chem-formula__literal {
+  font-style: normal;
+}
+
+.chem-formula__group {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.chem-formula__charge {
+  font-size: 0.62em;
+  margin-inline-start: 0.06em;
+}
+
+.chem-formula__charge-magnitude,
+.chem-formula__charge-sign,
+.ion-notation__magnitude,
+.ion-notation__sign,
+.charge-value__magnitude,
+.charge-value__sign {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Equations ------------------------------------------------------------ */
+
+.chem-equation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45ch;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-size: var(--fs-xl);
+  color: var(--text-strong);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.chem-equation--block {
+  display: flex;
+  inline-size: 100%;
+}
+
+.chem-equation__operator {
+  font-family: var(--font-latin);
+  color: var(--text-secondary);
+}
+
+.chem-equation__arrow {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-inline-size: 3.4ch;
+  color: var(--accent-strong);
+  font-size: 1.1em;
+}
+
+.chem-equation__condition {
+  font-family: var(--font-arabic);
+  font-size: 0.5em;
+  color: var(--text-muted);
+  direction: rtl;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+
+/* --- Ions ----------------------------------------------------------------- */
+
+.ion-notation,
+.ion-stacked {
+  display: inline-flex;
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  color: var(--text-strong);
+}
+
+.ion-notation__charge {
+  font-size: 0.62em;
+}
+
+.ion-notation--sm {
+  font-size: var(--fs-sm);
+}
+
+.ion-notation--md {
+  font-size: var(--fs-xl);
+}
+
+.ion-notation--lg {
+  font-size: var(--fs-2xl);
+}
+
+.ion-stacked {
+  display: inline-grid;
+  grid-template-columns: auto;
+  justify-items: end;
+  align-items: end;
+  row-gap: 0.05em;
+}
+
+.ion-stacked__charge {
+  font-family: var(--font-latin);
+  font-size: 0.58em;
+  line-height: 1;
+  color: var(--accent-strong);
+  padding-inline-end: 0.1em;
+}
+
+.ion-stacked__body {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+/* --- Charge values (sign first: −2, +2) ---------------------------------- */
+
+.charge-value {
+  display: inline-flex;
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
+}
+
+.charge-value__inline {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.06em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: inherit;
+}
+
+.charge-value__sign {
+  margin-inline-end: 0.04em;
+}
+
+.charge-value--sm {
+  font-size: var(--fs-sm);
+}
+
+.charge-value--md {
+  font-size: var(--fs-xl);
+}
+
+.charge-value--lg {
+  font-size: var(--fs-2xl);
+}
+
+/* --- Nuclear notation ----------------------------------------------------- */
+
+.nuclear-notation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.12em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  color: var(--text-strong);
+  line-height: 1;
+}
+
+.nuclear-notation__numbers {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.08em;
+}
+
+.nuclear-notation__mass,
+.nuclear-notation__atomic {
+  font-size: 0.52em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.nuclear-notation__mass {
+  color: var(--accent-strong);
+}
+
+.nuclear-notation__atomic {
+  color: var(--text-muted);
+}
+
+.nuclear-notation__symbol {
+  display: inline-flex;
+  align-items: flex-start;
+  font-size: 1.5em;
+  line-height: 1;
+}
+
+.nuclear-notation__charge {
+  font-size: 0.5em;
+  margin-inline-start: 0.06em;
+}
+
+.nuclear-notation--sm {
+  font-size: var(--fs-md);
+}
+
+.nuclear-notation--md {
+  font-size: var(--fs-xl);
+}
+
+.nuclear-notation--lg {
+  font-size: var(--fs-2xl);
+}
+
+.nuclide-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.nuclide-summary__caption {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* --- Lewis structures ----------------------------------------------------- */
+
+.lewis {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.lewis__diagram {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: auto auto auto;
+  align-items: center;
+  justify-items: center;
+  gap: 0.35rem;
+  direction: ltr;
+  unicode-bidi: isolate;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-hairline);
+  background: var(--surface-base);
+}
+
+.lewis__symbol {
+  grid-column: 2;
+  grid-row: 2;
+  font-family: var(--font-latin);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.lewis--sm .lewis__symbol {
+  font-size: var(--fs-lg);
+}
+
+.lewis--md .lewis__symbol {
+  font-size: var(--fs-2xl);
+}
+
+.lewis--lg .lewis__symbol {
+  font-size: var(--fs-3xl);
+}
+
+.lewis__slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-inline-size: 1.5rem;
+  min-block-size: 1.5rem;
+}
+
+.lewis__slot--top {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.lewis__slot--bottom {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.lewis__slot--left {
+  grid-column: 1;
+  grid-row: 2;
+  flex-direction: column;
+}
+
+.lewis__slot--right {
+  grid-column: 3;
+  grid-row: 2;
+  flex-direction: column;
+}
+
+.lewis__pair {
+  display: inline-flex;
+  gap: 0.28rem;
+}
+
+.lewis__slot--left .lewis__pair,
+.lewis__slot--right .lewis__pair {
+  flex-direction: column;
+}
+
+.lewis__dot {
+  inline-size: 0.34rem;
+  block-size: 0.34rem;
+  border-radius: 50%;
+  background: var(--text-strong);
+}
+
+.lewis__bond {
+  inline-size: 1.1rem;
+  block-size: 2px;
+  background: var(--accent);
+}
+
+.lewis__slot--left .lewis__bond,
+.lewis__slot--right .lewis__bond {
+  inline-size: 2px;
+  block-size: 1.1rem;
+}
+
+.lewis__caption {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 40ch;
+}
+
+/* --- Scientific values ---------------------------------------------------- */
+
+.sci-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3ch;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-strong);
+}
+
+.sci-value__number {
+  font-weight: var(--fw-semibold);
+}
+
+.sci-value__operator,
+.sci-value__uncertainty,
+.sci-value__exponent {
+  color: inherit;
+}
+
+.sci-value__exponent {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12ch;
+}
+
+.sci-value__times,
+.sci-value__base {
+  font-size: 0.95em;
+}
+
+.sci-value__unit {
+  font-family: var(--font-mono);
+  font-size: 0.94em;
+  color: inherit;
+}
+
+.sci-value--sm {
+  font-size: var(--fs-sm);
+}
+
+.sci-value--md {
+  font-size: var(--fs-base);
+}
+
+.sci-value--lg {
+  font-size: var(--fs-xl);
+}
+
+.sci-value--xl {
+  font-size: var(--fs-2xl);
+}
+
+.sci-range {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4ch;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.sci-range__dash {
+  color: var(--text-muted);
+}
+
+/* --- Scientific tables ----------------------------------------------------
+   Every surface is explicit: background, header background, header text, body
+   text and borders each resolve to their own token, so text can never collide
+   with a background in either theme. */
+
+.sci-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--table-border);
+  background: var(--table-bg);
+}
+
+.sci-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  background: var(--table-bg);
+  color: var(--table-body-text);
+  font-size: var(--fs-sm);
+}
+
+.sci-table__caption {
+  caption-side: top;
+  text-align: start;
+  padding: var(--space-3) var(--space-4);
+  color: var(--table-caption-text);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  border-block-end: 1px solid var(--table-border);
+}
+
+.sci-table__head {
+  background: var(--table-header-bg);
+  color: var(--table-header-text);
+  text-align: start;
+  font-weight: var(--fw-semibold);
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 2px solid var(--table-header-border);
+  white-space: nowrap;
+}
+
+.sci-table__head-unit {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--table-caption-text);
+  font-weight: var(--fw-regular);
+}
+
+.sci-table--sticky .sci-table__head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.sci-table__cell,
+.sci-table__row-head {
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--table-border);
+  color: var(--table-body-text);
+  background: var(--table-bg);
+  vertical-align: middle;
+}
+
+.sci-table__row-head {
+  font-weight: var(--fw-semibold);
+  color: var(--table-header-text);
+  background: var(--table-body-alt-bg);
+}
+
+.sci-table--compact .sci-table__cell,
+.sci-table--compact .sci-table__row-head,
+.sci-table--compact .sci-table__head {
+  padding: var(--space-2) var(--space-3);
+}
+
+.sci-table tbody tr:nth-child(even) .sci-table__cell {
+  background: var(--table-body-alt-bg);
+}
+
+.sci-table tbody tr:hover .sci-table__cell,
+.sci-table tbody tr:hover .sci-table__row-head {
+  background: var(--table-row-hover-bg);
+}
+
+.sci-table__row[data-selected='true'] .sci-table__cell,
+.sci-table__row[data-selected='true'] .sci-table__row-head {
+  background: var(--table-cell-selected-bg);
+  color: var(--table-cell-selected-text);
+}
+
+.sci-table__row[data-active='true'] .sci-table__cell,
+.sci-table__row[data-active='true'] .sci-table__row-head {
+  background: var(--table-cell-active-bg);
+  color: var(--table-cell-active-text);
+  box-shadow: inset 3px 0 0 0 var(--accent);
+}
+
+.sci-table .is-center {
+  text-align: center;
+}
+
+.sci-table .is-end {
+  text-align: end;
+}
+
+.sci-table .is-start {
+  text-align: start;
+}
+
+.sci-table .is-numeric {
+  font-family: var(--font-latin);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sci-table__footnote {
+  padding: var(--space-3) var(--space-4);
+  border-block-start: 1px solid var(--table-border);
+  background: var(--table-body-alt-bg);
+  color: var(--table-caption-text);
+  font-size: var(--fs-xs);
+}
+
+/* --- Diagrams ------------------------------------------------------------- */
+
+.diagram {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-hairline);
+  background: var(--surface-base);
+}
+
+.diagram--interactive {
+  border-color: var(--accent-border);
+}
+
+.diagram__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.diagram__title {
+  font-size: var(--fs-lg);
+}
+
+.diagram__source {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-3);
+}
+
+.diagram__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.diagram__surface {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-hairline);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  overflow: hidden;
+}
+
+.diagram__svg {
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.diagram__caption {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.diagram-vector--accent {
+  color: var(--accent);
+}
+
+.diagram-vector--support {
+  color: var(--subject-support);
+}
+
+.diagram-vector--muted {
+  color: var(--text-muted);
+}
+
+.diagram-vector--danger {
+  color: var(--status-danger-text);
+}
+
+.diagram-vector__label {
+  font-family: var(--font-latin);
+  font-size: 11px;
+  fill: currentColor;
+}
+
+.diagram-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.diagram-legend__title {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-strong);
+}
+
+.diagram-legend__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.diagram-legend__swatch {
+  inline-size: 14px;
+  block-size: 14px;
+  flex: 0 0 auto;
+  background: currentColor;
+}
+
+.diagram-legend__swatch--line {
+  block-size: 3px;
+  border-radius: var(--radius-pill);
+}
+
+.diagram-legend__swatch--dash {
+  block-size: 3px;
+  background: repeating-linear-gradient(to left, currentColor 0 4px, transparent 4px 7px);
+}
+
+.diagram-legend__swatch--dot {
+  inline-size: 10px;
+  block-size: 10px;
+  border-radius: 50%;
+}
+
+.diagram-legend__swatch--accent {
+  color: var(--accent);
+}
+
+.diagram-legend__swatch--support {
+  color: var(--subject-support);
+}
+
+.diagram-legend__swatch--muted {
+  color: var(--text-muted);
+}
+
+.diagram-legend__swatch--danger {
+  color: var(--status-danger-text);
+}
+
+.diagram-legend__description {
+  color: var(--text-muted);
+}
+
+/* --- Attribution markers -------------------------------------------------- */
+
+.platform-addition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--accent-border-strong);
+  background: var(--accent-tint);
+}
+
+.platform-addition__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.platform-addition__title {
+  font-size: var(--fs-md);
+}
+
+.platform-addition__body {
+  color: var(--text-primary);
+}
+
+.platform-addition-badge__dot {
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.platform-addition-badge__en {
+  font-family: var(--font-latin);
+  font-size: 0.92em;
+  opacity: 0.72;
+}
+
+.textbook-source {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent-border);
+  background: var(--surface-base);
+  border-inline-start: 4px solid var(--accent);
+}
+
+.textbook-source__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.textbook-source__label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-wide);
+}
+
+.textbook-source__ref {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-3);
+}
+
+.textbook-source__body {
+  color: var(--text-primary);
+  line-height: var(--lh-relaxed);
+}
+
+.textbook-source__text {
+  margin: 0;
+}
+
+/* --- Math ----------------------------------------------------------------- */
+
+.equation-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5ch;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.equation-row--block {
+  display: flex;
+  inline-size: 100%;
+  justify-content: center;
+}
+
+.equation-row__symbol {
+  font-family: var(--font-latin);
+  color: var(--text-secondary);
+}
+
+.math-formula--invalid {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-xs);
+  border: 1px dashed var(--status-danger-border);
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
+}

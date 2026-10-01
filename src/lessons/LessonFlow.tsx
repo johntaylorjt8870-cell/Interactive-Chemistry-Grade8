@@ -1,0 +1,205 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
+import { LessonShell } from '@/layouts/LessonShell'
+import { LessonOutline } from './LessonOutline'
+import { getStepRenderer } from './stepRenderers'
+import { STEP_KIND_META } from './stepKinds'
+import { Drawer } from '@/components/Drawer'
+import { ArrowEndGlyph, ArrowStartGlyph, CheckGlyph, ListGlyph } from '@/components/Icons'
+import { computeLessonProgress, useLessonProgress } from '@/data/progress'
+import type { LessonDefinition } from '@/data/curriculum/schema'
+
+export type LessonFlowProps = {
+  lesson: LessonDefinition
+  breadcrumb?: ReactNode
+  /** Step id or 1-based index to open first; defaults to the URL hash. */
+  initialStepId?: string
+  renderQuestion?: (questionId: string) => ReactNode
+  renderDiagram?: (diagramId: string, description: string) => ReactNode
+  renderTest?: (testId: string) => ReactNode
+  /** Called when the student reaches the end of the lesson. */
+  onCompleted?: () => void
+  /** Renders an action area in the final step (e.g. "back to unit"). */
+  finishAction?: ReactNode
+}
+
+function stepIndexFromHash(lesson: LessonDefinition, hash: string): number | null {
+  const raw = hash.replace(/^#/, '')
+  if (!raw) return null
+  const byPosition = Number(raw.replace(/^step-?/, ''))
+  if (Number.isInteger(byPosition) && byPosition >= 1 && byPosition <= lesson.steps.length) {
+    return byPosition - 1
+  }
+  const index = lesson.steps.findIndex((step) => step.id === raw)
+  return index >= 0 ? index : null
+}
+
+/**
+ * Lesson engine: shows one meaningful step at a time and keeps the student
+ * oriented with a persistent outline, a real step counter and honest progress.
+ *
+ * The current step is reflected in the URL hash, so a lesson step can be
+ * bookmarked and shared, and the browser back button keeps working.
+ */
+export function LessonFlow({
+  lesson,
+  breadcrumb,
+  initialStepId,
+  renderQuestion,
+  renderDiagram,
+  renderTest,
+  onCompleted,
+  finishAction,
+}: LessonFlowProps) {
+  const total = lesson.steps.length
+
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (total === 0) return 0
+    if (initialStepId) {
+      const byId = lesson.steps.findIndex((step) => step.id === initialStepId)
+      if (byId >= 0) return byId
+    }
+    if (typeof window !== 'undefined') {
+      const fromHash = stepIndexFromHash(lesson, window.location.hash)
+      if (fromHash !== null) return fromHash
+    }
+    return 0
+  })
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const { seenStepIds, markStepSeen, setCompleted } = useLessonProgress(lesson.id)
+  const progress = useMemo(
+    () => computeLessonProgress(lesson, { seenStepIds, completed: false, updatedAt: '' }),
+    [lesson, seenStepIds],
+  )
+
+  const currentStep = lesson.steps[currentIndex]
+  const isLast = currentIndex === total - 1
+
+  // Record visited steps so the outline can report honest progress.
+  useEffect(() => {
+    if (!currentStep) return
+    markStepSeen(currentStep.id)
+    if (typeof window !== 'undefined') {
+      const nextHash = `#step-${currentIndex + 1}`
+      if (window.location.hash !== nextHash) {
+        window.history.replaceState(null, '', nextHash)
+      }
+    }
+  }, [currentStep, currentIndex, lesson.id, markStepSeen])
+
+  const goTo = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= total) return
+      setCurrentIndex(index)
+      setDrawerOpen(false)
+      if (typeof document !== 'undefined') {
+        document.getElementById('lesson-content')?.focus?.()
+      }
+    },
+    [total],
+  )
+
+  const handleFinish = useCallback(() => {
+    setCompleted(true)
+    onCompleted?.()
+  }, [onCompleted, setCompleted])
+
+  if (!currentStep) {
+    return (
+      <div className="container lesson-shell__empty">
+        <div className="empty-state">
+          <p className="empty-state__title">لا توجد خطوات في هذا الدرس</p>
+          <p className="empty-state__body">لم تُضَف خطوات الدرس بعد. لن تُعرض خطوات مُصطنعة.</p>
+        </div>
+      </div>
+    )
+  }
+
+  const meta = STEP_KIND_META[currentStep.kind]
+  const StepRenderer = getStepRenderer(currentStep.kind)
+  const isFinalStep = currentStep.kind === 'final-test'
+
+  return (
+    <>
+      <LessonShell
+        breadcrumb={breadcrumb}
+        title={lesson.title}
+        subtitle={
+          <span className="lesson-shell__step-summary">
+            {meta.label}: {meta.intention}
+          </span>
+        }
+        progress={{
+          current: currentIndex + 1,
+          total,
+          ratio: total === 0 ? 0 : progress.seen / total,
+          visited: progress.seen,
+        }}
+        outline={
+          <LessonOutline
+            lesson={lesson}
+            currentIndex={currentIndex}
+            onSelect={goTo}
+            seenStepIds={seenStepIds}
+          />
+        }
+        mobileOutlineTrigger={
+          <button
+            type="button"
+            className="button button--quiet"
+            onClick={() => setDrawerOpen(true)}
+            aria-haspopup="dialog"
+          >
+            <ListGlyph size={18} />
+            <span>خطوات الدرس</span>
+          </button>
+        }
+        navigation={
+          <div className="lesson-nav">
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => goTo(currentIndex - 1)}
+              disabled={currentIndex === 0}
+            >
+              <ArrowEndGlyph size={17} />
+              <span>السابق</span>
+            </button>
+
+            {isLast || isFinalStep ? (
+              <button type="button" className="button button--primary" onClick={handleFinish}>
+                <CheckGlyph size={17} />
+                <span>إنهاء الدرس</span>
+              </button>
+            ) : (
+              <button type="button" className="button button--primary" onClick={() => goTo(currentIndex + 1)}>
+                <span>التالي</span>
+                <ArrowStartGlyph size={17} />
+              </button>
+            )}
+          </div>
+        }
+      >
+        <StepRenderer
+          step={currentStep}
+          meta={meta}
+          renderQuestion={renderQuestion}
+          renderDiagram={renderDiagram}
+          renderTest={renderTest}
+        />
+        {isLast && finishAction ? <div className="lesson-shell__finish">{finishAction}</div> : null}
+      </LessonShell>
+
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="خطوات الدرس" side="start">
+        <LessonOutline
+          lesson={lesson}
+          currentIndex={currentIndex}
+          onSelect={goTo}
+          seenStepIds={seenStepIds}
+          variant="drawer"
+        />
+      </Drawer>
+    </>
+  )
+}

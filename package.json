@@ -1,0 +1,42 @@
+{
+  "name": "interactive-physics-chemistry-grade8",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "منصة تفاعلية تعليمية للفيزياء والكيمياء للصف الثامن - Interactive Physics & Chemistry Grade 8",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build && node scripts/postbuild.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify:dist": "node scripts/verify-dist.mjs",
+    "verify": "npm run typecheck && npm run test && npm run build && npm run verify:dist"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.5",
+    "@fontsource-variable/noto-sans-arabic": "^5.2.5",
+    "katex": "^0.16.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/katex": "^0.16.7",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "axe-core": "^4.10.2",
+    "jsdom": "^25.0.1",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8",
+    "yaml": "^2.6.1"
+  }
+}
