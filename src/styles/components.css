@@ -1530,9 +1530,18 @@
 }
 
 .lesson-shell__progress-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-size: var(--fs-xs);
   color: var(--text-muted);
   white-space: nowrap;
+}
+
+.lesson-shell__progress-visited {
+  color: var(--text-muted);
+  opacity: 0.8;
+  font-size: var(--fs-2xs);
 }
 
 .lesson-shell__body {

@@ -9,7 +9,10 @@ export type LessonShellProps = {
   progress: {
     current: number
     total: number
+    /** Fraction of steps actually visited — never an invented percentage. */
     ratio: number
+    /** Number of distinct steps visited so far. */
+    visited?: number
   }
   /** Desktop outline column. */
   outline: ReactNode
@@ -69,7 +72,14 @@ export function LessonShell({
               </div>
             </div>
             <p className="lesson-shell__progress-label">
-              الخطوة {progress.current} من {progress.total}
+              <span>
+                الخطوة {progress.current} من {progress.total}
+              </span>
+              {progress.visited !== undefined ? (
+                <span className="lesson-shell__progress-visited">
+                  زُرت {progress.visited} من {progress.total}
+                </span>
+              ) : null}
             </p>
           </div>
         </div>

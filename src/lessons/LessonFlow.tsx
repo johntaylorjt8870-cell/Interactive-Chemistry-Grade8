@@ -130,7 +130,12 @@ export function LessonFlow({
             {meta.label}: {meta.intention}
           </span>
         }
-        progress={{ current: currentIndex + 1, total, ratio: total === 0 ? 0 : progress.seen / total }}
+        progress={{
+          current: currentIndex + 1,
+          total,
+          ratio: total === 0 ? 0 : progress.seen / total,
+          visited: progress.seen,
+        }}
         outline={
           <LessonOutline
             lesson={lesson}
