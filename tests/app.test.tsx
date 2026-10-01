@@ -18,12 +18,13 @@ describe('application boot and routing', () => {
     expect(screen.getAllByRole('link', { name: /مساحة المعلم/ }).length).toBeGreaterThan(0)
   })
 
-  it('states honestly that no curriculum content is published yet', () => {
+  it('reports the published curriculum counts', () => {
     renderApp('/')
 
     const status = screen.getByText(/الوحدات المنشورة حتى الآن/)
     expect(status).toBeInTheDocument()
-    expect(status).toHaveTextContent('0')
+    expect(status).toHaveTextContent('الوحدات المنشورة حتى الآن: 1')
+    expect(status).toHaveTextContent('الدروس: 1')
   })
 
   it('routes to the physics subject page', async () => {
@@ -39,7 +40,7 @@ describe('application boot and routing', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'الكيمياء' })).toBeInTheDocument()
     expect(container.querySelector('[data-subject="chemistry"]')).not.toBeNull()
-    expect(screen.getByText(/لم تُضف وحدات هذا المسار بعد/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /الوحدة الأولى — الكيمياء البنيوية/ })).toBeInTheDocument()
   })
 
   it('shows a pending state for a unit that does not exist instead of fabricating one', () => {

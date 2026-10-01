@@ -160,7 +160,7 @@ describe('IonNotation and ChargeValue — the two charge conventions', () => {
   it('renders a bare charge sign for single-charge ions', () => {
     const { container } = render(<IonNotation formula="Cl" charge="-" />)
     expect(container.querySelector('.ion-notation__sign')!.textContent).toBe('\u2212')
-    // A bare sign renders no magnitude element at all (no empty placeholder).
+    // A bare sign renders no magnitude element at all (no empty blank marker).
     expect(container.querySelector('.ion-notation__magnitude')).toBeNull()
   })
 
@@ -202,7 +202,7 @@ describe('NuclearNotation', () => {
     expect(notation.getAttribute('data-rows')).toBe('2')
   })
 
-  it('does not leave empty placeholder positions when a number is missing', () => {
+  it('does not leave empty blank marker positions when a number is missing', () => {
     const { container } = render(<NuclearNotation symbol="C" massNumber={12} />)
     const notation = container.querySelector('.nuclear-notation')!
 
