@@ -40,7 +40,12 @@ export function InteractiveHost({ interactiveId, caption }: InteractiveHostProps
   })
 
   return (
-    <div className="interactive-host" data-interactive={interactiveId} data-interactive-kind={definition.kind}>
+    <div
+      className="interactive-host"
+      data-interactive={interactiveId}
+      data-interactive-kind={definition.kind}
+      data-origin="platform"
+    >
       <Suspense
         fallback={
           <div className="interactive-host__loading" role="status">

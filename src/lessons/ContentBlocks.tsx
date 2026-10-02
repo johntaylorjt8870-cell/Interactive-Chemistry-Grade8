@@ -231,12 +231,12 @@ function Block({
 
     case 'source-image':
       return (
-        <figure className="source-image">
+        <figure className="source-image" data-origin="textbook" data-source-page={block.source.page}>
           <img src={block.src} alt={block.alt} loading="lazy" decoding="async" />
           <figcaption className="source-image__caption">
-            {block.caption ? <span>{block.caption}</span> : null}
+            {block.caption ? <span>{renderFigureCaption(block.caption)}</span> : null}
             <span className="source-image__ref">
-              {block.source.page}
+              من الكتاب المدرسي — الصفحة {block.source.page}
               {block.source.item ? ` · ${block.source.item}` : ''}
             </span>
           </figcaption>

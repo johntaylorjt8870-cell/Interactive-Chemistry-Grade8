@@ -136,6 +136,27 @@ describe('fidelity validators', () => {
       'path',
     )
     expect(emptyVerbatim.map((issue) => issue.code)).toContain('block/empty-verbatim')
+
+    const externalSourceImage = validateStep(
+      {
+        id: 's4',
+        kind: 'source',
+        title: 'صورة',
+        attribution: 'textbook',
+        source: verifiedSource,
+        blocks: [
+          {
+            kind: 'source-image',
+            src: 'https://example.com/fake-parachute.jpg',
+            alt: '',
+            source: { page: '  ' },
+          },
+        ],
+      },
+      'path',
+    )
+    expect(externalSourceImage.map((issue) => issue.code)).toContain('block/invalid-source-image')
+    expect(externalSourceImage.map((issue) => issue.code)).toContain('block/unlabelled-source-image')
   })
 
   it('requires a final-test step to reference a test', () => {

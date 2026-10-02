@@ -85,6 +85,24 @@ export function validateStep(step: LessonStep, path: string): FidelityIssue[] {
         path,
       })
     }
+    if (block.kind === 'source-image') {
+      if (block.src.trim() === '' || /^https?:\/\//i.test(block.src.trim())) {
+        issues.push({
+          severity: 'error',
+          code: 'block/invalid-source-image',
+          message: `Step "${step.id}" contains a source-image block with an empty or external src.`,
+          path,
+        })
+      }
+      if (block.alt.trim() === '' || block.source.page.trim() === '') {
+        issues.push({
+          severity: 'error',
+          code: 'block/unlabelled-source-image',
+          message: `Step "${step.id}" contains a source-image block without alt text or page reference.`,
+          path,
+        })
+      }
+    }
   }
 
   if (step.blocks.length === 0 && step.kind !== 'final-test') {

@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { getLesson } from '@/data/curriculum/registry'
 import { ContentBlocks } from '@/lessons/ContentBlocks'
 import { strayScriptGlyphs } from './utils/strayGlyphs'
@@ -304,15 +304,15 @@ describe('physics lesson 1 page rendering', () => {
 
     await user.click(screen.getByRole('button', { name: /محاكاة: تجربة الربيعتين/ }))
     expect(await screen.findByText('أين تتلاقى حوامل القوى الثلاث؟')).toBeInTheDocument()
-    expect(container.querySelector('[data-interactive="concurrent-forces-lab"]')).not.toBeNull()
+    expect(container.querySelector('[data-interactive="concurrent-forces-lab"]')).toHaveAttribute('data-origin', 'platform')
 
     await user.click(screen.getByRole('button', { name: /محاكاة: ابنِ متوازي الأضلاع/ }))
     expect(await screen.findByText('قوّتان متلاقيتان: كيف نبني المحصّلة؟')).toBeInTheDocument()
-    expect(container.querySelector('[data-interactive="parallelogram-lab"]')).not.toBeNull()
+    expect(container.querySelector('[data-interactive="parallelogram-lab"]')).toHaveAttribute('data-origin', 'platform')
 
     await user.click(screen.getByRole('button', { name: /محاكاة: من قوّة واحدة إلى مركّبتين/ }))
     expect(await screen.findByText('قوّة واحدة تُستبدل بمركّبتين متعامدتين')).toBeInTheDocument()
-    expect(container.querySelector('[data-interactive="force-components-lab"]')).not.toBeNull()
+    expect(container.querySelector('[data-interactive="force-components-lab"]')).toHaveAttribute('data-origin', 'platform')
   })
 
   it('renders KaTeX blocks for the printed equations', async () => {
@@ -342,6 +342,88 @@ describe('platform additions are labelled', () => {
       }
       if (step.kind === 'source' || step.kind === 'activity' || step.kind === 'question' || step.kind === 'experiment' || step.kind === 'example') {
         expect(['textbook', 'mixed'], step.id).toContain(step.attribution)
+      }
+    }
+  })
+
+  it('enforces the source-visual fidelity contract across pages 55–62', () => {
+    const allBlocks = physicsLesson1.steps.flatMap((step) => step.blocks)
+
+    // 1. No textbook source-image is claimed without an actual asset in the repository,
+    // and no external or fabricated image URLs are introduced anywhere in the lesson.
+    const sourceImages = allBlocks.filter((block) => block.kind === 'source-image')
+    expect(sourceImages).toHaveLength(0)
+    for (const img of sourceImages) {
+      if (img.kind === 'source-image') {
+        expect(img.src).not.toMatch(/^https?:\/\/|^data:/i)
+        expect(existsSync(img.src)).toBe(true)
+      }
+    }
+    const serialized = JSON.stringify(physicsLesson1)
+    expect(serialized).not.toMatch(/https?:\/\//i)
+    expect(serialized).not.toMatch(/\.(png|jpe?g|webp|gif)\b/i)
+
+    // 2. When a source-image block is rendered by ContentBlocks, it is explicitly marked as textbook source with page metadata.
+    const { container: sampleImage } = render(
+      <ContentBlocks
+        blocks={[
+          {
+            kind: 'source-image',
+            src: '/assets/textbook/p56-experiment.png',
+            alt: 'شكل تجربة الربيعتين في الصفحة 56',
+            caption: 'شكل التجربة',
+            source: { page: '56', item: 'أجيب وأستنتج' },
+          },
+        ]}
+      />,
+    )
+    const figure = sampleImage.querySelector('figure.source-image')!
+    expect(figure).toHaveAttribute('data-origin', 'textbook')
+    expect(figure).toHaveAttribute('data-source-page', '56')
+    expect(figure.textContent).toContain('من الكتاب المدرسي — الصفحة 56')
+    sampleImage.remove()
+
+    // 3. Every textbook visual across pp. 55–61 is documented in its step as a platform-attributed note
+    // (never inside textbook-verbatim) with accurate page attribution.
+    const expectedFigureNotes: Array<[string, string, string]> = [
+      ['entry-parachute', '55', 'صورة المظلّي في الكتاب المدرسي (الصفحة 55)'],
+      ['concurrent-experiment', '56', 'شكلا الكتاب المدرسي (الصفحة 56)'],
+      ['resultant-construction', '57', 'شكلا الكتاب المدرسي (الصفحة 57)'],
+      ['solved-60', '58', 'شكل التطبيق المحلول في الكتاب المدرسي (الصفحة 58)'],
+      ['solved-90', '59', 'شكل التطبيق المحلول الثاني في الكتاب المدرسي (الصفحة 59)'],
+      ['components-theory', '59', 'شكل تحليل القوّة في الكتاب المدرسي (الصفحة 59)'],
+      ['incline-activity', '60', 'شكل النشاط في الكتاب المدرسي (الصفحة 60)'],
+      ['learn-box', '61', 'الشكل المرافق لصندوق «تعلّم» في الكتاب المدرسي (الصفحة 61)'],
+    ]
+
+    for (const [stepId, page, phrase] of expectedFigureNotes) {
+      const step = physicsLesson1.steps.find((candidate) => candidate.id === stepId)!
+      expect(step, stepId).toBeDefined()
+      expect(step.source?.pages.map((p) => p.page)).toContain(page)
+      const noteBlock = step.blocks.find(
+        (block) => block.kind === 'paragraph' && block.attribution === 'platform' && block.text.includes(phrase),
+      )
+      expect(noteBlock, `${stepId} figure note`).toBeDefined()
+      const verbatimBlocks = step.blocks.filter((block) => block.kind === 'textbook-verbatim')
+      for (const verbatim of verbatimBlocks) {
+        if (verbatim.kind === 'textbook-verbatim') {
+          expect(verbatim.text).not.toContain('غير متوفرة في أصول المستودع')
+        }
+      }
+    }
+
+    // 4. All three interactive reconstructions are explicitly labelled as «تجربة/محاكاة تفاعلية من المنصة»
+    // and never presented as original textbook figures.
+    const simulationStepIds = ['concurrent-lab', 'parallelogram-lab-step', 'components-lab']
+    for (const stepId of simulationStepIds) {
+      const step = physicsLesson1.steps.find((candidate) => candidate.id === stepId)!
+      expect(step.attribution).toBe('platform')
+      const stepText = JSON.stringify(step.blocks)
+      expect(stepText).toContain('تجربة/محاكاة تفاعلية من المنصة')
+      const interactiveBlock = step.blocks.find((block) => block.kind === 'interactive')
+      expect(interactiveBlock).toBeDefined()
+      if (interactiveBlock?.kind === 'interactive') {
+        expect(interactiveBlock.caption).toContain('تجربة/محاكاة تفاعلية من المنصة')
       }
     }
   })
