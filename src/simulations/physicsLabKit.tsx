@@ -80,7 +80,13 @@ export function LabStages({ stages, stage, onStage, label = 'مراحل البن
     <div className="plab__stepper">
       <div className="lab__actions plab__actions">
         <button type="button" className="button button--secondary" onClick={() => onStage(Math.min(stage + 1, last))} disabled={stage >= last}>
-          {next ? `التالي: ${next.title}` : 'اكتمل البناء'}
+          {next ? (
+            <>
+              التالي: <ScientificNotationText as="span">{next.title}</ScientificNotationText>
+            </>
+          ) : (
+            'اكتمل البناء'
+          )}
         </button>
         <button type="button" className="button button--quiet" onClick={() => onStage(Math.max(stage - 1, 0))} disabled={stage <= 0}>
           السابق
@@ -102,7 +108,9 @@ export function LabStages({ stages, stage, onStage, label = 'مراحل البن
               <span className="plab__stage-index" aria-hidden="true">
                 {index + 1}
               </span>
-              <span className="plab__stage-title">{item.title}</span>
+              <span className="plab__stage-title">
+                <ScientificNotationText as="span">{item.title}</ScientificNotationText>
+              </span>
             </button>
           </li>
         ))}
