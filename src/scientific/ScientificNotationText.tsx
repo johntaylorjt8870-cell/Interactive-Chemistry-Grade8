@@ -2,7 +2,9 @@ import type { ElementType, ReactNode } from 'react'
 import { ChemicalFormula } from './ChemicalFormula'
 import { IonNotation } from './IonNotation'
 import { NuclearNotation, parseCompactNuclearNotation } from './NuclearNotation'
+import { VectorNotation } from './VectorNotation'
 import { ScientificText, type SciVariant } from './ScientificText'
+import { VECTOR_TOKEN_SOURCE, parseVectorToken } from '@/utils/vectorText'
 
 const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
 const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
@@ -15,8 +17,12 @@ const COMPACT_ION_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+[�
 // promoted; plain runs like `NaCl` fall back to ScientificText, which already
 // isolates them correctly.
 const COMPACT_FORMULA_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+(?![A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⃗])'
+// Vector tokens (`w⃗`, `F₁⃗`, `OM⃗`, `F⃗'`) are matched first so a vector
+// subscript can never be mistaken for a chemical formula index. Every token is
+// promoted to structured <VectorNotation> markup — the combining U+20D7 arrow
+// must never be trusted to the text font.
 const COMPACT_NOTATION_RUN = new RegExp(
-  `${COMPACT_NUCLEAR_SOURCE}|${COMPACT_ION_SOURCE}|${COMPACT_FORMULA_SOURCE}`,
+  `${VECTOR_TOKEN_SOURCE}|${COMPACT_NUCLEAR_SOURCE}|${COMPACT_ION_SOURCE}|${COMPACT_FORMULA_SOURCE}`,
   'gu',
 )
 const EXACT_COMPACT_FORMULA = /^(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+$/u
@@ -75,14 +81,15 @@ export function ScientificNotationText<T extends ElementType = 'span'>({
   COMPACT_NOTATION_RUN.lastIndex = 0
   let match: RegExpExecArray | null
   while ((match = COMPACT_NOTATION_RUN.exec(children)) !== null) {
-    const nuclear = parseCompactNuclearNotation(match[0])
-    const ion = parseCompactIonNotation(match[0])
+    const vector = parseVectorToken(match[0])
+    const nuclear = vector ? null : parseCompactNuclearNotation(match[0])
+    const ion = vector ? null : parseCompactIonNotation(match[0])
     // A formula token glued to a preceding word character (`pH`) is part of
     // that word: leave the whole run to ScientificText, which isolates it as
     // one unit instead of splitting it.
     const preceding = match.index > 0 ? children[match.index - 1] ?? '' : ''
-    const formula = WORD_CHAR.test(preceding) ? null : parseCompactFormulaNotation(match[0])
-    if (!nuclear && !ion && !formula) continue
+    const formula = vector || WORD_CHAR.test(preceding) ? null : parseCompactFormulaNotation(match[0])
+    if (!vector && !nuclear && !ion && !formula) continue
 
     if (match.index > cursor) {
       parts.push(
@@ -92,7 +99,16 @@ export function ScientificNotationText<T extends ElementType = 'span'>({
       )
     }
 
-    if (nuclear) {
+    if (vector) {
+      parts.push(
+        <VectorNotation
+          key={`vector-${match.index}`}
+          raw={match[0]}
+          size="sm"
+          as="span"
+        />,
+      )
+    } else if (nuclear) {
       parts.push(
         <NuclearNotation
           key={`nuclear-${match.index}`}

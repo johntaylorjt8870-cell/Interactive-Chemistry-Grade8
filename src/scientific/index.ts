@@ -4,9 +4,10 @@
  * Every component in this folder owns exactly one notation responsibility:
  *
  *  - <ScientificText />     mixed Arabic prose with automatic LTR isolation
- *  - <ScientificNotationText /> promotes compact nuclides in mixed prose to structured DOM
+ *  - <ScientificNotationText /> promotes compact nuclides and vector symbols in mixed prose to structured DOM
  *  - <Sci />                explicit isolation of a scientific run
  *  - <MathFormula />        KaTeX mathematics (fractions, roots, powers)
+ *  - <VectorNotation />     force/vector symbols with a real arrow accent (w⃗, F₁⃗, OM⃗)
  *  - <ChemicalFormula />    subscripts and groups (H₂O, Ca(OH)₂)
  *  - <ChemicalEquation />   balanced reaction chains (A + B → C)
  *  - <ElectronConfiguration /> one LTR isolate for a distribution (2-8-8)
@@ -31,6 +32,9 @@ export type { ScientificNotationTextProps } from './ScientificNotationText'
 
 export { MathFormula, EquationRow } from './MathFormula'
 export type { MathFormulaProps, EquationRowProps } from './MathFormula'
+
+export { VectorNotation, VectorSvgLabel } from './VectorNotation'
+export type { VectorNotationProps, VectorSvgLabelProps, VectorTone } from './VectorNotation'
 
 export { ChemicalFormula, ChemicalEquation } from './ChemicalFormula'
 export type { ChemicalFormulaProps, ChemicalEquationProps, ChemicalFormulaSize } from './ChemicalFormula'
@@ -59,8 +63,8 @@ export type { ScientificValueProps, ScientificRangeProps, ScientificValueSize } 
 export { ScientificTable } from './ScientificTable'
 export type { ScientificTableProps, ScientificColumn, ScientificRow, TableAlign } from './ScientificTable'
 
-export { ScientificDiagram, DiagramDefs, DiagramVector, DiagramLegend } from './ScientificDiagram'
-export type { ScientificDiagramProps, DiagramVectorProps, DiagramLegendItem } from './ScientificDiagram'
+export { ScientificDiagram, DiagramDefs, VectorArrow, DiagramVector, DiagramLegend } from './ScientificDiagram'
+export type { ScientificDiagramProps, VectorArrowProps, VectorRole, DiagramVectorProps, DiagramLegendItem } from './ScientificDiagram'
 
 export { PlatformAddition, TextbookSource, PLATFORM_ADDITION_MARKER } from './PlatformAddition'
 export type { PlatformAdditionProps, TextbookSourceProps } from './PlatformAddition'
