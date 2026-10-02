@@ -1474,31 +1474,16 @@
   padding-block-end: var(--space-12);
 }
 
-.lesson-shell__header {
-  border-block-end: 1px solid var(--border-hairline);
-  background: var(--surface-base);
-  position: sticky;
-  top: var(--header-height);
-  z-index: 10;
-}
-
-.lesson-shell__header-inner {
-  padding-block: var(--space-2) var(--space-3);
-}
-
-.lesson-shell__topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  min-block-size: 2rem;
+/* Breadcrumb: a small line that scrolls away — it never sticks. */
+.lesson-shell__crumbs {
+  padding-block: var(--space-2) var(--space-1);
 }
 
 .lesson-shell__breadcrumb {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
   font-size: var(--fs-2xs);
   color: var(--text-muted);
 }
@@ -1508,32 +1493,48 @@
   text-decoration: none;
 }
 
-.lesson-shell__title-row {
+.lesson-shell__breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* The sticky bar is ONE slim row (about 45px): title + step chip, then position. */
+.lesson-shell__header {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 10;
+  border-block-end: 1px solid var(--border-hairline);
+  background: var(--surface-base);
+}
+
+.lesson-shell__header-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-block-start: var(--space-1);
+  gap: var(--space-3);
+  min-block-size: 2.75rem;
+  padding-block: var(--space-1);
 }
 
 .lesson-shell__title-block {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 auto;
   min-inline-size: 0;
 }
 
 .lesson-shell__title {
-  font-size: var(--fs-xl);
+  min-inline-size: 0;
+  margin: 0;
+  font-size: var(--fs-lg);
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .lesson-shell__subtitle {
+  flex: none;
   margin: 0;
-  color: var(--text-muted);
-  font-size: var(--fs-xs);
 }
 
 .lesson-shell__step-chip {
@@ -1551,48 +1552,50 @@
 
 .lesson-shell__mobile-trigger {
   display: none;
+  flex: none;
+}
+
+.lesson-shell__mobile-trigger .button {
+  padding-block: 0.3rem;
 }
 
 .lesson-shell__progress {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex: 0 0 auto;
+  gap: var(--space-2);
+  flex: none;
 }
 
+/* An explicit inline-size: a flex-basis on an empty track used to collapse the bar to nothing. */
 .lesson-shell__progress .progress {
-  flex: 0 1 180px;
+  flex: none;
+  inline-size: clamp(4.5rem, 11vw, 8.5rem);
 }
 
 .lesson-shell__progress-label {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  font-size: var(--fs-2xs);
-  color: var(--text-muted);
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
   white-space: nowrap;
-}
-
-.lesson-shell__progress-visited {
-  color: var(--text-muted);
-  opacity: 0.8;
-  font-size: var(--fs-3xs);
 }
 
 .lesson-shell__body {
   display: grid;
   grid-template-columns: var(--outline-width) minmax(0, 1fr);
-  gap: clamp(var(--space-4), 2.5vw, var(--space-8));
+  gap: clamp(var(--space-4), 2vw, var(--space-6));
   align-items: start;
-  padding-block-start: var(--space-6);
+  padding-block-start: var(--space-4);
 }
 
 .lesson-shell__aside {
   position: sticky;
-  top: calc(var(--header-height) + 84px);
-  max-block-size: calc(100dvh - var(--header-height) - 110px);
+  top: calc(var(--header-height) + 3.5rem);
+  max-block-size: calc(100dvh - var(--header-height) - 4.5rem);
   overflow-y: auto;
-  padding-inline-end: var(--space-2);
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding-inline-end: var(--space-1);
 }
 
 .lesson-shell__main {
@@ -1610,7 +1613,7 @@
 }
 
 .progress__track {
-  block-size: 8px;
+  block-size: 6px;
   border-radius: var(--radius-pill);
   background: var(--surface-sunken);
   border: 1px solid var(--border-hairline);
@@ -1619,6 +1622,7 @@
 
 .progress__bar {
   block-size: 100%;
+  min-inline-size: 4px;
   background: linear-gradient(to left, var(--accent), var(--accent-strong));
   transition: inline-size var(--dur-med) var(--ease-standard);
 }
@@ -1632,11 +1636,47 @@
 
 /* --- Lesson outline ------------------------------------------------------- */
 
+.lesson-outline__summary {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0 var(--space-1) var(--space-3);
+}
+
+.lesson-outline__heading {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+}
+
+.lesson-outline__count {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-2xs);
+}
+
+.lesson-outline__bar {
+  block-size: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.lesson-outline__bar > span {
+  display: block;
+  block-size: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: inline-size var(--dur-med) var(--ease-standard);
+}
+
 .lesson-outline__list {
   list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 1px;
 }
 
 .lesson-outline__button {
@@ -1644,12 +1684,15 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
-  padding: var(--space-2);
-  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.45rem;
+  border-radius: var(--radius-xs);
   border: 1px solid transparent;
   background: transparent;
   text-align: start;
   color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  cursor: pointer;
   transition:
     background-color var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard),
@@ -1667,20 +1710,26 @@
   color: var(--text-strong);
 }
 
+/* Index circle = status: number (to do), filled number (current), check (visited). */
 .lesson-outline__index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  inline-size: 22px;
-  block-size: 22px;
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.4rem;
+  block-size: 1.4rem;
+  margin-block-start: 0.05rem;
   flex: 0 0 auto;
-  border-radius: var(--radius-xs);
-  border: 1px solid var(--border-hairline);
+  border-radius: 50%;
+  border: 1px solid var(--border-soft);
   background: var(--surface-base);
   font-family: var(--font-latin);
   font-size: var(--fs-3xs);
   font-weight: var(--fw-bold);
   color: var(--text-muted);
+}
+
+.lesson-outline__button[data-seen='true'] .lesson-outline__index {
+  border-color: var(--status-success-text);
+  color: var(--status-success-text);
 }
 
 .lesson-outline__button[data-current='true'] .lesson-outline__index {
@@ -1692,22 +1741,14 @@
 .lesson-outline__text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 0.15rem;
   min-inline-size: 0;
 }
 
 .lesson-outline__title {
-  font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
-  line-height: var(--lh-snug);
-}
-
-.lesson-outline__meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--fs-2xs);
-  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .lesson-outline__kind {
@@ -1718,16 +1759,13 @@
   border: 1px solid var(--border-hairline);
   background: var(--surface-sunken);
   color: var(--text-secondary);
+  font-size: var(--fs-3xs);
 }
 
-.lesson-outline__check {
-  margin-inline-start: auto;
-  color: var(--status-success-text);
-  font-weight: var(--fw-bold);
-}
-
+/* Inside the drawer the entries are larger touch targets. */
 .lesson-outline--drawer .lesson-outline__button {
-  padding-inline: var(--space-2);
+  padding: 0.65rem 0.6rem;
+  font-size: var(--fs-sm);
 }
 
 /* --- Step ----------------------------------------------------------------- */
@@ -2680,14 +2718,29 @@
     position: static;
   }
 
-  .lesson-shell__title-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
+  .lesson-shell__header-inner {
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+    padding-block: var(--space-2);
+  }
+
+  .lesson-shell__mobile-trigger {
+    order: 1;
+  }
+
+  .lesson-shell__title-block {
+    order: 2;
+    flex: 1 1 10rem;
+  }
+
+  .lesson-shell__progress {
+    order: 3;
+    flex: 1 1 100%;
   }
 
   .lesson-shell__progress .progress {
     flex: 1 1 auto;
+    inline-size: auto;
   }
 
   .lesson-nav {

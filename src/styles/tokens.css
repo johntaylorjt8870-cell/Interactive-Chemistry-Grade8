@@ -133,10 +133,12 @@
   --layout-max: 1240px;
   --layout-gutter: clamp(1rem, 4vw, 3rem);
   --header-height: 68px;
-  /* Lesson navigation is secondary to lesson content: the outline column is
-     capped around a fifth of the layout so the reading column always dominates
-     (target band: 18–24% of the layout width on desktop). */
-  --outline-width: clamp(188px, 20vw, 252px);
+  /* Lesson navigation is secondary to lesson content. The outline column is
+     sized in viewport units (15vw, clamped to 172–212px) so it stays a small
+     sidebar at every desktop width — 11–16% of the viewport, never the 300px /
+     35–40% slab it used to be — and the reading column always dominates.
+     Below 1080px it becomes a drawer instead of a squeezed column. */
+  --outline-width: clamp(172px, 15vw, 212px);
 
   /* --- Scientific typography ------------------------------------------- */
   --sci-letter-spacing: 0.01em;
@@ -156,7 +158,7 @@
   --vec-weight-soft: #fee2e2;
   --vec-resultant: #6d28d9;
   --vec-resultant-soft: #ede9fe;
-  --vec-component1: #b45309;
+  --vec-component1: #a64a07; /* 5.1:1 on the lab board (was 4.4:1) so the F₁ label passes AA */
   --vec-component2: #0f766e;
   --vec-construction: #64748b;
   --vec-angle: #475569;

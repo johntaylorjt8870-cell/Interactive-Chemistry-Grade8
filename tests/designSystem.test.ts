@@ -156,7 +156,7 @@ describe('layout responsiveness contract', () => {
 })
 
 describe('lesson outline width contract — content first, navigation second', () => {
-  it('keeps the outline column inside the 18–24% band of the layout', () => {
+  it('keeps the outline column a small sidebar: 12–17% of the viewport', () => {
     // `clamp(min, preferred, max)` on --outline-width; the preferred value is
     // expressed in viewport units and must sit in the target band.
     const clamp = tokens.match(/--outline-width:\s*clamp\(([^)]+)\)/)?.[1] ?? ''
@@ -166,8 +166,9 @@ describe('lesson outline width contract — content first, navigation second', (
     const match = preferred.match(/^(\d+(?:\.\d+)?)vw$/)
     expect(match, `preferred width should be viewport-relative, got ${preferred}`).not.toBeNull()
     const vw = Number(match?.[1] ?? '0')
-    expect(vw).toBeGreaterThanOrEqual(18)
-    expect(vw).toBeLessThanOrEqual(24)
+    // Tightened from 18–24vw: the outline must read as a small sidebar, not a fifth of the screen.
+    expect(vw).toBeGreaterThanOrEqual(12)
+    expect(vw).toBeLessThanOrEqual(17)
   })
 
   it('gives the lesson content column the dominant flexible width', () => {
