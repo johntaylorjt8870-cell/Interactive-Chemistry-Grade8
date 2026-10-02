@@ -142,6 +142,19 @@
   color: inherit;
 }
 
+/* KaTeX draws every stretchy accent (\vec, \overrightarrow, \widehat), the
+   radical sign and stretchy arrows as inline <svg> whose width is set in `em`
+   and whose containing block is an absolutely positioned, zero-width span.
+   The global reset `img, svg, canvas { max-width: 100% }` (base.css) resolves
+   against that zero-width containing block and clamps those SVGs to 0px — the
+   arrowhead then silently disappears (invisible `w⃗`, `F₁⃗`, `OM⃗`) while the
+   DOM still looks correct. KaTeX's own SVGs must opt out of the page reset.
+   Specificity (0,1,1) beats the reset (0,0,1) independently of source order. */
+.katex svg,
+.katex-html svg {
+  max-width: none;
+}
+
 /* --- Scientific code / symbol runs in prose ------------------------------- */
 .sci-token {
   display: inline-block;
