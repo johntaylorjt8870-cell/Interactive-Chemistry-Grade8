@@ -9,6 +9,11 @@ import {
   bookQuestions as lesson2Questions,
   finalTest as lesson2FinalTest,
 } from '@/data/curriculum/chemistryLesson2'
+import {
+  bookActivitySolutions as physicsLesson1Activities,
+  bookQuestions as physicsLesson1Questions,
+  finalTest as physicsLesson1FinalTest,
+} from '@/data/curriculum/physicsLesson1'
 
 /**
  * Teacher-area content registry.
@@ -46,6 +51,14 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     bookNote: 'تتضمن أسئلة أختبر نفسي الخمسة وحلول نشاطات الصفحات 13 و15 و16 وقضيّة البحث.',
     bookQuestions: [...lesson2Activities, ...lesson2Questions],
     finalTest: lesson2FinalTest,
+  },
+  {
+    lessonId: 'phys-u2-l1',
+    label: 'الدرس الأول — فيزياء: القوى المتلاقية',
+    pages: 'الصفحات 55–62',
+    bookNote: 'تتضمن أسئلة أختبر نفسي الست والمسألتين وحلول تجربة الصفحة 56 ونشاط المستوي المائل وأسئلة أسائل.',
+    bookQuestions: [...physicsLesson1Activities, ...physicsLesson1Questions],
+    finalTest: physicsLesson1FinalTest,
   },
 ]
 

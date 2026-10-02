@@ -82,6 +82,27 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     description: 'مقارنة H₂ وO₂ وN₂ بين تمثيل لويس والنموذج وقراءة الأزواج المشتركة وغير المشتركة.',
     load: () => import('./CovalentBondLab'),
   },
+  {
+    id: 'concurrent-forces-lab',
+    title: 'مختبر القوى المتلاقية: تجربة الربيعتين',
+    kind: 'experiment',
+    description: 'تغيير زاويتي الربيعتين وثقل الجسم ومراقبة شدّتي الشدّ وتلاقي الحوامل في نقطة واحدة.',
+    load: () => import('./ConcurrentForcesLab'),
+  },
+  {
+    id: 'parallelogram-lab',
+    title: 'مختبر متوازي الأضلاع: بناء المحصّلة',
+    kind: 'simulation',
+    description: 'تغيير الشدّتين والزاوية وبناء متوازي الأضلاع وقراءة شدّة المحصّلة وجهتها، مع حالة فيتاغورث للزاوية القائمة.',
+    load: () => import('./ParallelogramLab'),
+  },
+  {
+    id: 'force-components-lab',
+    title: 'مختبر تحليل القوّة إلى مركّبتين متعامدتين',
+    kind: 'simulation',
+    description: 'تحليل قوّة واحدة إلى مركّبتين متعامدتين على محورين، وتحليل الثقل على مستوٍ مائل كما في نشاط الصفحة 60.',
+    load: () => import('./ForceComponentsLab'),
+  },
 ]
 
 const registry = new Map<string, InteractiveDefinition>(

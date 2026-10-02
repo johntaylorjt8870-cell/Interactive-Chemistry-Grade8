@@ -14,7 +14,7 @@ const COMPACT_ION_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+[�
 // in `pH` or the `Ne` in `Newton`. Only tokens carrying a real subscript are
 // promoted; plain runs like `NaCl` fall back to ScientificText, which already
 // isolates them correctly.
-const COMPACT_FORMULA_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+(?![A-Za-z₀₁₂₃₄₅₆₇₈₉])'
+const COMPACT_FORMULA_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+(?![A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⃗])'
 const COMPACT_NOTATION_RUN = new RegExp(
   `${COMPACT_NUCLEAR_SOURCE}|${COMPACT_ION_SOURCE}|${COMPACT_FORMULA_SOURCE}`,
   'gu',

@@ -61,6 +61,44 @@ describe('splitScientificRuns — RTL/LTR separation', () => {
   })
 })
 
+describe('physics notation stays one logical run (vectors and printed equations)', () => {
+  it('keeps a vector symbol with its combining arrow inside one isolate', () => {
+    const runs = splitScientificRuns('وليكن الشعاع OM⃗ .')
+    expect(runs).toEqual([
+      { kind: 'prose', value: 'وليكن الشعاع ' },
+      { kind: 'science', value: 'OM⃗' },
+      { kind: 'prose', value: ' .' },
+    ])
+  })
+
+  it('keeps subscripted force symbols intact', () => {
+    const sciences = splitScientificRuns('يمثّلان المركّبتين F₁⃗ ، F₂⃗ .').filter((run) => run.kind === 'science')
+    expect(sciences.map((run) => run.value)).toEqual(['F₁⃗', 'F₂⃗'])
+  })
+
+  it('keeps the printed graphical-scale equation one run', () => {
+    expect(splitScientificRuns('حسب مقياس الرسم: F = 6 × 1 = 6 N').find((run) => run.kind === 'science')?.value).toBe('F = 6 × 1 = 6 N')
+  })
+
+  it('keeps the printed Pythagoras equation one run', () => {
+    const value = splitScientificRuns('تُحسب من العلاقة: F = √(F₁² + F₂²) أو من الرسم.').find((run) => run.kind === 'science')?.value
+    expect(value).toBe('F = √(F₁² + F₂²)')
+  })
+
+  it('isolates angles and scale values with their units', () => {
+    const runs = splitScientificRuns('زاوية 60° ومقياس 1cm يمثل 1N')
+    const sciences = runs.filter((run) => run.kind === 'science').map((run) => run.value)
+    expect(sciences).toEqual(['60°', '1cm', '1N'])
+  })
+
+  it('never swallows Arabic prose that follows an equation', () => {
+    const runs = splitScientificRuns('الشدّة: F = 100 N ويمكن أن نحسب')
+    expect(runs[0]).toEqual({ kind: 'prose', value: 'الشدّة: ' })
+    expect(runs[1]).toEqual({ kind: 'science', value: 'F = 100 N' })
+    expect(runs[2]).toEqual({ kind: 'prose', value: ' ويمكن أن نحسب' })
+  })
+})
+
 describe('electron configurations stay one logical run', () => {
   it.each(['2-8-8', '2-8-1', '2-8-7', '2-8-8-1', '2-8-18-7', '2-8-18-8'])(
     'matches %s as a single scientific run',

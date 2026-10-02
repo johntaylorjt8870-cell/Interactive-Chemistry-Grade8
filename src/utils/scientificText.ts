@@ -16,6 +16,25 @@ export type ScientificRun =
 /** Latin identifier / unit / symbol fragment, e.g. `N`, `mol`, `m/s²`, `°C`. */
 const UNIT = String.raw`[A-Za-zµΩÅ%°][A-Za-z0-9µΩÅ°⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺/^·\-]*`
 const NUMBER = String.raw`\d+(?:[.,]\d+)?`
+/**
+ * Unicode scripts the textbook prints inside scientific symbols: subscripts
+ * (F₁), superscripts (F²) and the combining vector arrow (F⃗، OM⃗). They are
+ * part of the symbol itself, so they must travel inside the same LTR isolate
+ * as the Latin letter they belong to — never float in the RTL prose.
+ */
+const SCRIPT_GLYPHS = '₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁹⃗'
+/** Latin identifier carrying its own scripts, e.g. `F₁⃗`, `OM`, `H₂O`, `F²`. */
+const IDENT_EXT = String.raw`[A-Za-z][A-Za-z0-9_'’.\-${SCRIPT_GLYPHS}]*`
+/**
+ * A complete mathematical run that must read as ONE left-to-right unit inside
+ * Arabic prose: a vector symbol (`OM⃗`), or a whole printed equation such as
+ * `F = 6 × 1 = 6 N` and `F = √(F₁² + F₂²)`. Splitting these into several
+ * isolates would let the RTL paragraph reorder their pieces, so the run starts
+ * at a letter/digit, spans formula glyphs, and ends on a meaningful character
+ * (never on a stray space or operator). Arabic text and Arabic punctuation are
+ * not in the class, so prose always terminates the run.
+ */
+const MATH_RUN = String.raw`[A-Za-z0-9](?:[A-Za-z0-9\s=+\-−×÷·±√/()%°²³${SCRIPT_GLYPHS}'’._]*[A-Za-z0-9)⃗²³])?`
 /** Scientific notation such as 6.02×10²³ or 3.2 x 10^-4 */
 const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺²³⁴⁵⁶⁷⁸⁹]+))?`
 
@@ -51,7 +70,8 @@ const SCIENTIFIC_RUN = new RegExp(
   [
     String.raw`(?:${NUMERIC_HYPHEN_SEQUENCE})`,
     String.raw`(?:${NUMBER}${EXPONENT}(?:\s?${UNIT})?)`,
-    String.raw`(?:[A-Za-z][A-Za-z0-9_'’.\-]*(?:(?:\s?[=+\-−×÷·]\s?)[A-Za-z0-9_'’.\-]+)*)`,
+    String.raw`(?:${MATH_RUN})`,
+    String.raw`(?:${IDENT_EXT}(?:(?:\s?[=+\-−×÷·]\s?)[A-Za-z0-9_'’.\-₀₁₂₃₄₆₇₈⁰¹²³⁴⁵⁶⁸⁹⃗]+)*)`,
     String.raw`(?:[=+\-−×÷·]\s?${NUMBER})`,
   ].join('|'),
   'gu',
