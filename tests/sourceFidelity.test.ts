@@ -46,17 +46,18 @@ describe('curriculum registry — first verified chemistry lesson', () => {
     expect(listSubjects().map((subject) => subject.id)).toEqual([...SUBJECT_IDS])
   })
 
-  it('publishes only the verified chemistry unit and keeps physics pending', () => {
-    expect(listUnits('physics')).toEqual([])
-    expect(isSubjectPopulated('physics')).toBe(false)
-    expect(getSubjectDefinition('physics').status).toBe('awaiting-source')
+  it('publishes the verified chemistry and physics units', () => {
+    expect(listUnits('physics')).toHaveLength(1)
+    expect(isSubjectPopulated('physics')).toBe(true)
+    expect(getSubjectDefinition('physics').status).toBe('source-verified')
+    expect(getLesson('physics', 'motion-and-forces', 'concurrent-forces')?.title).toContain('القوى المتلاقية')
 
     expect(listUnits('chemistry')).toHaveLength(1)
     expect(isSubjectPopulated('chemistry')).toBe(true)
     expect(getSubjectDefinition('chemistry').status).toBe('source-verified')
     expect(getLesson('chemistry', 'structural-chemistry', 'atom-and-element')?.title).toContain('الذرّة والعنصر')
     expect(isCurriculumEmpty()).toBe(false)
-    expect(curriculumStats()).toEqual({ units: 1, lessons: 2, steps: 35 })
+    expect(curriculumStats()).toEqual({ units: 2, lessons: 3, steps: 54 })
   })
 
   it('returns nothing for unknown slugs instead of falling back to fabricated content', () => {
@@ -198,11 +199,17 @@ describe('fidelity validators', () => {
     expect(summariseReadability(partial)).toContain('الأشكال: غير مقروء')
   })
 
-  it('ships the verified lesson with pages 3–12 and leaves physics empty', () => {
-    expect(curriculum.physics.units).toEqual([])
+  it('ships the verified chemistry lesson with pages 3–12', () => {
     const lesson = curriculum.chemistry.units[0]!.lessons[0]!
     expect(lesson.source.verified).toBe(true)
     expect(lesson.source.pages.map((page) => page.page)).toEqual(['3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
     expect(lesson.tests?.find((test) => test.id.endsWith('final'))?.questions).toHaveLength(15)
+  })
+
+  it('ships the verified physics lesson with pages 55–62', () => {
+    expect(curriculum.physics.units).toHaveLength(1)
+    const lesson = curriculum.physics.units[0]!.lessons[0]!
+    expect(lesson.source.verified).toBe(true)
+    expect(lesson.source.pages.map((page) => page.page)).toEqual(['55', '56', '57', '58', '59', '60', '61', '62'])
   })
 })

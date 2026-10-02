@@ -9,6 +9,7 @@ import {
 } from './schema'
 import { chemistryLesson1 } from './chemistryLesson1'
 import { chemistryLesson2 } from './chemistryLesson2'
+import { physicsLesson1 } from './physicsLesson1'
 
 /* ============================================================================
    Curriculum registry
@@ -27,15 +28,25 @@ const PHYSICS: SubjectDefinition = {
   title: 'الفيزياء',
   latinTitle: 'Physics',
   description:
-    'مسار الفيزياء في هذه المنصة. ستُبنى دروسه حرفياً من صفحات الكتاب المدرسي بعد توفير صور الصفحات وقراءتها واعتمادها.',
+    'مسار الفيزياء للصف الثامن، ويُبنى حرفياً من صفحات الكتاب المدرسي بعد قراءتها واعتماد تقرير وضوحها؛ يبدأ بالوحدة الثانية: الحركة والقوى.',
   motifs: [
     { label: 'حركة', glyph: 'vector' },
     { label: 'موجات', glyph: 'wave' },
     { label: 'طاقة', glyph: 'energy' },
     { label: 'مدارات', glyph: 'orbit' },
   ],
-  status: 'awaiting-source',
-  units: [],
+  status: 'source-verified',
+  units: [
+    {
+      id: 'phys-u2',
+      slug: 'motion-and-forces',
+      title: 'الوحدة الثانية — الحركة والقوى',
+      order: 2,
+      status: 'source-verified',
+      source: { pages: Array.from({ length: 8 }, (_, index) => ({ page: String(index + 55) })), verified: true },
+      lessons: [physicsLesson1],
+    },
+  ],
 }
 
 const CHEMISTRY: SubjectDefinition = {

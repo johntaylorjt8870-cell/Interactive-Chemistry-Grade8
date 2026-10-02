@@ -3071,3 +3071,83 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   background: var(--accent);
   color: var(--text-on-accent);
 }
+
+/* ============================================================================
+   Physics vector laboratories (القوى المتلاقية) — subject identity: blue accent
+   ========================================================================== */
+
+.parallelogram-lab__controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-4);
+  margin-block: var(--space-4);
+}
+
+.parallelogram-lab__figure,
+.concurrent-forces-lab__figure,
+.force-components-lab__figure {
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent-tint) 65%, transparent), transparent 60%),
+    var(--surface-raised);
+  margin-block-end: var(--space-4);
+}
+
+.parallelogram-lab__figure svg,
+.concurrent-forces-lab__figure svg,
+.force-components-lab__figure svg {
+  inline-size: 100%;
+  block-size: auto;
+  display: block;
+}
+
+.vec-lab__force { stroke-width: 3; fill: none; }
+.vec-lab__force--f1 { stroke: #059669; }
+.vec-lab__force--f2 { stroke: #2563eb; }
+.vec-lab__force--w { stroke: #dc2626; }
+.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.5; fill: none; }
+.vec-lab__dashed { stroke: #60a5fa; stroke-width: 1.6; stroke-dasharray: 6 5; fill: none; }
+.vec-lab__carrier { stroke: #94a3b8; stroke-width: 1.2; stroke-dasharray: 2 4; fill: none; }
+.vec-lab__axis { stroke: var(--text-muted); stroke-width: 1.4; fill: none; }
+.vec-lab__angle { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+.vec-lab__point { fill: #dc2626; stroke: var(--surface-raised); stroke-width: 1.5; }
+.vec-lab__label {
+  font: italic 700 15px var(--font-science);
+  fill: var(--text-primary);
+}
+.vec-lab__label--resultant { fill: var(--accent-strong); }
+.concurrent-forces-lab__body { fill: #f59e0b; stroke: #92400e; stroke-width: 1.2; }
+
+.vec-lab__construction,
+.vec-lab__resultant-group { animation: vec-lab-fade 0.5s ease both; }
+
+.parallelogram-lab__pythagoras {
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 3px solid var(--accent);
+  background: var(--accent-tint);
+  border-radius: var(--radius-lg);
+  margin-block-end: var(--space-4);
+}
+
+.concurrent-forces-lab__toggle,
+.covalent-bond-lab__highlight {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 650;
+}
+
+.lab--still .vec-lab__construction,
+.lab--still .vec-lab__resultant-group { animation: none; }
+
+@keyframes vec-lab-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vec-lab__construction,
+  .vec-lab__resultant-group { animation: none; }
+}

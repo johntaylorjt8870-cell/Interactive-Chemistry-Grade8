@@ -23,15 +23,15 @@ describe('application boot and routing', () => {
 
     const status = screen.getByText(/الوحدات المنشورة حتى الآن/)
     expect(status).toBeInTheDocument()
-    expect(status).toHaveTextContent('الوحدات المنشورة حتى الآن: 1')
-    expect(status).toHaveTextContent('الدروس: 2')
+    expect(status).toHaveTextContent('الوحدات المنشورة حتى الآن: 2')
+    expect(status).toHaveTextContent('الدروس: 3')
   })
 
-  it('routes to the physics subject page', async () => {
+  it('routes to the physics subject page with its published unit', async () => {
     renderApp('/physics')
 
     expect(await screen.findByRole('heading', { level: 1, name: 'الفيزياء' })).toBeInTheDocument()
-    expect(screen.getByText(/لم تُضف وحدات هذا المسار بعد/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /الوحدة الثانية — الحركة والقوى/ })).toBeInTheDocument()
     expect(screen.getByText(/الكتاب المدرسي الجامع للفيزياء والكيمياء/)).toBeInTheDocument()
   })
 
