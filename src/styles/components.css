@@ -286,6 +286,9 @@
   flex-direction: column;
   background: var(--surface-base);
   box-shadow: var(--shadow-lg);
+  /* Entrance shift follows the logical side, so the panel always slides in from
+     the edge it is anchored to — in RTL the `start` drawer sits on the right. */
+  --drawer-enter-shift: -12%;
   animation: slide-in var(--dur-med) var(--ease-emphasis);
 }
 
@@ -295,6 +298,15 @@
 
 .drawer--end {
   inset-inline-end: 0;
+  --drawer-enter-shift: 12%;
+}
+
+[dir='rtl'] .drawer--start {
+  --drawer-enter-shift: 12%;
+}
+
+[dir='rtl'] .drawer--end {
+  --drawer-enter-shift: -12%;
 }
 
 .drawer__header {
@@ -329,8 +341,15 @@
 
 @keyframes slide-in {
   from {
-    transform: translateX(-12%);
+    transform: translateX(var(--drawer-enter-shift, -12%));
     opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .drawer-backdrop {
+    animation: none;
   }
 }
 

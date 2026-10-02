@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { DiagramDefs, ScientificValue } from '@/scientific'
+import { LiveStatus } from '@/components/LiveStatus'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -29,6 +30,11 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
 
   const s = 16
   const a = rad(angle)
+
+  const announcement =
+    mode === 'axes'
+      ? `تحليل قوّة على محورين: القوّة ${force} نيوتن بزاوية ${theta} درجة؛ المركّبة الأفقية ${along.toFixed(1)} نيوتن والمركّبة الشاقولية ${perp.toFixed(1)} نيوتن.`
+      : `المستوي المائل: ثقل ${weight} نيوتن على مستوٍ بزاوية ${incline} درجة؛ المركّبة الموازية للمستوي ${along.toFixed(1)} نيوتن والمركّبة الشاقولية عليه ${perp.toFixed(1)} نيوتن.`
 
   return (
     <section
@@ -60,13 +66,13 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
             <span>
               شدّة القوّة F <ScientificValue value={force} unit="N" size="sm" />
             </span>
-            <input type="range" min={2} max={10} step={1} value={force} onChange={(event) => setForce(Number(event.target.value))} aria-label="شدّة القوّة نيوتن" />
+            <input type="range" min={2} max={10} step={1} value={force} onChange={(event) => setForce(Number(event.target.value))} aria-label="شدّة القوّة نيوتن" aria-valuetext={`${force} نيوتن`} />
           </label>
           <label className="lab__range">
             <span>
               زاوية F مع المحور الأفقي <ScientificValue value={theta} unit="°" size="sm" />
             </span>
-            <input type="range" min={10} max={80} step={5} value={theta} onChange={(event) => setTheta(Number(event.target.value))} aria-label="زاوية القوّة مع المحور الأفقي بالدرجات" />
+            <input type="range" min={10} max={80} step={5} value={theta} onChange={(event) => setTheta(Number(event.target.value))} aria-label="زاوية القوّة مع المحور الأفقي بالدرجات" aria-valuetext={`${theta} درجة`} />
           </label>
         </div>
       ) : (
@@ -75,13 +81,13 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
             <span>
               زاوية الميل a <ScientificValue value={incline} unit="°" size="sm" />
             </span>
-            <input type="range" min={5} max={60} step={5} value={incline} onChange={(event) => setIncline(Number(event.target.value))} aria-label="زاوية ميل المستوي بالدرجات" />
+            <input type="range" min={5} max={60} step={5} value={incline} onChange={(event) => setIncline(Number(event.target.value))} aria-label="زاوية ميل المستوي بالدرجات" aria-valuetext={`${incline} درجة`} />
           </label>
           <label className="lab__range">
             <span>
               ثقل الجسم w <ScientificValue value={weight} unit="N" size="sm" />
             </span>
-            <input type="range" min={2} max={10} step={1} value={weight} onChange={(event) => setWeight(Number(event.target.value))} aria-label="ثقل الجسم نيوتن" />
+            <input type="range" min={2} max={10} step={1} value={weight} onChange={(event) => setWeight(Number(event.target.value))} aria-label="ثقل الجسم نيوتن" aria-valuetext={`${weight} نيوتن`} />
           </label>
         </div>
       )}
@@ -113,7 +119,9 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
         </div>
       </div>
 
-      <p className="lab__conclusion" aria-live="polite">
+      <LiveStatus message={announcement} />
+
+      <p className="lab__conclusion">
         <strong>الاستنتاج:</strong> المركّبتان المتعامدتان تقومان معاً مقام القوّة الأصلية، وعملية التحليل معاكسة لعملية إيجاد
         المحصّلة. على المستوي المائل يكون الشكل الناتج مستطيلاً: مركّبة توازي المستوي وأخرى تعامده، ومجموعهما الهندسي يعيد
         الثقل نفسه.

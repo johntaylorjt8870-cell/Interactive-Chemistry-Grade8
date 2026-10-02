@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { DiagramDefs, ScientificValue } from '@/scientific'
+import { LiveStatus } from '@/components/LiveStatus'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -24,6 +25,8 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
     const t2 = (w * Math.sin(rad(a1))) / Math.sin(rad(sum))
     return { t1, t2, sum }
   }, [a1, a2, w])
+
+  const announcement = `ثقل الجسم ${w} نيوتن والزاوية بين الربيعتين ${state.sum} درجة؛ شدّة الشدّ في الربيعة الأولى ${state.t1.toFixed(1)} نيوتن وفي الثانية ${state.t2.toFixed(1)} نيوتن.`
 
   const O = { x: 240, y: 170 }
   const springLen = 95
@@ -60,19 +63,19 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
           <span>
             ميل الربيعة الأولى عن الشاقول <ScientificValue value={a1} unit="°" size="sm" />
           </span>
-          <input type="range" min={10} max={80} step={5} value={a1} onChange={(event) => setA1(Number(event.target.value))} aria-label="ميل الربيعة الأولى عن الشاقول بالدرجات" />
+          <input type="range" min={10} max={80} step={5} value={a1} onChange={(event) => setA1(Number(event.target.value))} aria-label="ميل الربيعة الأولى عن الشاقول بالدرجات" aria-valuetext={`${a1} درجة`} />
         </label>
         <label className="lab__range">
           <span>
             ميل الربيعة الثانية عن الشاقول <ScientificValue value={a2} unit="°" size="sm" />
           </span>
-          <input type="range" min={10} max={80} step={5} value={a2} onChange={(event) => setA2(Number(event.target.value))} aria-label="ميل الربيعة الثانية عن الشاقول بالدرجات" />
+          <input type="range" min={10} max={80} step={5} value={a2} onChange={(event) => setA2(Number(event.target.value))} aria-label="ميل الربيعة الثانية عن الشاقول بالدرجات" aria-valuetext={`${a2} درجة`} />
         </label>
         <label className="lab__range">
           <span>
             ثقل الجسم المعلّق <ScientificValue value={w} unit="N" size="sm" />
           </span>
-          <input type="range" min={1} max={10} step={1} value={w} onChange={(event) => setW(Number(event.target.value))} aria-label="ثقل الجسم المعلق نيوتن" />
+          <input type="range" min={1} max={10} step={1} value={w} onChange={(event) => setW(Number(event.target.value))} aria-label="ثقل الجسم المعلق نيوتن" aria-valuetext={`${w} نيوتن`} />
         </label>
       </div>
 
@@ -127,7 +130,9 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
         </div>
       </div>
 
-      <p className="lab__conclusion" aria-live="polite">
+      <LiveStatus message={announcement} />
+
+      <p className="lab__conclusion">
         <strong>الاستنتاج:</strong> مهما غيّرت الزاويتين أو الثقل، تبقى حوامل القوى الثلاث (بامتداداتها المتقطعة) تتلاقى في
         نقطة واحدة هي نقطة التعليق O؛ لذلك تسمّى قوى متلاقية، والجسم يبقى ساكناً لأن محصّلتها صفر.
       </p>
