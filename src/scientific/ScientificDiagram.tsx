@@ -87,7 +87,7 @@ export function DiagramDefs() {
         markerHeight="6"
         orient="auto-start-reverse"
       >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
+        <path className="diagram-arrowhead" d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
       </marker>
       <marker
         id="diagram-arrow-muted"

@@ -359,12 +359,45 @@ describe('regression — inline vector notation inside Physics Lesson 1 prose re
     )
   }
 
-  it('keeps F₁⃗ and OM⃗ inside LTR isolates on the page-60 step', () => {
+  it('draws F₁⃗ and OM⃗ as real arrows inside LTR isolates on the page-60 step', () => {
     const { container } = renderStepBlocks('components-theory')
-    const isolated = [...container.querySelectorAll('[dir="ltr"]')].map((el) => el.textContent ?? '')
-    expect(isolated.some((text) => text.includes('OM'))).toBe(true)
-    expect(isolated.some((text) => text.includes('F₁⃗'))).toBe(true)
+    const vectors = [...container.querySelectorAll('.sci-vector')]
+
+    expect(vectors.some((vector) => vector.getAttribute('data-vector') === 'OM')).toBe(true)
+    const f1 = vectors.find(
+      (vector) =>
+        vector.getAttribute('data-vector') === 'F' && vector.querySelector('sub')?.textContent === '1',
+    )
+    expect(f1, 'F₁ must be rendered as F with a real subscript').toBeDefined()
+    expect(f1!.getAttribute('data-tone')).toBe('force-f1')
+
+    for (const vector of vectors) {
+      // The symbol is its own LTR isolate, inside an isolated scientific run.
+      expect(vector.getAttribute('dir')).toBe('ltr')
+      expect(vector.closest('[dir="ltr"]')).not.toBeNull()
+      // A drawn arrow: a shaft and an arrowhead with real geometry.
+      expect(vector.querySelector('.sci-vector__shaft')).not.toBeNull()
+      const head = vector.querySelector('svg.sci-vector__head path')
+      expect(head).not.toBeNull()
+      expect(head!.getAttribute('d')).toBeTruthy()
+    }
+
+    expect(container.textContent).not.toContain('⃗')
     expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
+  it('never leaves the combining vector mark in any physics step', () => {
+    for (const step of physicsLesson1.steps) {
+      const blocks = step.blocks.filter((block) => block.kind !== 'interactive' && block.kind !== 'question')
+      if (blocks.length === 0) continue
+      const { container } = render(
+        <div dir="rtl">
+          <ContentBlocks blocks={blocks} />
+        </div>,
+      )
+      expect(container.textContent ?? '', step.id).not.toContain('⃗')
+      container.remove()
+    }
   })
 
   it('leaves no subscript or charge glyph floating in RTL prose in ANY physics step', () => {

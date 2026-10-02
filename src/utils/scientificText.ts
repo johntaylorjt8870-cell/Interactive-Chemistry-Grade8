@@ -17,12 +17,23 @@ export type ScientificRun =
 const UNIT = String.raw`[A-Za-zµΩÅ%°][A-Za-z0-9µΩÅ°⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺/^·\-]*`
 const NUMBER = String.raw`\d+(?:[.,]\d+)?`
 /**
+ * U+20D7 COMBINING RIGHT ARROW ABOVE — the printed vector mark of the textbook
+ * (`F⃗`, `w⃗`, `OM⃗`).
+ *
+ * It is treated as a *source* mark only: <VectorNotation /> draws a real arrow
+ * instead of rendering the character, because text fonts drop it, attach it to
+ * the wrong glyph (the subscript in `F₁⃗`) or stretch it over the wrong width.
+ * The mark never leaves the notation layer as text (see parseVectorNotation).
+ */
+export const VECTOR_ARROW = '\u20D7'
+
+/**
  * Unicode scripts the textbook prints inside scientific symbols: subscripts
  * (F₁), superscripts (F²) and the combining vector arrow (F⃗، OM⃗). They are
  * part of the symbol itself, so they must travel inside the same LTR isolate
  * as the Latin letter they belong to — never float in the RTL prose.
  */
-const SCRIPT_GLYPHS = '₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁹⃗'
+const SCRIPT_GLYPHS = '₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁹' + VECTOR_ARROW
 /** Latin identifier carrying its own scripts, e.g. `F₁⃗`, `OM`, `H₂O`, `F²`. */
 const IDENT_EXT = String.raw`[A-Za-z][A-Za-z0-9_'’.\-${SCRIPT_GLYPHS}]*`
 /**
@@ -33,8 +44,12 @@ const IDENT_EXT = String.raw`[A-Za-z][A-Za-z0-9_'’.\-${SCRIPT_GLYPHS}]*`
  * at a letter/digit, spans formula glyphs, and ends on a meaningful character
  * (never on a stray space or operator). Arabic text and Arabic punctuation are
  * not in the class, so prose always terminates the run.
+ *
+ * A prime immediately after the symbol (`F⃗'`) belongs to the symbol: it is
+ * part of the printed notation, and it must sit inside the same LTR isolate —
+ * left in the RTL prose it would be laid out on the wrong side of the arrow.
  */
-const MATH_RUN = String.raw`[A-Za-z0-9](?:[A-Za-z0-9\s=+\-−×÷·±√/()%°²³${SCRIPT_GLYPHS}'’._]*[A-Za-z0-9)⃗²³])?`
+const MATH_RUN = String.raw`[A-Za-z0-9](?:[A-Za-z0-9\s=+\-−×÷·±√/()%°²³${SCRIPT_GLYPHS}'’._]*[A-Za-z0-9)⃗²³]['’]?)?`
 /** Scientific notation such as 6.02×10²³ or 3.2 x 10^-4 */
 const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺²³⁴⁵⁶⁷⁸⁹]+))?`
 
@@ -292,6 +307,122 @@ export function toSuperscript(value: string | number): string {
     .split('')
     .map((char) => SUPERSCRIPT_CHARS[char] ?? char)
     .join('')
+}
+
+/* ---------------------------------------------------------------------------
+ * Printed vector notation (F₁⃗, w⃗, OM⃗)
+ * ------------------------------------------------------------------------ */
+
+/** Unicode subscript digits a vector index may be printed with. */
+const SUBSCRIPT_DIGIT_CHARS = '₀₁₂₃₄₅₆₇₈₉'
+
+/** `₁₂` → `12`; characters that are not subscript digits pass through. */
+export function subscriptToDigits(value: string): string {
+  return [...value]
+    .map((char) => {
+      const index = SUBSCRIPT_DIGIT_CHARS.indexOf(char)
+      return index === -1 ? char : String(index)
+    })
+    .join('')
+}
+
+/**
+ * Semantic colour of a printed vector.
+ *
+ * The platform colour-codes force vectors — F₁ green, F₂ blue, the weight w
+ * red — through the `--force-*` tokens, and the interactive labs draw their
+ * SVG arrows with exactly those tokens. Prose must use the same colours, or
+ * the same symbol changes colour between a sentence and the figure beside it.
+ * The rule lives here rather than in a lesson so every rendering surface
+ * agrees; symbols the platform does not colour-code stay `neutral` and simply
+ * inherit the surrounding text colour (no colour-only meaning is introduced:
+ * the label itself is always present).
+ */
+export function vectorTone(symbol: string, subscript?: string): VectorTone {
+  if (symbol === 'w') return 'force-w'
+  if (symbol === 'F' && subscript === '1') return 'force-f1'
+  if (symbol === 'F' && subscript === '2') return 'force-f2'
+  return 'neutral'
+}
+
+export type VectorTone = 'neutral' | 'force-f1' | 'force-f2' | 'force-w'
+
+export type VectorNotationPart =
+  | { kind: 'text'; value: string }
+  | {
+      kind: 'vector'
+      /** The printed source form (`F₁⃗`), arrow mark included, never rewritten. */
+      value: string
+      /** Latin letter(s) the arrow sits above: `F`, `OM`, `w`. */
+      symbol: string
+      /** Printed index in plain digits (`1` for F₁) so it can be a real <sub>. */
+      subscript?: string
+      /** Prime that closes the symbol (`F⃗'`), kept verbatim. */
+      prime?: string
+    }
+
+/**
+ * A printed vector symbol: Latin letter(s), an optional index (Unicode or
+ * plain digits) and the combining arrow, optionally followed by a prime.
+ */
+const VECTOR_SYMBOL = new RegExp(
+  `([A-Za-z]+)([${SUBSCRIPT_DIGIT_CHARS}0-9]*)${VECTOR_ARROW}(['’]?)`,
+  'gu',
+)
+
+/** The mark is never emitted as text — the renderer draws a real arrow. */
+function withoutVectorMark(value: string): string {
+  return value.replaceAll(VECTOR_ARROW, '')
+}
+
+/** True when the run carries the printed over-arrow and needs vector rendering. */
+export function containsVectorNotation(value: string): boolean {
+  return value.includes(VECTOR_ARROW)
+}
+
+/**
+ * Splits a scientific run into vector symbols and the plain text between them.
+ *
+ * `"F₁⃗"` → `[vector(F, 1)]` · `"OM⃗"` → `[vector(OM)]` ·
+ * `"F⃗ = 5 N"` → `[vector(F), text(" = 5 N")]`.
+ *
+ * Every part is derived from the source string: the letters, the index digits
+ * and the prime are copied verbatim (the index is only transliterated from
+ * Unicode subscripts to plain digits so it can render as a real <sub>), and
+ * the combining arrow is dropped because it is drawn, not typed. A stray
+ * arrow with no symbol in front of it is dropped as well rather than leaking
+ * the raw mark back into the prose.
+ */
+export function parseVectorNotation(input: string): VectorNotationPart[] {
+  const parts: VectorNotationPart[] = []
+  let cursor = 0
+
+  VECTOR_SYMBOL.lastIndex = 0
+  let match: RegExpExecArray | null
+
+  while ((match = VECTOR_SYMBOL.exec(input)) !== null) {
+    const [value, symbol = '', index = '', prime] = match
+    if (!value) {
+      // Defensive: never allow a zero-length match to spin the loop forever.
+      VECTOR_SYMBOL.lastIndex += 1
+      continue
+    }
+    const text = withoutVectorMark(input.slice(cursor, match.index))
+    if (text !== '') parts.push({ kind: 'text', value: text })
+    parts.push({
+      kind: 'vector',
+      value,
+      symbol,
+      ...(index !== '' ? { subscript: subscriptToDigits(index) } : {}),
+      ...(prime ? { prime } : {}),
+    })
+    cursor = match.index + value.length
+  }
+
+  const rest = withoutVectorMark(input.slice(cursor))
+  if (rest !== '') parts.push({ kind: 'text', value: rest })
+
+  return parts
 }
 
 /* ---------------------------------------------------------------------------

@@ -10,6 +10,7 @@
  *  - <ChemicalFormula />    subscripts and groups (H₂O, Ca(OH)₂)
  *  - <ChemicalEquation />   balanced reaction chains (A + B → C)
  *  - <ElectronConfiguration /> one LTR isolate for a distribution (2-8-8)
+ *  - <VectorNotation />     a printed vector: symbol + real drawn over-arrow
  *  - <IonNotation />        ions with conventional charge order (Ca²⁺, SO₄²⁻)
  *  - <ChargeValue />        standalone charges, sign first (−2, +2)
  *  - <NuclearNotation />    mass number / atomic number / symbol
@@ -25,6 +26,11 @@ export { Sci, ScientificText, SciSub, SciSup } from './ScientificText'
 export type { SciProps, ScientificTextProps, SciVariant, ScriptProps } from './ScientificText'
 export { ElectronConfiguration } from './ElectronConfiguration'
 export type { ElectronConfigurationProps, ElectronConfigurationSize } from './ElectronConfiguration'
+
+export { VectorNotation } from './VectorNotation'
+export type { VectorNotationProps } from './VectorNotation'
+export { VECTOR_ARROW, containsVectorNotation, parseVectorNotation, subscriptToDigits, vectorTone } from '@/utils/scientificText'
+export type { VectorNotationPart, VectorTone } from '@/utils/scientificText'
 
 export { ScientificNotationText, parseCompactFormulaNotation, parseCompactIonNotation } from './ScientificNotationText'
 export type { ScientificNotationTextProps } from './ScientificNotationText'

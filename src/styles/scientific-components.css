@@ -799,6 +799,84 @@
   color: var(--text-muted);
 }
 
+/* --- Printed vectors (F₁⃗, w⃗, OM⃗) -----------------------------------------
+   The over-arrow is a drawn shaft + head, never the Unicode combining arrow
+   (U+20D7): text fonts drop that mark, attach it to the subscript instead of
+   the letter, or stretch it over the wrong width. Geometry is fully relative:
+
+     · the mark is a block-level flex row, so it spans exactly the shrink-to-fit
+       width of the symbol below it;
+     · the shaft stretches and the head keeps its own aspect ratio (the head is
+       a square viewBox, never a squashed one);
+     · every size is `em`-based, so the arrow scales with the font and reserves
+       its own space instead of relying on pixel offsets or negative margins;
+     · the symbol keeps its normal baseline, because an inline-block is
+       baseline-aligned on its last line box — the symbol line.
+
+   Direction is structural: `dir="ltr"` on the element (see VectorNotation) plus
+   `unicode-bidi: isolate` here, exactly like every other scientific run. */
+
+.sci-vector {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.sci-vector__mark {
+  display: flex;
+  align-items: center;
+  block-size: 0.44em;
+}
+
+.sci-vector__shaft {
+  flex: 1 1 auto;
+  block-size: 0.07em;
+  /* A hairline must still be a visible line on low-density displays. */
+  min-block-size: 1px;
+  background: currentColor;
+  border-radius: var(--radius-pill);
+}
+
+.sci-vector__head {
+  flex: 0 0 auto;
+  inline-size: 0.34em;
+  block-size: 0.34em;
+}
+
+.sci-vector__symbol,
+.sci-vector__prime {
+  font-style: normal;
+}
+
+/* Semantic force colours — the same tokens the labs stroke their SVG arrows
+   with, so F₁ is the same green in a sentence and in the figure beside it.
+   Symbols without a semantic colour stay `neutral` and inherit the text. */
+.sci-vector--force-f1 {
+  color: var(--force-f1);
+}
+
+.sci-vector--force-f2 {
+  color: var(--force-f2);
+}
+
+.sci-vector--force-w {
+  color: var(--force-w);
+}
+
+/* Arrowheads of the shared SVG marker: filled from the stroke of the vector
+   they terminate. Engines without `context-stroke` (Safari today) drop that
+   declaration at parse time and keep the theme-aware fallback, so a head is
+   never painted black-on-black in the dark theme. */
+.diagram-arrowhead {
+  fill: var(--text-primary);
+}
+
+.diagram-arrowhead {
+  fill: context-stroke;
+}
+
 /* --- Attribution markers -------------------------------------------------- */
 
 .platform-addition {

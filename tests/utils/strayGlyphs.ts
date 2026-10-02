@@ -12,9 +12,9 @@ export function strayScriptGlyphs(container: HTMLElement): string[] {
   let node = walker.nextNode()
   while (node) {
     const parent = node.parentElement
-    if (parent && !parent.closest('.ion-notation, .chem-formula, .nuclear-notation, .electron-configuration, sup, sub, svg, [dir="ltr"]')) {
+    if (parent && !parent.closest('.ion-notation, .chem-formula, .nuclear-notation, .electron-configuration, .sci-vector, sup, sub, svg, [dir="ltr"]')) {
       const chars = [...(node.textContent ?? '')].filter((char) =>
-        /[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/u.test(char),
+        /[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⃗]/u.test(char),
       )
       if (chars.length > 0) stray.push(chars.join(''))
     }

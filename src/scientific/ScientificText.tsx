@@ -1,6 +1,12 @@
 import type { CSSProperties, ElementType, ReactNode } from 'react'
-import { splitScientificRuns } from '@/utils/scientificText'
+import {
+  containsVectorNotation,
+  parseVectorNotation,
+  splitScientificRuns,
+  vectorTone,
+} from '@/utils/scientificText'
 import { ElectronConfiguration } from './ElectronConfiguration'
+import { VectorNotation } from './VectorNotation'
 
 /* ============================================================================
    ScientificText — the bidi boundary of the whole platform.
@@ -83,6 +89,33 @@ export function SciSub({ children, className, title }: ScriptProps) {
   )
 }
 
+/**
+ * Renders one scientific run that carries the printed over-arrow: vector
+ * symbols become <VectorNotation /> and the text around them (operators, units,
+ * numbers) is kept verbatim, so the run stays a single LTR isolate and the
+ * combining mark never reaches the DOM as rendered text.
+ */
+function VectorRun({ value }: { value: string }) {
+  return (
+    <>
+      {parseVectorNotation(value).map((part, index) =>
+        part.kind === 'vector' ? (
+          <VectorNotation
+            key={index}
+            symbol={part.symbol}
+            subscript={part.subscript}
+            prime={part.prime}
+            tone={vectorTone(part.symbol, part.subscript)}
+            label={part.value}
+          />
+        ) : (
+          <span key={index}>{part.value}</span>
+        ),
+      )}
+    </>
+  )
+}
+
 export type ScientificTextProps<T extends ElementType = 'span'> = {
   /** Mixed Arabic + scientific content, e.g. `الكتلة 5 kg تماماً`. */
   children: string
@@ -121,6 +154,16 @@ export function ScientificText<T extends ElementType = 'span'>({
         // chain of separate runs the RTL paragraph could reorder.
         if (run.notation === 'electron-configuration') {
           return <ElectronConfiguration key={index} value={run.value} />
+        }
+        // A printed over-arrow (`F₁⃗`) is drawn, never typed: the run is split
+        // into vector symbols and the text between them, and each symbol gets
+        // a real arrow instead of the combining mark (see VectorNotation).
+        if (containsVectorNotation(run.value)) {
+          return (
+            <Sci key={index} variant={scienceVariant}>
+              <VectorRun value={run.value} />
+            </Sci>
+          )
         }
         return (
           <Sci key={index} variant={scienceVariant}>

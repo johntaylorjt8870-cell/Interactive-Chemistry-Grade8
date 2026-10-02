@@ -189,6 +189,14 @@
   --status-neutral-border: var(--border-soft);
   --status-neutral-text: var(--text-secondary);
 
+  /* Semantic force colours — shared by prose vector notation (F₁⃗, F₂⃗, w⃗)
+     and by the SVG force arrows of the labs, so a force never changes colour
+     between a sentence and the figure next to it. Each value is readable as
+     text on this theme's surfaces. */
+  --force-f1: #047857;
+  --force-f2: #1d4ed8;
+  --force-w: #b91c1c;
+
   /* Tables — every surface is explicit so text can never collide */
   --table-bg: var(--palette-paper);
   --table-header-bg: #eef3fb;
@@ -254,6 +262,12 @@
   --status-neutral-bg: rgba(148, 163, 184, 0.12);
   --status-neutral-border: var(--border-soft);
   --status-neutral-text: var(--text-secondary);
+
+  /* Same three forces, brightened for dark surfaces (the light-theme values
+     would fall below text contrast on the dark canvas). */
+  --force-f1: #6ee7b7;
+  --force-f2: #93c5fd;
+  --force-w: #fca5a5;
 
   --table-bg: var(--palette-ink-850);
   --table-header-bg: #17253c;
