@@ -72,34 +72,89 @@ export function ScientificDiagram({
 }
 
 /**
+ * Arrowhead tones. `f1`, `f2`, `w` and `resultant` are the semantic force
+ * colours of the vector laboratories (F₁ green, F₂ blue, weight red, resultant
+ * accent); the other four are the generic diagram tones.
+ */
+export type DiagramArrowTone = 'accent' | 'support' | 'muted' | 'danger' | 'f1' | 'f2' | 'w' | 'resultant'
+
+const DIAGRAM_ARROW_TONES: readonly DiagramArrowTone[] = [
+  'accent',
+  'support',
+  'muted',
+  'danger',
+  'f1',
+  'f2',
+  'w',
+  'resultant',
+]
+
+/**
+ * Id of the arrowhead marker for a tone (`diagram-arrow-f1`). Without a tone it
+ * is the generic marker (`diagram-arrow`), which every existing drawing already
+ * references. Exported so drawings never hand-spell a marker id.
+ */
+export function diagramArrowId(tone?: DiagramArrowTone): string {
+  return tone ? `diagram-arrow-${tone}` : 'diagram-arrow'
+}
+
+const ARROWHEAD_PATH = 'M 0 0 L 10 5 L 0 10 z'
+
+/**
+ * One arrowhead marker.
+ *
+ *  - The fill is explicit per tone (scientific-components.css). A marker's
+ *    content inherits from the marker's own ancestors, never from the line that
+ *    references it, so a head matches its line in EVERY browser only if it is
+ *    told the colour. `fill="context-stroke"` does it with one marker, but
+ *    Safari and every iOS browser do not implement it, so an unsupported paint
+ *    is ignored and the head takes the default black fill: the semantic force
+ *    colours are lost and the head all but disappears on the dark surface. The
+ *    generic marker keeps it only as an enhancement (see CSS).
+ *  - `refX="8"`: the line ends 8 units into the 10-unit head, where the triangle
+ *    is 2 units tall — wider than the 10/6 units the line occupies at any stroke
+ *    width (the marker scales with it) — so the line's end is hidden inside the
+ *    head instead of poking out beside the tip.
+ *  - `orient="auto"` is the SVG 1.1 value understood everywhere;
+ *    `auto-start-reverse` is SVG 2 and no drawing uses `marker-start`.
+ */
+function ArrowMarker({ tone }: { tone?: DiagramArrowTone }) {
+  return (
+    <marker
+      id={diagramArrowId(tone)}
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="6"
+      markerHeight="6"
+      orient="auto"
+    >
+      <path
+        d={ARROWHEAD_PATH}
+        fill="currentColor"
+        className={`diagram-arrowhead diagram-arrowhead--${tone ?? 'auto'}`}
+      />
+    </marker>
+  )
+}
+
+/**
  * Shared SVG definitions (arrowheads, grid pattern) available to every drawing
  * so vectors and grids look identical throughout the platform.
+ *
+ * Each drawing declares them inside its own <svg>, so the ids repeat when
+ * several drawings share a page. The copies are identical and browsers resolve
+ * `url(#id)` to the first one, which is harmless as long as that copy is
+ * rendered — do not place a drawing inside a `display: none` container that
+ * precedes visible drawings.
  */
 export function DiagramDefs() {
   return (
     <defs>
-      <marker
-        id="diagram-arrow"
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        markerWidth="6"
-        markerHeight="6"
-        orient="auto-start-reverse"
-      >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
-      </marker>
-      <marker
-        id="diagram-arrow-muted"
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        markerWidth="6"
-        markerHeight="6"
-        orient="auto-start-reverse"
-      >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" opacity="0.55" />
-      </marker>
+      <ArrowMarker />
+      {DIAGRAM_ARROW_TONES.map((tone) => (
+        <ArrowMarker key={tone} tone={tone} />
+      ))}
       <pattern id="diagram-grid" width="20" height="20" patternUnits="userSpaceOnUse">
         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeOpacity="0.14" strokeWidth="1" />
       </pattern>
@@ -119,7 +174,10 @@ export type DiagramVectorProps = {
   arrow?: boolean
 }
 
-/** A vector arrow. Drawn as a real SVG line with an arrowhead marker. */
+/**
+ * A vector arrow. Drawn as a real SVG line with an arrowhead marker of the same
+ * tone, so the head always matches the line (see ArrowMarker).
+ */
 export function DiagramVector({
   x1,
   y1,
@@ -141,7 +199,7 @@ export function DiagramVector({
         strokeWidth={2}
         strokeLinecap="round"
         strokeDasharray={dashed ? '6 5' : undefined}
-        markerEnd={arrow ? 'url(#diagram-arrow)' : undefined}
+        markerEnd={arrow ? `url(#${diagramArrowId(tone)})` : undefined}
       />
       {label ? (
         <text x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 6} className="diagram-vector__label" textAnchor="middle">

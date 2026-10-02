@@ -363,7 +363,14 @@ describe('regression — inline vector notation inside Physics Lesson 1 prose re
     const { container } = renderStepBlocks('components-theory')
     const isolated = [...container.querySelectorAll('[dir="ltr"]')].map((el) => el.textContent ?? '')
     expect(isolated.some((text) => text.includes('OM'))).toBe(true)
-    expect(isolated.some((text) => text.includes('F₁⃗'))).toBe(true)
+    // F₁ (written with the combining arrow in the source) is promoted to structured vector notation
+    // — a real arrow over the symbol — and stays an LTR isolate;
+    // the source's combining arrow is never rendered as text.
+    const f1 = container.querySelector('.vector-notation[data-vector="F1"]')
+    expect(f1).not.toBeNull()
+    expect(f1!.getAttribute('dir')).toBe('ltr')
+    expect(f1!.querySelector('.vector-notation__arrow')).not.toBeNull()
+    expect(container.textContent).not.toContain('\u20D7')
     expect(strayScriptGlyphs(container)).toEqual([])
   })
 

@@ -736,6 +736,57 @@
   fill: currentColor;
 }
 
+/* --- Arrowheads ------------------------------------------------------------
+   One marker per tone, each with an explicit fill, so a head matches its line
+   in every browser (see ArrowMarker). Each tone uses the same token as the line
+   it ends: the diagram tones match `.diagram-vector--*` above, the force tones
+   match the strokes of `.vec-lab__*` (components.css). */
+.diagram-arrowhead {
+  fill: currentColor;
+}
+
+/* The generic marker has no tone of its own. Where the engine implements paint
+   context (Chrome 124+, Firefox 111+) it follows the stroke of the line that
+   references it; elsewhere it stays visible in the surrounding text colour
+   instead of falling back to an invisible black. */
+@supports (fill: context-stroke) {
+  .diagram-arrowhead--auto {
+    fill: context-stroke;
+  }
+}
+
+.diagram-arrowhead--accent {
+  fill: var(--accent);
+}
+
+.diagram-arrowhead--support {
+  fill: var(--subject-support);
+}
+
+.diagram-arrowhead--muted {
+  fill: var(--text-muted);
+}
+
+.diagram-arrowhead--danger {
+  fill: var(--status-danger-text);
+}
+
+.diagram-arrowhead--f1 {
+  fill: var(--vector-f1);
+}
+
+.diagram-arrowhead--f2 {
+  fill: var(--vector-f2);
+}
+
+.diagram-arrowhead--w {
+  fill: var(--vector-w);
+}
+
+.diagram-arrowhead--resultant {
+  fill: var(--accent-strong);
+}
+
 .diagram-legend {
   display: flex;
   flex-direction: column;
@@ -947,6 +998,77 @@
 
 .electron-configuration--lg {
   font-size: var(--fs-2xl);
+}
+
+/* --- Vector notation ------------------------------------------------------- */
+
+/* A vector symbol (F₁, w, OM) is a Latin symbol with an arrow over the WHOLE
+   symbol. The arrow is layout, not a glyph: a block row above the letters
+   inside an inline-block, so it is exactly as wide as the letters (OM gets one
+   arrow over both) and the block's baseline is the letters' baseline — there
+   are no offsets to tune per font. The container is an LTR isolate, so
+   surrounding Arabic can neither reorder the symbol nor strand its subscript
+   or prime. */
+.vector-notation {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  isolation: isolate;
+  font-family: var(--font-latin);
+  font-variant-ligatures: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.vector-notation__base {
+  display: inline-block;
+  min-inline-size: var(--sci-vector-min-width);
+  text-align: center;
+}
+
+.vector-notation__symbol {
+  display: block;
+  line-height: 1;
+}
+
+/* One polygon is shaft + head: the shaft stretches to the width of the symbol,
+   the head keeps a fixed size, and there is no seam between them. Painted from
+   `currentColor`, so the arrow always matches its symbol. The arrow points
+   right in every direction context: clip-path coordinates are physical. */
+.vector-notation__arrow {
+  display: block;
+  block-size: var(--sci-vector-arrow-height);
+  background: currentColor;
+  -webkit-clip-path: polygon(
+    0 calc(50% - var(--sci-vector-stroke) / 2),
+    calc(100% - var(--sci-vector-head)) calc(50% - var(--sci-vector-stroke) / 2),
+    calc(100% - var(--sci-vector-head)) 0,
+    100% 50%,
+    calc(100% - var(--sci-vector-head)) 100%,
+    calc(100% - var(--sci-vector-head)) calc(50% + var(--sci-vector-stroke) / 2),
+    0 calc(50% + var(--sci-vector-stroke) / 2)
+  );
+  clip-path: polygon(
+    0 calc(50% - var(--sci-vector-stroke) / 2),
+    calc(100% - var(--sci-vector-head)) calc(50% - var(--sci-vector-stroke) / 2),
+    calc(100% - var(--sci-vector-head)) 0,
+    100% 50%,
+    calc(100% - var(--sci-vector-head)) 100%,
+    calc(100% - var(--sci-vector-head)) calc(50% + var(--sci-vector-stroke) / 2),
+    0 calc(50% + var(--sci-vector-stroke) / 2)
+  );
+  /* A painted background is not printed by default; the arrow is content. */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Forced-colors (high contrast) mode replaces author backgrounds, which would
+   erase an arrow painted as one. Keep it, in the system text colour. */
+@media (forced-colors: active) {
+  .vector-notation__arrow {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
 }
 
 /* ==========================================================================

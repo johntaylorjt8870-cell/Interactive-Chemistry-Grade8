@@ -136,6 +136,23 @@
   --sci-sub-size: 0.68em;
   --sci-sup-raise: 0.52em;
   --sci-sub-drop: -0.18em;
+
+  /* Vector notation (VectorNotation): the arrow above a symbol such as F₁ or OM.
+     Em-based, so it scales with the text it marks. The shaft is never thinner
+     than 1.5px — a hairline arrow disappears at body size. */
+  --sci-vector-stroke: max(1.5px, 0.085em);
+  --sci-vector-arrow-height: 0.3em;
+  --sci-vector-head: 0.34em;
+  --sci-vector-min-width: 0.85em;
+
+  /* --- Vector semantics -------------------------------------------------
+     Force colours of the vector laboratories, named once so a drawn vector,
+     its arrowhead and any notation set beside it share ONE definition. The
+     values are exactly the ones the laboratories already used: F₁ green,
+     F₂ blue, weight red. Same in both themes by design. */
+  --vector-f1: #059669;
+  --vector-f2: #2563eb;
+  --vector-w: #dc2626;
 }
 
 /* ============================================================================

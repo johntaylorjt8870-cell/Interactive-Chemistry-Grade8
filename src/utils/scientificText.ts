@@ -33,8 +33,12 @@ const IDENT_EXT = String.raw`[A-Za-z][A-Za-z0-9_'’.\-${SCRIPT_GLYPHS}]*`
  * at a letter/digit, spans formula glyphs, and ends on a meaningful character
  * (never on a stray space or operator). Arabic text and Arabic punctuation are
  * not in the class, so prose always terminates the run.
+ *
+ * A run may also end on the vector arrow followed by primes (`F⃗'`, the
+ * balancing force): the prime belongs to the symbol, so it must stay inside
+ * the isolate rather than fall into the RTL flow on the wrong side of it.
  */
-const MATH_RUN = String.raw`[A-Za-z0-9](?:[A-Za-z0-9\s=+\-−×÷·±√/()%°²³${SCRIPT_GLYPHS}'’._]*[A-Za-z0-9)⃗²³])?`
+const MATH_RUN = String.raw`[A-Za-z0-9](?:[A-Za-z0-9\s=+\-−×÷·±√/()%°²³${SCRIPT_GLYPHS}'’._]*(?:\u20D7['’′]+|[A-Za-z0-9)⃗²³]))?`
 /** Scientific notation such as 6.02×10²³ or 3.2 x 10^-4 */
 const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺²³⁴⁵⁶⁷⁸⁹]+))?`
 
@@ -211,6 +215,92 @@ export function isElectronConfiguration(value: string): boolean {
   return parseElectronConfiguration(value) !== null
 }
 
+
+/* ---------------------------------------------------------------------------
+ * Vector notation (`F₁`, `OM`, `w`, `F'` carrying the vector arrow)
+ * ------------------------------------------------------------------------ */
+
+/**
+ * U+20D7 COMBINING RIGHT ARROW ABOVE — how the textbook source marks a vector.
+ *
+ * The stored lesson data keeps it verbatim (source fidelity), but it is never
+ * what the reader is shown. A combining mark attaches to the single glyph in
+ * front of it — after `F₁` that glyph is the subscript, not the `F` — and many
+ * fonts do not draw it at all. Renderers promote the token to
+ * <VectorNotation />, which draws a real arrow over the whole symbol.
+ */
+export const VECTOR_ARROW = '\u20D7'
+
+const SUBSCRIPT_DIGIT_CHARS = '₀₁₂₃₄₅₆₇₈₉'
+
+/**
+ * One vector symbol: Latin letters, an optional subscript, the arrow, then any
+ * primes. Capture groups: letters, subscript digits, primes. The prime follows
+ * the arrow (it belongs to the symbol but sits outside the arrow's span), which
+ * is why the run tokenizer above lets a run end on the arrow plus primes.
+ */
+const VECTOR_SYMBOL = String.raw`([A-Za-z]+)([₀₁₂₃₄₅₆₇₈₉]*)\u20D7(['’′]*)`
+
+export type VectorSymbol = {
+  /** The Latin letters the arrow sits over: `F`, `w`, `OM`. */
+  symbol: string
+  /** The index as plain digits (`1` for F₁) when the source has one. */
+  subscript?: string
+  /** How many primes follow the arrow (the balancing force F′ has one). */
+  primes: number
+}
+
+export type VectorSegment =
+  | { kind: 'text'; value: string }
+  | { kind: 'vector'; value: string; vector: VectorSymbol }
+
+function toVectorSymbol(letters: string, subscript: string, primes: string): VectorSymbol {
+  return {
+    symbol: letters,
+    ...(subscript
+      ? { subscript: [...subscript].map((digit) => String(SUBSCRIPT_DIGIT_CHARS.indexOf(digit))).join('') }
+      : {}),
+    primes: primes.length,
+  }
+}
+
+/**
+ * Reads ONE complete vector token. Returns `null` for anything else (a bare
+ * letter, a letter with a subscript but no arrow, a whole equation…).
+ */
+export function parseVectorNotation(value: string): VectorSymbol | null {
+  const match = new RegExp(`^${VECTOR_SYMBOL}$`, 'u').exec(value.trim())
+  return match ? toVectorSymbol(match[1]!, match[2]!, match[3]!) : null
+}
+
+/**
+ * Cuts a scientific run into plain text and vector symbols, in source order.
+ *
+ * A run is often more than one symbol — a printed equation such as
+ * `F = F₁ + F₂` with arrows on its vectors is still ONE left-to-right unit — so
+ * vectors are found *inside* runs instead of splitting the prose on them. The
+ * segments concatenate back to the input exactly; nothing is dropped, reordered
+ * or rewritten.
+ */
+export function splitVectorNotation(value: string): VectorSegment[] {
+  const segments: VectorSegment[] = []
+  const pattern = new RegExp(VECTOR_SYMBOL, 'gu')
+  let cursor = 0
+  let match: RegExpExecArray | null
+
+  while ((match = pattern.exec(value)) !== null) {
+    if (match.index > cursor) segments.push({ kind: 'text', value: value.slice(cursor, match.index) })
+    segments.push({
+      kind: 'vector',
+      value: match[0],
+      vector: toVectorSymbol(match[1]!, match[2]!, match[3]!),
+    })
+    cursor = match.index + match[0].length
+  }
+
+  if (cursor < value.length) segments.push({ kind: 'text', value: value.slice(cursor) })
+  return segments
+}
 
 /* ---------------------------------------------------------------------------
  * Charge handling (ions, standalone charge values, nuclear particles)

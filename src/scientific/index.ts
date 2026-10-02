@@ -13,6 +13,7 @@
  *  - <IonNotation />        ions with conventional charge order (Ca²⁺, SO₄²⁻)
  *  - <ChargeValue />        standalone charges, sign first (−2, +2)
  *  - <NuclearNotation />    mass number / atomic number / symbol
+ *  - <VectorNotation />     a vector symbol with one arrow over the whole symbol (F₁, w, OM)
  *  - <LewisStructure />     electron-dot structures, dot by dot
  *  - <ScientificValue />    value + unit (5 kg, 25 °C, 9.8 m/s²)
  *  - <ScientificTable />    readable scientific tables
@@ -41,6 +42,9 @@ export type { IonNotationProps, ChargeValueProps, SubscriptedIonProps, IonNotati
 export { NuclearNotation, NuclideSummary } from './NuclearNotation'
 export type { NuclearNotationProps, NuclideSummaryProps } from './NuclearNotation'
 
+export { VectorNotation } from './VectorNotation'
+export type { VectorNotationProps } from './VectorNotation'
+
 export { LewisStructure } from './LewisStructure'
 export type { LewisStructureProps, LewisDot, LewisPosition, LewisSize } from './LewisStructure'
 
@@ -59,8 +63,13 @@ export type { ScientificValueProps, ScientificRangeProps, ScientificValueSize } 
 export { ScientificTable } from './ScientificTable'
 export type { ScientificTableProps, ScientificColumn, ScientificRow, TableAlign } from './ScientificTable'
 
-export { ScientificDiagram, DiagramDefs, DiagramVector, DiagramLegend } from './ScientificDiagram'
-export type { ScientificDiagramProps, DiagramVectorProps, DiagramLegendItem } from './ScientificDiagram'
+export { ScientificDiagram, DiagramDefs, DiagramVector, DiagramLegend, diagramArrowId } from './ScientificDiagram'
+export type {
+  ScientificDiagramProps,
+  DiagramVectorProps,
+  DiagramLegendItem,
+  DiagramArrowTone,
+} from './ScientificDiagram'
 
 export { PlatformAddition, TextbookSource, PLATFORM_ADDITION_MARKER } from './PlatformAddition'
 export type { PlatformAdditionProps, TextbookSourceProps } from './PlatformAddition'

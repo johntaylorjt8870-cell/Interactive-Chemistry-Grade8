@@ -1,6 +1,9 @@
+import { Fragment } from 'react'
 import type { CSSProperties, ElementType, ReactNode } from 'react'
-import { splitScientificRuns } from '@/utils/scientificText'
+import { splitScientificRuns, splitVectorNotation } from '@/utils/scientificText'
+import type { VectorSegment } from '@/utils/scientificText'
 import { ElectronConfiguration } from './ElectronConfiguration'
+import { VectorNotation } from './VectorNotation'
 
 /* ============================================================================
    ScientificText — the bidi boundary of the whole platform.
@@ -83,6 +86,39 @@ export function SciSub({ children, className, title }: ScriptProps) {
   )
 }
 
+/**
+ * A science run that contains vector symbols (F₁, w, OM — written in the source
+ * with the combining arrow U+20D7). The arrow can never be displayed reliably as
+ * a character, so each symbol becomes a <VectorNotation />.
+ *
+ * Vectors are promoted *inside* the run rather than by splitting the prose on
+ * them: `F = F₁ + F₂` with arrows is still one left-to-right unit, and cutting it
+ * into separate isolates would let the RTL paragraph reorder its pieces.
+ */
+function renderVectorRun(segments: VectorSegment[], key: number, variant: SciVariant) {
+  const parts = segments.map((segment, position) =>
+    segment.kind === 'vector' ? (
+      <VectorNotation
+        key={position}
+        symbol={segment.vector.symbol}
+        subscript={segment.vector.subscript}
+        primes={segment.vector.primes}
+      />
+    ) : (
+      segment.value
+    ),
+  )
+
+  // A run that is nothing but one vector symbol is already an isolate.
+  if (segments.length === 1) return <Fragment key={key}>{parts}</Fragment>
+
+  return (
+    <Sci key={key} variant={variant}>
+      {parts}
+    </Sci>
+  )
+}
+
 export type ScientificTextProps<T extends ElementType = 'span'> = {
   /** Mixed Arabic + scientific content, e.g. `الكتلة 5 kg تماماً`. */
   children: string
@@ -121,6 +157,10 @@ export function ScientificText<T extends ElementType = 'span'>({
         // chain of separate runs the RTL paragraph could reorder.
         if (run.notation === 'electron-configuration') {
           return <ElectronConfiguration key={index} value={run.value} />
+        }
+        const segments = splitVectorNotation(run.value)
+        if (segments.some((segment) => segment.kind === 'vector')) {
+          return renderVectorRun(segments, index, scienceVariant)
         }
         return (
           <Sci key={index} variant={scienceVariant}>

@@ -3103,11 +3103,15 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   display: block;
 }
 
+/* Force colours come from the vector tokens (F₁ green, F₂ blue, weight red —
+   unchanged values). `marker-end` selects the arrowhead of the same colour, so
+   it matches its line in every browser; it overrides the generic marker the
+   markup references (see ArrowMarker in ScientificDiagram.tsx). */
 .vec-lab__force { stroke-width: 3; fill: none; }
-.vec-lab__force--f1 { stroke: #059669; }
-.vec-lab__force--f2 { stroke: #2563eb; }
-.vec-lab__force--w { stroke: #dc2626; }
-.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.5; fill: none; }
+.vec-lab__force--f1 { stroke: var(--vector-f1); marker-end: url(#diagram-arrow-f1); }
+.vec-lab__force--f2 { stroke: var(--vector-f2); marker-end: url(#diagram-arrow-f2); }
+.vec-lab__force--w { stroke: var(--vector-w); marker-end: url(#diagram-arrow-w); }
+.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.5; fill: none; marker-end: url(#diagram-arrow-resultant); }
 .vec-lab__dashed { stroke: #60a5fa; stroke-width: 1.6; stroke-dasharray: 6 5; fill: none; }
 .vec-lab__carrier { stroke: #94a3b8; stroke-width: 1.2; stroke-dasharray: 2 4; fill: none; }
 .vec-lab__axis { stroke: var(--text-muted); stroke-width: 1.4; fill: none; }
