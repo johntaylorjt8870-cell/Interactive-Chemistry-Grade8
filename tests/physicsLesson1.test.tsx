@@ -181,6 +181,64 @@ describe('concurrent forces interactive', () => {
   })
 })
 
+function forceLineForLabel(svg: Element, label: string): Element {
+  const text = [...svg.querySelectorAll('text')].find((node) => node.textContent === label)
+  expect(text, `label ${label}`).toBeDefined()
+  const tx = Number(text!.getAttribute('x'))
+  const ty = Number(text!.getAttribute('y'))
+  const lines = [...svg.querySelectorAll('line.vec-lab__force')]
+  let best: Element | null = null
+  let bestDistance = Infinity
+  for (const line of lines) {
+    const x2 = Number(line.getAttribute('x2'))
+    const y2 = Number(line.getAttribute('y2'))
+    const distance = (x2 - tx) ** 2 + (y2 - ty) ** 2
+    if (distance < bestDistance) {
+      bestDistance = distance
+      best = line
+    }
+  }
+  expect(best, `force line for ${label}`).not.toBeNull()
+  return best!
+}
+
+function parseViewBox(svg: Element) {
+  const parts = (svg.getAttribute('viewBox') ?? '').trim().split(/[\s,]+/).map(Number)
+  const [x, y, width, height] = parts
+  expect(parts.length, 'viewBox parts').toBe(4)
+  expect([x, y, width, height].every(Number.isFinite), 'viewBox finite').toBe(true)
+  return { x: x!, y: y!, width: width!, height: height! }
+}
+
+function expectRelevantSvgGeometryInsideViewBox(svg: Element) {
+  const box = parseViewBox(svg)
+  const inside = (x: number, y: number, info: string) => {
+    expect(Number.isFinite(x), `${info} x finite`).toBe(true)
+    expect(Number.isFinite(y), `${info} y finite`).toBe(true)
+    expect(x, `${info} x`).toBeGreaterThanOrEqual(box.x)
+    expect(x, `${info} x`).toBeLessThanOrEqual(box.x + box.width)
+    expect(y, `${info} y`).toBeGreaterThanOrEqual(box.y)
+    expect(y, `${info} y`).toBeLessThanOrEqual(box.y + box.height)
+  }
+
+  svg.querySelectorAll('line').forEach((line, index) => {
+    inside(Number(line.getAttribute('x1')), Number(line.getAttribute('y1')), `line[${index}] start`)
+    inside(Number(line.getAttribute('x2')), Number(line.getAttribute('y2')), `line[${index}] end`)
+  })
+  svg.querySelectorAll('text').forEach((text, index) => {
+    inside(Number(text.getAttribute('x')), Number(text.getAttribute('y')), `text[${index}]=${text.textContent}`)
+  })
+  svg.querySelectorAll('circle').forEach((circle, index) => {
+    inside(Number(circle.getAttribute('cx')), Number(circle.getAttribute('cy')), `circle[${index}]`)
+  })
+  svg.querySelectorAll('rect').forEach((rect, index) => {
+    const x = Number(rect.getAttribute('x'))
+    const y = Number(rect.getAttribute('y'))
+    inside(x, y, `rect[${index}] origin`)
+    inside(x + Number(rect.getAttribute('width')), y + Number(rect.getAttribute('height')), `rect[${index}] corner`)
+  })
+}
+
 describe('force components interactive', () => {
   it('decomposes a force on perpendicular axes', () => {
     const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
@@ -199,6 +257,39 @@ describe('force components interactive', () => {
     // default 25°, w = 5 N: along = 5 sin25 ≈ 2.1, normal = 5 cos25 ≈ 4.5
     expect(Number(section.getAttribute('data-fx'))).toBeCloseTo(2.1, 0)
     expect(Number(section.getAttribute('data-fy'))).toBeCloseTo(4.5, 0)
+  })
+
+  it('draws the reaction force R⃗ on the inclined-plane diagram', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+    await user.click(screen.getByRole('button', { name: /المستوي المائل/ }))
+    const svg = container.querySelector('.force-components-lab__figure svg')!
+    expect(svg.textContent).toContain('R⃗')
+    expect(svg.querySelector('[data-force="R"]')).not.toBeNull()
+  })
+
+  it('keeps force-vector geometry inside the SVG viewBox at extreme angle and weight', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+    await user.click(screen.getByRole('button', { name: /المستوي المائل/ }))
+    const [angle, weight] = [...container.querySelectorAll('input[type="range"]')]
+    fireEvent.change(angle!, { target: { value: '5' } })
+    fireEvent.change(weight!, { target: { value: '10' } })
+    expectRelevantSvgGeometryInsideViewBox(container.querySelector('.force-components-lab__figure svg')!)
+
+    fireEvent.change(angle!, { target: { value: '60' } })
+    expectRelevantSvgGeometryInsideViewBox(container.querySelector('.force-components-lab__figure svg')!)
+  })
+
+  it('maps F₁ to --force-f1 and F₂ to --force-f2 in axes mode', () => {
+    const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+    const svg = container.querySelector('.force-components-lab__figure svg')!
+    const f1 = forceLineForLabel(svg, 'F₁')
+    const f2 = forceLineForLabel(svg, 'F₂')
+    expect(f1.classList.contains('vec-lab__force--f1')).toBe(true)
+    expect(f2.classList.contains('vec-lab__force--f2')).toBe(true)
+    expect(f1.classList.contains('vec-lab__force--f2')).toBe(false)
+    expect(f2.classList.contains('vec-lab__force--f1')).toBe(false)
   })
 })
 
