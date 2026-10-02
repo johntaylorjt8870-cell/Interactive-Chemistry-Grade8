@@ -321,6 +321,13 @@
 /* ============================================================================
    Subject identity — shared design language, different accent DNA
    ========================================================================= */
+/* `data-theme` lives on <html>, while SiteLayout also sets `data-subject` on the
+   `.site` wrapper (a descendant). A dark rule written only as
+   `[data-theme='dark'][data-subject='x']` needs BOTH attributes on one element,
+   so on `.site` only the light `[data-subject='x']` rule matched and every
+   --accent-* token snapped back to its light value inside the app in dark mode
+   (light-grey wash on diagrams, low-contrast accent text). Each dark subject
+   block therefore also lists the descendant form `[data-theme='dark'] [data-subject]`. */
 :root,
 [data-subject='neutral'],
 [data-subject='physics'] {
@@ -337,7 +344,9 @@
 
 [data-theme='dark'],
 [data-theme='dark'][data-subject='neutral'],
-[data-theme='dark'][data-subject='physics'] {
+[data-theme='dark'][data-subject='physics'],
+[data-theme='dark'] [data-subject='neutral'],
+[data-theme='dark'] [data-subject='physics'] {
   --accent: var(--palette-physics-glow);
   --accent-strong: var(--palette-physics-300);
   --accent-soft: rgba(124, 196, 255, 0.16);
@@ -361,7 +370,8 @@
   --subject-support: var(--palette-chem-support-600);
 }
 
-[data-theme='dark'][data-subject='chemistry'] {
+[data-theme='dark'][data-subject='chemistry'],
+[data-theme='dark'] [data-subject='chemistry'] {
   --accent: var(--palette-chem-glow);
   --accent-strong: var(--palette-chem-300);
   --accent-soft: rgba(245, 196, 105, 0.16);

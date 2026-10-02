@@ -78,6 +78,25 @@ describe('subject identities', () => {
     expect(physics['--accent']).not.toBe(chemistry['--accent'])
   })
 
+  it('applies the dark accent tokens to data-subject DESCENDANTS of the dark root', () => {
+    // `data-theme` is set on <html> but SiteLayout also puts `data-subject` on the
+    // `.site` wrapper. A dark rule that only reads `[data-theme='dark'][data-subject]`
+    // never matches that wrapper, so the light `[data-subject]` accents would win
+    // inside the whole app in dark mode (found in a real Chromium run: --accent
+    // resolved to #2563eb instead of #7cc4ff on `.site`).
+    const rules = tokens.split('}').map((chunk) => {
+      const [selectors = '', body = ''] = chunk.split('{')
+      return { selectors: selectors.split(',').map((selector) => selector.trim()), body }
+    })
+    for (const subject of ['neutral', 'physics', 'chemistry']) {
+      const descendant = `[data-theme='dark'] [data-subject='${subject}']`
+      const rule = rules.find((candidate) => candidate.selectors.includes(descendant))
+      expect(rule, `no dark rule for ${descendant}`).toBeDefined()
+      expect(rule!.body, `${descendant} must carry the accent tokens`).toContain('--accent:')
+      expect(rule!.body, `${descendant} must carry the accent tint`).toContain('--accent-tint:')
+    }
+  })
+
   it('keeps typography, spacing and radius shared between subjects', () => {
     // The subject blocks may only override colour-related custom properties.
     const chemistryBlock = tokens.match(/\[data-subject='chemistry'\]\s*\{([^}]*)\}/s)?.[1] ?? ''
