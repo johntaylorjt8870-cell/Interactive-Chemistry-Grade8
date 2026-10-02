@@ -3086,13 +3086,14 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
 .parallelogram-lab__figure,
 .concurrent-forces-lab__figure,
 .force-components-lab__figure {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
   padding: var(--space-3);
+  overflow: hidden;
   border: 1px solid var(--border-soft);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--accent-tint) 65%, transparent), transparent 60%),
-    var(--surface-raised);
-  margin-block-end: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
 }
 
 .parallelogram-lab__figure svg,
@@ -3103,25 +3104,88 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   display: block;
 }
 
-.vec-lab__force { stroke-width: 3; fill: none; }
-.vec-lab__force--f1 { stroke: #059669; }
-.vec-lab__force--f2 { stroke: #2563eb; }
-.vec-lab__force--w { stroke: #dc2626; }
-.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.5; fill: none; }
-.vec-lab__dashed { stroke: #60a5fa; stroke-width: 1.6; stroke-dasharray: 6 5; fill: none; }
-.vec-lab__carrier { stroke: #94a3b8; stroke-width: 1.2; stroke-dasharray: 2 4; fill: none; }
-.vec-lab__axis { stroke: var(--text-muted); stroke-width: 1.4; fill: none; }
-.vec-lab__angle { stroke: var(--accent); stroke-width: 1.6; fill: none; }
-.vec-lab__point { fill: #dc2626; stroke: var(--surface-raised); stroke-width: 1.5; }
+/* Semantic force tones are the same tokens used by the vector-notation system
+   when present. The fallbacks keep this lab branch readable on its own. */
+.physics-lab {
+  --physics-lab-force-f1: var(--force-f1, #047857);
+  --physics-lab-force-f2: var(--force-f2, #1d4ed8);
+  --physics-lab-force-w: var(--force-w, #b91c1c);
+}
+
+[data-theme='dark'] .physics-lab {
+  --physics-lab-force-f1: var(--force-f1, #6ee7b7);
+  --physics-lab-force-f2: var(--force-f2, #93c5fd);
+  --physics-lab-force-w: var(--force-w, #fca5a5);
+}
+
+.physics-lab-arrowhead { stroke: none; }
+.physics-lab-arrowhead--f1 { fill: var(--physics-lab-force-f1); }
+.physics-lab-arrowhead--f2 { fill: var(--physics-lab-force-f2); }
+.physics-lab-arrowhead--weight,
+.physics-lab-arrowhead--source { fill: var(--physics-lab-force-w); }
+.physics-lab-arrowhead--resultant { fill: var(--accent-strong); }
+.physics-lab-arrowhead--normal { fill: var(--text-secondary); }
+
+.vec-lab__force {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.vec-lab__force--f1 { stroke: var(--physics-lab-force-f1); }
+.vec-lab__force--f2 { stroke: var(--physics-lab-force-f2); }
+.vec-lab__force--w,
+.vec-lab__force--source { stroke: var(--physics-lab-force-w); }
+.vec-lab__force--normal { stroke: var(--text-secondary); }
+.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.7; fill: none; stroke-linecap: round; }
+.vec-lab__dashed { stroke: var(--accent-strong); stroke-width: 1.7; stroke-dasharray: 6 5; fill: none; opacity: 0.72; }
+.vec-lab__carrier { stroke: var(--text-muted); stroke-width: 1.5; stroke-dasharray: 3 5; fill: none; opacity: 0.78; }
+.vec-lab__axis { stroke: var(--border-strong); stroke-width: 1.7; fill: none; }
+.vec-lab__angle { stroke: var(--accent-strong); stroke-width: 1.8; fill: none; stroke-linecap: round; }
+.vec-lab__right-angle { stroke: var(--accent-strong); stroke-width: 1.8; fill: none; }
+.vec-lab__point { fill: var(--accent-strong); stroke: var(--surface-raised); stroke-width: 1.7; }
 .vec-lab__label {
-  font: italic 700 15px var(--font-science);
+  direction: ltr;
+  unicode-bidi: isolate;
+  font: italic 700 16px var(--font-science);
   fill: var(--text-primary);
+  paint-order: stroke fill;
+  stroke: var(--surface-sunken);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 .vec-lab__label--resultant { fill: var(--accent-strong); }
-.concurrent-forces-lab__body { fill: #f59e0b; stroke: #92400e; stroke-width: 1.2; }
 
-.vec-lab__construction,
-.vec-lab__resultant-group { animation: vec-lab-fade 0.5s ease both; }
+/* The drawing is a construction, not a fade: paths grow along their geometry. */
+.vec-lab__build-line,
+.vec-lab__vector-reveal {
+  stroke-dasharray: 0 1;
+  opacity: 0;
+  transition:
+    stroke-dasharray var(--dur-slow) var(--ease-emphasis),
+    opacity var(--dur-fast) var(--ease-standard);
+}
+.vec-lab__build-line {
+  fill: none;
+  stroke: var(--accent-strong);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.vec-lab__build-line--f1 { stroke: var(--physics-lab-force-f1); }
+.vec-lab__build-line--f2 { stroke: var(--physics-lab-force-f2); }
+.vec-lab__build-line[data-visible='true'],
+.vec-lab__vector-reveal[data-visible='true'] {
+  stroke-dasharray: 1 1;
+  opacity: 1;
+}
+.vec-lab__build-line--second,
+.vec-lab__vector-reveal--second { transition-delay: 120ms; }
+.vec-lab__construction-label {
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+.vec-lab__construction-label[data-visible='true'] { opacity: 1; }
 
 .parallelogram-lab__pythagoras {
   padding: var(--space-3) var(--space-4);
@@ -3130,7 +3194,6 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   border-radius: var(--radius-lg);
   margin-block-end: var(--space-4);
 }
-
 .concurrent-forces-lab__toggle,
 .covalent-bond-lab__highlight {
   display: inline-flex;
@@ -3138,16 +3201,129 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   gap: var(--space-2);
   font-weight: 650;
 }
+.concurrent-forces-lab__toggle input { accent-color: var(--accent); }
 
-.lab--still .vec-lab__construction,
-.lab--still .vec-lab__resultant-group { animation: none; }
+/* One shared scientific readout strip instead of a stack of generic cards. */
+.physics-lab .lab__measurements {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+  gap: 0;
+  border-block: 1px solid var(--border-soft);
+}
+.physics-lab .lab__measurements > div {
+  min-block-size: 4.5rem;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-inline-start: 1px solid var(--border-hairline);
+  border-radius: 0;
+  background: transparent;
+}
+.physics-lab .lab__measurements span { color: var(--text-muted); }
+.physics-lab .lab__measurements .lab__measurement-text {
+  font: 700 var(--fs-sm)/var(--lh-normal) var(--font-arabic);
+  color: var(--text-primary);
+}
 
-@keyframes vec-lab-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.physics-lab__symbol {
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+.physics-lab__note {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent-tint) 52%, var(--surface-base));
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+}
+.physics-lab__note strong,
+.physics-lab__formula-label { color: var(--accent-strong); }
+.physics-lab__stage {
+  margin: calc(-1 * var(--space-3)) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+.physics-lab__figure-caption {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-normal);
+}
+.physics-lab__equipment-label {
+  fill: var(--text-secondary);
+  font: 700 14px var(--font-arabic);
+}
+.physics-lab__header-controls {
+  display: grid;
+  justify-items: end;
+  gap: var(--space-3);
+}
+.physics-lab__modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.physics-lab__modes .button[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  box-shadow: 0 0 0 2px var(--accent-tint);
+}
+
+/* Textbook apparatus: board, magnets, coil springs, strings, hook, load. */
+.concurrent-forces-lab__board {
+  fill: var(--surface-base);
+  stroke: var(--border-strong);
+  stroke-width: 1.4;
+}
+.concurrent-forces-lab__board-rail {
+  stroke: var(--accent-strong);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.concurrent-forces-lab__board-hole { fill: var(--border-strong); opacity: 0.72; }
+.concurrent-forces-lab__mount-stem { stroke: var(--text-secondary); stroke-width: 2; }
+.concurrent-forces-lab__mount { fill: var(--surface-raised); stroke: var(--accent-strong); stroke-width: 2; }
+.concurrent-forces-lab__spring {
+  fill: none;
+  stroke: var(--text-secondary);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.concurrent-forces-lab__string { stroke: var(--text-primary); stroke-width: 2.1; }
+.concurrent-forces-lab__string--load { stroke: var(--text-secondary); stroke-width: 2.4; }
+.concurrent-forces-lab__hook { fill: none; stroke: var(--text-primary); stroke-width: 2.2; stroke-linecap: round; }
+.concurrent-forces-lab__body {
+  fill: color-mix(in srgb, var(--accent-tint) 68%, var(--surface-raised));
+  stroke: var(--accent-strong);
+  stroke-width: 1.8;
+}
+.concurrent-forces-lab__body-mark { stroke: var(--accent-strong); stroke-width: 1.5; }
+
+/* Inclined-plane surface is separated from the object and its force arrows. */
+.force-components-lab__plane {
+  fill: color-mix(in srgb, var(--accent-tint) 48%, var(--surface-sunken));
+  stroke: var(--border-soft);
+  stroke-width: 1;
+}
+.force-components-lab__plane-edge { stroke: var(--text-secondary); stroke-width: 2.5; }
+.force-components-lab__plane-edge--lower { stroke: var(--border-strong); stroke-width: 1.4; }
+.force-components-lab__block { fill: var(--surface-raised); }
+.force-components-lab__block-mark { stroke: var(--accent-strong); stroke-width: 1.5; }
+
+.lab--still .vec-lab__build-line,
+.lab--still .vec-lab__vector-reveal,
+.lab--still .vec-lab__construction-label { transition: none !important; }
+
+@media (max-width: 42rem) {
+  .physics-lab__header-controls { justify-items: stretch; inline-size: 100%; }
+  .physics-lab__modes .button { flex: 1 1 10rem; }
+  .physics-lab .lab__measurements > div { padding-inline: var(--space-2); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vec-lab__construction,
-  .vec-lab__resultant-group { animation: none; }
+  .vec-lab__build-line,
+  .vec-lab__vector-reveal,
+  .vec-lab__construction-label { transition: none !important; }
 }

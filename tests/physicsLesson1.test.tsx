@@ -152,6 +152,29 @@ describe('parallelogram interactive', () => {
     expect(still.container.querySelector('section')).toHaveClass('lab--still')
     expect(still.container.querySelector('section')).toHaveAttribute('data-stage', '2')
   })
+
+  it('draws the translated sides before revealing the resultant diagonal', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+    const copyF2 = container.querySelector('[data-construction="copy-f2"]')!
+    const resultant = container.querySelector('[data-force-vector="R"]')!
+
+    expect(copyF2).toHaveAttribute('data-visible', 'false')
+    expect(resultant).toHaveAttribute('data-visible', 'false')
+    await user.click(screen.getByRole('button', { name: /انقل القوتين/ }))
+    expect(copyF2).toHaveAttribute('data-visible', 'true')
+    expect(copyF2.getAttribute('marker-end')).toContain('parallelogram-')
+    expect(resultant).toHaveAttribute('data-visible', 'false')
+
+    await user.click(screen.getByRole('button', { name: /ارسم قطر/ }))
+    expect(section).toHaveAttribute('data-stage', '2')
+    expect(resultant).toHaveAttribute('data-visible', 'true')
+    expect(resultant.getAttribute('marker-end')).toContain('resultant')
+    expect(container.querySelector('bdi[dir="ltr"]')).not.toBeNull()
+    expect(container.textContent).toContain('6.1')
+    expect(container.textContent).toContain('قراءة 6.1 N هنا حساب آلي وليست قياس الكتاب')
+  })
 })
 
 describe('concurrent forces interactive', () => {
@@ -179,6 +202,28 @@ describe('concurrent forces interactive', () => {
     await user.click(checkbox)
     expect(container.querySelector('section')).toHaveAttribute('data-carriers', 'false')
   })
+
+  it('shows the textbook spring apparatus and moves it with the selected load', () => {
+    const { container } = render(<ConcurrentForcesLab interactiveId="concurrent-forces-lab" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+    const svg = container.querySelector('svg')!
+    const hookY = Number(section.getAttribute('data-hook-y'))
+    const springPath = svg.querySelector('.concurrent-forces-lab__spring')?.getAttribute('d')
+
+    expect(svg.querySelector('.concurrent-forces-lab__board')).not.toBeNull()
+    expect(svg.querySelectorAll('.concurrent-forces-lab__spring')).toHaveLength(2)
+    expect(svg.querySelectorAll('.concurrent-forces-lab__string')).toHaveLength(3)
+    expect(svg.querySelector('.concurrent-forces-lab__body')).not.toBeNull()
+    expect(svg.querySelectorAll('[data-force-vector]')).toHaveLength(3)
+    expect(svg.querySelector('[data-meet="O"]')).not.toBeNull()
+    expect(section.textContent).toContain('الكتاب لا يورد قراءات عددية لهذه التجربة')
+
+    const weight = container.querySelectorAll('input[type="range"]')[2]!
+    fireEvent.change(weight, { target: { value: '8' } })
+    expect(section).toHaveAttribute('data-w', '8')
+    expect(Number(section.getAttribute('data-hook-y'))).toBeGreaterThan(hookY)
+    expect(svg.querySelector('.concurrent-forces-lab__spring')?.getAttribute('d')).not.toBe(springPath)
+  })
 })
 
 describe('force components interactive', () => {
@@ -190,15 +235,77 @@ describe('force components interactive', () => {
     expect(Number(section.getAttribute('data-fy'))).toBeCloseTo(3.9, 0)
   })
 
+  it('reveals the projections and then the two component vectors as separate steps', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+    const svg = container.querySelector('svg')!
+
+    expect(section).toHaveAttribute('data-stage', '0')
+    expect(svg.querySelector('[data-force-vector="F"]')).not.toBeNull()
+    expect(svg.querySelector('[data-force-vector="F1"]')).toHaveAttribute('data-visible', 'false')
+    await user.click(screen.getByRole('button', { name: /أظهر إسقاط رأس القوة/ }))
+    expect(section).toHaveAttribute('data-stage', '1')
+    expect(svg.querySelector('[data-construction="projection-x"]')).toHaveAttribute('data-visible', 'true')
+    await user.click(screen.getByRole('button', { name: /ارسم المركبتين/ }))
+    expect(section).toHaveAttribute('data-stage', '2')
+    expect(svg.querySelector('[data-force-vector="F1"]')).toHaveAttribute('data-visible', 'true')
+    expect(svg.querySelector('[data-force-vector="F2"]')?.getAttribute('marker-end')).toContain('f2')
+  })
+
+  it('keeps the full decomposition visible without motion when requested', () => {
+    const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={true} />)
+    const section = container.querySelector('section')!
+    expect(section).toHaveClass('lab--still')
+    expect(section).toHaveAttribute('data-stage', '2')
+    expect(container.querySelector('[data-force-vector="F1"]')).toHaveAttribute('data-visible', 'true')
+    expect(container.querySelector('bdi[dir="ltr"]')).not.toBeNull()
+  })
+
   it('switches to the inclined plane activity of page 60', async () => {
     const user = userEvent.setup()
     const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
     await user.click(screen.getByRole('button', { name: /المستوي المائل/ }))
     const section = container.querySelector('section')!
+    const svg = container.querySelector('svg')!
     expect(section).toHaveAttribute('data-mode', 'incline')
     // default 25°, w = 5 N: along = 5 sin25 ≈ 2.1, normal = 5 cos25 ≈ 4.5
     expect(Number(section.getAttribute('data-fx'))).toBeCloseTo(2.1, 0)
     expect(Number(section.getAttribute('data-fy'))).toBeCloseTo(4.5, 0)
+    expect(svg.querySelector('.force-components-lab__plane')).not.toBeNull()
+    expect(svg.querySelector('.force-components-lab__block')).not.toBeNull()
+    expect(svg.querySelector('[data-force-vector="weight"]')).not.toBeNull()
+    const reaction = svg.querySelector('[data-force-vector="reaction"]')!
+    expect(Number(reaction.getAttribute('x2'))).toBeLessThan(Number(reaction.getAttribute('x1')))
+    expect(Number(reaction.getAttribute('y2'))).toBeLessThan(Number(reaction.getAttribute('y1')))
+    expect(section.textContent).toContain('بلا مقدار معطى')
+
+    const planeBefore = svg.querySelector('.force-components-lab__plane')?.getAttribute('points')
+    fireEvent.change(container.querySelector('input[type="range"]')!, { target: { value: '40' } })
+    expect(section).toHaveAttribute('data-angle', '40')
+    expect(svg.querySelector('.force-components-lab__plane')?.getAttribute('points')).not.toBe(planeBefore)
+    await user.click(screen.getByRole('button', { name: /أظهر إسقاط رأس القوة/ }))
+    await user.click(screen.getByRole('button', { name: /ارسم المركبتين/ }))
+    const f1Path = svg.querySelector('[data-force-vector="F1"]')?.getAttribute('d')?.match(/M\s*([\d.-]+)\s*([\d.-]+)\s*L\s*([\d.-]+)\s*([\d.-]+)/)
+    expect(f1Path).not.toBeNull()
+    expect(Number(f1Path?.[3])).toBeLessThan(Number(f1Path?.[1]))
+    expect(Number(f1Path?.[4])).toBeGreaterThan(Number(f1Path?.[2]))
+  })
+})
+
+describe('physics lesson 1 lab accessibility', () => {
+  it('keeps each standalone lab free of serious and critical axe violations', async () => {
+    const labRenders = [
+      render(<ConcurrentForcesLab interactiveId="concurrent-forces-lab" reducedMotion={false} />),
+      render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />),
+      render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />),
+    ]
+
+    for (const { container, unmount } of labRenders) {
+      const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } })
+      expect(results.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')).toEqual([])
+      unmount()
+    }
   })
 })
 
