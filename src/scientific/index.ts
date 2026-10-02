@@ -6,6 +6,7 @@
  *  - <ScientificText />     mixed Arabic prose with automatic LTR isolation
  *  - <ScientificNotationText /> promotes compact nuclides in mixed prose to structured DOM
  *  - <Sci />                explicit isolation of a scientific run
+ *  - <VectorNotation />     physics vectors (F₁⃗, OM⃗) — arrow drawn, not typed
  *  - <MathFormula />        KaTeX mathematics (fractions, roots, powers)
  *  - <ChemicalFormula />    subscripts and groups (H₂O, Ca(OH)₂)
  *  - <ChemicalEquation />   balanced reaction chains (A + B → C)
@@ -25,6 +26,9 @@ export { Sci, ScientificText, SciSub, SciSup } from './ScientificText'
 export type { SciProps, ScientificTextProps, SciVariant, ScriptProps } from './ScientificText'
 export { ElectronConfiguration } from './ElectronConfiguration'
 export type { ElectronConfigurationProps, ElectronConfigurationSize } from './ElectronConfiguration'
+
+export { VectorNotation, parseVectorNotation, splitVectorRuns, vectorTone } from './VectorNotation'
+export type { VectorNotationProps, VectorRun, VectorTone, ParsedVector } from './VectorNotation'
 
 export { ScientificNotationText, parseCompactFormulaNotation, parseCompactIonNotation } from './ScientificNotationText'
 export type { ScientificNotationTextProps } from './ScientificNotationText'

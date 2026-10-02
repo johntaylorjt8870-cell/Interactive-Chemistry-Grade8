@@ -74,32 +74,42 @@ export function ScientificDiagram({
 /**
  * Shared SVG definitions (arrowheads, grid pattern) available to every drawing
  * so vectors and grids look identical throughout the platform.
+ *
+ * Arrowheads are defined once per tone. A marker is painted in its own
+ * coordinate space, so a single shared marker cannot follow the colour of the
+ * line that references it: `context-stroke` does that, but WebKit does not
+ * support it and the arrowhead then falls back to black — invisible on the dark
+ * theme. Every marker therefore carries its own tone class (CSS `color`), and
+ * the head paints `currentColor` first and `context-stroke` only where the
+ * browser understands it (see `.diagram-arrow__head` in scientific-components.css).
  */
+export const DIAGRAM_ARROW_TONES = ['accent', 'support', 'muted', 'danger', 'f1', 'f2', 'weight', 'resultant'] as const
+
+export type DiagramArrowTone = (typeof DIAGRAM_ARROW_TONES)[number] | 'default'
+
+export function diagramArrowId(tone: DiagramArrowTone): string {
+  return tone === 'default' ? 'diagram-arrow' : `diagram-arrow-${tone}`
+}
+
 export function DiagramDefs() {
   return (
     <defs>
-      <marker
-        id="diagram-arrow"
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        markerWidth="6"
-        markerHeight="6"
-        orient="auto-start-reverse"
-      >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
-      </marker>
-      <marker
-        id="diagram-arrow-muted"
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        markerWidth="6"
-        markerHeight="6"
-        orient="auto-start-reverse"
-      >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" opacity="0.55" />
-      </marker>
+      {(['default', ...DIAGRAM_ARROW_TONES] as DiagramArrowTone[]).map((tone) => (
+        <marker
+          key={tone}
+          id={diagramArrowId(tone)}
+          className={`diagram-arrow${tone === 'default' ? '' : ` diagram-arrow--${tone}`}`}
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+          data-tone={tone}
+        >
+          <path className="diagram-arrow__head" d="M 0 0 L 10 5 L 0 10 z" />
+        </marker>
+      ))}
       <pattern id="diagram-grid" width="20" height="20" patternUnits="userSpaceOnUse">
         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeOpacity="0.14" strokeWidth="1" />
       </pattern>
@@ -107,19 +117,21 @@ export function DiagramDefs() {
   )
 }
 
+export type DiagramVectorTone = 'accent' | 'support' | 'muted' | 'danger'
+
 export type DiagramVectorProps = {
   x1: number
   y1: number
   x2: number
   y2: number
   /** Semantic tone — always paired with a legend label, never colour alone. */
-  tone?: 'accent' | 'support' | 'muted' | 'danger'
+  tone?: DiagramVectorTone
   label?: string
   dashed?: boolean
   arrow?: boolean
 }
 
-/** A vector arrow. Drawn as a real SVG line with an arrowhead marker. */
+/** A vector arrow. Drawn as a real SVG line with a tone-matched arrowhead. */
 export function DiagramVector({
   x1,
   y1,
@@ -141,7 +153,7 @@ export function DiagramVector({
         strokeWidth={2}
         strokeLinecap="round"
         strokeDasharray={dashed ? '6 5' : undefined}
-        markerEnd={arrow ? 'url(#diagram-arrow)' : undefined}
+        markerEnd={arrow ? `url(#${diagramArrowId(tone)})` : undefined}
       />
       {label ? (
         <text x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 6} className="diagram-vector__label" textAnchor="middle">

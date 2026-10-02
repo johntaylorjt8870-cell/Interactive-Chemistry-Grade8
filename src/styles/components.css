@@ -3103,11 +3103,16 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   display: block;
 }
 
+/* Force strokes carry the lesson's semantic colours from the theme tokens, so a
+   vector stays legible on the light and the dark surface alike. The arrowhead
+   is matched by tone through `marker-end` (the shared markers live in
+   <DiagramDefs /> inside the same SVG); browsers that do not expose `marker-end`
+   as a CSS property keep the attribute's default marker, which is themed too. */
 .vec-lab__force { stroke-width: 3; fill: none; }
-.vec-lab__force--f1 { stroke: #059669; }
-.vec-lab__force--f2 { stroke: #2563eb; }
-.vec-lab__force--w { stroke: #dc2626; }
-.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.5; fill: none; }
+.vec-lab__force--f1 { stroke: var(--vector-f1); color: var(--vector-f1); marker-end: url(#diagram-arrow-f1); }
+.vec-lab__force--f2 { stroke: var(--vector-f2); color: var(--vector-f2); marker-end: url(#diagram-arrow-f2); }
+.vec-lab__force--w { stroke: var(--vector-weight); color: var(--vector-weight); marker-end: url(#diagram-arrow-weight); }
+.vec-lab__resultant { stroke: var(--vector-resultant); color: var(--vector-resultant); marker-end: url(#diagram-arrow-resultant); stroke-width: 3.5; fill: none; }
 .vec-lab__dashed { stroke: #60a5fa; stroke-width: 1.6; stroke-dasharray: 6 5; fill: none; }
 .vec-lab__carrier { stroke: #94a3b8; stroke-width: 1.2; stroke-dasharray: 2 4; fill: none; }
 .vec-lab__axis { stroke: var(--text-muted); stroke-width: 1.4; fill: none; }

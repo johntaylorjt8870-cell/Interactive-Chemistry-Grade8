@@ -361,9 +361,19 @@ describe('regression — inline vector notation inside Physics Lesson 1 prose re
 
   it('keeps F₁⃗ and OM⃗ inside LTR isolates on the page-60 step', () => {
     const { container } = renderStepBlocks('components-theory')
-    const isolated = [...container.querySelectorAll('[dir="ltr"]')].map((el) => el.textContent ?? '')
-    expect(isolated.some((text) => text.includes('OM'))).toBe(true)
-    expect(isolated.some((text) => text.includes('F₁⃗'))).toBe(true)
+    // The printed combining arrow (U+20D7) has no glyph in the platform fonts,
+    // so a vector is promoted to structured notation: symbol + real <sub> +
+    // drawn arrow, all inside one LTR isolate.
+    const vectors = [...container.querySelectorAll('.vector-notation')]
+    const labels = vectors.map((element) => element.getAttribute('data-vector'))
+    expect(labels).toContain('F1')
+    expect(labels).toContain('OM')
+    for (const element of vectors) expect(element.getAttribute('dir')).toBe('ltr')
+    const f1 = container.querySelector('.vector-notation[data-vector="F1"]')!
+    expect(f1.querySelector('sub')?.textContent).toBe('1')
+    expect(f1.querySelector('.vector-notation__arrow svg line')).not.toBeNull()
+    // No combining arrow is ever emitted as text.
+    expect(container.textContent).not.toContain('⃗')
     expect(strayScriptGlyphs(container)).toEqual([])
   })
 

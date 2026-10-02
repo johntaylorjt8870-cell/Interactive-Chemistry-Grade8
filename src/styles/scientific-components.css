@@ -102,6 +102,100 @@
   white-space: nowrap;
 }
 
+/* --- Vector notation (physics vectors: F₁⃗ , OM⃗ , w⃗) ----------------------
+   The printed combining arrow (U+20D7) has no glyph in the platform fonts, so
+   the arrow is drawn: a stretched shaft plus a fixed-size arrowhead painted
+   with an SVG marker. Everything is sized in `em`, so the notation scales with
+   its context and needs no per-expression tuning, and the arrow uses
+   `currentColor`, so it keeps the semantic force colour in both themes.
+
+   The wrapper is an inline-block whose LAST line box is the symbol, so the
+   browser aligns the symbol on the surrounding text baseline and the arrow
+   occupies only the space above it. */
+.vector-notation {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+  font-family: var(--font-latin);
+  font-style: italic;
+  font-weight: var(--fw-semibold);
+  font-size: 1.02em;
+  line-height: var(--lh-tight);
+  vertical-align: baseline;
+  color: var(--vector-neutral);
+}
+
+.vector-notation__arrow {
+  display: flex;
+  align-items: center;
+  block-size: 0.4em;
+  margin-block-end: 0.03em;
+}
+
+/* The shaft carries the stretch: a straight line is immune to the non-uniform
+   scale of `preserveAspectRatio="none"`, so the arrow always spans the symbol. */
+.vector-notation__shaft {
+  display: block;
+  flex: 1 1 auto;
+  inline-size: 0.12em;
+  min-inline-size: 0;
+  block-size: 100%;
+  overflow: visible;
+}
+
+/* The arrowhead keeps its own aspect ratio, so the marker is never skewed. */
+.vector-notation__head {
+  display: block;
+  flex: 0 0 auto;
+  inline-size: 0.4em;
+  block-size: 100%;
+  overflow: visible;
+}
+
+.vector-notation__symbol {
+  display: block;
+  text-align: center;
+  /* The arrow already adds height above the symbol; keeping the symbol's own
+     line box tight stops the notation from inflating the prose line height. */
+  line-height: 1;
+}
+
+.vector-notation__subscript,
+.vector-notation__prime {
+  font-style: normal;
+  font-weight: var(--fw-medium);
+}
+
+.vector-notation--f1 { color: var(--vector-f1); }
+.vector-notation--f2 { color: var(--vector-f2); }
+.vector-notation--weight { color: var(--vector-weight); }
+.vector-notation--resultant { color: var(--vector-resultant); }
+.vector-notation--neutral { color: var(--vector-neutral); }
+
+/* --- Diagram arrowheads ----------------------------------------------------
+   A marker is painted in its own coordinate space and cannot read the colour of
+   the line that references it. Each tone therefore owns a marker whose colour
+   is set here; `context-stroke` (where supported) refines it to the line's own
+   stroke, and the `currentColor` fallback keeps it visible everywhere else. */
+.diagram-arrow {
+  color: var(--text-primary);
+}
+
+.diagram-arrow--accent { color: var(--accent); }
+.diagram-arrow--support { color: var(--subject-support); }
+.diagram-arrow--muted { color: var(--text-muted); opacity: 0.75; }
+.diagram-arrow--danger { color: var(--status-danger-text); }
+.diagram-arrow--f1 { color: var(--vector-f1); }
+.diagram-arrow--f2 { color: var(--vector-f2); }
+.diagram-arrow--weight { color: var(--vector-weight); }
+.diagram-arrow--resultant { color: var(--vector-resultant); }
+
+.diagram-arrow__head {
+  fill: currentColor;
+  fill: context-stroke;
+}
+
 /* --- Ions ----------------------------------------------------------------- */
 
 .ion-notation {

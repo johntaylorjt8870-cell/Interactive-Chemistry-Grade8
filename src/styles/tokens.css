@@ -58,6 +58,10 @@
     'Helvetica Neue', Arial, sans-serif;
   --font-latin: 'Inter Variable', Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, Consolas, monospace;
+  /* Figures and lab labels: symbols, numbers and vector labels take the Latin
+     face first and fall back to the Arabic face, so a mixed label
+     («كل 1 cm يمثل 20 N») never loses either script. */
+  --font-science: var(--font-latin), var(--font-arabic);
 
   --fs-3xs: 0.6875rem; /* 11px — micro labels */
   --fs-2xs: 0.75rem; /* 12px */
@@ -189,6 +193,15 @@
   --status-neutral-border: var(--border-soft);
   --status-neutral-text: var(--text-secondary);
 
+  /* Vector / force roles (القوى المتلاقية) — the colours the lesson assigns to
+     the forces in the figure of page 56: F₁ green, F₂ blue, w⃗ red, and the
+     resultant in the accent. Every value clears 4.5:1 on the light surfaces. */
+  --vector-f1: #047857;
+  --vector-f2: #2563eb;
+  --vector-weight: #b91c1c;
+  --vector-resultant: var(--accent-strong);
+  --vector-neutral: var(--text-primary);
+
   /* Tables — every surface is explicit so text can never collide */
   --table-bg: var(--palette-paper);
   --table-header-bg: #eef3fb;
@@ -255,6 +268,14 @@
   --status-neutral-border: var(--border-soft);
   --status-neutral-text: var(--text-secondary);
 
+  /* Same force roles, lifted for the dark surfaces: an arrowhead and a stroke
+     must stay legible on --surface-raised (#0e1729), never a dark blue on ink. */
+  --vector-f1: #34d399;
+  --vector-f2: #7cc4ff;
+  --vector-weight: #fca5a5;
+  --vector-resultant: var(--accent-strong);
+  --vector-neutral: var(--text-primary);
+
   --table-bg: var(--palette-ink-850);
   --table-header-bg: #17253c;
   --table-header-text: #eaf1fb;
@@ -287,9 +308,17 @@
   --accent-wash: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(124, 196, 255, 0.05));
 }
 
+/* The subject blocks above also match elements that carry `data-subject`
+   themselves (`.site`, `.subject-hero`, `.door`), not only the root. Without a
+   matching dark descendant selector those elements re-declare the LIGHT accent
+   tokens inside a dark document, so every accent-tinted surface (and with it
+   every vector drawn in a semantic colour) keeps its light-theme tint on a dark
+   page. The descendant selectors restore the dark values down the subtree. */
 [data-theme='dark'],
 [data-theme='dark'][data-subject='neutral'],
-[data-theme='dark'][data-subject='physics'] {
+[data-theme='dark'][data-subject='physics'],
+[data-theme='dark'] [data-subject='neutral'],
+[data-theme='dark'] [data-subject='physics'] {
   --accent: var(--palette-physics-glow);
   --accent-strong: var(--palette-physics-300);
   --accent-soft: rgba(124, 196, 255, 0.16);
@@ -313,7 +342,8 @@
   --subject-support: var(--palette-chem-support-600);
 }
 
-[data-theme='dark'][data-subject='chemistry'] {
+[data-theme='dark'][data-subject='chemistry'],
+[data-theme='dark'] [data-subject='chemistry'] {
   --accent: var(--palette-chem-glow);
   --accent-strong: var(--palette-chem-300);
   --accent-soft: rgba(245, 196, 105, 0.16);

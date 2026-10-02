@@ -1,6 +1,7 @@
 import type { CSSProperties, ElementType, ReactNode } from 'react'
 import { splitScientificRuns } from '@/utils/scientificText'
 import { ElectronConfiguration } from './ElectronConfiguration'
+import { VectorNotation, splitVectorRuns } from './VectorNotation'
 
 /* ============================================================================
    ScientificText — the bidi boundary of the whole platform.
@@ -122,9 +123,33 @@ export function ScientificText<T extends ElementType = 'span'>({
         if (run.notation === 'electron-configuration') {
           return <ElectronConfiguration key={index} value={run.value} />
         }
+        // Physics vectors (`F₁⃗`, `OM⃗`): the printed combining arrow is not a
+        // glyph the platform fonts carry, so the arrow is drawn structurally.
+        // The whole run stays ONE isolate, so a mixed run such as `F⃗ = 100 N`
+        // can never be visually reordered by the surrounding Arabic.
+        const pieces = splitVectorRuns(run.value)
+        if (pieces.length === 1 && pieces[0]!.kind === 'text') {
+          return (
+            <Sci key={index} variant={scienceVariant}>
+              {run.value}
+            </Sci>
+          )
+        }
         return (
           <Sci key={index} variant={scienceVariant}>
-            {run.value}
+            {pieces.map((piece, pieceIndex) =>
+              piece.kind === 'vector' ? (
+                <VectorNotation
+                  key={pieceIndex}
+                  symbol={piece.vector.symbol}
+                  subscript={piece.vector.subscript}
+                  prime={piece.vector.prime}
+                  tone={piece.vector.tone}
+                />
+              ) : (
+                <span key={pieceIndex}>{piece.value}</span>
+              ),
+            )}
           </Sci>
         )
       })}
