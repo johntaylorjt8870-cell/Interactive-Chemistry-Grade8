@@ -381,3 +381,32 @@ describe('regression — inline vector notation inside Physics Lesson 1 prose re
     }
   })
 })
+
+describe('scientific correctness — zero resultant force means zero acceleration, not necessarily rest', () => {
+  const platformTextOf = (stepId: string) => {
+    const step = physicsLesson1.steps.find((candidate) => candidate.id === stepId)
+    expect(step, stepId).toBeDefined()
+    expect(step!.attribution).toBe('platform')
+    return step!.blocks
+      .filter((block): block is Extract<typeof block, { kind: 'paragraph' }> => block.kind === 'paragraph')
+      .filter((block) => block.attribution === 'platform')
+      .map((block) => block.text)
+      .join('\n')
+  }
+
+  it('states that zero resultant force gives zero acceleration while leaving rest and motion distinct', () => {
+    const text = platformTextOf('concurrent-explained')
+
+    // Zero resultant force ⇒ zero acceleration, stated explicitly.
+    expect(text).toContain('التسارع صفر')
+    expect(text).toContain('انعدام التسارع')
+
+    // An object initially at rest remains at rest …
+    expect(text).toContain('يبقى ساكناً')
+    // … and an object already moving continues with constant velocity.
+    expect(text).toContain('بسرعة ثابتة')
+
+    // The former error — equating a zero resultant with rest — must not return.
+    expect(text).not.toContain('سكوناً إن كانت صفراً')
+  })
+})
