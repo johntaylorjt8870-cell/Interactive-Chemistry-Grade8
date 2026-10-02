@@ -212,4 +212,29 @@ describe('fidelity validators', () => {
     expect(lesson.source.verified).toBe(true)
     expect(lesson.source.pages.map((page) => page.page)).toEqual(['55', '56', '57', '58', '59', '60', '61', '62'])
   })
+
+  it('keeps the printed page-62 «السؤال الثاني» instruction and its F⃗′ notation', () => {
+    const lesson = getLesson('physics', 'motion-and-forces', 'concurrent-forces')
+    expect(lesson).toBeDefined()
+    const step = lesson!.steps.find((candidate) => candidate.id === 'book-check-2')
+    expect(step, 'the page-62 «أختبر نفسي» step').toBeDefined()
+
+    // The printed instruction opens the step, ahead of the two problems it assigns.
+    const [instruction, ...problems] = step!.blocks
+    expect(instruction?.kind).toBe('textbook-verbatim')
+    expect(instruction?.kind === 'textbook-verbatim' ? instruction.text : null).toBe('السؤال الثاني: حلّ المسألتين الآتيتين:')
+    expect(instruction?.kind === 'textbook-verbatim' ? instruction.source : null).toEqual({ page: '62' })
+    expect(problems.map((block) => (block.kind === 'question' ? block.questionId : block.kind))).toEqual([
+      'p1-book-pr-1',
+      'p1-book-pr-2',
+    ])
+
+    // The balancing force is printed with its vector arrow and prime: `F⃗'`.
+    const problem = lesson!.tests?.flatMap((test) => test.questions).find((question) => question.id === 'p1-book-pr-1')
+    expect(problem?.prompt).toContain("كلاً من القوى (F₂⃗ ، F⃗ ، F₁⃗ ، F⃗').")
+    expect(problem?.prompt).not.toMatch(/F(?!⃗)['’′]/gu)
+
+    // Restoring the block must not weaken the fidelity validators.
+    expect(validateLesson(lesson!, 'physics/phys-u2-l1')).toEqual([])
+  })
 })

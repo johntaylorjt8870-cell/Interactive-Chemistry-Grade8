@@ -7,6 +7,7 @@ import { getLesson } from '@/data/curriculum/registry'
 import { ContentBlocks } from '@/lessons/ContentBlocks'
 import { strayScriptGlyphs } from './utils/strayGlyphs'
 import { physicsLesson1, bookQuestions, bookActivitySolutions, finalTest } from '@/data/curriculum/physicsLesson1'
+import { InlineQuestion } from '@/assessment/InlineQuestion'
 import { validateLesson } from '@/data/sourceFidelity'
 import ParallelogramLab from '@/simulations/ParallelogramLab'
 import ConcurrentForcesLab from '@/simulations/ConcurrentForcesLab'
@@ -80,6 +81,7 @@ describe('verbatim fidelity against the finalized source report', () => {
     'يمكن الاستعاضة عن القوّة F⃗ بقوّتين متعامدتين F₁⃗ ، F₂⃗ تقومان مقامها تُسمّيان مركّبتَيها.',
     'يمكن الاستعاضة عن القوّة F⃗ بقوّتين متعامدتين F₁⃗ ، F₂⃗ تقومان مقامها تسميّان مركّبتَيها.',
     'اختر الإجابة الصحيحة لكلٍّ مما يأتي، وانقلها إلى دفترك:',
+    'السؤال الثاني: حلّ المسألتين الآتيتين:',
     'كيف يرتبط المظلّيُّ بمظلّته؟ ما القوى المؤثّرة على المظلّيِّ؟ أين تتلاقى حبالُ المظلّة؟',
   ])('keeps the printed wording character for character: %s', (text) => {
     expect(allText).toContain(text)
@@ -110,6 +112,97 @@ describe('verbatim fidelity against the finalized source report', () => {
   it('stores no bidi control characters in data', () => {
     const file = readFileSync('src/data/curriculum/physicsLesson1.ts', 'utf8')
     expect(file).not.toMatch(/[‎‏‪-‮⁦-⁩]/u)
+  })
+})
+
+/**
+ * Focused regressions for the two page-62 source-fidelity defects found by the
+ * final audit: the printed instruction of «السؤال الثاني» had been dropped from
+ * the student lesson, and the balancing force in the first problem's drawing
+ * instruction had lost its vector arrow (printed `F⃗'`, stored `F'`).
+ */
+describe('source fidelity — page 62 «السؤال الثاني» and the F⃗′ notation', () => {
+  const bookCheck2 = physicsLesson1.steps.find((step) => step.id === 'book-check-2')!
+  const problem1 = bookQuestions.find((question) => question.id === 'p1-book-pr-1')!
+
+  it('stores the printed instruction as a textbook block opening the step', () => {
+    expect(bookCheck2, 'the page-62 «أختبر نفسي» step must exist').toBeDefined()
+    expect(bookCheck2.blocks[0]).toEqual({
+      kind: 'textbook-verbatim',
+      text: 'السؤال الثاني: حلّ المسألتين الآتيتين:',
+      source: { page: '62' },
+    })
+  })
+
+  it('keeps the instruction before the two problems it introduces, in book order', () => {
+    const shape = bookCheck2.blocks.map((block) =>
+      block.kind === 'question' ? block.questionId : block.kind,
+    )
+    expect(shape).toEqual(['textbook-verbatim', 'p1-book-pr-1', 'p1-book-pr-2'])
+  })
+
+  it('renders the instruction in the textbook frame, not as a platform addition', () => {
+    const blocks = bookCheck2.blocks.filter((block) => block.kind !== 'question')
+    const { container } = render(
+      <div dir="rtl">
+        <ContentBlocks blocks={blocks} />
+      </div>,
+    )
+
+    const frame = container.querySelector('.textbook-source')
+    expect(frame, 'the instruction must sit in the «من الكتاب المدرسي» frame').not.toBeNull()
+    expect(frame!.textContent).toContain('السؤال الثاني: حلّ المسألتين الآتيتين:')
+    expect(frame!.querySelector('.textbook-source__ref')!.textContent).toBe('62')
+    expect(container.querySelector('.platform-addition, .platform-addition-badge')).toBeNull()
+  })
+
+  it.each([
+    ['the balance item (item 3)', "ما قيمة القوّة F⃗' التي إذا أثّرت في النقطة O جعلت الجسم متوازناً"],
+    ['the drawing instruction (item 4)', "كلاً من القوى (F₂⃗ ، F⃗ ، F₁⃗ ، F⃗')."],
+  ])('keeps the vector arrow on the printed F⃗′ in %s', (_label, printed) => {
+    expect(problem1.prompt).toContain(printed)
+  })
+
+  it('never writes a prime on F without its vector arrow in the first problem', () => {
+    const unarrowed = [...problem1.prompt.matchAll(/F(?!⃗)['’′]/gu)].map((match) => match[0])
+    expect(unarrowed).toEqual([])
+  })
+
+  it('uses the combining arrow the notation system renders (U+20D7), never a drawn arrow glyph', () => {
+    const vectorPrime = "F⃗'"
+    // F, combining rightwards arrow above, prime — the same sequence the rest of
+    // the lesson stores, so <ScientificNotationText /> isolates it as one LTR run.
+    expect([...vectorPrime].map((char) => char.codePointAt(0))).toEqual([0x46, 0x20d7, 0x27])
+    expect(problem1.prompt).toContain(vectorPrime)
+    // …and not a standalone arrow glyph, an escape sequence, or markup.
+    expect(problem1.prompt).not.toMatch(/F(?:→|⟶|↦|←)/u)
+    expect(problem1.prompt).not.toMatch(/<|&#|\\u20d7/u)
+  })
+
+  it('keeps F⃗′ whole inside a single LTR isolate in the rendered prompt', () => {
+    const { container } = render(
+      <div dir="rtl">
+        <InlineQuestion question={problem1} />
+      </div>,
+    )
+
+    const prompt = container.querySelector('.question__prompt')!
+    // The rendered text must read exactly as printed, in printed order.
+    expect(prompt.textContent).toContain("كلاً من القوى (F₂⃗ ، F⃗ ، F₁⃗ ، F⃗').")
+    const isolated = [...prompt.querySelectorAll('[data-sci="isolated"]')].map((el) => el.textContent ?? '')
+    expect(isolated.filter((text) => text.includes("F⃗'"))).toHaveLength(1)
+    // No arrow may be torn out of its symbol and left in the RTL prose.
+    expect(strayScriptGlyphs(container)).toEqual([])
+    const walker = document.createTreeWalker(prompt, NodeFilter.SHOW_TEXT)
+    const looseArrows: string[] = []
+    let node = walker.nextNode()
+    while (node) {
+      if (!node.parentElement?.closest('[data-sci="isolated"], [dir="ltr"], svg')) {
+        looseArrows.push(...[...(node.textContent ?? '')].filter((char) => char.codePointAt(0) === 0x20d7))
+      }
+      node = walker.nextNode()
+    }
+    expect(looseArrows).toEqual([])
   })
 })
 
