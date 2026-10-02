@@ -267,6 +267,9 @@ function Block({
         </div>
       )
 
+    case 'calculation':
+      return <CalculationChain block={block} />
+
     case 'key-terms':
       return (
         <dl className="key-terms">
@@ -359,4 +362,40 @@ function PlatformAdditionBlock({ text }: { text: string }) {
       </p>
     </PlatformAddition>
   )
+}
+
+type CalculationBlock = Extract<ContentBlock, { kind: 'calculation' }>
+
+/**
+ * The worked-solution scaffold.
+ *
+ * A calculation is a *sequence of labelled decisions*, not a single equation:
+ * the student has to know what is given, which relation applies, why each
+ * substitution is made, what unit the answer carries, and how to check it.
+ * Every KaTeX line is its own LTR isolate, so an Arabic label such as
+ * «التعويض» can never reorder the terms of the expression next to it.
+ */
+function CalculationChain({ block }: { block: CalculationBlock }) {
+  const chain = (
+    <div className="calculation" data-calculation={block.title ?? 'calculation'}>
+      {block.title ? <h4 className="calculation__title">{block.title}</h4> : null}
+      <ol className="calculation__steps">
+        {block.steps.map((step, index) => (
+          <li className="calculation__step" key={index} data-label={step.label}>
+            <span className="calculation__label">{step.label}</span>
+            {step.tex ? <MathFormula tex={step.tex} display="block" className="calculation__math" /> : null}
+            {step.text ? (
+              <ScientificNotationText as="span" className="calculation__text">
+                {step.text}
+              </ScientificNotationText>
+            ) : null}
+          </li>
+        ))}
+      </ol>
+    </div>
+  )
+
+  // Platform-authored scaffolds carry their own badge even inside a `mixed`
+  // step, where the step frame does not mark attribution on its own.
+  return block.attribution === 'platform' ? <PlatformAddition variant="block">{chain}</PlatformAddition> : chain
 }

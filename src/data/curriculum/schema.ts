@@ -161,6 +161,29 @@ export type ContentBlock =
   | { kind: 'callout'; tone: 'note' | 'warning' | 'method'; title?: string; text: string; attribution: Attribution }
   /** Ordered procedure, e.g. experiment steps. */
   | { kind: 'procedure'; title?: string; items: string[]; attribution: Attribution }
+  /**
+   * A labelled calculation chain — the ten-part worked-solution scaffold
+   * (المعطيات ← المطلوب ← القانون ← تفسير الرموز ← التعويض ← الحساب ← الوحدة ←
+   * النتيجة ← التفسير الفيزيائي ← التحقق).
+   *
+   * Each step pairs an Arabic label with either prose, a KaTeX line, or both,
+   * so the mathematics is always an LTR isolate sitting *next to* the RTL
+   * label instead of being spliced into it. Units therefore stay on the right
+   * of their number (`5 N`), never reordered by the bidi algorithm.
+   */
+  | {
+      kind: 'calculation'
+      title?: string
+      steps: Array<{
+        /** The scaffold label in Arabic, e.g. `المعطيات`. */
+        label: string
+        /** Prose explanation, rendered RTL around isolated scientific runs. */
+        text?: string
+        /** KaTeX source, rendered LTR-isolated under the label. */
+        tex?: string
+      }>
+      attribution: Attribution
+    }
   | { kind: 'key-terms'; terms: Array<{ term: string; meaning: string }>; attribution: Attribution }
   /** Reference to a question authored in the assessment layer. */
   | { kind: 'question'; questionId: string }

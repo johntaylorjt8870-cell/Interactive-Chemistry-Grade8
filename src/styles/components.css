@@ -1900,6 +1900,66 @@
   font-weight: var(--fw-bold);
 }
 
+/* --- Worked-solution scaffold ---------------------------------------------
+   A calculation is ten labelled decisions, not one equation. Each step keeps
+   its Arabic label in the RTL flow while any KaTeX line beside it stays a
+   self-contained LTR isolate, so a substitution chain can never be reordered
+   by the paragraph direction and a unit always trails its number.
+   ------------------------------------------------------------------------ */
+
+.calculation {
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-hairline);
+  background: var(--surface-base);
+}
+
+.calculation__title {
+  font-size: var(--fs-lg);
+  color: var(--text-strong);
+  margin-block-end: var(--space-3);
+}
+
+.calculation__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: var(--space-6);
+}
+
+.calculation__step {
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--border-hairline);
+  color: var(--text-primary);
+  line-height: var(--lh-relaxed);
+}
+
+.calculation__step:last-child {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.calculation__step::marker {
+  color: var(--accent);
+  font-weight: var(--fw-bold);
+}
+
+.calculation__label {
+  display: block;
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.calculation__text {
+  display: block;
+  color: var(--text-primary);
+}
+
+.calculation__math {
+  margin-block: var(--space-1);
+}
+
 .key-terms {
   display: grid;
   gap: var(--space-3);

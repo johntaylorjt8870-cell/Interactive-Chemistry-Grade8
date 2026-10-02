@@ -64,6 +64,41 @@ describe('curriculum registry — physics lesson 1', () => {
       .map((block) => (block.kind === 'interactive' ? block.interactiveId : ''))
     expect(ids).toEqual(['concurrent-forces-lab', 'parallelogram-lab', 'force-components-lab'])
   })
+
+  it('gives the shallow core concepts their own structured, labelled explanations', () => {
+    const byId = (id: string) => physicsLesson1.steps.find((step) => step.id === id)!
+    expect(byId('concurrent-explained').blocks.some((block) => block.kind === 'key-terms' && block.terms.length === 4)).toBe(true)
+    expect(byId('concurrent-explained').blocks.some((block) => block.kind === 'table' && block.rows.length >= 5)).toBe(true)
+    expect(byId('parallelogram-explained').blocks.some((block) => block.kind === 'formula' && block.tex.includes('\\leq'))).toBe(true)
+    expect(byId('components-explained').blocks.some((block) => block.kind === 'procedure' && block.items.length === 5)).toBe(true)
+    expect(byId('components-explained').blocks.some((block) => block.kind === 'table' && block.rows.length === 3)).toBe(true)
+  })
+
+  it('uses exactly the ten labelled decisions for each new worked calculation', () => {
+    const labels = ['المعطيات', 'المطلوب', 'القانون / العلاقة', 'تفسير الرموز', 'التعويض', 'الحساب خطوة بخطوة', 'الوحدة', 'النتيجة', 'تفسير النتيجة فيزيائياً', 'التحقق من معقولية النتيجة']
+    const calculations = physicsLesson1.steps.flatMap((step) => step.blocks).filter((block) => block.kind === 'calculation')
+    expect(calculations).toHaveLength(3)
+    for (const block of calculations) {
+      if (block.kind !== 'calculation') continue
+      expect(block.attribution).toBe('platform')
+      expect(block.steps.map((item) => item.label)).toEqual(labels)
+      expect(block.steps.every((item) => item.text || item.tex)).toBe(true)
+    }
+  })
+
+  it('keeps every added calculation equation valid in KaTeX and explicitly LTR', () => {
+    const calculations = physicsLesson1.steps.flatMap((step) => step.blocks).filter((block) => block.kind === 'calculation')
+    const { container } = render(<ContentBlocks blocks={calculations} />)
+    const equations = container.querySelectorAll('.calculation .math-formula')
+    expect(equations.length).toBeGreaterThan(0)
+    expect(container.querySelectorAll('.math-formula--invalid')).toHaveLength(0)
+    for (const equation of equations) {
+      expect(equation).toHaveAttribute('dir', 'ltr')
+      expect(equation.querySelector('.katex')).not.toBeNull()
+    }
+    expect(container.textContent).toContain('5 N')
+    expect(container.textContent).toContain('100 N')
+  })
 })
 
 describe('verbatim fidelity against the finalized source report', () => {
