@@ -15,7 +15,7 @@ import { evaluateQuestion } from '@/assessment/evaluate'
 import { teacherAccess, TEACHER_PASSWORD } from '@/teacher/teacherAccess'
 import { TEACHER_LESSONS, getTeacherLesson } from '@/teacher/teacherContent'
 import { renderApp } from './utils/renderApp'
-import type { LessonStep } from '@/data/curriculum/schema'
+import type { ContentBlock, LessonStep } from '@/data/curriculum/schema'
 
 const LESSON_PATH = '/physics/motion-and-forces/concurrent-forces'
 
@@ -379,5 +379,221 @@ describe('regression — inline vector notation inside Physics Lesson 1 prose re
       expect(strayScriptGlyphs(container), step.id).toEqual([])
       container.remove()
     }
+  })
+})
+
+/* ---------------------------------------------------------------------------
+   Regression — Fix 6 (scientific correctness).
+
+   The platform explanation of step `concurrent-explained` used to teach that a
+   zero resultant puts the body at rest («تسارع باتجاهها، أو سكوناً إن كانت
+   صفراً»). The only consequence of a zero resultant is zero acceleration: a
+   body at rest stays at rest, a moving body keeps a constant velocity. These
+   tests pin the corrected statement and keep the misconception from returning.
+   ------------------------------------------------------------------------ */
+
+const EXPLAINED_STEP = 'concurrent-explained'
+
+/** The wording removed by Fix 6, and equivalent rest-as-consequence claims. */
+const REMOVED_MISCONCEPTION = 'سكوناً إن كانت صفراً'
+const MISCONCEPTION_PATTERNS = [
+  /فالجسم ساكن/u,
+  /يعني\s*(?:أن\s*)?الجسم ساكن/u,
+  /المحصّلة صفر تعني السكون/u,
+  /إن كانت صفراً[^.]*ساكن/u,
+] as const
+
+/** Every cue of a zero net force, a state of rest, and an explicit correction. */
+const ZERO_RESULTANT_CUE = /صفر/u
+const REST_CUE = /ساكن|سكون/u
+const CORRECTIVE_CUE = /لا |ليس|وليست|الخطأ|الصحيح|خاصة|إحدى|بالضرورة|وحده|بقي|يبقى|يستمر|تستمر|أم /u
+
+function explainedStep(): LessonStep {
+  const step = physicsLesson1.steps.find((candidate) => candidate.id === EXPLAINED_STEP)
+  expect(step, EXPLAINED_STEP).toBeDefined()
+  return step!
+}
+
+/** Arabic strings a single content block puts on screen (captions included). */
+function blockTexts(block: ContentBlock): string[] {
+  switch (block.kind) {
+    case 'paragraph':
+      return [block.text]
+    case 'callout':
+      return [block.title ?? '', block.text]
+    case 'list':
+    case 'procedure':
+      return block.items
+    case 'definition':
+      return [block.term, block.text]
+    case 'key-terms':
+      return block.terms.flatMap((term) => [term.term, term.meaning])
+    case 'formula':
+      return [block.caption ?? '']
+    default:
+      return []
+  }
+}
+
+/** Platform-authored prose of a step — textbook wording is out of scope here. */
+function platformTexts(step: LessonStep): string[] {
+  return step.blocks
+    .filter((block) => 'attribution' in block && block.attribution === 'platform')
+    .flatMap(blockTexts)
+    .filter((text) => text.trim() !== '')
+}
+
+function sentencesOf(text: string): string[] {
+  return text
+    .split(/(?<=[.؛؟])\s+/u)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean)
+}
+
+describe('regression — a zero resultant means zero acceleration, not rest', () => {
+  it('keeps the removed wording out of the whole lesson', () => {
+    const lesson = JSON.stringify(physicsLesson1)
+    expect(lesson).not.toContain('تسارع باتجاهها، أو سكوناً إن كانت صفراً')
+    expect(lesson).not.toContain(REMOVED_MISCONCEPTION)
+    for (const pattern of MISCONCEPTION_PATTERNS) {
+      expect(pattern.test(lesson), pattern.source).toBe(false)
+    }
+  })
+
+  it('states the corrected chain explicitly: zero resultant → zero acceleration', () => {
+    const paragraph = explainedStep().blocks.find(
+      (block) => block.kind === 'paragraph' && block.text.includes('لماذا نبحث عن محصّلة'),
+    )
+    expect(paragraph, 'the «لماذا نبحث عن محصّلة» paragraph').toBeDefined()
+    const text = paragraph!.kind === 'paragraph' ? paragraph!.text : ''
+
+    expect(text).toContain('والمحصّلة الصفرية تجعل تسارعه صفراً')
+    expect(text).toContain('a⃗ = 0')
+    expect(text).toContain('لا تتغيّر سرعته المتجهة')
+    expect(text).toContain('وهذا لا يعني بالضرورة أن الجسم ساكن')
+  })
+
+  it('typesets the implication as a platform formula F⃗ = 0 ⇒ a⃗ = 0', () => {
+    const formula = explainedStep().blocks.find((block) => block.kind === 'formula')
+    expect(formula, 'a formula block in the explanation step').toBeDefined()
+    if (formula?.kind !== 'formula') return
+
+    expect(formula.attribution).toBe('platform')
+    const tex = formula.tex.replace(/\s+/gu, '')
+    expect(tex).toContain('\\vec{F}=0')
+    expect(tex).toContain('\\Rightarrow')
+    expect(tex).toContain('\\vec{a}=0')
+    expect(formula.caption).toContain('تسارعاً صفراً')
+    expect(formula.caption).toContain('لا سكوناً')
+  })
+
+  it('gives both consequences: rest stays rest, motion keeps constant velocity', () => {
+    const text = platformTexts(explainedStep()).join(' ')
+    expect(text).toContain('إن كان الجسم ساكناً بقي ساكناً')
+    expect(text).toContain('وإن كان متحركاً استمرّ متحركاً بسرعة متجهة ثابتة')
+    expect(text).toContain('فالسكون إحدى حالتين ممكنتين عند توازن القوى وليست الحالة الوحيدة')
+  })
+
+  it('distinguishes the four concepts as four separate key terms', () => {
+    const keyTerms = explainedStep().blocks.find((block) => block.kind === 'key-terms')
+    expect(keyTerms, 'a key-terms block in the explanation step').toBeDefined()
+    if (keyTerms?.kind !== 'key-terms') return
+
+    expect(keyTerms.attribution).toBe('platform')
+    expect(keyTerms.terms.map((term) => term.term)).toEqual([
+      'محصّلة القوى الصفرية',
+      'التسارع الصفري',
+      'السكون',
+      'الحركة بسرعة متجهة ثابتة',
+    ])
+    // Zero resultant describes the forces only …
+    expect(keyTerms.terms[0]!.meaning).toContain('لا يخبرنا هذا الوصف وحده هل الجسم ساكن أم متحرك')
+    // … zero acceleration is what it implies …
+    expect(keyTerms.terms[1]!.meaning).toContain('النتيجة المباشرة الوحيدة للمحصّلة الصفرية')
+    // … and rest is one of two preserved states, never the default conclusion.
+    expect(keyTerms.terms[2]!.meaning).toContain('حالة حركة خاصة')
+    expect(keyTerms.terms[3]!.meaning).toContain('حالة الحركة الأخرى عند التسارع الصفري')
+  })
+
+  it('warns against the misconception by name inside the same step', () => {
+    const callout = explainedStep().blocks.find(
+      (block) => block.kind === 'callout' && (block.title ?? '').includes('محصّلة صفرية'),
+    )
+    expect(callout, 'the zero-resultant warning callout').toBeDefined()
+    if (callout?.kind !== 'callout') return
+
+    expect(callout.tone).toBe('warning')
+    expect(callout.attribution).toBe('platform')
+    expect(callout.title).toBe('محصّلة صفرية لا تعني سكوناً')
+    expect(callout.text).toContain('دليل على التسارع الصفري وحده')
+  })
+
+  it('never lets a platform sentence present rest as the meaning of a zero resultant', () => {
+    const offenders: string[] = []
+    for (const step of physicsLesson1.steps) {
+      for (const text of platformTexts(step)) {
+        for (const sentence of sentencesOf(text)) {
+          if (ZERO_RESULTANT_CUE.test(sentence) && REST_CUE.test(sentence) && !CORRECTIVE_CUE.test(sentence)) {
+            offenders.push(`${step.id}: ${sentence}`)
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  it('leaves the textbook wording and the other steps untouched by this correction', () => {
+    // The correction is platform prose only: book statements about the suspended
+    // body (which really is at rest) and the final test stay as authored.
+    const bookRest = JSON.stringify(bookActivitySolutions)
+    expect(bookRest).toContain('لأن الجسم معلق بسكون على استقامة واحدة')
+    expect(bookRest).toContain('تعادل الجسم الساكن يعني قوتين على حامل واحد')
+    expect(finalTest.questions).toHaveLength(14)
+    expect(physicsLesson1.steps).toHaveLength(19)
+  })
+
+  it('renders the corrected explanation with the implication isolated and typeset', () => {
+    const blocks = explainedStep().blocks.filter(
+      (block) => block.kind !== 'interactive' && block.kind !== 'question',
+    )
+    const { container } = render(
+      <div dir="rtl">
+        <ContentBlocks blocks={blocks} />
+      </div>,
+    )
+
+    expect(container.textContent).toContain('تسارعه صفراً')
+    expect(container.textContent).toContain('بقي ساكناً')
+    expect(container.textContent).toContain('سرعة متجهة ثابتة')
+    expect(container.textContent).not.toContain(REMOVED_MISCONCEPTION)
+
+    const equation = container.querySelector('[data-math="block"]')
+    expect(equation).not.toBeNull()
+    expect(equation).toHaveAttribute('dir', 'ltr')
+    expect(equation!.querySelector('.katex')).not.toBeNull()
+    expect(container.querySelector('[data-math-error]')).toBeNull()
+
+    // `a⃗ = 0` stays one LTR isolate inside the RTL paragraph.
+    const isolated = [...container.querySelectorAll('[dir="ltr"]')].map((element) => element.textContent ?? '')
+    expect(isolated.some((text) => text.replace(/\s+/gu, '') === 'a⃗=0')).toBe(true)
+
+    expect(container.querySelectorAll('.key-terms__item')).toHaveLength(4)
+    expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
+  it('adds no serious or critical axe violation to the corrected step', async () => {
+    const blocks = explainedStep().blocks.filter(
+      (block) => block.kind !== 'interactive' && block.kind !== 'question',
+    )
+    const { container } = render(
+      <div dir="rtl">
+        <ContentBlocks blocks={blocks} />
+      </div>,
+    )
+
+    const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } })
+    expect(
+      results.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical'),
+    ).toEqual([])
   })
 })
