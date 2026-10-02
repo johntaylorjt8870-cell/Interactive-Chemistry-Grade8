@@ -231,12 +231,14 @@ function Block({
 
     case 'source-image':
       return (
-        <figure className="source-image">
+        <figure className="source-image" data-origin="textbook">
           <img src={block.src} alt={block.alt} loading="lazy" decoding="async" />
           <figcaption className="source-image__caption">
             {block.caption ? <span>{block.caption}</span> : null}
+            {/* A textbook scan is never allowed to look like a platform-made
+                illustration: its origin and printed page are always stated. */}
             <span className="source-image__ref">
-              {block.source.page}
+              من الكتاب المدرسي — الصفحة {block.source.page}
               {block.source.item ? ` · ${block.source.item}` : ''}
             </span>
           </figcaption>
