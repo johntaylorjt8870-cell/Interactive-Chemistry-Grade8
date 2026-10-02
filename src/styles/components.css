@@ -3145,6 +3145,8 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   stroke-dasharray: 3 3;
 }
 .vec-lab__label {
+  direction: ltr;
+  unicode-bidi: isolate;
   font: italic 700 15px var(--font-science);
   fill: var(--text-primary);
 }

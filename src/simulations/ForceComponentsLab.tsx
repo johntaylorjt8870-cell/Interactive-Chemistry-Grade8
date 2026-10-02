@@ -531,7 +531,8 @@ function InclineFigure({
   reducedMotion: boolean
   morphPhase: 'a' | 'b'
 }) {
-  const base: Point2D = { x: 40, y: 260 }
+  // Keep the point of application inside the viewBox as the slope angle changes.
+  const base: Point2D = { x: 40, y: 120 + 180 * Math.sin(a) }
   const upSlope = { x: Math.cos(a), y: -Math.sin(a) }
   const slopeEnd: Point2D = { x: base.x + 300 * upSlope.x, y: base.y + 300 * upSlope.y }
   const body: Point2D = { x: base.x + 180 * upSlope.x, y: base.y + 180 * upSlope.y }

@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeEach } from 'vitest'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
 import { readFileSync } from 'node:fs'
@@ -224,6 +224,51 @@ describe('parallelogram interactive', () => {
     expect(still.container.querySelector('section')).toHaveClass('lab--still')
     expect(still.container.querySelector('section')).toHaveAttribute('data-stage', '2')
   })
+
+  it('keeps the construction inside the SVG at both angle extremes', () => {
+    const { container } = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />)
+    const [f1, f2, angle] = [...container.querySelectorAll('input[type="range"]')]
+    fireEvent.change(f1!, { target: { value: '100' } })
+    fireEvent.change(f2!, { target: { value: '100' } })
+    fireEvent.change(angle!, { target: { value: '165' } })
+    const firstForce = container.querySelector('.vec-lab__force--f1')!
+    expect(Number(firstForce.getAttribute('x2'))).toBeGreaterThan(0)
+
+    fireEvent.change(angle!, { target: { value: '15' } })
+    const svg = container.querySelector('svg')!
+    const resultant = container.querySelector('.vec-lab__resultant')!
+    expect(Number(resultant.getAttribute('x2'))).toBeLessThan(480)
+    const labelCoordinates = [...svg.querySelectorAll('text')].flatMap((label) => [
+      Number(label.getAttribute('x')),
+      Number(label.getAttribute('y')),
+    ])
+    expect(Math.min(...labelCoordinates)).toBeGreaterThanOrEqual(0)
+    expect(Math.max(...labelCoordinates.filter((_, index) => index % 2 === 0))).toBeLessThan(480)
+    expect(Math.max(...labelCoordinates.filter((_, index) => index % 2 === 1))).toBeLessThan(300)
+  })
+
+  it('announces a settled parameter summary without an initial live-region message', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />)
+      const status = container.querySelector('[role="status"]')!
+      const [f1] = [...container.querySelectorAll('input[type="range"]')]
+      expect(status.textContent).toBe('')
+
+      fireEvent.change(f1!, { target: { value: '6' } })
+      expect(f1).toHaveAttribute('aria-valuetext', '6 نيوتن')
+      expect(status.textContent).toBe('')
+      act(() => vi.advanceTimersByTime(400))
+
+      expect(status).toHaveAttribute('aria-live', 'polite')
+      expect(status).toHaveAttribute('aria-atomic', 'true')
+      // Fix 13 announces settled values as Arabic prose with the unit spelled out.
+      expect(status.textContent).toContain(container.querySelector('section')!.getAttribute('data-resultant')!)
+      expect(status.textContent).toContain('نيوتن')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })
 
 describe('Fix 11 — educational vector and force construction animations', () => {
@@ -235,13 +280,16 @@ describe('Fix 11 — educational vector and force construction animations', () =
     expect(section).toHaveAttribute('data-stage', '0')
     expect(section).toHaveAttribute('data-anim-mode', 'animated')
 
-    // Stage 0: force shafts F1 and F2 grow from O (70, 250); parallel sides and resultant are not yet drawn
+    // Stage 0: force shafts F1 and F2 grow from the drawn point of application O;
+    // parallel sides and resultant are not yet drawn.
+    const origin = container.querySelector('[data-anim-role="origin"]')!
+    const originPoint = `${origin.getAttribute('cx')}px ${origin.getAttribute('cy')}px`
     const f1Shaft = container.querySelector('[data-vector="F1"]')!
     const f2Shaft = container.querySelector('[data-vector="F2"]')!
     expect(f1Shaft).toHaveAttribute('pathLength', '100')
     expect(f2Shaft).toHaveAttribute('pathLength', '100')
     expect(f1Shaft).toHaveAttribute('data-anim-role', 'vector-shaft')
-    expect(f1Shaft.getAttribute('style')).toContain('70px 250px')
+    expect(f1Shaft.getAttribute('style')).toContain(originPoint)
     expect(Number(f1Shaft.getAttribute('data-vector-length'))).toBeGreaterThan(Number(f2Shaft.getAttribute('data-vector-length')))
     expect(container.querySelectorAll('[data-anim-role="parallel-side"]')).toHaveLength(0)
     expect(container.querySelector('[data-anim-role="resultant-shaft"]')).toBeNull()
@@ -260,14 +308,14 @@ describe('Fix 11 — educational vector and force construction animations', () =
     expect(container.querySelector('[data-anim-role="resultant-shaft"]')).toBeNull()
     expect(container.querySelectorAll('.lab__measurements > div')).toHaveLength(6)
 
-    // Stage 2: resultant diagonal grows from O (70, 250) to M
+    // Stage 2: resultant diagonal grows from O to M
     await user.click(advanceButton!)
     expect(section).toHaveAttribute('data-stage', '2')
     const resultantShaft = container.querySelector('[data-anim-role="resultant-shaft"]')!
     expect(resultantShaft).not.toBeNull()
     expect(resultantShaft).toHaveAttribute('data-vector', 'F')
     expect(resultantShaft).toHaveAttribute('pathLength', '100')
-    expect(resultantShaft.getAttribute('style')).toContain('70px 250px')
+    expect(resultantShaft.getAttribute('style')).toContain(originPoint)
     expect(Number(resultantShaft.getAttribute('data-vector-length'))).toBeGreaterThan(Number(f1Shaft.getAttribute('data-vector-length')))
     expect(container.querySelectorAll('.lab__measurements > div')).toHaveLength(6)
   })
@@ -396,15 +444,55 @@ describe('concurrent forces interactive', () => {
 
     expect(section).toHaveAttribute('data-a1', '35')
     expect(section).toHaveAttribute('data-w', '4')
-    const t1 = Number(section.getAttribute('data-t1'))
-    expect(t1).toBeGreaterThan(2)
-    expect(t1).toBeLessThan(3)
+    const roundedT1 = Number(section.getAttribute('data-t1'))
+    const t1 = (4 * Math.sin((35 * Math.PI) / 180)) / Math.sin((70 * Math.PI) / 180)
+    const t2 = t1
+    expect(roundedT1).toBeGreaterThan(2)
+    expect(roundedT1).toBeLessThan(3)
+
+    const vectorLength = (line: Element) => Math.hypot(
+      Number(line.getAttribute('x2')) - Number(line.getAttribute('x1')),
+      Number(line.getAttribute('y2')) - Number(line.getAttribute('y1')),
+    )
+    const f1Line = container.querySelector('.vec-lab__force--f1')!
+    const f2Line = container.querySelector('.vec-lab__force--f2')!
+    const weightLine = container.querySelector('.vec-lab__force--w')!
+    const body = container.querySelector('.concurrent-forces-lab__body')!
+    expect(body.compareDocumentPosition(weightLine) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(vectorLength(f1Line) / t1).toBeCloseTo(6, 5)
+    expect(vectorLength(f2Line) / t2).toBeCloseTo(6, 5)
+    expect(vectorLength(weightLine) / 4).toBeCloseTo(6, 5)
 
     const w = container.querySelectorAll('input[type="range"]')[2]!
     fireEvent.change(w, { target: { value: '8' } })
     expect(section).toHaveAttribute('data-w', '8')
-    expect(Number(section.getAttribute('data-t1'))).toBeCloseTo(t1 * 2, 0)
+    const roundedUpdatedT1 = Number(section.getAttribute('data-t1'))
+    const updatedT1 = (8 * Math.sin((35 * Math.PI) / 180)) / Math.sin((70 * Math.PI) / 180)
+    expect(roundedUpdatedT1).toBeCloseTo(t1 * 2, 0)
+    expect(vectorLength(f1Line)).toBeGreaterThan(0)
+    expect(vectorLength(f1Line) / updatedT1).toBeCloseTo(6, 5)
+    expect(vectorLength(f1Line)).toBeGreaterThan(t1 * 6)
     expect(container.querySelector('[data-meet="O"]')).not.toBeNull()
+  })
+
+  it('announces the updated forces only after the controls settle', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<ConcurrentForcesLab interactiveId="concurrent-forces-lab" reducedMotion={false} />)
+      const status = container.querySelector('[role="status"]')!
+      const weight = screen.getByRole('slider', { name: 'ثقل الجسم المعلق نيوتن' })
+      expect(status.textContent).toBe('')
+
+      fireEvent.change(weight, { target: { value: '8' } })
+      expect(weight).toHaveAttribute('aria-valuetext', '8 نيوتن')
+      expect(status.textContent).toBe('')
+      act(() => vi.advanceTimersByTime(400))
+
+      expect(status.textContent).toContain('4.9 نيوتن')
+      expect(status.textContent).toContain('ثقل الجسم 8 نيوتن')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('toggles the carriers display', async () => {
@@ -434,6 +522,40 @@ describe('force components interactive', () => {
     // default 25°, w = 5 N: along = 5 sin25 ≈ 2.1, normal = 5 cos25 ≈ 4.5
     expect(Number(section.getAttribute('data-fx'))).toBeCloseTo(2.1, 0)
     expect(Number(section.getAttribute('data-fy'))).toBeCloseTo(4.5, 0)
+  })
+
+  it('keeps the low-angle, high-weight inclined-plane vectors inside the SVG and announces settled values', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+      const status = container.querySelector('[role="status"]')!
+      expect(status.textContent).toBe('')
+      fireEvent.click(screen.getByRole('button', { name: /المستوي المائل/ }))
+      const [angle, weight] = [...container.querySelectorAll('input[type="range"]')]
+      fireEvent.change(angle!, { target: { value: '5' } })
+      fireEvent.change(weight!, { target: { value: '10' } })
+
+      const svg = container.querySelector('.force-components-lab__figure svg')!
+      const coordinates = [...svg.querySelectorAll('line')].flatMap((line) => [
+        Number(line.getAttribute('y1')),
+        Number(line.getAttribute('y2')),
+      ])
+      const labels = [...svg.querySelectorAll('text')].flatMap((label) => [
+        Number(label.getAttribute('x')),
+        Number(label.getAttribute('y')),
+      ])
+      expect(Math.max(...coordinates)).toBeLessThan(300)
+      expect(Math.min(...labels)).toBeGreaterThanOrEqual(0)
+      expect(Math.max(...labels.filter((_, index) => index % 2 === 0))).toBeLessThan(480)
+      expect(Math.max(...labels.filter((_, index) => index % 2 === 1))).toBeLessThan(300)
+      expect(weight).toHaveAttribute('aria-valuetext', '10 نيوتن')
+      expect(status.textContent).toBe('')
+
+      act(() => vi.advanceTimersByTime(400))
+      expect(status.textContent).toContain('10 نيوتن')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 

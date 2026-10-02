@@ -10,7 +10,9 @@ import type { ComponentType } from 'react'
  * `BUILT_IN_INTERACTIVES` below lists every interactive currently implemented:
  * the labs and simulations used by the source-verified lessons (Chemistry
  * lessons 1–2 and Physics lesson 1). An interactive is only built and
- * registered after its textbook pages are supplied and read. Further modules
+ * registered after its textbook pages are supplied and read, and every entry
+ * stays a platform addition rather than a reproduction of a textbook figure.
+ * Further modules
  * are added to `BUILT_IN_INTERACTIVES` (or registered at runtime through
  * `defineInteractive`), and the host renders an explicit, honest state for
  * anything unregistered.

@@ -41,13 +41,16 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
 
   const announcement = `ثقل الجسم ${w} نيوتن والزاوية بين الربيعتين ${state.sum} درجة؛ شدّة الشدّ في الربيعة الأولى ${state.t1.toFixed(1)} نيوتن وفي الثانية ${state.t2.toFixed(1)} نيوتن.`
   const O: Point2D = { x: 240, y: 170 }
-  const len1 = Math.min(115, Math.max(48, 38 + state.t1 * 14))
-  const len2 = Math.min(115, Math.max(48, 38 + state.t2 * 14))
+  // Fix 14: every vector is drawn at the same scale (6 px per newton), so the
+  // shaft length is directly proportional to the tension or weight it shows.
+  const pixelsPerNewton = 6
+  const len1 = state.t1 * pixelsPerNewton
+  const len2 = state.t2 * pixelsPerNewton
   const u1 = { x: Math.sin(rad(a1)), y: -Math.cos(rad(a1)) }
   const u2 = { x: -Math.sin(rad(a2)), y: -Math.cos(rad(a2)) }
   const S1: Point2D = { x: O.x + len1 * u1.x, y: O.y + len1 * u1.y }
   const S2: Point2D = { x: O.x + len2 * u2.x, y: O.y + len2 * u2.y }
-  const wLen = 26 + w * 7
+  const wLen = w * pixelsPerNewton
   const W: Point2D = { x: O.x, y: O.y + wLen }
 
   const prevRef = useRef<{ O: Point2D; S1: Point2D; S2: Point2D; W: Point2D } | null>(null)
@@ -90,7 +93,7 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
     >
       <header className="lab__header">
         <div>
-          <p className="lab__phase">إضافة من المنصة · تجربة الصفحة 56 بشكل تفاعلي</p>
+          <p className="lab__phase">محاكاة تفاعلية من المنصة · مستلهمة من تجربة الصفحة 56</p>
           <h3 id="concurrent-forces-lab-title">أين تتلاقى حوامل القوى الثلاث؟</h3>
         </div>
         <label className="concurrent-forces-lab__toggle">
@@ -279,7 +282,19 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
             F₂
           </text>
 
-          {/* weight */}
+          {/* weight; drawn under its vector so the scaled arrowhead stays visible */}
+          <rect
+            x={O.x - 9}
+            y={O.y + wLen * 0.45}
+            width={18}
+            height={14}
+            className="concurrent-forces-lab__body"
+            style={buildPointMotionStyle(
+              { x: O.x, y: O.y + wLen * 0.45 },
+              prev ? { x: prev.O.x, y: O.y + (prev.W.y - prev.O.y) * 0.45 } : undefined,
+              { delayMs: 0, reducedMotion },
+            )}
+          />
           <line
             x1={O.x}
             y1={O.y}
@@ -307,18 +322,6 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
           >
             w
           </text>
-          <rect
-            x={O.x - 9}
-            y={O.y + wLen * 0.45}
-            width={18}
-            height={14}
-            className="concurrent-forces-lab__body"
-            style={buildPointMotionStyle(
-              { x: O.x, y: O.y + wLen * 0.45 },
-              prev ? { x: prev.O.x, y: O.y + (prev.W.y - prev.O.y) * 0.45 } : undefined,
-              { delayMs: 0, reducedMotion },
-            )}
-          />
           <circle cx={O.x} cy={O.y} r={5} className="vec-lab__point" data-meet="O" data-anim-role="origin" />
           <text x={O.x - 20} y={O.y + 4} className="vec-lab__label">
             O

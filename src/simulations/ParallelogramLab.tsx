@@ -53,7 +53,8 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
     const perCm = scaleFor(Math.max(f1, f2, resultant))
     const pxPerCm = 26
     const s = pxPerCm / perCm
-    const O: Point2D = { x: 70, y: 250 }
+    // Keep enough margin on both sides for the full 15°–165° angle range.
+    const O: Point2D = { x: 200, y: 250 }
     const u1 = { x: Math.cos(rad(angle)), y: -Math.sin(rad(angle)) }
     const u2 = { x: 1, y: 0 }
     const P1: Point2D = { x: O.x + f1 * s * u1.x, y: O.y + f1 * s * u1.y }

@@ -8,7 +8,7 @@ import { STEP_KIND_META } from '@/lessons/stepKinds'
 import { STEP_RENDERERS, assertStepRenderersComplete, getStepRenderer } from '@/lessons/stepRenderers'
 import { contentStatusLabel } from '@/data/source'
 import { STEP_KINDS } from '@/data/curriculum/schema'
-import { createProgressStore, computeLessonProgress } from '@/data/progress'
+import { createProgressStore, computeLessonProgress, progressStore } from '@/data/progress'
 import type { PageReference } from '@/data/source'
 import { fixtureLesson, singleStepLesson } from './fixtures/lesson'
 import { renderWithTheme } from './utils/renderApp'
@@ -63,10 +63,28 @@ describe('LessonShell', () => {
       </LessonShell>,
     )
 
-    const bar = screen.getByRole('progressbar', { name: 'الخطوة 3 من 9' })
+    const bar = screen.getByRole('progressbar', { name: 'التقدّم في الدرس' })
     expect(bar).toHaveAttribute('aria-valuenow', '3')
     expect(bar).toHaveAttribute('aria-valuemax', '9')
+    expect(bar).toHaveAttribute('aria-valuetext', 'زُرت 3 من 9 خطوة؛ الخطوة الحالية 3 من 9')
     expect(screen.getByText('الخطوة 3 من 9')).toBeInTheDocument()
+  })
+
+  it('reports visited progress separately from the currently opened step', () => {
+    renderWithTheme(
+      <LessonShell
+        title="عنوان الدرس"
+        progress={{ current: 5, total: 9, ratio: 1 / 9, visited: 1 }}
+        outline={<nav aria-label="خطوات الدرس" />}
+        navigation={<div />}
+      >
+        <p>المحتوى</p>
+      </LessonShell>,
+    )
+
+    const bar = screen.getByRole('progressbar', { name: 'التقدّم في الدرس' })
+    expect(bar).toHaveAttribute('aria-valuenow', '1')
+    expect(bar).toHaveAttribute('aria-valuetext', 'زُرت 1 من 9 خطوة؛ الخطوة الحالية 5 من 9')
   })
 
   it('renders the outline area alongside the content', () => {
@@ -122,6 +140,7 @@ describe('LessonOutline', () => {
 describe('LessonFlow — one meaningful step at a time', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '/')
+    progressStore.resetLesson(fixtureLesson.id)
   })
 
   it('shows a single step and does not render the others', () => {
@@ -180,6 +199,19 @@ describe('LessonFlow — one meaningful step at a time', () => {
     expect(screen.getByText('نص تجريبي منقول حرفياً.')).toBeInTheDocument()
   })
 
+  it('announces the selected step after navigation but is silent on initial mount', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<LessonFlow lesson={fixtureLesson} initialStepId="step-source" />)
+    const status = container.querySelector('[role="status"]')!
+
+    expect(status.textContent).toBe('')
+    await user.click(screen.getByRole('button', { name: /التالي/ }))
+    expect(status).toHaveAttribute('aria-live', 'polite')
+    expect(status).toHaveAttribute('aria-atomic', 'true')
+    expect(status.textContent).toContain('الخطوة 2 من 5')
+    expect(status.textContent).toContain('شرح المنصة')
+  })
+
   it('offers a finish action on the last step instead of a next button', () => {
     render(<LessonFlow lesson={fixtureLesson} initialStepId="step-test" />)
 
@@ -213,14 +245,40 @@ describe('LessonFlow — one meaningful step at a time', () => {
     render(<LessonFlow lesson={fixtureLesson} initialStepId="step-source" />)
 
     const trigger = screen.getByRole('button', { name: /خطوات الدرس/ })
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
     await user.click(trigger)
 
     const dialog = screen.getByRole('dialog', { name: 'خطوات الدرس' })
     expect(dialog).toBeInTheDocument()
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+
+    const focusableButtons = within(dialog).getAllByRole('button')
+    expect(focusableButtons[0]).toHaveFocus()
+    for (let index = 0; index < focusableButtons.length - 1; index += 1) {
+      await user.keyboard('{Tab}')
+    }
+    expect(focusableButtons[focusableButtons.length - 1]).toHaveFocus()
+    await user.keyboard('{Tab}')
+    expect(focusableButtons[0]).toHaveFocus()
 
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
     expect(trigger).toHaveFocus()
+  })
+
+  it('focuses the updated lesson content after a mobile-outline step is selected', async () => {
+    const user = userEvent.setup()
+    render(<LessonFlow lesson={fixtureLesson} initialStepId="step-source" />)
+
+    await user.click(screen.getByRole('button', { name: /خطوات الدرس/ }))
+    const dialog = screen.getByRole('dialog', { name: 'خطوات الدرس' })
+    await user.click(within(dialog).getByRole('button', { name: /شرح المنصة/ }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'محتوى الدرس' })).toHaveFocus()
+    expect(screen.getByText('شرح تجريبي من إعداد المنصة.')).toBeInTheDocument()
   })
 
   it('jumps to a step selected from the outline', async () => {

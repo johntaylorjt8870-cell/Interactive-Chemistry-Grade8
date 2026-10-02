@@ -343,6 +343,7 @@ describe('FinalTestRunner', () => {
 
     const bar = screen.getByRole('progressbar', { name: 'التقدّم في الاختبار' })
     expect(bar).toHaveAttribute('aria-valuenow', '0')
+    expect(bar).toHaveAttribute('aria-valuetext', 'أُجيب عن 0 من 2 سؤالاً')
 
     await user.click(screen.getAllByRole('radio')[1]!)
     expect(screen.getByRole('progressbar', { name: 'التقدّم في الاختبار' })).toHaveAttribute('aria-valuenow', '1')
@@ -371,6 +372,8 @@ describe('FinalTestRunner', () => {
     expect(onSubmitted).toHaveBeenCalledTimes(1)
     const summary = screen.getByText('نتيجة المحاولة')
     expect(summary).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('اكتمل الاختبار. أُجيب عن 2 من 2 سؤالاً.')
+    expect(container.querySelector('[aria-live="polite"] .attempt-summary__list')).toBeNull()
     expect(container.querySelector('[data-outcome="correct"]')).not.toBeNull()
   })
 

@@ -9,7 +9,7 @@ Companion source audit: `docs/source-reports/physics-lesson1-concurrent-forces-r
 
 2. **Labeled platform additions.** Every non-textbook block carries `attribution: "platform"` and renders under the «إضافة من المنصة» badge: worked examples (given → required → formula → substitution → calculation → result → unit → interpretation → verification, rendered via KaTeX), concept explanations, the learn-box summary, and interactive labs. Fix 10 removed platform descriptions that stood in for textbook visuals; the unavailable source-image inventory is recorded in `physics-lesson1-concurrent-forces-readability.md` §12.
 
-3. **Required interactives — concurrent-forces lab.** `ConcurrentForcesLab` rebuilds the p56 two-spring experiment: sliders for both angles and the weight, live tension readouts, toggleable carrier extensions showing the three lines of action always meeting at O (`data-carriers` verified in tests).
+3. **Required interactives — concurrent-forces lab.** `ConcurrentForcesLab` is a clearly labelled platform interactive simulation inspired by the p56 two-spring experiment, not a reproduction of its textbook figure: sliders for both angles and the weight, live tension readouts, toggleable carrier extensions showing the three lines of action meeting at O (`data-carriers` verified in tests).
 
 4. **Required interactives — parallelogram lab.** `ParallelogramLab`: F₁, F₂, and angle sliders; staged construction (rays → parallelogram → diagonal, `data-stage`); scale control («كل 1 cm يمثل 20 N» reproduces the book’s F = 5 × 20 = 100 N); resultant magnitude + direction readouts; at 90° the Pythagoras relation appears automatically (`data-pythagoras`).
 
