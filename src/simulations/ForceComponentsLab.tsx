@@ -1,22 +1,73 @@
-import { useState } from 'react'
-import { DiagramDefs, ScientificValue, VectorArrow, VectorSvgLabel } from '@/scientific'
+import { useMemo, useState } from 'react'
+import { MathFormula, ScientificValue, SvgText, VectorArrow, VectorSvgLabel, quantityText } from '@/scientific'
+import { resolveForce, resolveOnIncline, toRadians } from '@/utils/forces'
+import { polar } from '@/utils/vectorGeometry'
+import type { Point } from '@/utils/vectorGeometry'
+import {
+  AngleMark,
+  LabFrame,
+  LabLegend,
+  LabRange,
+  LabReadouts,
+  LabStages,
+  PointMark,
+  RightAngleMark,
+  SymbolText,
+  angleLabelPoint,
+  cssVars,
+  fix,
+  num,
+} from './physicsLabKit'
+import type { LabStageDef } from './physicsLabKit'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
    مختبر تحليل القوّة — إضافة من المنصة حول الصفحتين 59–60
    ----------------------------------------------------------------------------
-   وضعا عرض:
-   1) «تحليل قوّة»: قوّة واحدة F تُحلّ إلى مركّبتين متعامدتين على محورين،
-      كما في خطوات تجربة الصفحة 60: القوة ← المحوران ← إسقاط العمودين من
-      M (مرسم النقطة) ← المستطيل قطره القوّة نفسها.
-   2) «المستوي المائل»: نشاط الصفحة 60 — ثقل الجسم على مستوٍ مائل يُحلّ إلى
-      مركّبة موازية للسطح وأخرى شاقولية عليه، والشكل الناتج مستطيل.
-   كل الأسهم مرسومة هندسياً (خط + رأس سهم)، وكل مركّبة بلونها الدلالي
-   وعلامتها، والزاوية القائمة معلّمة في المواضع التي تثبت التعامد.
+   وضعان:
+   1) «تحليل قوّة على محورين»: ست مراحل هي بنود تجربة الصفحة 60 نفسها —
+      نقطة O ← الشعاع OM ← المحوران OX وOY ← العمودان من M (مرسم النقطة) ←
+      المستطيل وقطره F⃗ ← المسافتان على المحورين هما المركّبتان.
+   2) «المستوي المائل الأملس»: نشاط الصفحة 60 — القوى المؤثرة في الجسم هي
+      الثقل w⃗ وردّ فعل المستوي R⃗؛ نحلّل الثقل إلى F₁⃗ موازية للمستوي وF₂⃗
+      عمودية عليه فيتشكّل مستطيل قطره w⃗. R⃗ تعادل F₂⃗، فلا تبقى إلا F₁⃗
+      فتسحب الجسم على السطح الأملس (يمكن تحريره لمشاهدة الانزلاق).
    ========================================================================= */
 
 type Mode = 'axes' | 'incline'
-const rad = (deg: number) => (deg * Math.PI) / 180
+
+const VIEW_AXES = { width: 720, height: 430 }
+const VIEW_INCLINE = { width: 720, height: 470 }
+
+const AXES_STAGES: LabStageDef[] = [
+  { title: 'نحدّد النقطة O', hint: 'نحدّد على لوح الزّنابض نقطة O تؤثّر فيها القوّة.' },
+  { title: 'نرسم الشعاع OM', hint: 'نرسم من O شعاعاً يمثّل القوّة F⃗ وليكن الشعاع OM؛ طوله يمثّل شدّتها بمقياس رسم.' },
+  { title: 'نرسم المحورين OX و OY', hint: 'نرسم من O محورين متعامدين OX و OY يمثّلان حاملَي المركّبتين F₁⃗ و F₂⃗.' },
+  { title: 'العمودان من M', hint: 'نرسم من النقطة M عموداً على كل من المحورين (مرسم النقطة): خطّان متقطّعان يلتقيان مع المحورين بزاويتين قائمتين.' },
+  { title: 'المستطيل وقطره', hint: 'يتشكّل مستطيل ضلعاه على المحورين، وقطره المارّ من O هو الشعاع OM الذي يمثّل المحصّلة F⃗.' },
+  { title: 'المركّبتان', hint: 'المسافتان على المحورين OX و OY تمثّلان المركّبتين F₁⃗ و F₂⃗: قوّتان متعامدتان تقومان معاً مقام F⃗.' },
+]
+
+const INCLINE_STAGES: LabStageDef[] = [
+  { title: 'الجسم على السطح الأملس', hint: 'يستقرّ جسم صلب على سطح أملس يميل عن الأفق بالزاوية a (لا احتكاك بين الجسم والسطح).' },
+  { title: 'القوى المؤثّرة: w⃗ و R⃗', hint: 'يؤثّر في الجسم ثقله w⃗ شاقولياً نحو الأسفل، وردّ فعل السطح R⃗ عمودياً على السطح نحو الخارج.' },
+  { title: 'نختار محورين', hint: 'نختار محوراً موازياً للسطح وآخر عمودياً عليه، ونحلّل الثقل w⃗ على هذين المحورين.' },
+  { title: 'نُسقط عمودين من رأس w⃗', hint: 'نرسم من رأس السهم w⃗ عمودين على المحورين (مرسم النقطة) فنحصل على مركّبتي الثقل F₁⃗ و F₂⃗.' },
+  { title: 'الشكل الناتج: مستطيل', hint: 'الشكل الناتج مستطيل قطره w⃗. F₂⃗ تعادلها R⃗ فلا يغوص الجسم في السطح ولا يرتفع عنه، وتبقى F₁⃗ وحدها تسحبه على السطح نحو الأسفل.' },
+]
+
+const AXES_LEGEND = [
+  { tone: 'resultant' as const, symbol: 'F', text: 'القوّة المحلَّلة (القطر OM)' },
+  { tone: 'component1' as const, symbol: 'F', subscript: '1', text: 'المركّبة على OX' },
+  { tone: 'component2' as const, symbol: 'F', subscript: '2', text: 'المركّبة على OY' },
+]
+
+const INCLINE_LEGEND = [
+  { tone: 'weight' as const, symbol: 'w', text: 'ثقل الجسم (القطر)' },
+  { tone: 'reaction' as const, symbol: 'R', text: 'ردّ فعل السطح' },
+  { tone: 'component1' as const, symbol: 'F', subscript: '1', text: 'مركّبة موازية للسطح' },
+  { tone: 'component2' as const, symbol: 'F', subscript: '2', text: 'مركّبة عمودية على السطح' },
+]
 
 export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) {
   const [mode, setMode] = useState<Mode>('axes')
@@ -24,233 +75,463 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
   const [theta, setTheta] = useState(40)
   const [incline, setIncline] = useState(25)
   const [weight, setWeight] = useState(5)
+  const [stages, setStages] = useState<Record<Mode, number>>({ axes: AXES_STAGES.length - 1, incline: INCLINE_STAGES.length - 1 })
+  const [released, setReleased] = useState(false)
 
-  const angle = mode === 'axes' ? theta : incline
-  const magnitude = mode === 'axes' ? force : weight
-  const along = mode === 'axes' ? force * Math.cos(rad(theta)) : weight * Math.sin(rad(incline))
-  const perp = mode === 'axes' ? force * Math.sin(rad(theta)) : weight * Math.cos(rad(incline))
+  const resolved = useMemo(() => {
+    if (mode === 'axes') {
+      const { along, across } = resolveForce(force, theta)
+      return { along, perp: across, magnitude: force, angle: theta }
+    }
+    const { parallel, perpendicular } = resolveOnIncline(weight, incline)
+    return { along: parallel, perp: perpendicular, magnitude: weight, angle: incline }
+  }, [mode, force, theta, incline, weight])
+
+  const stage = stages[mode]
+  const stageDefs = mode === 'axes' ? AXES_STAGES : INCLINE_STAGES
+  const setStage = (value: number) => setStages((current) => ({ ...current, [mode]: value }))
 
   return (
-    <section
-      className={`lab force-components-lab ${reducedMotion ? 'lab--still' : ''}`}
-      data-mode={mode}
-      data-angle={angle}
-      data-fx={along.toFixed(1)}
-      data-fy={perp.toFixed(1)}
-      aria-labelledby="force-components-lab-title"
-    >
-      <header className="lab__header">
-        <div>
-          <p className="lab__phase">إضافة من المنصة · تحليل القوّة (الصفحتان 59–60)</p>
-          <h3 id="force-components-lab-title">قوّة واحدة تُستبدل بمركّبتين متعامدتين</h3>
-        </div>
-        <div className="covalent-bond-lab__views" role="group" aria-label="اختر وضع العرض">
+    <LabFrame
+      className="force-components-lab"
+      titleId="force-components-lab-title"
+      title="قوّة واحدة تُستبدل بمركّبتين متعامدتين"
+      phase="تحليل القوّة إلى مركّبتين متعامدتين (الصفحتان 59–60)"
+      reducedMotion={reducedMotion}
+      data={{
+        mode,
+        angle: resolved.angle,
+        fx: resolved.along.toFixed(2),
+        fy: resolved.perp.toFixed(2),
+        stage,
+      }}
+      headerExtra={
+        <div className="plab__modes" role="group" aria-label="اختر وضع العرض">
           <button type="button" className="button button--quiet" aria-pressed={mode === 'axes'} onClick={() => setMode('axes')}>
             تحليل قوّة على محورين
           </button>
           <button type="button" className="button button--quiet" aria-pressed={mode === 'incline'} onClick={() => setMode('incline')}>
-            المستوي المائل (نشاط الصفحة 60)
+            المستوي المائل الأملس (نشاط الصفحة 60)
           </button>
         </div>
-      </header>
+      }
+    >
+      <LabStages stages={stageDefs} stage={stage} onStage={setStage} label={mode === 'axes' ? 'مراحل تحليل قوّة' : 'مراحل نشاط الجسم على السطح الأملس'} />
 
-      {mode === 'axes' ? (
-        <div className="parallelogram-lab__controls">
-          <label className="lab__range">
-            <span>
-              شدّة القوّة F <ScientificValue value={force} unit="N" size="sm" />
-            </span>
-            <input type="range" min={2} max={10} step={1} value={force} onChange={(event) => setForce(Number(event.target.value))} aria-label="شدّة القوّة نيوتن" />
-          </label>
-          <label className="lab__range">
-            <span>
-              زاوية F مع المحور الأفقي <ScientificValue value={theta} unit="°" size="sm" />
-            </span>
-            <input type="range" min={10} max={80} step={5} value={theta} onChange={(event) => setTheta(Number(event.target.value))} aria-label="زاوية القوّة مع المحور الأفقي بالدرجات" />
-          </label>
-        </div>
-      ) : (
-        <div className="parallelogram-lab__controls">
-          <label className="lab__range">
-            <span>
-              زاوية الميل a <ScientificValue value={incline} unit="°" size="sm" />
-            </span>
-            <input type="range" min={5} max={60} step={5} value={incline} onChange={(event) => setIncline(Number(event.target.value))} aria-label="زاوية ميل المستوي بالدرجات" />
-          </label>
-          <label className="lab__range">
-            <span>
-              ثقل الجسم w <ScientificValue value={weight} unit="N" size="sm" />
-            </span>
-            <input type="range" min={2} max={10} step={1} value={weight} onChange={(event) => setWeight(Number(event.target.value))} aria-label="ثقل الجسم نيوتن" />
-          </label>
-        </div>
-      )}
-
-      <div className="force-components-lab__figure">
+      <div className="plab__controls">
         {mode === 'axes' ? (
-          <AxesFigure force={force} theta={theta} along={along} perp={perp} reducedMotion={reducedMotion} />
+          <>
+            <LabRange
+              label={
+                <>
+                  شدّة القوّة <MathFormula tex="F" />
+                </>
+              }
+              value={force}
+              valueNode={<ScientificValue value={force} unit="N" size="sm" />}
+              min={2}
+              max={10}
+              onChange={setForce}
+              ariaLabel="شدّة القوّة نيوتن"
+              valueText={`${force} نيوتن`}
+            />
+            <LabRange
+              label={
+                <>
+                  زاوية القوّة مع المحور OX <MathFormula tex="a" />
+                </>
+              }
+              value={theta}
+              valueNode={<ScientificValue value={theta} unit="°" size="sm" />}
+              min={10}
+              max={80}
+              step={5}
+              onChange={setTheta}
+              ariaLabel="زاوية القوّة مع المحور الأفقي بالدرجات"
+              valueText={`${theta} درجة`}
+            />
+          </>
         ) : (
-          <InclineFigure angle={incline} weight={weight} along={along} perp={perp} reducedMotion={reducedMotion} />
+          <>
+            <LabRange
+              label={
+                <>
+                  زاوية ميل السطح <MathFormula tex="a" />
+                </>
+              }
+              value={incline}
+              valueNode={<ScientificValue value={incline} unit="°" size="sm" />}
+              min={15}
+              max={60}
+              step={5}
+              onChange={(value) => {
+                setReleased(false)
+                setIncline(value)
+              }}
+              ariaLabel="زاوية ميل المستوي بالدرجات"
+              valueText={`${incline} درجة`}
+            />
+            <LabRange
+              label={
+                <>
+                  ثقل الجسم <MathFormula tex="w" />
+                </>
+              }
+              value={weight}
+              valueNode={<ScientificValue value={weight} unit="N" size="sm" />}
+              min={2}
+              max={8}
+              onChange={setWeight}
+              ariaLabel="ثقل الجسم نيوتن"
+              valueText={`${weight} نيوتن`}
+            />
+            <button
+              type="button"
+              className="button button--quiet plab__release"
+              aria-pressed={released}
+              onClick={() => setReleased((value) => !value)}
+            >
+              {released ? 'أعد الجسم إلى مكانه' : 'حرّر الجسم وراقب انزلاقه'}
+            </button>
+          </>
         )}
       </div>
 
-      <div className="lab__measurements">
-        <div>
-          <span>{mode === 'axes' ? 'المركّبة الأفقية F₁' : 'المركّبة الموازية للمستوي F₁'}</span>
-          <ScientificValue value={Number(along.toFixed(1))} unit="N" />
-        </div>
-        <div>
-          <span>{mode === 'axes' ? 'المركّبة الشاقولية F₂' : 'المركّبة الشاقولية على المستوي F₂'}</span>
-          <ScientificValue value={Number(perp.toFixed(1))} unit="N" />
-        </div>
-        <div>
-          <span>{mode === 'axes' ? 'القوّة المحلّلة F' : 'الثقل w'}</span>
-          <ScientificValue value={magnitude} unit="N" />
-        </div>
-        <div>
-          <span>الشكل الناتج</span>
-          <strong className="lab__measurement-text">مستطيل قطره القوّة نفسها</strong>
-        </div>
-        <div>
-          <span>التحقق بالفيتاغورث</span>
-          <strong className="lab__measurement-text">
-            √({along.toFixed(1)}² + {perp.toFixed(1)}²) = {magnitude} N ✓
-          </strong>
-        </div>
+      <figure className="plab__figure force-components-lab__figure">
+        {mode === 'axes' ? (
+          <AxesFigure force={force} theta={theta} along={resolved.along} perp={resolved.perp} stage={stage} reducedMotion={reducedMotion} />
+        ) : (
+          <InclineFigure
+            angle={incline}
+            weight={weight}
+            along={resolved.along}
+            perp={resolved.perp}
+            stage={stage}
+            released={released}
+            reducedMotion={reducedMotion}
+          />
+        )}
+        <LabLegend items={mode === 'axes' ? AXES_LEGEND : INCLINE_LEGEND} />
+      </figure>
+
+      <LabReadouts
+        label="قيم القوّة ومركّبتيها"
+        items={[
+          {
+            key: 'f1',
+            tone: 'component1',
+            label: mode === 'axes' ? 'المركّبة على OX: F₁' : 'المركّبة الموازية للسطح: F₁',
+            value: <ScientificValue value={num(resolved.along)} unit="N" />,
+          },
+          {
+            key: 'f2',
+            tone: 'component2',
+            label: mode === 'axes' ? 'المركّبة على OY: F₂' : 'المركّبة العمودية على السطح: F₂',
+            value: <ScientificValue value={num(resolved.perp)} unit="N" />,
+          },
+          {
+            key: 'f',
+            tone: mode === 'axes' ? 'resultant' : 'weight',
+            label: mode === 'axes' ? 'القوّة المحلَّلة F' : 'ثقل الجسم w',
+            value: <ScientificValue value={resolved.magnitude} unit="N" />,
+          },
+          ...(mode === 'incline'
+            ? [
+                {
+                  key: 'r',
+                  tone: 'reaction' as const,
+                  label: 'ردّ فعل السطح R (يعادل F₂)',
+                  value: <ScientificValue value={num(resolved.perp)} unit="N" />,
+                },
+              ]
+            : []),
+          {
+            key: 'shape',
+            label: 'الشكل الناتج',
+            value: <span className="plab__text-value">مستطيل قطره {mode === 'axes' ? 'القوّة نفسها' : 'الثقل'}</span>,
+          },
+        ]}
+      />
+
+      <div className="plab__pythagoras" data-pythagoras-check="true">
+        <p className="plab__pythagoras-title">التحقق بنظرية فيثاغورث: القطر وتر في مثلّث قائم ضلعاه المركّبتان</p>
+        <MathFormula
+          display="block"
+          tex={`${mode === 'axes' ? 'F' : 'w'}=\\sqrt{F_1^{2}+F_2^{2}}=\\sqrt{${fix(resolved.along, 2)}^{2}+${fix(resolved.perp, 2)}^{2}}\\approx${num(resolved.magnitude)}\\ \\mathrm{N}`}
+        />
       </div>
 
-      <p className="lab__conclusion" aria-live="polite">
-        <strong>الاستنتاج:</strong> المركّبتان المتعامدتان تقومان معاً مقام القوّة الأصلية، وعملية التحليل معاكسة لعملية
-        إيجاد المحصّلة. على المستوي المائل يكون الشكل الناتج مستطيلاً: مركّبة توازي المستوي تسحب الجسم نحو الأسفل،
-        وأخرى تعامده تضغطه على السطح، ومجموعهما الهندسي يعيد الثقل نفسه.
-      </p>
-    </section>
+      <div className="plab__note" aria-live="polite">
+        {mode === 'axes' ? (
+          <>
+            <p>
+              <strong>الاستنتاج:</strong> المركّبتان المتعامدتان F₁ و F₂ تقومان معاً مقام القوّة F؛ وتحليل القوّة عمليّة معاكسة لإيجاد محصّلة قوّتين متعامدتين.
+            </p>
+            <p>
+              <strong>تأمّل:</strong> كلّما ازدادت الزاوية <MathFormula tex="a" /> مع OX صغرت المركّبة على OX وكبرت المركّبة على OY، بينما يبقى قطر المستطيل F ثابتاً.
+            </p>
+          </>
+        ) : (
+          <>
+            <p>
+              <strong>الاستنتاج:</strong> على السطح الأملس تتوازن F₂ مع R، فلا تبقى إلا F₁ تسحب الجسم على السطح. كلّما كبرت زاوية الميل <MathFormula tex="a" /> كبرت F₁ وصغرت F₂ (وصغر ضغط الجسم على السطح).
+            </p>
+            <p>
+              <strong>تأمّل:</strong> عندما يصبح السطح أفقياً <MathFormula tex="(a\to 0)" /> تنعدم F₁ ويحمل السطح الثقل كاملاً، وعندما يصير شاقولياً <MathFormula tex="(a\to 90^{\circ})" /> تنعدم R ويسقط الجسم بثقله.
+            </p>
+          </>
+        )}
+      </div>
+    </LabFrame>
   )
 }
 
-function AxesFigure({ force, theta, along, perp, reducedMotion }: { force: number; theta: number; along: number; perp: number; reducedMotion: boolean }) {
-  const O = { x: 100, y: 250 }
-  const s = 22
-  const a = rad(theta)
-  const tip = { x: O.x + force * s * Math.cos(a), y: O.y - force * s * Math.sin(a) }
-  const onX = { x: O.x + along * s, y: O.y }
-  const onY = { x: O.x, y: O.y - perp * s }
+/* ---------- figure 1: a force resolved on two perpendicular axes ---------- */
+
+function AxesFigure({ force, theta, along, perp, stage, reducedMotion }: {
+  force: number
+  theta: number
+  along: number
+  perp: number
+  stage: number
+  reducedMotion: boolean
+}) {
+  const O: Point = { x: 150, y: 366 }
+  const s = 32
+  const M = polar(O, force * s, theta)
+  const A: Point = { x: O.x + along * s, y: O.y }
+  const B: Point = { x: O.x, y: O.y - perp * s }
+  const arcLabel = angleLabelPoint(O, 70, 0, theta)
+  // beyond the tip, along the force: the free side of the figure, clear of the rectangle and of M
+  const fLabel = polar(M, 60, theta + 14)
+  const f1Label: Point = { x: (O.x + A.x) / 2, y: O.y + 36 }
+  const f2Label: Point = { x: O.x - 44, y: (O.y + B.y) / 2 + 2 }
+
   return (
-    <svg viewBox="0 0 520 320" role="img" aria-label={`قوّة ${force} نيوتن بزاوية ${theta} درجة تحلّل إلى مركبة أفقية ${along.toFixed(1)} نيوتن ومركبة شاقولية ${perp.toFixed(1)} نيوتن ضمن مستطيل`}>
-      <DiagramDefs />
-      {/* axes with real arrowheads */}
-      <VectorArrow x1={O.x} y1={O.y} x2={470} y2={O.y} role="neutral" strokeWidth={1.6} headSize={8} label="المحور الأفقي" />
-      <VectorArrow x1={O.x} y1={O.y} x2={O.x} y2={36} role="neutral" strokeWidth={1.6} headSize={8} label="المحور الشاقولي" />
-      <text x={478} y={O.y + 5} className="vec-lab__label">x</text>
-      <text x={O.x - 8} y={26} className="vec-lab__label">y</text>
+    <svg
+      viewBox={`0 0 ${VIEW_AXES.width} ${VIEW_AXES.height}`}
+      role="img"
+      aria-label={`قوّة ${force} نيوتن بزاوية ${theta} درجة مع المحور OX تحلّل إلى مركّبة على OX قدرها ${num(along)} نيوتن ومركّبة على OY قدرها ${num(perp)} نيوتن ضمن مستطيل`}
+    >
+      <rect className="plab-board" x={6} y={6} width={VIEW_AXES.width - 12} height={VIEW_AXES.height - 12} rx={16} />
 
-      {/* the rectangle (parallelogram of components) */}
-      <path
-        d={`M ${O.x} ${O.y} L ${onX.x} ${onX.y} L ${tip.x} ${tip.y} L ${onY.x} ${onY.y} Z`}
-        className="force-components-lab__rect"
-        data-rect="true"
-      />
+      {/* axes */}
+      {stage >= 2 ? (
+        <g className="plab-axes" data-stage-axes="true">
+          <VectorArrow x1={O.x - 24} y1={O.y} x2={O.x + 500} y2={O.y} role="neutral" strokeWidth={2} headSize={11} className="plab-axis" />
+          <VectorArrow x1={O.x} y1={O.y + 24} x2={O.x} y2={O.y - 330} role="neutral" strokeWidth={2} headSize={11} className="plab-axis" />
+          <SymbolText x={O.x + 506} y={O.y + 24} symbol="X" align="center" />
+          <SymbolText x={O.x + 18} y={O.y - 322} symbol="Y" align="left" />
+        </g>
+      ) : null}
 
-      {/* projection lines from M (مرسم النقطة) */}
-      <line x1={tip.x} y1={tip.y} x2={onX.x} y2={onY.y === tip.y ? onX.y : onX.y} className="vec-lab__dashed" />
-      <line x1={tip.x} y1={tip.y} x2={onY.x} y2={onY.y} className="vec-lab__dashed" />
-      <line x1={onX.x} y1={onX.y} x2={onX.x} y2={tip.y} className="vec-lab__dashed" opacity={0.6} />
+      {/* rectangle and perpendiculars from M */}
+      {stage >= 4 ? (
+        <polygon className="plab-parallelogram plab-rect" data-rect="true" points={`${O.x},${O.y} ${A.x},${A.y} ${M.x},${M.y} ${B.x},${B.y}`} />
+      ) : null}
+      {stage >= 3 ? (
+        <g className="plab-construction" data-stage-projections="true">
+          <line className="plab-dashed" x1={M.x} y1={M.y} x2={A.x} y2={A.y} />
+          <line className="plab-dashed" x1={M.x} y1={M.y} x2={B.x} y2={B.y} />
+          <RightAngleMark vertex={A} dir1={90} dir2={180} size={12} />
+          <RightAngleMark vertex={B} dir1={0} dir2={270} size={12} />
+          <RightAngleMark vertex={M} dir1={180} dir2={270} size={12} />
+          {stage >= 2 ? <RightAngleMark vertex={O} dir1={0} dir2={90} size={12} /> : null}
+          <circle className="plab-foot" cx={A.x} cy={A.y} r={3.5} />
+          <circle className="plab-foot" cx={B.x} cy={B.y} r={3.5} />
+        </g>
+      ) : null}
 
-      {/* right angles at the projections */}
-      <path d={`M ${onX.x - 12} ${O.y} L ${onX.x - 12} ${O.y - 12} L ${onX.x} ${O.y - 12}`} className="vec-lab__angle" />
-      <path d={`M ${O.x} ${onY.y + 12} L ${O.x + 12} ${onY.y + 12} L ${O.x + 12} ${onY.y}`} className="vec-lab__angle" />
+      {/* components on the axes */}
+      {stage >= 5 ? (
+        <g className="plab-components" data-stage-components="true">
+          <VectorArrow x1={O.x} y1={O.y} x2={A.x} y2={A.y} role="component1" strokeWidth={4.5} headSize={15} className="plab-arrow" animated={!reducedMotion} label={`المركّبة F₁ ${num(along)} نيوتن على OX`} />
+          <VectorArrow x1={O.x} y1={O.y} x2={B.x} y2={B.y} role="component2" strokeWidth={4.5} headSize={15} className="plab-arrow" animated={!reducedMotion} label={`المركّبة F₂ ${num(perp)} نيوتن على OY`} />
+          <VectorSvgLabel x={f1Label.x} y={f1Label.y} symbol="F" subscript="1" tone="component1" anchor="middle" magnitude={quantityText(along, 'N')} />
+          <VectorSvgLabel x={f2Label.x} y={f2Label.y} symbol="F" subscript="2" tone="component2" anchor="middle" magnitude={quantityText(perp, 'N')} />
+        </g>
+      ) : null}
 
-      {/* the force and its two components */}
-      <VectorArrow x1={O.x} y1={O.y} x2={tip.x} y2={tip.y} role="resultant" strokeWidth={3.8} animated={!reducedMotion} label={`القوّة المحلّلة ${force} نيوتن`} />
-      <VectorArrow x1={O.x} y1={O.y} x2={onX.x} y2={onX.y} role="component1" strokeWidth={3} animated={!reducedMotion} label={`المركّبة الأفقية ${along.toFixed(1)} نيوتن`} />
-      <VectorArrow x1={O.x} y1={O.y} x2={onY.x} y2={onY.y} role="component2" strokeWidth={3} animated={!reducedMotion} label={`المركّبة الشاقولية ${perp.toFixed(1)} نيوتن`} />
+      {/* the force OM */}
+      {stage >= 1 ? (
+        <g className="plab-resultant" data-stage-force="true">
+          <VectorArrow x1={O.x} y1={O.y} x2={M.x} y2={M.y} role="resultant" strokeWidth={4.5} headSize={16} className="plab-arrow" label={`القوّة F ${force} نيوتن`} />
+          <VectorSvgLabel x={fLabel.x} y={fLabel.y + 4} symbol="F" tone="resultant" anchor="middle" magnitude={quantityText(force, 'N')} />
+        </g>
+      ) : null}
 
-      {/* labels with their own arrow accents */}
-      <VectorSvgLabel x={tip.x + 12} y={tip.y - 6} symbol="F" tone="resultant" magnitude={`${force} N`} />
-      <VectorSvgLabel x={onX.x - 10} y={onX.y + 34} symbol="F" subscript="1" tone="component1" anchor="middle" magnitude={`${along.toFixed(1)} N`} />
-      <VectorSvgLabel x={onY.x - 34} y={onY.y + 4} symbol="F" subscript="2" tone="component2" anchor="end" magnitude={`${perp.toFixed(1)} N`} />
+      {/* the angle a between F and OX */}
+      {stage >= 2 ? (
+        <g className="plab-angles">
+          <AngleMark centre={O} r={56} fromDeg={0} toDeg={theta} />
+          <SymbolText x={arcLabel.x + 4} y={arcLabel.y + 5} symbol="a" fontSize={16} className="svg-text--angle" />
+        </g>
+      ) : null}
 
-      {/* angle at O */}
-      <path d={`M ${O.x + 36} ${O.y} A 36 36 0 0 0 ${O.x + 36 * Math.cos(a)} ${O.y - 36 * Math.sin(a)}`} className="vec-lab__angle" />
-      <text x={O.x + 46} y={O.y - 12} className="vec-lab__label vec-lab__label--angle">{theta}°</text>
-
-      <circle cx={O.x} cy={O.y} r={5} className="vec-lab__point" />
-      <text x={O.x - 20} y={O.y + 18} className="vec-lab__label">O</text>
-      <text x={tip.x + 10} y={tip.y + 16} className="vec-lab__label">M</text>
+      {/* points */}
+      <g className="plab-meet" data-meet="O">
+        <PointMark at={O} />
+        <SymbolText x={O.x - 16} y={O.y + 26} symbol="O" align="right" />
+      </g>
+      {stage >= 1 ? (
+        <g>
+          <PointMark at={M} />
+          <SymbolText x={M.x + 16} y={M.y + 6} symbol="M" align="left" />
+        </g>
+      ) : null}
     </svg>
   )
 }
 
-function InclineFigure({ angle, weight, along, perp, reducedMotion }: { angle: number; weight: number; along: number; perp: number; reducedMotion: boolean }) {
-  const a = rad(angle)
-  const s = 22
-  const base = { x: 60, y: 292 }
-  const upSlope = { x: Math.cos(a), y: -Math.sin(a) }
-  const slopeLength = 400
-  const slopeEnd = { x: base.x + slopeLength * upSlope.x, y: base.y + slopeLength * upSlope.y }
-  const body = { x: base.x + 190 * upSlope.x, y: base.y + 190 * upSlope.y }
-  const downSlope = { x: -upSlope.x, y: -upSlope.y }
-  const intoSurface = { x: Math.sin(a), y: Math.cos(a) }
-  const wTip = { x: body.x, y: body.y + weight * s }
-  const alongTip = { x: body.x + along * s * downSlope.x, y: body.y + along * s * downSlope.y }
-  const perpTip = { x: body.x + perp * s * intoSurface.x, y: body.y + perp * s * intoSurface.y }
+/* ---------- figure 2: a body on a smooth inclined plane ------------------- */
+
+function InclineFigure({ angle, weight, along, perp, stage, released, reducedMotion }: {
+  angle: number
+  weight: number
+  along: number
+  perp: number
+  stage: number
+  released: boolean
+  reducedMotion: boolean
+}) {
+  const a = toRadians(angle)
+  const ground = 420
+  const A: Point = { x: 90, y: ground }
+  const slope = 400
+  const B: Point = { x: A.x + slope * Math.cos(a), y: ground }
+  const C: Point = { x: B.x, y: ground - slope * Math.sin(a) }
+
+  // unit vectors on screen: along the slope (up), and the outward normal
+  const s: Point = { x: Math.cos(a), y: -Math.sin(a) }
+  const n: Point = { x: -Math.sin(a), y: -Math.cos(a) }
+  const bodyW = 56
+  const bodyH = 36
+  const P: Point = { x: A.x + s.x * slope * 0.7, y: A.y + s.y * slope * 0.7 }
+  const corners = [
+    { x: P.x - s.x * bodyW / 2, y: P.y - s.y * bodyW / 2 },
+    { x: P.x + s.x * bodyW / 2, y: P.y + s.y * bodyW / 2 },
+    { x: P.x + s.x * bodyW / 2 + n.x * bodyH, y: P.y + s.y * bodyW / 2 + n.y * bodyH },
+    { x: P.x - s.x * bodyW / 2 + n.x * bodyH, y: P.y - s.y * bodyW / 2 + n.y * bodyH },
+  ]
+  const centre: Point = { x: P.x + n.x * bodyH / 2, y: P.y + n.y * bodyH / 2 }
+  const k = 16
+  const wTip: Point = { x: centre.x, y: centre.y + weight * k }
+  const rTip: Point = { x: centre.x + n.x * perp * k, y: centre.y + n.y * perp * k }
+  const f1Tip: Point = { x: centre.x - s.x * along * k, y: centre.y - s.y * along * k }
+  const f2Tip: Point = { x: centre.x - n.x * perp * k, y: centre.y - n.y * perp * k }
+
+  const polygonPoints = (pts: Point[]) => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+
+  // sliding model: a smooth incline accelerates at g·sin a, so a steeper plane is quicker
+  const distanceMetres = 1.2
+  const seconds = Math.sqrt((2 * distanceMetres) / (9.8 * Math.sin(a)))
+  const slide = 150
+  const slideVector = { x: -s.x * slide, y: -s.y * slide }
+
+  const arcAtBase = { fromDeg: 0, toDeg: angle }
+  const baseLabel = angleLabelPoint(A, 78, 0, angle)
+  const arcAtBody = { fromDeg: 270, toDeg: 270 + angle }
+  // inside the wedge between w and F₂ when it is wide enough; otherwise just outside it, beside w
+  const bodyLabelDir = angle >= 28 ? 270 + angle / 2 : 248
+  const bodyLabel = angleLabelPoint(centre, 60, bodyLabelDir, bodyLabelDir)
+
+  // every label sits beyond its own tip, on a side no other vector uses
+  const rLabel = { x: rTip.x + n.x * 26, y: rTip.y + n.y * 26 + 4 }
+  // a shallow plane with a heavy body pushes the tips against the bottom edge: those labels go beside the arrow
+  const fits = (point: Point) => point.y <= VIEW_INCLINE.height - 52
+  const wBelow = { x: wTip.x, y: wTip.y + 34 }
+  const wLabel = fits(wBelow) ? wBelow : { x: wTip.x - 42, y: wTip.y - 10 }
+  const f1Label = { x: f1Tip.x - s.x * 32 + n.x * 24, y: f1Tip.y - s.y * 32 + n.y * 24 + 4 }
+  const f2Beyond = { x: f2Tip.x - n.x * 30 + 20, y: f2Tip.y - n.y * 30 + 8 }
+  const f2Label = fits(f2Beyond) ? f2Beyond : { x: f2Tip.x + 46, y: f2Tip.y - 14 }
+
   return (
-    <svg viewBox="0 0 520 320" role="img" aria-label={`جسم على مستوٍ مائل بزاوية ${angle} درجة؛ ثقله ${weight} نيوتن يحلّل إلى مركبة موازية للمستوي ${along.toFixed(1)} نيوتن ومركبة شاقولية على المستوي ${perp.toFixed(1)} نيوتن`}>
-      <DiagramDefs />
-      {/* the inclined plane: a real wedge */}
-      <path
-        d={`M ${base.x} ${base.y} L ${slopeEnd.x} ${slopeEnd.y} L ${slopeEnd.x} ${base.y} Z`}
-        className="force-components-lab__wedge"
-        data-wedge="true"
-      />
-      <line x1={base.x - 30} y1={base.y} x2={480} y2={base.y} className="vec-lab__axis" />
-      <text x={486} y={base.y + 4} className="vec-lab__label">الأفق</text>
+    <svg
+      viewBox={`0 0 ${VIEW_INCLINE.width} ${VIEW_INCLINE.height}`}
+      role="img"
+      aria-label={`جسم ثقله ${weight} نيوتن على سطح أملس يميل ${angle} درجة: يحلَّل الثقل إلى مركّبة موازية للسطح ${num(along)} نيوتن ومركّبة عمودية عليه ${num(perp)} نيوتن، وردّ فعل السطح يعادل المركّبة العمودية`}
+    >
+      <rect className="plab-board" x={6} y={6} width={VIEW_INCLINE.width - 12} height={VIEW_INCLINE.height - 12} rx={16} />
+      <line className="plab-ground" x1={30} y1={ground} x2={VIEW_INCLINE.width - 30} y2={ground} />
 
-      {/* the body on the surface */}
-      <rect
-        x={body.x - 15}
-        y={body.y - 20}
-        width={30}
-        height={20}
-        rx={3}
-        className="concurrent-forces-lab__body"
-        data-body="true"
-        transform={`rotate(${-angle} ${body.x} ${body.y})`}
-      />
+      <g data-wedge="true" className="plab-wedge">
+        <polygon className="plab-wedge__body" points={polygonPoints([A, B, C])} />
+        <line className="plab-wedge__surface" x1={A.x} y1={A.y} x2={C.x} y2={C.y} />
+      </g>
 
-      {/* decomposition rectangle: the two components sum to w */}
-      <path
-        d={`M ${body.x} ${body.y} L ${alongTip.x} ${alongTip.y} L ${wTip.x} ${wTip.y} L ${perpTip.x} ${perpTip.y} Z`}
-        className="force-components-lab__rect"
-        data-rect="true"
-      />
-      <line x1={alongTip.x} y1={alongTip.y} x2={wTip.x} y2={wTip.y} className="vec-lab__dashed" />
-      <line x1={perpTip.x} y1={perpTip.y} x2={wTip.x} y2={wTip.y} className="vec-lab__dashed" />
+      {/* angle a at the foot of the plane */}
+      <g className="plab-angles">
+        <AngleMark centre={A} r={64} fromDeg={arcAtBase.fromDeg} toDeg={arcAtBase.toDeg} />
+        <SymbolText x={baseLabel.x + 6} y={baseLabel.y + 5} symbol="a" fontSize={16} className="svg-text--angle" />
+      </g>
 
-      {/* weight and its two components — all real vectors */}
-      <VectorArrow x1={body.x} y1={body.y} x2={wTip.x} y2={wTip.y} role="weight" strokeWidth={3.8} animated={!reducedMotion} label={`ثقل الجسم ${weight} نيوتن`} />
-      <VectorArrow x1={body.x} y1={body.y} x2={alongTip.x} y2={alongTip.y} role="component1" strokeWidth={3} animated={!reducedMotion} label={`المركّبة الموازية ${along.toFixed(1)} نيوتن`} />
-      <VectorArrow x1={body.x} y1={body.y} x2={perpTip.x} y2={perpTip.y} role="component2" strokeWidth={3} animated={!reducedMotion} label={`المركّبة الشاقولية ${perp.toFixed(1)} نيوتن`} />
+      {/* the axes along and across the plane (stage 3) */}
+      {stage >= 2 ? (
+        <g className="plab-axes" data-stage-axes="true">
+          <line className="plab-axis-line" x1={centre.x - s.x * 190} y1={centre.y - s.y * 190} x2={centre.x + s.x * 190} y2={centre.y + s.y * 190} />
+          <line className="plab-axis-line" x1={centre.x - n.x * 120} y1={centre.y - n.y * 120} x2={centre.x + n.x * 150} y2={centre.y + n.y * 150} />
+        </g>
+      ) : null}
 
-      {/* right angle at the surface foot of the perpendicular component */}
-      <path
-        d={`M ${body.x + intoSurface.x * 14} ${body.y + intoSurface.y * 14} l ${upSlope.x * 12} ${upSlope.y * 12} m ${-upSlope.x * 12} ${-upSlope.y * 12} l ${intoSurface.x * 12} ${intoSurface.y * 12}`}
-        className="vec-lab__angle"
-      />
+      {/* the rectangle of the components */}
+      {stage >= 4 ? (
+        <polygon
+          className="plab-parallelogram plab-rect"
+          data-rect="true"
+          points={polygonPoints([centre, f1Tip, wTip, f2Tip])}
+        />
+      ) : null}
+      {stage >= 3 ? (
+        <g className="plab-construction" data-stage-projections="true">
+          <line className="plab-dashed" x1={wTip.x} y1={wTip.y} x2={f1Tip.x} y2={f1Tip.y} />
+          <line className="plab-dashed" x1={wTip.x} y1={wTip.y} x2={f2Tip.x} y2={f2Tip.y} />
+          <RightAngleMark vertex={centre} dir1={angle + 180} dir2={angle + 270} size={13} />
+        </g>
+      ) : null}
 
-      {/* labels */}
-      <VectorSvgLabel x={wTip.x + 12} y={wTip.y} symbol="w" tone="weight" magnitude={`${weight} N`} />
-      <VectorSvgLabel x={alongTip.x + downSlope.x * 26} y={alongTip.y + 26} symbol="F" subscript="1" tone="component1" anchor="middle" magnitude={`${along.toFixed(1)} N`} />
-      <VectorSvgLabel x={perpTip.x + intoSurface.x * 30} y={perpTip.y + 12} symbol="F" subscript="2" tone="component2" anchor="middle" magnitude={`${perp.toFixed(1)} N`} />
+      {/* the body: static copy, plus a ghost that slides when released */}
+      <g data-body="true" className="plab-incline-body">
+        <polygon className="plab-body__mass" points={polygonPoints(corners)} />
+      </g>
+      {released ? (
+        <g
+          className={['plab-ghost', reducedMotion ? 'plab-ghost--end' : 'plab-ghost--slide'].join(' ')}
+          style={cssVars({ '--sx': `${slideVector.x}px`, '--sy': `${slideVector.y}px`, '--dur': `${seconds.toFixed(2)}s` })}
+          aria-hidden="true"
+          data-released="true"
+        >
+          <polygon className="plab-body__ghost" points={polygonPoints(corners)} />
+        </g>
+      ) : null}
 
-      {/* incline angle a at the base + the equal angle between w and F₂ */}
-      <path d={`M ${base.x + 52} ${base.y} A 52 52 0 0 0 ${base.x + 52 * Math.cos(a)} ${base.y - 52 * Math.sin(a)}`} className="vec-lab__angle" />
-      <text x={base.x + 62} y={base.y - 10} className="vec-lab__label vec-lab__label--angle">a</text>
-      <path
-        d={`M ${body.x} ${body.y + 34} A 34 34 0 0 0 ${body.x + 34 * Math.sin(a)} ${body.y + 34 * Math.cos(a)}`}
-        className="vec-lab__angle"
-      />
-      <text x={body.x + 10} y={body.y + 52} className="vec-lab__label vec-lab__label--angle">a</text>
+      {/* forces on the body */}
+      {stage >= 1 ? (
+        <g className="plab-vectors">
+          <VectorArrow x1={centre.x} y1={centre.y} x2={wTip.x} y2={wTip.y} role="weight" strokeWidth={4} headSize={14} className="plab-arrow" label={`ثقل الجسم ${weight} نيوتن`} />
+          <VectorArrow x1={centre.x} y1={centre.y} x2={rTip.x} y2={rTip.y} role="reaction" strokeWidth={4} headSize={14} className="plab-arrow" label={`ردّ فعل السطح ${num(perp)} نيوتن`} />
+          <VectorSvgLabel x={wLabel.x} y={wLabel.y} symbol="w" tone="weight" anchor="middle" magnitude={quantityText(weight, 'N')} />
+          <VectorSvgLabel x={rLabel.x} y={rLabel.y} symbol="R" tone="reaction" anchor="middle" magnitude={quantityText(perp, 'N')} />
+        </g>
+      ) : null}
+      {stage >= 3 ? (
+        <g className="plab-components" data-stage-components="true">
+          <VectorArrow x1={centre.x} y1={centre.y} x2={f1Tip.x} y2={f1Tip.y} role="component1" strokeWidth={4} headSize={14} className="plab-arrow" animated={!reducedMotion} label={`المركّبة F₁ ${num(along)} نيوتن موازية للسطح`} />
+          <VectorArrow x1={centre.x} y1={centre.y} x2={f2Tip.x} y2={f2Tip.y} role="component2" strokeWidth={4} headSize={14} className="plab-arrow" animated={!reducedMotion} label={`المركّبة F₂ ${num(perp)} نيوتن عمودية على السطح`} />
+          <VectorSvgLabel x={f1Label.x} y={f1Label.y} symbol="F" subscript="1" tone="component1" anchor="middle" magnitude={quantityText(along, 'N')} />
+          <VectorSvgLabel x={f2Label.x} y={f2Label.y} symbol="F" subscript="2" tone="component2" anchor="middle" magnitude={quantityText(perp, 'N')} />
+          <g className="plab-angles">
+            <AngleMark centre={centre} r={40} fromDeg={arcAtBody.fromDeg} toDeg={arcAtBody.toDeg} />
+            <SymbolText x={bodyLabel.x} y={bodyLabel.y + 5} symbol="a" fontSize={16} className="svg-text--angle" />
+          </g>
+        </g>
+      ) : null}
+
+      <g className="plab-meet">
+        <PointMark at={centre} />
+      </g>
+      <SvgText x={VIEW_INCLINE.width - 40} y={ground + 26} align="right" script="ar" tone="muted">
+        سطح أفقي
+      </SvgText>
     </svg>
   )
 }
