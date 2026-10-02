@@ -126,8 +126,8 @@ export function LessonFlow({
         breadcrumb={breadcrumb}
         title={lesson.title}
         subtitle={
-          <span className="lesson-shell__step-summary">
-            {meta.label}: {meta.intention}
+          <span className="lesson-shell__step-chip" data-tone={meta.tone} title={meta.intention}>
+            {meta.label}
           </span>
         }
         progress={{
