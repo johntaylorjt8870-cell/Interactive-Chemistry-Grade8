@@ -128,7 +128,8 @@
   --layout-max: 1240px;
   --layout-gutter: clamp(1rem, 4vw, 3rem);
   --header-height: 68px;
-  --outline-width: 300px;
+  --outline-min-width: 12.5rem;
+  --outline-track: 0.26fr;
 
   /* --- Scientific typography ------------------------------------------- */
   --sci-letter-spacing: 0.01em;

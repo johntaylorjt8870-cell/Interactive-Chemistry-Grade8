@@ -144,6 +144,22 @@ describe('accessibility foundations in CSS', () => {
 })
 
 describe('layout responsiveness contract', () => {
+  it('keeps the desktop outline proportional and the lesson content dominant', () => {
+    const body = declarations(components, '.lesson-shell__body')
+    const aside = declarations(components, '.lesson-shell__aside')
+
+    // The 0.26fr / 1fr tracks give the outline about one fifth of the columns,
+    // while the 12.5rem floor keeps its step labels usable on laptop widths.
+    expect(tokens).toContain('--outline-min-width: 12.5rem;')
+    expect(tokens).toContain('--outline-track: 0.26fr;')
+    expect(body['grid-template-columns']).toBe(
+      'minmax(var(--outline-min-width), var(--outline-track)) minmax(0, 1fr)',
+    )
+    expect(aside['position']).toBe('sticky')
+    expect(aside['overflow-y']).toBe('auto')
+    expect(aside['top']).toContain('var(--lesson-shell-sticky-offset)')
+  })
+
   it('switches the lesson outline to a drawer on narrow screens', () => {
     expect(components).toMatch(/@media \(max-width: 1080px\)/)
     expect(components).toMatch(/\.lesson-shell__aside\s*\{\s*display:\s*none;/)

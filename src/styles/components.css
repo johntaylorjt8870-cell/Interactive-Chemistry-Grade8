@@ -1471,6 +1471,8 @@
 /* --- Lesson shell --------------------------------------------------------- */
 
 .lesson-shell {
+  /* The compact sticky lesson header sits below the 68px site header. */
+  --lesson-shell-sticky-offset: 9rem;
   padding-block-end: var(--space-12);
 }
 
@@ -1483,7 +1485,7 @@
 }
 
 .lesson-shell__header-inner {
-  padding-block: var(--space-4) var(--space-5);
+  padding-block: var(--space-2) var(--space-3);
 }
 
 .lesson-shell__breadcrumb {
@@ -1492,8 +1494,9 @@
   align-items: center;
   gap: var(--space-2);
   font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
   color: var(--text-muted);
-  margin-block-end: var(--space-3);
+  margin-block-end: var(--space-2);
 }
 
 .lesson-shell__breadcrumb a {
@@ -1505,7 +1508,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 .lesson-shell__title {
@@ -1513,9 +1516,10 @@
 }
 
 .lesson-shell__subtitle {
-  margin-block-start: var(--space-2);
+  margin-block-start: var(--space-1);
   color: var(--text-muted);
   font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
 }
 
 .lesson-shell__mobile-trigger {
@@ -1525,15 +1529,17 @@
 .lesson-shell__progress {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  margin-block-start: var(--space-4);
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
 }
 
 .lesson-shell__progress-label {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: var(--fs-xs);
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-snug);
   color: var(--text-muted);
   white-space: nowrap;
 }
@@ -1546,16 +1552,16 @@
 
 .lesson-shell__body {
   display: grid;
-  grid-template-columns: var(--outline-width) minmax(0, 1fr);
-  gap: clamp(var(--space-6), 4vw, var(--space-12));
+  grid-template-columns: minmax(var(--outline-min-width), var(--outline-track)) minmax(0, 1fr);
+  gap: clamp(var(--space-4), 2.5vw, var(--space-8));
   align-items: start;
-  padding-block-start: var(--space-8);
+  padding-block-start: var(--space-6);
 }
 
 .lesson-shell__aside {
   position: sticky;
-  top: calc(var(--header-height) + 120px);
-  max-block-size: calc(100dvh - var(--header-height) - 150px);
+  top: calc(var(--header-height) + var(--lesson-shell-sticky-offset));
+  max-block-size: calc(100dvh - var(--header-height) - var(--lesson-shell-sticky-offset) - var(--space-5));
   overflow-y: auto;
   padding-inline-end: var(--space-2);
 }
@@ -1646,6 +1652,17 @@
   font-size: var(--fs-2xs);
   font-weight: var(--fw-bold);
   color: var(--text-muted);
+}
+
+/* Keep the persistent outline compact without changing the roomier drawer. */
+.lesson-outline--sidebar .lesson-outline__button {
+  gap: var(--space-2);
+  padding: var(--space-2);
+}
+
+.lesson-outline--sidebar .lesson-outline__index {
+  inline-size: 24px;
+  block-size: 24px;
 }
 
 .lesson-outline__button[data-current='true'] .lesson-outline__index {
