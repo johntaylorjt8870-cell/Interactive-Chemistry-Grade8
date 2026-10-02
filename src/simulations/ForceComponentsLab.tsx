@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { DiagramDefs, ScientificValue } from '@/scientific'
+import { LiveStatus } from '@/components/LiveStatus'
 import type { InteractiveProps } from './registry'
 import {
   buildPointMotionStyle,
@@ -91,6 +92,11 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
     setRevision((current) => current + 1)
   }
 
+  const announcement =
+    mode === 'axes'
+      ? `تحليل قوّة على محورين: القوّة ${force} نيوتن بزاوية ${theta} درجة؛ المركّبة الأفقية ${along.toFixed(1)} نيوتن والمركّبة الشاقولية ${perp.toFixed(1)} نيوتن.`
+      : `المستوي المائل: ثقل ${weight} نيوتن على مستوٍ بزاوية ${incline} درجة؛ المركّبة الموازية للمستوي ${along.toFixed(1)} نيوتن والمركّبة الشاقولية عليه ${perp.toFixed(1)} نيوتن.`
+
   return (
     <section
       className={`lab force-components-lab ${reducedMotion ? 'lab--still' : ''}`}
@@ -170,6 +176,7 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
               value={force}
               onChange={(event) => updateParam('force', Number(event.target.value))}
               aria-label="شدّة القوّة نيوتن"
+              aria-valuetext={`${force} نيوتن`}
             />
           </label>
           <label className="lab__range">
@@ -184,6 +191,7 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
               value={theta}
               onChange={(event) => updateParam('theta', Number(event.target.value))}
               aria-label="زاوية القوّة مع المحور الأفقي بالدرجات"
+              aria-valuetext={`${theta} درجة`}
             />
           </label>
         </div>
@@ -201,6 +209,7 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
               value={incline}
               onChange={(event) => updateParam('incline', Number(event.target.value))}
               aria-label="زاوية ميل المستوي بالدرجات"
+              aria-valuetext={`${incline} درجة`}
             />
           </label>
           <label className="lab__range">
@@ -215,6 +224,7 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
               value={weight}
               onChange={(event) => updateParam('weight', Number(event.target.value))}
               aria-label="ثقل الجسم نيوتن"
+              aria-valuetext={`${weight} نيوتن`}
             />
           </label>
         </div>
@@ -266,7 +276,9 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
         </div>
       </div>
 
-      <p className="lab__conclusion" aria-live="polite">
+      <LiveStatus message={announcement} />
+
+      <p className="lab__conclusion">
         <strong>الاستنتاج:</strong> المركّبتان المتعامدتان تقومان معاً مقام القوّة الأصلية، وعملية التحليل معاكسة لعملية إيجاد
         المحصّلة. على المستوي المائل يكون الشكل الناتج مستطيلاً: مركّبة توازي المستوي وأخرى تعامده، ومجموعهما الهندسي يعيد
         الثقل نفسه.

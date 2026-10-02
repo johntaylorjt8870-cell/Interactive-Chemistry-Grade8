@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DiagramDefs, ScientificValue } from '@/scientific'
+import { LiveStatus } from '@/components/LiveStatus'
 import type { InteractiveProps } from './registry'
 import {
   buildPointMotionStyle,
@@ -38,6 +39,7 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
     return { t1, t2, sum }
   }, [a1, a2, w])
 
+  const announcement = `ثقل الجسم ${w} نيوتن والزاوية بين الربيعتين ${state.sum} درجة؛ شدّة الشدّ في الربيعة الأولى ${state.t1.toFixed(1)} نيوتن وفي الثانية ${state.t2.toFixed(1)} نيوتن.`
   const O: Point2D = { x: 240, y: 170 }
   const len1 = Math.min(115, Math.max(48, 38 + state.t1 * 14))
   const len2 = Math.min(115, Math.max(48, 38 + state.t2 * 14))
@@ -114,6 +116,7 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
             value={a1}
             onChange={(event) => updateParam('a1', Number(event.target.value))}
             aria-label="ميل الربيعة الأولى عن الشاقول بالدرجات"
+            aria-valuetext={`${a1} درجة`}
           />
         </label>
         <label className="lab__range">
@@ -128,6 +131,7 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
             value={a2}
             onChange={(event) => updateParam('a2', Number(event.target.value))}
             aria-label="ميل الربيعة الثانية عن الشاقول بالدرجات"
+            aria-valuetext={`${a2} درجة`}
           />
         </label>
         <label className="lab__range">
@@ -142,6 +146,7 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
             value={w}
             onChange={(event) => updateParam('w', Number(event.target.value))}
             aria-label="ثقل الجسم المعلق نيوتن"
+            aria-valuetext={`${w} نيوتن`}
           />
         </label>
       </div>
@@ -348,7 +353,9 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
         </div>
       </div>
 
-      <p className="lab__conclusion" aria-live="polite">
+      <LiveStatus message={announcement} />
+
+      <p className="lab__conclusion">
         <strong>الاستنتاج:</strong> مهما غيّرت الزاويتين أو الثقل، تبقى حوامل القوى الثلاث (بامتداداتها المتقطعة) تتلاقى في
         نقطة واحدة هي نقطة التعليق O؛ لذلك تسمّى قوى متلاقية، والجسم يبقى ساكناً لأن محصّلتها صفر.
       </p>

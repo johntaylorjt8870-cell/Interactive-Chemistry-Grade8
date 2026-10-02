@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DiagramDefs, MathFormula, ScientificValue } from '@/scientific'
+import { LiveStatus } from '@/components/LiveStatus'
 import type { InteractiveProps } from './registry'
 import {
   buildPointMotionStyle,
@@ -102,6 +103,14 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
   const diagMid: Point2D = { x: (O.x + M.x) / 2, y: (O.y + M.y) / 2 }
   const prevDiagMid: Point2D | undefined = prev ? { x: (prev.O.x + prev.M.x) / 2, y: (prev.O.y + prev.M.y) / 2 } : undefined
 
+  const stageLabel =
+    stage === 0
+      ? 'المرحلة 1 من 3: شعاعا القوّتين وحاملاهما'
+      : stage === 1
+        ? 'المرحلة 2 من 3: اكتمل متوازي الأضلاع'
+        : 'المرحلة 3 من 3: رُسم القطر الذي يمثّل المحصّلة'
+  const announcement = `${stageLabel}. المحصّلة ${resultant.toFixed(1)} نيوتن، ووجهتها ${direction.toFixed(1)} درجة عن حامل القوّة الثانية.`
+
   return (
     <section
       className={`lab parallelogram-lab ${reducedMotion ? 'lab--still' : ''}`}
@@ -159,6 +168,7 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
             value={f1}
             onChange={(event) => updateParam('f1', Number(event.target.value))}
             aria-label="شدّة القوّة الأولى نيوتن"
+            aria-valuetext={`${f1} نيوتن`}
           />
         </label>
         <label className="lab__range">
@@ -173,6 +183,7 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
             value={f2}
             onChange={(event) => updateParam('f2', Number(event.target.value))}
             aria-label="شدّة القوّة الثانية نيوتن"
+            aria-valuetext={`${f2} نيوتن`}
           />
         </label>
         <label className="lab__range">
@@ -187,6 +198,7 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
             value={angle}
             onChange={(event) => updateParam('angle', Number(event.target.value))}
             aria-label="الزاوية بين حاملي القوتين بالدرجات"
+            aria-valuetext={`${angle} درجة`}
           />
         </label>
       </div>
@@ -428,7 +440,9 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
         </div>
       ) : null}
 
-      <p className="lab__conclusion" aria-live="polite">
+      <LiveStatus message={announcement} />
+
+      <p className="lab__conclusion">
         <strong>الاستنتاج:</strong> المحصّلة قوّة وحيدة تحل محل القوّتين معاً: حاملها قطر متوازي الأضلاع المارّ من نقطة
         تلاقيهما، وجهتها من O إلى الرأس المقابل M، وشدّتها تُمثَّل بطول القطر. جرّب زاوية 90° لتظهر حالة المستطيل وقانون
         فيتاغورث، ولاحظ: كلما اتسعت الزاوية عن 90° قلت المحصّلة عند ثبات الشدّتين.
