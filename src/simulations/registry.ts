@@ -7,10 +7,10 @@ import type { ComponentType } from 'react'
  * loaded lazily through this registry — so a lesson page never pulls every
  * simulation in the book into the initial bundle.
  *
- * The registry is intentionally empty in the foundation phase: no experiment
- * or simulation may be built before its textbook pages are supplied and read.
- * `defineInteractive` is the single place where they will be registered, and
- * the host renders an explicit, honest state for anything unregistered.
+ * The built-in entries below are the interactives currently implemented for
+ * published lessons. New interactives must remain platform additions tied to
+ * read source material; the host renders an explicit state for unregistered
+ * ids, and `defineInteractive` rejects duplicate additions.
  */
 
 export type InteractiveKind = 'experiment' | 'simulation' | 'activity' | 'diagram'

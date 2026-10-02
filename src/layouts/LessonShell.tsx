@@ -43,6 +43,7 @@ export function LessonShell({
   mobileOutlineTrigger,
 }: LessonShellProps) {
   const percent = Math.round(progress.ratio * 100)
+  const progressValue = progress.visited ?? progress.current
 
   return (
     <div className="lesson-shell">
@@ -64,8 +65,9 @@ export function LessonShell({
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={progress.total}
-              aria-valuenow={progress.current}
-              aria-label={`الخطوة ${progress.current} من ${progress.total}`}
+              aria-valuenow={progressValue}
+              aria-valuetext={`زُرت ${progressValue} من ${progress.total} خطوة؛ الخطوة الحالية ${progress.current} من ${progress.total}`}
+              aria-label="التقدّم في الدرس"
             >
               <div className="progress__track">
                 <div className="progress__bar" style={{ inlineSize: `${percent}%` }} />
@@ -86,11 +88,11 @@ export function LessonShell({
       </div>
 
       <div className="container lesson-shell__body">
-        <aside className="lesson-shell__aside">{outline}</aside>
-        <main className="lesson-shell__main" id="lesson-content" tabIndex={-1}>
+        <aside className="lesson-shell__aside" aria-label="مخطط الدرس">{outline}</aside>
+        <section className="lesson-shell__main" id="lesson-content" tabIndex={-1} role="region" aria-label="محتوى الدرس">
           {children}
           <div className="lesson-shell__nav">{navigation}</div>
-        </main>
+        </section>
       </div>
     </div>
   )

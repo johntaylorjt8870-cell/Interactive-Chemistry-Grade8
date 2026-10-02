@@ -16,11 +16,10 @@ import { physicsLesson1 } from './physicsLesson1'
    ----------------------------------------------------------------------------
    The single place where curriculum structure is declared.
 
-   IMPORTANT — foundation state:
-   `units` is intentionally empty for both subjects. No unit or lesson may be
-   authored until the textbook page images are supplied and read. This file is
-   the only file that should change when real content is added, and the
-   validators in @/data/sourceFidelity keep that content honest.
+   CURRENT VERIFIED CONTENT:
+   Only the sourced units and lessons listed below are published. Additions
+   require the textbook pages to be read first; the validators in
+   @/data/sourceFidelity keep those references auditable.
    ========================================================================= */
 
 const PHYSICS: SubjectDefinition = {

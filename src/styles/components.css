@@ -291,10 +291,20 @@
 
 .drawer--start {
   inset-inline-start: 0;
+  --drawer-enter-x: -12%;
 }
 
 .drawer--end {
   inset-inline-end: 0;
+  --drawer-enter-x: 12%;
+}
+
+[dir='rtl'] .drawer--start {
+  --drawer-enter-x: 12%;
+}
+
+[dir='rtl'] .drawer--end {
+  --drawer-enter-x: -12%;
 }
 
 .drawer__header {
@@ -329,8 +339,15 @@
 
 @keyframes slide-in {
   from {
-    transform: translateX(-12%);
+    transform: translateX(var(--drawer-enter-x));
     opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .drawer-backdrop {
+    animation: none;
   }
 }
 
@@ -3114,6 +3131,8 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
 .vec-lab__angle { stroke: var(--accent); stroke-width: 1.6; fill: none; }
 .vec-lab__point { fill: #dc2626; stroke: var(--surface-raised); stroke-width: 1.5; }
 .vec-lab__label {
+  direction: ltr;
+  unicode-bidi: isolate;
   font: italic 700 15px var(--font-science);
   fill: var(--text-primary);
 }

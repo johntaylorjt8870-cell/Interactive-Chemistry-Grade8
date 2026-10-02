@@ -232,8 +232,8 @@ export type SubjectDefinition = {
   motifs: SubjectMotif[]
   status: ContentStatus
   /**
-   * Units read from the supplied textbook pages. Empty until the page images
-   * are supplied; no unit may be authored before that.
+   * Units read from the supplied textbook pages. This may be empty for a
+   * subject whose pages have not yet been supplied and read.
    */
   units: UnitDefinition[]
 }

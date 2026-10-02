@@ -5,9 +5,9 @@ import type { TableColumnSpec, TableRowSpec } from '@/data/curriculum/schema'
  * Assessment types.
  *
  * Question *shapes* and *evaluation* live here; rendering lives in
- * `QuestionView.tsx` and test orchestration in `FinalTestRunner.tsx`. No
- * question content is authored in the foundation phase — the textbook has not
- * been supplied yet.
+ * `QuestionView.tsx` and test orchestration in `FinalTestRunner.tsx`. Question
+ * content lives in lesson definitions and records whether it comes from the
+ * textbook or is a clearly labelled platform addition.
  */
 
 export type QuestionType =

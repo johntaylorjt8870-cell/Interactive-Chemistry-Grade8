@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { LessonShell } from '@/layouts/LessonShell'
 import { LessonOutline } from './LessonOutline'
@@ -6,6 +6,7 @@ import { getStepRenderer } from './stepRenderers'
 import { STEP_KIND_META } from './stepKinds'
 import { Drawer } from '@/components/Drawer'
 import { ArrowEndGlyph, ArrowStartGlyph, CheckGlyph, ListGlyph } from '@/components/Icons'
+import { ScientificNotationText } from '@/scientific'
 import { computeLessonProgress, useLessonProgress } from '@/data/progress'
 import type { LessonDefinition } from '@/data/curriculum/schema'
 
@@ -66,6 +67,8 @@ export function LessonFlow({
     return 0
   })
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [stepAnnouncement, setStepAnnouncement] = useState('')
+  const focusContentAfterDrawerClose = useRef(false)
 
   const { seenStepIds, markStepSeen, setCompleted } = useLessonProgress(lesson.id)
   const progress = useMemo(
@@ -88,16 +91,30 @@ export function LessonFlow({
     }
   }, [currentStep, currentIndex, lesson.id, markStepSeen])
 
+  useEffect(() => {
+    if (drawerOpen || !focusContentAfterDrawerClose.current) return
+    focusContentAfterDrawerClose.current = false
+    if (typeof document !== 'undefined') {
+      document.getElementById('lesson-content')?.focus?.()
+    }
+  }, [currentIndex, drawerOpen])
+
   const goTo = useCallback(
     (index: number) => {
       if (index < 0 || index >= total) return
+      const nextStep = lesson.steps[index]
+      if (index !== currentIndex && nextStep) {
+        setStepAnnouncement(`الخطوة ${index + 1} من ${total}: ${nextStep.title}`)
+      }
       setCurrentIndex(index)
-      setDrawerOpen(false)
-      if (typeof document !== 'undefined') {
+      if (drawerOpen) {
+        focusContentAfterDrawerClose.current = true
+        setDrawerOpen(false)
+      } else if (typeof document !== 'undefined') {
         document.getElementById('lesson-content')?.focus?.()
       }
     },
-    [total],
+    [currentIndex, drawerOpen, lesson.steps, total],
   )
 
   const handleFinish = useCallback(() => {
@@ -122,6 +139,9 @@ export function LessonFlow({
 
   return (
     <>
+      <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        {stepAnnouncement ? <ScientificNotationText>{stepAnnouncement}</ScientificNotationText> : null}
+      </p>
       <LessonShell
         breadcrumb={breadcrumb}
         title={lesson.title}
@@ -150,6 +170,7 @@ export function LessonFlow({
             className="button button--quiet"
             onClick={() => setDrawerOpen(true)}
             aria-haspopup="dialog"
+            aria-expanded={drawerOpen}
           >
             <ListGlyph size={18} />
             <span>خطوات الدرس</span>

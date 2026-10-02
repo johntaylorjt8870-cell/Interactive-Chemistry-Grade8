@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { DiagramDefs, ScientificValue } from '@/scientific'
+import { useDebouncedLiveAnnouncement } from '@/hooks/useDebouncedLiveAnnouncement'
+import { DiagramDefs, ScientificNotationText, ScientificValue } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -26,6 +27,10 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
   const magnitude = mode === 'axes' ? force : weight
   const along = mode === 'axes' ? force * Math.cos(rad(theta)) : weight * Math.sin(rad(incline))
   const perp = mode === 'axes' ? force * Math.sin(rad(theta)) : weight * Math.cos(rad(incline))
+  const liveSummary = mode === 'axes'
+    ? `تحليل على المحورين: القوة ${force} N بزاوية ${theta}°؛ المركبتان ${along.toFixed(1)} N و${perp.toFixed(1)} N.`
+    : `المستوي المائل: الثقل ${weight} N عند زاوية ${incline}°؛ المركبتان الموازية والشاقولية ${along.toFixed(1)} N و${perp.toFixed(1)} N.`
+  const { announcement, requestAnnouncement } = useDebouncedLiveAnnouncement(liveSummary)
 
   const s = 16
   const a = rad(angle)
@@ -45,10 +50,10 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
           <h3 id="force-components-lab-title">قوّة واحدة تُستبدل بمركّبتين متعامدتين</h3>
         </div>
         <div className="covalent-bond-lab__views" role="group" aria-label="اختر وضع العرض">
-          <button type="button" className="button button--quiet" aria-pressed={mode === 'axes'} onClick={() => setMode('axes')}>
+          <button type="button" className="button button--quiet" aria-pressed={mode === 'axes'} onClick={() => { setMode('axes'); requestAnnouncement() }}>
             تحليل قوّة على محورين
           </button>
-          <button type="button" className="button button--quiet" aria-pressed={mode === 'incline'} onClick={() => setMode('incline')}>
+          <button type="button" className="button button--quiet" aria-pressed={mode === 'incline'} onClick={() => { setMode('incline'); requestAnnouncement() }}>
             المستوي المائل (نشاط الصفحة 60)
           </button>
         </div>
@@ -60,13 +65,13 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
             <span>
               شدّة القوّة F <ScientificValue value={force} unit="N" size="sm" />
             </span>
-            <input type="range" min={2} max={10} step={1} value={force} onChange={(event) => setForce(Number(event.target.value))} aria-label="شدّة القوّة نيوتن" />
+            <input type="range" min={2} max={10} step={1} value={force} onChange={(event) => { setForce(Number(event.target.value)); requestAnnouncement() }} aria-label="شدّة القوّة نيوتن" aria-valuetext={`${force} نيوتن`} />
           </label>
           <label className="lab__range">
             <span>
               زاوية F مع المحور الأفقي <ScientificValue value={theta} unit="°" size="sm" />
             </span>
-            <input type="range" min={10} max={80} step={5} value={theta} onChange={(event) => setTheta(Number(event.target.value))} aria-label="زاوية القوّة مع المحور الأفقي بالدرجات" />
+            <input type="range" min={10} max={80} step={5} value={theta} onChange={(event) => { setTheta(Number(event.target.value)); requestAnnouncement() }} aria-label="زاوية القوّة مع المحور الأفقي بالدرجات" aria-valuetext={`${theta} درجة`} />
           </label>
         </div>
       ) : (
@@ -75,13 +80,13 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
             <span>
               زاوية الميل a <ScientificValue value={incline} unit="°" size="sm" />
             </span>
-            <input type="range" min={5} max={60} step={5} value={incline} onChange={(event) => setIncline(Number(event.target.value))} aria-label="زاوية ميل المستوي بالدرجات" />
+            <input type="range" min={5} max={60} step={5} value={incline} onChange={(event) => { setIncline(Number(event.target.value)); requestAnnouncement() }} aria-label="زاوية ميل المستوي بالدرجات" aria-valuetext={`${incline} درجة`} />
           </label>
           <label className="lab__range">
             <span>
               ثقل الجسم w <ScientificValue value={weight} unit="N" size="sm" />
             </span>
-            <input type="range" min={2} max={10} step={1} value={weight} onChange={(event) => setWeight(Number(event.target.value))} aria-label="ثقل الجسم نيوتن" />
+            <input type="range" min={2} max={10} step={1} value={weight} onChange={(event) => { setWeight(Number(event.target.value)); requestAnnouncement() }} aria-label="ثقل الجسم نيوتن" aria-valuetext={`${weight} نيوتن`} />
           </label>
         </div>
       )}
@@ -113,7 +118,11 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
         </div>
       </div>
 
-      <p className="lab__conclusion" aria-live="polite">
+      <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        <ScientificNotationText as="span">{announcement}</ScientificNotationText>
+      </p>
+
+      <p className="lab__conclusion">
         <strong>الاستنتاج:</strong> المركّبتان المتعامدتان تقومان معاً مقام القوّة الأصلية، وعملية التحليل معاكسة لعملية إيجاد
         المحصّلة. على المستوي المائل يكون الشكل الناتج مستطيلاً: مركّبة توازي المستوي وأخرى تعامده، ومجموعهما الهندسي يعيد
         الثقل نفسه.
@@ -151,7 +160,8 @@ function AxesFigure({ force, theta, along, perp, scale }: { force: number; theta
 }
 
 function InclineFigure({ angle, weight, along, perp, scale, a }: { angle: number; weight: number; along: number; perp: number; scale: number; a: number }) {
-  const base = { x: 40, y: 260 }
+  // Keep the point of application inside the viewBox as the slope angle changes.
+  const base = { x: 40, y: 120 + 180 * Math.sin(a) }
   const upSlope = { x: Math.cos(a), y: -Math.sin(a) }
   const slopeEnd = { x: base.x + 300 * upSlope.x, y: base.y + 300 * upSlope.y }
   const body = { x: base.x + 180 * upSlope.x, y: base.y + 180 * upSlope.y }

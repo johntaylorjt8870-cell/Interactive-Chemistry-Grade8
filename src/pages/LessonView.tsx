@@ -23,8 +23,8 @@ import { NotFound } from './NotFound'
  * LessonShell → LessonOutline → LessonFlow → one LessonStep at a time, with
  * lazily loaded interactives and assessment hosts wired in.
  *
- * When it does not (today, because the textbook pages have not been supplied)
- * the page shows an explicit pending state — never a fabricated lesson.
+ * When a requested lesson is not registered, the page shows an explicit
+ * pending state — never a fabricated lesson.
  */
 export function LessonView() {
   const { subject, unitSlug, lessonSlug } = useParams<{

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { DiagramDefs, MathFormula, ScientificValue } from '@/scientific'
+import { useDebouncedLiveAnnouncement } from '@/hooks/useDebouncedLiveAnnouncement'
+import { DiagramDefs, MathFormula, ScientificNotationText, ScientificValue } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -33,7 +34,8 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
     const perCm = scaleFor(Math.max(f1, f2, resultant))
     const pxPerCm = 26
     const s = pxPerCm / perCm
-    const O = { x: 70, y: 250 }
+    // Keep enough margin on both sides for the full 15°–165° angle range.
+    const O = { x: 200, y: 250 }
     const u1 = { x: Math.cos(rad(angle)), y: -Math.sin(rad(angle)) }
     const u2 = { x: 1, y: 0 }
     const P1 = { x: O.x + f1 * s * u1.x, y: O.y + f1 * s * u1.y }
@@ -44,6 +46,8 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
 
   const { resultant, direction, perCm, O, P1, P2, M } = geometry
   const rightAngle = angle === 90
+  const liveSummary = `القوة الأولى ${f1} N، والقوة الثانية ${f2} N، والزاوية ${angle}°، والمحصلة ${resultant.toFixed(1)} N، واتجاهها ${direction.toFixed(1)}°.`
+  const { announcement, requestAnnouncement } = useDebouncedLiveAnnouncement(liveSummary)
   const advance = () => setStage((current) => (reducedMotion ? 2 : Math.min(current + 1, 2)))
 
   return (
@@ -76,19 +80,19 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
           <span>
             شدّة القوّة الأولى <ScientificValue value={f1} unit="N" size="sm" />
           </span>
-          <input type="range" min={1} max={100} step={1} value={f1} onChange={(event) => { setF1(Number(event.target.value)); setStage(2) }} aria-label="شدّة القوّة الأولى نيوتن" />
+          <input type="range" min={1} max={100} step={1} value={f1} onChange={(event) => { setF1(Number(event.target.value)); setStage(2); requestAnnouncement() }} aria-label="شدّة القوّة الأولى نيوتن" aria-valuetext={`${f1} نيوتن`} />
         </label>
         <label className="lab__range">
           <span>
             شدّة القوّة الثانية <ScientificValue value={f2} unit="N" size="sm" />
           </span>
-          <input type="range" min={1} max={100} step={1} value={f2} onChange={(event) => { setF2(Number(event.target.value)); setStage(2) }} aria-label="شدّة القوّة الثانية نيوتن" />
+          <input type="range" min={1} max={100} step={1} value={f2} onChange={(event) => { setF2(Number(event.target.value)); setStage(2); requestAnnouncement() }} aria-label="شدّة القوّة الثانية نيوتن" aria-valuetext={`${f2} نيوتن`} />
         </label>
         <label className="lab__range">
           <span>
             الزاوية بين الحاملين <ScientificValue value={angle} unit="°" size="sm" />
           </span>
-          <input type="range" min={15} max={165} step={15} value={angle} onChange={(event) => { setAngle(Number(event.target.value)); setStage(2) }} aria-label="الزاوية بين حاملي القوتين بالدرجات" />
+          <input type="range" min={15} max={165} step={15} value={angle} onChange={(event) => { setAngle(Number(event.target.value)); setStage(2); requestAnnouncement() }} aria-label="الزاوية بين حاملي القوتين بالدرجات" aria-valuetext={`${angle} درجة`} />
         </label>
       </div>
 
@@ -164,7 +168,11 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
         </div>
       ) : null}
 
-      <p className="lab__conclusion" aria-live="polite">
+      <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        <ScientificNotationText as="span">{announcement}</ScientificNotationText>
+      </p>
+
+      <p className="lab__conclusion">
         <strong>الاستنتاج:</strong> المحصّلة قوّة وحيدة تحل محل القوّتين معاً: حاملها قطر متوازي الأضلاع المارّ من نقطة
         تلاقيهما، وجهتها من O إلى الرأس المقابل M، وشدّتها تُمثَّل بطول القطر. جرّب زاوية 90° لتظهر حالة المستطيل وقانون
         فيتاغورث، ولاحظ: كلما اتسعت الزاوية عن 90° قلت المحصّلة عند ثبات الشدّتين.

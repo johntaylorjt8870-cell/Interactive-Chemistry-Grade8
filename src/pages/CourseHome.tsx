@@ -13,10 +13,9 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 /**
  * CourseHome — the entrance to the platform.
  *
- * It communicates exactly what exists today: one book, two subject tracks, a
- * verified rendering foundation, and a clear statement that curriculum content
- * arrives with the textbook pages. No unit, lesson, topic or statistic is
- * invented to make the page look fuller.
+ * It communicates the current curriculum totals and the source policy for both
+ * subject tracks. Only verified units, lessons, topics, and statistics appear;
+ * unpublished future content is never invented to make the page look fuller.
  */
 export function CourseHome() {
   useDocumentTitle('منصة الفيزياء والكيمياء — الصف الثامن')
@@ -74,7 +73,7 @@ export function CourseHome() {
               <HourglassGlyph size={16} />
               <span>
                 الوحدات المنشورة حتى الآن: {stats.units} · الدروس: {stats.lessons} · الخطوات:{' '}
-                {stats.steps} — المحتوى الدراسي يُضاف بعد قراءة صفحات الكتاب المدرسي.
+                {stats.steps} — الوحدات الجديدة لا تُنشر إلا بعد قراءة صفحات الكتاب المدرسي.
               </span>
             </p>
           </div>

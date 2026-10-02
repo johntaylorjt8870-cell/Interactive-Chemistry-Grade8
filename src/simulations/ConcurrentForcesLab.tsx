@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react'
-import { DiagramDefs, ScientificValue } from '@/scientific'
+import { useDebouncedLiveAnnouncement } from '@/hooks/useDebouncedLiveAnnouncement'
+import { DiagramDefs, ScientificNotationText, ScientificValue } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
-   مختبر القوى المتلاقية — إضافة من المنصة حول تجربة الصفحة 56
+   محاكاة تفاعلية من المنصة، مستلهمة من تجربة الصفحة 56
    ----------------------------------------------------------------------------
-   إعادة بناء رقمية لتجربة الكتاب: جسم معلّق بخطّافين عبر ربيعتين. الطالب
+   نموذج تعليمي للقوى في تجربة الجسم المعلّق بخطّافين عبر ربيعتين؛ لا يعيد إنتاج
+   رسم الكتاب. الطالب
    يغيّر زاويتي الربيعتين وثقل الجسم، ويقرأ شدّتي الشدّ، ويرى أنّ حوامل القوى
    الثلاث (بامتداداتها) تتلاقى في نقطة واحدة — وهو تعريف الكتاب للقوى المتلاقية.
    ========================================================================= */
@@ -26,12 +28,14 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
   }, [a1, a2, w])
 
   const O = { x: 240, y: 170 }
-  const springLen = 95
+  const pixelsPerNewton = 6
   const u1 = { x: Math.sin(rad(a1)), y: -Math.cos(rad(a1)) }
   const u2 = { x: -Math.sin(rad(a2)), y: -Math.cos(rad(a2)) }
-  const S1 = { x: O.x + springLen * u1.x, y: O.y + springLen * u1.y }
-  const S2 = { x: O.x + springLen * u2.x, y: O.y + springLen * u2.y }
-  const wLen = 26 + w * 7
+  const S1 = { x: O.x + state.t1 * pixelsPerNewton * u1.x, y: O.y + state.t1 * pixelsPerNewton * u1.y }
+  const S2 = { x: O.x + state.t2 * pixelsPerNewton * u2.x, y: O.y + state.t2 * pixelsPerNewton * u2.y }
+  const wLen = w * pixelsPerNewton
+  const liveSummary = `شدّة الشد الأولى ${state.t1.toFixed(1)} N، والثانية ${state.t2.toFixed(1)} N، وثقل الجسم ${w} N، والزاوية بين الربيعتين ${state.sum}°.`
+  const { announcement, requestAnnouncement } = useDebouncedLiveAnnouncement(liveSummary)
 
   return (
     <section
@@ -46,7 +50,7 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
     >
       <header className="lab__header">
         <div>
-          <p className="lab__phase">إضافة من المنصة · تجربة الصفحة 56 بشكل تفاعلي</p>
+          <p className="lab__phase">محاكاة تفاعلية من المنصة · مستلهمة من تجربة الصفحة 56</p>
           <h3 id="concurrent-forces-lab-title">أين تتلاقى حوامل القوى الثلاث؟</h3>
         </div>
         <label className="concurrent-forces-lab__toggle">
@@ -60,19 +64,19 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
           <span>
             ميل الربيعة الأولى عن الشاقول <ScientificValue value={a1} unit="°" size="sm" />
           </span>
-          <input type="range" min={10} max={80} step={5} value={a1} onChange={(event) => setA1(Number(event.target.value))} aria-label="ميل الربيعة الأولى عن الشاقول بالدرجات" />
+          <input type="range" min={10} max={80} step={5} value={a1} onChange={(event) => { setA1(Number(event.target.value)); requestAnnouncement() }} aria-label="ميل الربيعة الأولى عن الشاقول بالدرجات" aria-valuetext={`${a1} درجة`} />
         </label>
         <label className="lab__range">
           <span>
             ميل الربيعة الثانية عن الشاقول <ScientificValue value={a2} unit="°" size="sm" />
           </span>
-          <input type="range" min={10} max={80} step={5} value={a2} onChange={(event) => setA2(Number(event.target.value))} aria-label="ميل الربيعة الثانية عن الشاقول بالدرجات" />
+          <input type="range" min={10} max={80} step={5} value={a2} onChange={(event) => { setA2(Number(event.target.value)); requestAnnouncement() }} aria-label="ميل الربيعة الثانية عن الشاقول بالدرجات" aria-valuetext={`${a2} درجة`} />
         </label>
         <label className="lab__range">
           <span>
             ثقل الجسم المعلّق <ScientificValue value={w} unit="N" size="sm" />
           </span>
-          <input type="range" min={1} max={10} step={1} value={w} onChange={(event) => setW(Number(event.target.value))} aria-label="ثقل الجسم المعلق نيوتن" />
+          <input type="range" min={1} max={10} step={1} value={w} onChange={(event) => { setW(Number(event.target.value)); requestAnnouncement() }} aria-label="ثقل الجسم المعلق نيوتن" aria-valuetext={`${w} نيوتن`} />
         </label>
       </div>
 
@@ -91,10 +95,10 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
           <line x1={O.x} y1={O.y} x2={S2.x} y2={S2.y} className="vec-lab__force vec-lab__force--f2" markerEnd="url(#diagram-arrow)" />
           <text x={S1.x + 6} y={S1.y} className="vec-lab__label">F₁</text>
           <text x={S2.x - 20} y={S2.y} className="vec-lab__label">F₂</text>
-          {/* weight */}
+          {/* weight; draw its vector above the body so the scaled arrowhead stays visible */}
+          <rect x={O.x - 9} y={O.y + wLen * 0.45} width={18} height={14} className="concurrent-forces-lab__body" />
           <line x1={O.x} y1={O.y} x2={O.x} y2={O.y + wLen} className="vec-lab__force vec-lab__force--w" markerEnd="url(#diagram-arrow)" />
           <text x={O.x + 8} y={O.y + wLen} className="vec-lab__label">w</text>
-          <rect x={O.x - 9} y={O.y + wLen * 0.45} width={18} height={14} className="concurrent-forces-lab__body" />
           <circle cx={O.x} cy={O.y} r={5} className="vec-lab__point" data-meet="O" />
           <text x={O.x - 20} y={O.y + 4} className="vec-lab__label">O</text>
         </svg>
@@ -127,7 +131,11 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
         </div>
       </div>
 
-      <p className="lab__conclusion" aria-live="polite">
+      <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        <ScientificNotationText as="span">{announcement}</ScientificNotationText>
+      </p>
+
+      <p className="lab__conclusion">
         <strong>الاستنتاج:</strong> مهما غيّرت الزاويتين أو الثقل، تبقى حوامل القوى الثلاث (بامتداداتها المتقطعة) تتلاقى في
         نقطة واحدة هي نقطة التعليق O؛ لذلك تسمّى قوى متلاقية، والجسم يبقى ساكناً لأن محصّلتها صفر.
       </p>
