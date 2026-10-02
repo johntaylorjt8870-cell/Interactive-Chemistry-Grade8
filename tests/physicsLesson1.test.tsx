@@ -190,15 +190,133 @@ describe('force components interactive', () => {
     expect(Number(section.getAttribute('data-fy'))).toBeCloseTo(3.9, 0)
   })
 
-  it('switches to the inclined plane activity of page 60', async () => {
+  it('maps F₁⃗ to --f1 on the horizontal axis and F₂⃗ to --f2 on the vertical axis in axes mode', () => {
+    const { container } = render(
+      <div dir="rtl">
+        <ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />
+      </div>,
+    )
+    const f1Line = container.querySelector('svg line.vec-lab__force--f1')!
+    const f2Line = container.querySelector('svg line.vec-lab__force--f2')!
+    expect(f1Line).not.toBeNull()
+    expect(f2Line).not.toBeNull()
+
+    // F₁⃗ lies along the horizontal x-axis (constant y, advancing +x)
+    expect(Number(f1Line.getAttribute('y1'))).toBeCloseTo(Number(f1Line.getAttribute('y2')), 5)
+    expect(Number(f1Line.getAttribute('x2'))).toBeGreaterThan(Number(f1Line.getAttribute('x1')))
+
+    // F₂⃗ lies along the vertical y-axis (constant x, advancing -y upward)
+    expect(Number(f2Line.getAttribute('x1'))).toBeCloseTo(Number(f2Line.getAttribute('x2')), 5)
+    expect(Number(f2Line.getAttribute('y2'))).toBeLessThan(Number(f2Line.getAttribute('y1')))
+
+    const isolatedLabels = [...container.querySelectorAll('svg [dir="ltr"]')].map((el) => el.textContent ?? '')
+    expect(isolatedLabels).toContain('F₁⃗')
+    expect(isolatedLabels).toContain('F₂⃗')
+    expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
+  it('switches to the inclined plane activity of page 60 and renders the normal reaction force R⃗', async () => {
     const user = userEvent.setup()
-    const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+    const { container } = render(
+      <div dir="rtl">
+        <ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />
+      </div>,
+    )
     await user.click(screen.getByRole('button', { name: /المستوي المائل/ }))
     const section = container.querySelector('section')!
     expect(section).toHaveAttribute('data-mode', 'incline')
     // default 25°, w = 5 N: along = 5 sin25 ≈ 2.1, normal = 5 cos25 ≈ 4.5
     expect(Number(section.getAttribute('data-fx'))).toBeCloseTo(2.1, 0)
     expect(Number(section.getAttribute('data-fy'))).toBeCloseTo(4.5, 0)
+
+    const figure = container.querySelector<HTMLElement>('.force-components-lab__figure')!
+    const rLabel = within(figure).getByText('R⃗')
+    expect(rLabel.closest('[dir="ltr"]')).not.toBeNull()
+    expect(rLabel).toHaveAttribute('data-sci', 'isolated')
+    expect(strayScriptGlyphs(container)).toEqual([])
+
+    const rLine = container.querySelector('svg line[data-vector="R"]')!
+    const f1Line = container.querySelector('svg line.vec-lab__force--f1')!
+    const f2Line = container.querySelector('svg line.vec-lab__force--f2')!
+    expect(rLine).not.toBeNull()
+    expect(rLine).toHaveAttribute('marker-end', 'url(#diagram-arrow)')
+
+    const rDx = Number(rLine.getAttribute('x2')) - Number(rLine.getAttribute('x1'))
+    const rDy = Number(rLine.getAttribute('y2')) - Number(rLine.getAttribute('y1'))
+    const f1Dx = Number(f1Line.getAttribute('x2')) - Number(f1Line.getAttribute('x1'))
+    const f1Dy = Number(f1Line.getAttribute('y2')) - Number(f1Line.getAttribute('y1'))
+    const f2Dx = Number(f2Line.getAttribute('x2')) - Number(f2Line.getAttribute('x1'))
+    const f2Dy = Number(f2Line.getAttribute('y2')) - Number(f2Line.getAttribute('y1'))
+
+    // R⃗ points outward/upward from the inclined plane, perpendicular to F₁⃗ and opposite to F₂⃗
+    expect(rDy).toBeLessThan(0)
+    expect(rDx * f1Dx + rDy * f1Dy).toBeCloseTo(0, 3)
+    expect(rDx).toBeCloseTo(-f2Dx, 3)
+    expect(rDy).toBeCloseTo(-f2Dy, 3)
+  })
+
+  it('keeps all vectors, arrowheads, and labels within the SVG viewBox at extreme control values (including 5° and 10 N)', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+
+    const assertWithinViewBox = () => {
+      const svg = container.querySelector('svg')!
+      const [minX, minY, width, height] = svg
+        .getAttribute('viewBox')!
+        .split(/\s+/)
+        .map(Number)
+      const maxX = minX + width
+      const maxY = minY + height
+      const pad = 8
+
+      for (const line of svg.querySelectorAll('line')) {
+        for (const [xAttr, yAttr] of [
+          ['x1', 'y1'],
+          ['x2', 'y2'],
+        ] as const) {
+          const x = Number(line.getAttribute(xAttr))
+          const y = Number(line.getAttribute(yAttr))
+          expect(Number.isFinite(x)).toBe(true)
+          expect(Number.isFinite(y)).toBe(true)
+          expect(x).toBeGreaterThanOrEqual(minX + pad)
+          expect(x).toBeLessThanOrEqual(maxX - pad)
+          expect(y).toBeGreaterThanOrEqual(minY + pad)
+          expect(y).toBeLessThanOrEqual(maxY - pad)
+        }
+      }
+
+      for (const text of svg.querySelectorAll('text')) {
+        const x = Number(text.getAttribute('x'))
+        const y = Number(text.getAttribute('y'))
+        expect(Number.isFinite(x)).toBe(true)
+        expect(Number.isFinite(y)).toBe(true)
+        expect(x).toBeGreaterThanOrEqual(minX + pad)
+        expect(x).toBeLessThanOrEqual(maxX - pad)
+        expect(y).toBeGreaterThanOrEqual(minY + pad)
+        expect(y).toBeLessThanOrEqual(maxY - pad)
+      }
+    }
+
+    // Axes mode extremes
+    const [forceInput, thetaInput] = [...container.querySelectorAll('input[type="range"]')]
+    for (const force of ['2', '10']) {
+      for (const theta of ['10', '80']) {
+        fireEvent.change(forceInput!, { target: { value: force } })
+        fireEvent.change(thetaInput!, { target: { value: theta } })
+        assertWithinViewBox()
+      }
+    }
+
+    // Incline mode extremes (specifically angle 5° and weight 10 N, plus all corners)
+    await user.click(screen.getByRole('button', { name: /المستوي المائل/ }))
+    const [angleInput, weightInput] = [...container.querySelectorAll('input[type="range"]')]
+    for (const angle of ['5', '25', '60']) {
+      for (const weight of ['2', '5', '10']) {
+        fireEvent.change(angleInput!, { target: { value: angle } })
+        fireEvent.change(weightInput!, { target: { value: weight } })
+        assertWithinViewBox()
+      }
+    }
   })
 })
 
