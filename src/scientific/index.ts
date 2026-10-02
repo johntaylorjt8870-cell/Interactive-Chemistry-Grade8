@@ -26,7 +26,7 @@ export type { SciProps, ScientificTextProps, SciVariant, ScriptProps } from './S
 export { ElectronConfiguration } from './ElectronConfiguration'
 export type { ElectronConfigurationProps, ElectronConfigurationSize } from './ElectronConfiguration'
 
-export { ScientificNotationText } from './ScientificNotationText'
+export { ScientificNotationText, parseCompactFormulaNotation, parseCompactIonNotation } from './ScientificNotationText'
 export type { ScientificNotationTextProps } from './ScientificNotationText'
 
 export { MathFormula, EquationRow } from './MathFormula'

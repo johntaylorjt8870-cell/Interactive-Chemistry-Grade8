@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
 import { readFileSync } from 'node:fs'
 import { getLesson } from '@/data/curriculum/registry'
+import { ContentBlocks } from '@/lessons/ContentBlocks'
+import { strayScriptGlyphs } from './utils/strayGlyphs'
 import { chemistryLesson2, bookQuestions, bookActivitySolutions, finalTest } from '@/data/curriculum/chemistryLesson2'
 import { validateLesson } from '@/data/sourceFidelity'
 import { LewisMolecule } from '@/scientific/LewisMolecule'
@@ -382,6 +384,55 @@ describe('platform additions are labelled', () => {
       if (step.kind === 'source' || step.kind === 'activity' || step.kind === 'question') {
         expect(['textbook', 'mixed'], step.id).toContain(step.attribution)
       }
+    }
+  })
+})
+
+describe('regression — inline notation inside Lesson 2 prose renders structurally', () => {
+  const renderStepBlocks = (stepId: string) => {
+    const step = chemistryLesson2.steps.find((candidate) => candidate.id === stepId)
+    expect(step, stepId).toBeDefined()
+    const blocks = step!.blocks.filter((block) => block.kind !== 'interactive' && block.kind !== 'question')
+    return render(
+      <div dir="rtl">
+        <ContentBlocks blocks={blocks} />
+      </div>,
+    )
+  }
+
+  it('promotes Na⁺ and Cl⁻ inside the page-14 bullet list to ion DOM', () => {
+    const { container } = renderStepBlocks('bond-definition')
+    const ions = [...container.querySelectorAll('.ion-notation')].map((el) => el.getAttribute('data-ion'))
+    expect(ions).toContain('Na+')
+    expect(ions).toContain('Cl\u2212')
+    expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
+  it('promotes every nuclide in the page-16 «حيث» verbatim line', () => {
+    const step = chemistryLesson2.steps.find((candidate) =>
+      JSON.stringify(candidate.blocks).includes('حيث:'),
+    )
+    expect(step).toBeDefined()
+    const { container } = render(
+      <div dir="rtl">
+        <ContentBlocks blocks={step!.blocks} />
+      </div>,
+    )
+    expect(container.querySelectorAll('.nuclear-notation')).toHaveLength(7)
+    expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
+  it('leaves no subscript or charge glyph floating in RTL prose in ANY Lesson 2 step', () => {
+    for (const step of chemistryLesson2.steps) {
+      const blocks = step.blocks.filter((block) => block.kind !== 'interactive' && block.kind !== 'question')
+      if (blocks.length === 0) continue
+      const { container } = render(
+        <div dir="rtl">
+          <ContentBlocks blocks={blocks} />
+        </div>,
+      )
+      expect(strayScriptGlyphs(container), step.id).toEqual([])
+      container.remove()
     }
   })
 })

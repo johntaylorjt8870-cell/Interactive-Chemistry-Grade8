@@ -1,3 +1,4 @@
+import { ScientificNotationText } from '@/scientific'
 import { Suspense, lazy, useMemo } from 'react'
 import type { ComponentType } from 'react'
 import { getInteractive, type InteractiveProps } from '@/simulations/registry'
@@ -50,7 +51,11 @@ export function InteractiveHost({ interactiveId, caption }: InteractiveHostProps
       >
         <LazyModule interactiveId={interactiveId} reducedMotion={reducedMotion} />
       </Suspense>
-      {caption ? <p className="interactive-host__caption">{caption}</p> : null}
+      {caption ? (
+        <p className="interactive-host__caption">
+          <ScientificNotationText as="span">{caption}</ScientificNotationText>
+        </p>
+      ) : null}
     </div>
   )
 }
