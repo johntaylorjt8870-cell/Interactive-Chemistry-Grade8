@@ -207,7 +207,9 @@ export function VectorArrow({
         y1={y1}
         x2={geometry.shaft.x2}
         y2={geometry.shaft.y2}
-        {...(strokeWidth !== undefined ? { strokeWidth } : {})}
+        // inline style as well as the attribute: the role stylesheet sets a default
+        // stroke-width, and a stylesheet rule outranks a presentation attribute.
+        {...(strokeWidth !== undefined ? { strokeWidth, style: { strokeWidth } } : {})}
       />
       <path className="diagram-vector__head" d={geometry.head} />
       {children}

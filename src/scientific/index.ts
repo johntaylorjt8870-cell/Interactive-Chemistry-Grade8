@@ -34,6 +34,8 @@ export { MathFormula, EquationRow } from './MathFormula'
 export type { MathFormulaProps, EquationRowProps } from './MathFormula'
 
 export { VectorNotation, VectorSvgLabel } from './VectorNotation'
+export { SvgText, quantityText, textAnchorFor } from './SvgText'
+export type { SvgTextProps, SvgTextAlign } from './SvgText'
 export type { VectorNotationProps, VectorSvgLabelProps, VectorTone } from './VectorNotation'
 
 export { ChemicalFormula, ChemicalEquation } from './ChemicalFormula'

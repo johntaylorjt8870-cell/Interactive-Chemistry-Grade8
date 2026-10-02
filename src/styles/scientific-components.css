@@ -503,6 +503,12 @@
   color: inherit;
 }
 
+/* An angle sign belongs to its number: 60°, not 60 ° (every other unit keeps
+   its gap: 5 kg, 25 °C). */
+.sci-value.sci-value--angle {
+  gap: 0;
+}
+
 .sci-value--sm {
   font-size: var(--fs-sm);
 }
@@ -744,6 +750,7 @@
 .vector-notation--weight { color: var(--vec-weight); }
 .vector-notation--component1 { color: var(--vec-component1); }
 .vector-notation--component2 { color: var(--vec-component2); }
+.vector-notation--reaction { color: var(--vec-on-diagram); }
 .vector-notation--neutral { color: var(--vec-on-diagram); }
 
 .vector-notation__magnitude {
@@ -755,34 +762,51 @@
   color: var(--text-secondary);
 }
 
-/* --- SVG vector labels (VectorSvgLabel) --------------------------------- */
+/* --- SVG vector labels (VectorSvgLabel) ---------------------------------
+   Size comes from the `fontSize` attribute (viewBox units), so the shorthand
+   `font` is deliberately not used here. The symbol uses KaTeX's own math
+   italic, the same face the arrow accent was measured for. -------------- */
 
-.vec-svg-label__symbol {
-  font: italic 700 15px var(--font-science);
+.vec-svg-label__symbol,
+.vec-svg-label__sub,
+.vec-svg-label__prime {
+  font-family: KaTeX_Math, 'STIX Two Math', var(--font-science);
+  font-style: italic;
+  font-weight: 400;
   fill: var(--vec-on-diagram);
+  paint-order: stroke fill;
+  stroke: var(--plab-halo, var(--surface-raised));
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 .vec-svg-label__sub {
-  font: italic 700 11px var(--font-science);
-}
-
-.vec-svg-label__prime {
-  font: italic 700 13px var(--font-science);
+  font-family: KaTeX_Main, var(--font-science);
+  font-style: normal;
 }
 
 .vec-svg-label__accent line {
   stroke: currentColor;
-  stroke-width: 2.2;
+  stroke-width: 1.5;
   stroke-linecap: round;
 }
 
 .vec-svg-label__accent path {
   fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 0.6;
+  stroke-linejoin: round;
 }
 
 .vec-svg-label__magnitude {
-  font: 600 11px var(--font-latin);
-  fill: var(--text-muted);
+  font-family: var(--font-latin);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  fill: var(--text-secondary);
+  paint-order: stroke fill;
+  stroke: var(--plab-halo, var(--surface-raised));
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 .vec-svg-label--force1 { color: var(--vec-force1); }
@@ -791,14 +815,48 @@
 .vec-svg-label--weight { color: var(--vec-weight); }
 .vec-svg-label--component1 { color: var(--vec-component1); }
 .vec-svg-label--component2 { color: var(--vec-component2); }
+.vec-svg-label--reaction { color: var(--vec-on-diagram); }
 .vec-svg-label--neutral { color: var(--vec-on-diagram); }
 
-.vec-svg-label--force1 .vec-svg-label__symbol { fill: var(--vec-force1); }
-.vec-svg-label--force2 .vec-svg-label__symbol { fill: var(--vec-force2); }
-.vec-svg-label--resultant .vec-svg-label__symbol { fill: var(--vec-resultant); }
-.vec-svg-label--weight .vec-svg-label__symbol { fill: var(--vec-weight); }
-.vec-svg-label--component1 .vec-svg-label__symbol { fill: var(--vec-component1); }
-.vec-svg-label--component2 .vec-svg-label__symbol { fill: var(--vec-component2); }
+.vec-svg-label--force1 :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-force1); }
+.vec-svg-label--force2 :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-force2); }
+.vec-svg-label--resultant :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-resultant); }
+.vec-svg-label--weight :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-weight); }
+.vec-svg-label--component1 :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-component1); }
+.vec-svg-label--component2 :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-component2); }
+
+/* --- Direction-safe SVG text (SvgText) ------------------------------------ */
+
+.svg-text {
+  font-family: var(--font-latin);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  fill: var(--text-secondary);
+}
+
+.svg-text--ar {
+  font-family: var(--font-arabic);
+  font-weight: 600;
+}
+
+.svg-text--muted { fill: var(--text-muted); }
+.svg-text--strong { fill: var(--text-strong); }
+.svg-text--angle { fill: var(--vec-angle); }
+.svg-text--point {
+  font-family: KaTeX_Math, 'STIX Two Math', var(--font-science);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 17px;
+  fill: var(--vec-on-diagram);
+}
+
+.svg-text--halo {
+  paint-order: stroke fill;
+  stroke: var(--plab-halo, var(--surface-raised));
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
 
 /* --- SVG force vectors (VectorArrow / DiagramVector) --------------------- */
 
@@ -824,7 +882,7 @@
 .diagram-vector--weight { color: var(--vec-weight); }
 .diagram-vector--component1 { color: var(--vec-component1); }
 .diagram-vector--component2 { color: var(--vec-component2); }
-.diagram-vector--reaction { color: var(--vec-resultant); }
+.diagram-vector--reaction { color: var(--vec-on-diagram); }
 .diagram-vector--construction { color: var(--vec-construction); }
 .diagram-vector--neutral { color: var(--vec-on-diagram); }
 

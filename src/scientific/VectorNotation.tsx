@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { ElementType } from 'react'
 import { MathFormula } from './MathFormula'
 import { parseVectorToken } from '@/utils/vectorText'
+import { accentHeadPath, vectorLabelGeometry } from '@/utils/vectorGeometry'
 
 /* ============================================================================
    VectorNotation — the platform's vector-symbol renderer.
@@ -20,7 +21,7 @@ import { parseVectorToken } from '@/utils/vectorText'
    captions and equations.
    ========================================================================= */
 
-export type VectorTone = 'force1' | 'force2' | 'resultant' | 'weight' | 'component1' | 'component2' | 'neutral'
+export type VectorTone = 'force1' | 'force2' | 'resultant' | 'weight' | 'component1' | 'component2' | 'reaction' | 'neutral'
 
 export type VectorNotationProps = {
   /** Raw textbook token, e.g. `F₁⃗`. When given, parts below are ignored. */
@@ -122,10 +123,16 @@ export function VectorNotation({
 /* ============================================================================
    VectorSvgLabel — the same notation inside SVG diagrams.
    ----------------------------------------------------------------------------
-   Diagram labels are coordinate-positioned (not bidi-flowed), so the arrow is
-   drawn as real SVG geometry above the symbol: a shaft line plus an arrowhead
-   path. The symbol is italic math serif, the subscript is a real smaller
-   <tspan>, and every label is one inspectable <g data-vector-label>.
+   SVG labels are coordinate-positioned, not bidi-flowed, so the arrow is drawn
+   as real SVG geometry (a shaft line plus a filled arrowhead) centred over the
+   symbol. Its position is computed from KaTeX's own glyph metrics
+   (`vectorLabelGeometry`), so the arrow sits over its letter exactly like
+   the \vec accent in prose — no text measuring, no hand-tuned pixel offsets.
+
+   Every text element is explicitly `direction: ltr` and left-anchored: an
+   inherited RTL direction used to flip `text-anchor` and push the symbol away
+   from its arrow. `anchor` is therefore always *visual* (left / middle /
+   right) whatever the page direction.
    ========================================================================= */
 
 export type VectorSvgLabelProps = {
@@ -135,23 +142,31 @@ export type VectorSvgLabelProps = {
   subscript?: string
   prime?: boolean
   tone?: VectorTone
-  /** `start` (default) draws the label to the right of (x, y), `middle` centres. */
+  /** Which part of the label sits at (x, y): left edge, centre or right edge. */
   anchor?: 'start' | 'middle' | 'end'
   /** Optional magnitude rendered under the label, e.g. `4 N`. */
   magnitude?: string
+  /** Size of the symbol in viewBox units (default 17). */
+  fontSize?: number
 }
 
-/** Geometry of the arrow accent above an SVG vector label. */
-function accentGeometry(symbol: string) {
-  const half = 5 + 4.4 * symbol.length
-  return { half, y: -12 }
-}
+export function VectorSvgLabel({
+  x,
+  y,
+  symbol,
+  subscript,
+  prime,
+  tone = 'neutral',
+  anchor = 'start',
+  magnitude,
+  fontSize = 17,
+}: VectorSvgLabelProps) {
+  const geometry = vectorLabelGeometry(symbol, { subscript, prime, fontSize })
+  const left = Math.min(0, geometry.accent.x1)
+  const shift = (anchor === 'middle' ? -geometry.width / 2 : anchor === 'end' ? -geometry.width : 0) - left
+  const accessibleName = `المتجه ${symbol}${subscript ?? ''}${prime ? '′' : ''}`
+  const accentEnd = geometry.accent.x2 - geometry.accent.headLength * 0.85
 
-export function VectorSvgLabel({ x, y, symbol, subscript, prime, tone = 'neutral', anchor = 'start', magnitude }: VectorSvgLabelProps) {
-  const { half, y: accentY } = accentGeometry(symbol)
-  const head = 3.2
-  // Keep the accent centred over the symbol for every text anchor.
-  const accentShift = anchor === 'middle' ? 0 : anchor === 'end' ? -half : half
   return (
     <g
       transform={`translate(${x} ${y})`}
@@ -159,24 +174,43 @@ export function VectorSvgLabel({ x, y, symbol, subscript, prime, tone = 'neutral
       data-vector-label={symbol}
       data-vector-subscript={subscript ?? ''}
       data-has-arrow="true"
-      textAnchor={anchor === 'middle' ? 'middle' : anchor === 'end' ? 'end' : 'start'}
+      role="img"
+      aria-label={accessibleName}
     >
       {/* arrow accent: real shaft + real arrowhead, never a text glyph */}
-      <g className="vec-svg-label__accent" aria-hidden="true" transform={`translate(${accentShift} 0)`}>
-        <line x1={-half} y1={accentY} x2={half - 0.6} y2={accentY} />
-        <path d={`M ${half} ${accentY} L ${half - head * 1.9} ${accentY - head} L ${half - head * 1.9} ${accentY + head} Z`} />
+      <g className="vec-svg-label__accent" aria-hidden="true" transform={`translate(${shift} 0)`}>
+        <line x1={geometry.accent.x1} y1={geometry.accent.y} x2={accentEnd} y2={geometry.accent.y} />
+        <path d={accentHeadPath(geometry.accent)} />
       </g>
-      <text className="vec-svg-label__symbol">
+      <text className="vec-svg-label__symbol" x={shift} y={0} fontSize={fontSize} textAnchor="start" direction="ltr">
         {symbol}
-        {subscript ? (
-          <tspan className="vec-svg-label__sub" dx="0.5">
-            {subscript}
-          </tspan>
-        ) : null}
-        {prime ? <tspan className="vec-svg-label__prime">′</tspan> : null}
       </text>
+      {geometry.sub ? (
+        <text
+          className="vec-svg-label__sub"
+          x={shift + geometry.sub.x}
+          y={geometry.sub.y}
+          fontSize={geometry.sub.fontSize}
+          textAnchor="start"
+          direction="ltr"
+        >
+          {subscript}
+        </text>
+      ) : null}
+      {geometry.prime ? (
+        <text className="vec-svg-label__prime" x={shift + geometry.prime.x} y={0} fontSize={fontSize} textAnchor="start" direction="ltr">
+          ′
+        </text>
+      ) : null}
       {magnitude ? (
-        <text className="vec-svg-label__magnitude" y={13}>
+        <text
+          className="vec-svg-label__magnitude"
+          x={shift + left + geometry.width / 2}
+          y={fontSize * 1.12}
+          fontSize={fontSize * 0.74}
+          textAnchor="middle"
+          direction="ltr"
+        >
           {magnitude}
         </text>
       ) : null}
