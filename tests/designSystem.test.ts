@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { readProjectFile } from './utils/projectFiles'
 
@@ -65,6 +66,53 @@ describe('design tokens', () => {
     expect(dark['--surface-base']).toBeDefined()
     expect(light['--surface-base']).not.toBe(dark['--surface-base'])
     expect(light['--text-strong']).not.toBe(dark['--text-strong'])
+  })
+})
+
+/**
+ * Regression — Physics lesson 1 `ForceComponentsLab`.
+ *
+ * The lab consumes the shared `.lab*` primitives and the `.vec-lab__label`
+ * vector label. Those styles once referenced four custom properties the token
+ * layer never defined (`--space-7`, `--text-xl`, `--text-sm`, `--font-science`),
+ * so every affected declaration was invalid at computed-value time. The lab now
+ * consumes the central scale (`--fs-xl`, `--fs-sm`, `--font-latin`) plus the
+ * `--space-7` step added to the spacing scale, and this contract keeps it so.
+ */
+const DEFINED_TOKENS = [...tokens.matchAll(/(--[a-z0-9-]+)\s*:/gi)].map((match) => match[1])
+const LAB_TOKENS = ['--space-7', '--fs-xl', '--fs-sm', '--font-latin']
+const RETIRED_TOKEN_NAMES = ['--text-xl', '--text-sm', '--font-science']
+
+describe('physics lesson 1 lab token resolution', () => {
+  it('defines every token the lab styles consume', () => {
+    for (const token of LAB_TOKENS) {
+      expect(DEFINED_TOKENS, `undefined token ${token}`).toContain(token)
+    }
+  })
+
+  it('leaves no reference to the retired token names in any stylesheet', () => {
+    const stylesheets = readdirSync('src/styles')
+      .filter((name) => name.endsWith('.css'))
+      .map((name) => readProjectFile(`src/styles/${name}`))
+
+    for (const css of stylesheets) {
+      for (const token of RETIRED_TOKEN_NAMES) {
+        expect(css, `stale reference to var(${token})`).not.toContain(`var(${token})`)
+      }
+    }
+  })
+
+  it('keeps the lab declarations that consume those tokens', () => {
+    expect(declarations(components, '.lab')['padding']).toContain('var(--space-7)')
+    expect(declarations(components, '.lab__header h3')['font-size']).toBe('var(--fs-xl)')
+    expect(declarations(components, '.lab__phase')['font-size']).toBe('var(--fs-sm)')
+    expect(declarations(components, '.lab__measurements span')['font-size']).toBe('var(--fs-sm)')
+
+    const measurement = declarations(components, '.lab__measurements strong')
+    expect(measurement['font']).toContain('var(--fs-xl)')
+    expect(measurement['font']).toContain('var(--font-latin)')
+
+    expect(declarations(components, '.vec-lab__label')['font']).toContain('var(--font-latin)')
   })
 })
 
