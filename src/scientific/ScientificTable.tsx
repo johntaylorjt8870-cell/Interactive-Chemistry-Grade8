@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { ScientificNotationText } from './ScientificNotationText'
 
 export type TableAlign = 'start' | 'center' | 'end'
 
@@ -78,7 +79,9 @@ export function ScientificTable({
         data-rows={String(rows.length)}
         data-columns={String(columns.length)}
       >
-        <caption className={hideCaption ? 'visually-hidden' : 'sci-table__caption'}>{caption}</caption>
+        <caption className={hideCaption ? 'visually-hidden' : 'sci-table__caption'}>
+          <ScientificNotationText as="span">{caption}</ScientificNotationText>
+        </caption>
         <colgroup>
           {columns.map((column) => (
             <col key={column.key} style={column.width ? { width: column.width } : undefined} />

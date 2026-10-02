@@ -8,6 +8,7 @@ import {
   type UnitDefinition,
 } from './schema'
 import { chemistryLesson1 } from './chemistryLesson1'
+import { chemistryLesson2 } from './chemistryLesson2'
 
 /* ============================================================================
    Curriculum registry
@@ -57,8 +58,8 @@ const CHEMISTRY: SubjectDefinition = {
       title: 'الوحدة الأولى — الكيمياء البنيوية',
       order: 1,
       status: 'source-verified',
-      source: { pages: Array.from({ length: 10 }, (_, index) => ({ page: String(index + 3) })), verified: true },
-      lessons: [chemistryLesson1],
+      source: { pages: Array.from({ length: 15 }, (_, index) => ({ page: String(index + 3) })), verified: true },
+      lessons: [chemistryLesson1, chemistryLesson2],
     },
   ],
 }

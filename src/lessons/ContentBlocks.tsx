@@ -3,7 +3,9 @@ import {
   ChemicalEquation,
   ChemicalFormula,
   ElectronConfiguration,
+  IonicTransferDiagram,
   IonNotation,
+  LewisMolecule,
   LewisStructure,
   MathFormula,
   NuclearNotation,
@@ -11,8 +13,8 @@ import {
   Sci,
   ScientificDiagram,
   ScientificNotationText,
+  parseCompactFormulaNotation,
   ScientificTable,
-  ScientificText,
   ScientificValue,
   TextbookSource,
 } from '@/scientific'
@@ -65,9 +67,9 @@ function Block({
       return (
         <TextbookSource page={block.source.page} item={block.source.item}>
           <p className="textbook-source__text">
-            <ScientificText as="span" scienceVariant="textual">
+            <ScientificNotationText as="span" scienceVariant="textual">
               {block.text}
-            </ScientificText>
+            </ScientificNotationText>
           </p>
         </TextbookSource>
       )
@@ -77,7 +79,7 @@ function Block({
         <ol className="prose-list prose-list--ordered">
           {block.items.map((item, index) => (
             <li key={index}>
-              <ScientificText as="span">{item}</ScientificText>
+              <ScientificNotationText as="span">{item}</ScientificNotationText>
             </li>
           ))}
         </ol>
@@ -85,7 +87,7 @@ function Block({
         <ul className="prose-list">
           {block.items.map((item, index) => (
             <li key={index}>
-              <ScientificText as="span">{item}</ScientificText>
+              <ScientificNotationText as="span">{item}</ScientificNotationText>
             </li>
           ))}
         </ul>
@@ -108,7 +110,7 @@ function Block({
             ) : null}
           </dt>
           <dd className="definition__body">
-            <ScientificText as="span">{block.text}</ScientificText>
+            <ScientificNotationText as="span">{block.text}</ScientificNotationText>
           </dd>
         </dl>
       )
@@ -185,9 +187,23 @@ function Block({
           symbol={block.symbol}
           pairs={block.pairs}
           dots={block.dots?.map((dot) => ({ position: dot.position, slot: dot.slot }))}
-          caption={block.caption}
+          caption={renderFigureCaption(block.caption)}
         />
       )
+
+    case 'lewis-molecule':
+      return (
+        <LewisMolecule
+          left={{ symbol: block.leftSymbol, lonePairSides: block.leftLonePairSides }}
+          right={{ symbol: block.rightSymbol, lonePairSides: block.rightLonePairSides }}
+          sharedPairs={block.sharedPairs}
+          showModel={block.showModel}
+          caption={renderFigureCaption(block.caption)}
+        />
+      )
+
+    case 'transfer-diagram':
+      return <IonicTransferDiagram caption={renderFigureCaption(block.caption)} />
 
     case 'table':
       return (
@@ -210,7 +226,7 @@ function Block({
       return renderDiagram ? (
         renderDiagram(block.diagramId, block.description)
       ) : (
-        <ScientificDiagram title={block.title} description={block.description} sourceRef={block.sourceRef} caption={block.caption} />
+        <ScientificDiagram title={block.title} description={block.description} sourceRef={block.sourceRef} caption={renderFigureCaption(block.caption)} />
       )
 
     case 'source-image':
@@ -232,7 +248,7 @@ function Block({
         <div className={`alert alert--${block.tone === 'warning' ? 'warning' : block.tone === 'method' ? 'info' : 'neutral'}`}>
           {block.title ? <p className="alert__title">{block.title}</p> : null}
           <p className="alert__body">
-            <ScientificText as="span">{block.text}</ScientificText>
+            <ScientificNotationText as="span">{block.text}</ScientificNotationText>
           </p>
         </div>
       )
@@ -244,7 +260,7 @@ function Block({
           <ol className="procedure__steps">
             {block.items.map((item, index) => (
               <li key={index}>
-                <ScientificText as="span">{item}</ScientificText>
+                <ScientificNotationText as="span">{item}</ScientificNotationText>
               </li>
             ))}
           </ol>
@@ -258,7 +274,7 @@ function Block({
             <div className="key-terms__item" key={index}>
               <dt className="key-terms__term">{term.term}</dt>
               <dd className="key-terms__meaning">
-                <ScientificText as="span">{term.meaning}</ScientificText>
+                <ScientificNotationText as="span">{term.meaning}</ScientificNotationText>
               </dd>
             </div>
           ))}
@@ -281,6 +297,19 @@ function Block({
   }
 }
 
+/**
+ * Figure and lab captions are Arabic prose that may embed compact notation
+ * (`Na⁺`, `Cl₂`, `²³₁₁Na`); they get the same structured promotion as every
+ * other prose surface.
+ */
+function renderFigureCaption(caption: ReactNode): ReactNode {
+  return typeof caption === 'string' ? (
+    <ScientificNotationText as="span">{caption}</ScientificNotationText>
+  ) : (
+    caption
+  )
+}
+
 function renderScientificTableCell(value: string): ReactNode {
   // A distribution column such as `2-8-8` is one value: never split it into
   // runs the RTL table cell could reorder.
@@ -300,17 +329,24 @@ function renderScientificTableCell(value: string): ReactNode {
     )
   }
 
+  // A compact formula such as `Cl₂` becomes a structured ChemicalFormula so
+  // the subscript is real DOM, never a Unicode glyph floating in an RTL cell.
+  const formula = parseCompactFormulaNotation(value)
+  if (formula) {
+    return <ChemicalFormula formula={formula} size="sm" />
+  }
+
   if (/^[A-Za-z0-9₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹+−\-×÷=().,\s]+$/u.test(value) && /[A-Za-z0-9]/.test(value)) {
     return <Sci variant="textual">{value}</Sci>
   }
 
-  return <ScientificText scienceVariant="textual">{value}</ScientificText>
+  return <ScientificNotationText scienceVariant="textual">{value}</ScientificNotationText>
 }
 
 function Prose({ text }: { text: string }) {
   return (
     <p className="prose">
-      <ScientificText as="span">{text}</ScientificText>
+      <ScientificNotationText as="span">{text}</ScientificNotationText>
     </p>
   )
 }
@@ -319,7 +355,7 @@ function PlatformAdditionBlock({ text }: { text: string }) {
   return (
     <PlatformAddition variant="block">
       <p className="prose">
-        <ScientificText as="span">{text}</ScientificText>
+        <ScientificNotationText as="span">{text}</ScientificNotationText>
       </p>
     </PlatformAddition>
   )

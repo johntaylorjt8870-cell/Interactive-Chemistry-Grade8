@@ -26,7 +26,7 @@ export type { SciProps, ScientificTextProps, SciVariant, ScriptProps } from './S
 export { ElectronConfiguration } from './ElectronConfiguration'
 export type { ElectronConfigurationProps, ElectronConfigurationSize } from './ElectronConfiguration'
 
-export { ScientificNotationText } from './ScientificNotationText'
+export { ScientificNotationText, parseCompactFormulaNotation, parseCompactIonNotation } from './ScientificNotationText'
 export type { ScientificNotationTextProps } from './ScientificNotationText'
 
 export { MathFormula, EquationRow } from './MathFormula'
@@ -43,6 +43,15 @@ export type { NuclearNotationProps, NuclideSummaryProps } from './NuclearNotatio
 
 export { LewisStructure } from './LewisStructure'
 export type { LewisStructureProps, LewisDot, LewisPosition, LewisSize } from './LewisStructure'
+
+export { LewisMolecule, BondModel, LEWIS_MOLECULE_BOND_NAMES } from './LewisMolecule'
+export type { LewisMoleculeProps, LewisMoleculeAtom, LewisMoleculeSide } from './LewisMolecule'
+
+export { BohrAtom } from './BohrAtom'
+export type { BohrAtomProps } from './BohrAtom'
+
+export { IonicTransferDiagram, NaClCluster } from './IonicTransferDiagram'
+export type { IonicTransferDiagramProps } from './IonicTransferDiagram'
 
 export { ScientificValue, ScientificRange } from './ScientificValue'
 export type { ScientificValueProps, ScientificRangeProps, ScientificValueSize } from './ScientificValue'

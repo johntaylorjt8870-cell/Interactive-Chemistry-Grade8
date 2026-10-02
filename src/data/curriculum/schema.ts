@@ -116,6 +116,29 @@ export type ContentBlock =
       attribution: Attribution
     }
   | {
+      /**
+       * Diatomic molecule printed as the book does: Lewis dot column beside the
+       * ball-and-stick model column. Lone-pair sides are per atom, in the LTR
+       * diagram space; shared pairs print as one row of two dots per pair.
+       */
+      kind: 'lewis-molecule'
+      leftSymbol: string
+      rightSymbol: string
+      leftLonePairSides?: Array<'top' | 'right' | 'bottom' | 'left'>
+      rightLonePairSides?: Array<'top' | 'right' | 'bottom' | 'left'>
+      sharedPairs: 1 | 2 | 3
+      /** Hide the model column (defaults to showing both, as printed). */
+      showModel?: boolean
+      caption?: string
+      attribution: Attribution
+    }
+  | {
+      /** The printed electron-transfer figure (Na/Cl → Na⁺/Cl → NaCl). */
+      kind: 'transfer-diagram'
+      caption?: string
+      attribution: Attribution
+    }
+  | {
       kind: 'table'
       caption: string
       columns: TableColumnSpec[]

@@ -1,4 +1,5 @@
 import type { ElementType, ReactNode } from 'react'
+import { ChemicalFormula } from './ChemicalFormula'
 import { IonNotation } from './IonNotation'
 import { NuclearNotation, parseCompactNuclearNotation } from './NuclearNotation'
 import { ScientificText, type SciVariant } from './ScientificText'
@@ -7,7 +8,19 @@ const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
 const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
 const COMPACT_NUCLEAR_SOURCE = '[⁰¹²³⁴⁵⁶⁷⁸⁹]*[₀₁₂₃₄₅₆₇₈₉]+[A-Z][a-z]?'
 const COMPACT_ION_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+[⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻]'
-const COMPACT_NOTATION_RUN = new RegExp(`${COMPACT_NUCLEAR_SOURCE}|${COMPACT_ION_SOURCE}`, 'gu')
+// A formula token consumes the whole Latin run (`Cl₂`, `H₂O`, `CH₄`, `AlCl₃`)
+// and may not be embedded in a longer word: the optional leading-character
+// capture plus the trailing lookahead reject mid-word matches such as the `H`
+// in `pH` or the `Ne` in `Newton`. Only tokens carrying a real subscript are
+// promoted; plain runs like `NaCl` fall back to ScientificText, which already
+// isolates them correctly.
+const COMPACT_FORMULA_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+(?![A-Za-z₀₁₂₃₄₅₆₇₈₉])'
+const COMPACT_NOTATION_RUN = new RegExp(
+  `${COMPACT_NUCLEAR_SOURCE}|${COMPACT_ION_SOURCE}|${COMPACT_FORMULA_SOURCE}`,
+  'gu',
+)
+const EXACT_COMPACT_FORMULA = /^(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+$/u
+const WORD_CHAR = /[A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹]/u
 
 function plainDigits(value: string, alphabet: string): string {
   return [...value].map((digit) => String(alphabet.indexOf(digit))).join('')
@@ -20,6 +33,21 @@ export function parseCompactIonNotation(value: string): { formula: string; charg
   const magnitude = plainDigits(match[2]!, SUPERSCRIPT_DIGITS)
   const sign = match[3] === '⁺' ? '+' : '-'
   return { formula, charge: `${magnitude}${sign}` }
+}
+
+/**
+ * Normalizes a compact formula run (`Cl₂`) to the ASCII source that
+ * ChemicalFormula parses (`Cl2`). Returns null when the value is not a
+ * complete compact formula.
+ */
+export function parseCompactFormulaNotation(value: string): string | null {
+  const trimmed = value.trim()
+  if (!EXACT_COMPACT_FORMULA.test(trimmed)) return null
+  // Without a subscript there is nothing to structure: `NaCl` is already one
+  // indivisible LTR run for ScientificText, and promoting bare words would
+  // wrap ordinary identifiers in chemical-formula semantics.
+  if (!/[₀₁₂₃₄₅₆₇₈₉]/u.test(trimmed) && !/\d/.test(trimmed)) return null
+  return trimmed.replace(/[₀₁₂₃₄₅₆₇₈₉]/gu, (digit) => plainDigits(digit, SUBSCRIPT_DIGITS))
 }
 
 export type ScientificNotationTextProps<T extends ElementType = 'span'> = {
@@ -47,6 +75,15 @@ export function ScientificNotationText<T extends ElementType = 'span'>({
   COMPACT_NOTATION_RUN.lastIndex = 0
   let match: RegExpExecArray | null
   while ((match = COMPACT_NOTATION_RUN.exec(children)) !== null) {
+    const nuclear = parseCompactNuclearNotation(match[0])
+    const ion = parseCompactIonNotation(match[0])
+    // A formula token glued to a preceding word character (`pH`) is part of
+    // that word: leave the whole run to ScientificText, which isolates it as
+    // one unit instead of splitting it.
+    const preceding = match.index > 0 ? children[match.index - 1] ?? '' : ''
+    const formula = WORD_CHAR.test(preceding) ? null : parseCompactFormulaNotation(match[0])
+    if (!nuclear && !ion && !formula) continue
+
     if (match.index > cursor) {
       parts.push(
         <ScientificText key={`text-${cursor}`} scienceVariant={scienceVariant}>
@@ -55,8 +92,6 @@ export function ScientificNotationText<T extends ElementType = 'span'>({
       )
     }
 
-    const nuclear = parseCompactNuclearNotation(match[0])
-    const ion = parseCompactIonNotation(match[0])
     if (nuclear) {
       parts.push(
         <NuclearNotation
@@ -76,6 +111,8 @@ export function ScientificNotationText<T extends ElementType = 'span'>({
           size="sm"
         />,
       )
+    } else if (formula) {
+      parts.push(<ChemicalFormula key={`formula-${match.index}`} formula={formula} size="sm" />)
     }
     cursor = match.index + match[0].length
   }

@@ -948,3 +948,244 @@
 .electron-configuration--lg {
   font-size: var(--fs-2xl);
 }
+
+/* ==========================================================================
+   Bohr shell atom (structured SVG)
+   ========================================================================== */
+
+.bohr {
+  display: inline-grid;
+  justify-items: center;
+  gap: var(--space-1);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.bohr svg { display: block; }
+
+.bohr__nucleus { fill: #7ba23f; }
+
+.bohr__shell { fill: none; stroke: var(--border-strong); stroke-width: 1; }
+
+.bohr__electron { fill: #1f6fb2; }
+
+.bohr__electron--valence { fill: var(--accent); }
+
+.bohr__charge { font: 700 15px var(--font-latin); fill: var(--text-strong); }
+
+.bohr__label { font: 700 var(--fs-md)/1.1 var(--font-latin); color: var(--text-strong); }
+
+.bohr__label-charge { font-size: 0.72em; }
+
+/* ==========================================================================
+   Diatomic Lewis row — Lewis column + ball-and-stick model column
+   ========================================================================== */
+
+.lewis-mol {
+  margin: 0;
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+}
+
+.lewis-mol__row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.5rem, 6vw, 4rem);
+  direction: ltr;
+  unicode-bidi: isolate;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.lewis-mol__lewis {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.lewis-mol__atom-grid {
+  display: grid;
+  grid-template-areas:
+    'top top top'
+    'left symbol right'
+    'bottom bottom bottom';
+  justify-items: center;
+  align-items: center;
+  gap: 3px;
+}
+
+.lewis-mol__slot--top { grid-area: top; }
+.lewis-mol__slot--left { grid-area: left; }
+.lewis-mol__slot--right { grid-area: right; }
+.lewis-mol__slot--bottom { grid-area: bottom; }
+
+.lewis-mol__slot[data-empty='true'] { min-inline-size: 0.42rem; }
+
+.lewis-mol__symbol {
+  grid-area: symbol;
+  font: 500 var(--fs-2xl)/1 var(--font-latin);
+  color: var(--text-strong);
+}
+
+.lewis-mol__pair { display: inline-flex; gap: 4px; }
+
+.lewis-mol__slot--left .lewis-mol__pair,
+.lewis-mol__slot--right .lewis-mol__pair { flex-direction: column; }
+
+.lewis-mol__dot {
+  inline-size: 0.42rem;
+  block-size: 0.42rem;
+  border-radius: 50%;
+  background: var(--text-strong);
+}
+
+.lewis-mol--sm .lewis-mol__dot { inline-size: 0.32rem; block-size: 0.32rem; }
+
+.lewis-mol--lg .lewis-mol__dot { inline-size: 0.52rem; block-size: 0.52rem; }
+
+.lewis-mol--lg .lewis-mol__symbol { font-size: var(--fs-3xl); }
+
+.lewis-mol__shared {
+  display: inline-grid;
+  gap: 4px;
+  justify-items: center;
+}
+
+.lewis-mol__shared-pair { display: inline-flex; gap: 4px; }
+
+.lewis-mol__caption {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* --- ball-and-stick model column --- */
+
+.bond-model {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.bond-model__atom {
+  display: inline-grid;
+  justify-items: center;
+  gap: 3px;
+}
+
+.bond-model__discs {
+  display: inline-flex;
+  gap: 5px;
+  min-block-size: 1rem;
+}
+
+.bond-model__disc {
+  display: grid;
+  place-items: center;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border-radius: 50%;
+  background: #1f6fb2;
+  color: #fff;
+  font: 700 0.62rem/1 var(--font-latin);
+}
+
+.bond-model__sphere {
+  display: grid;
+  place-items: center;
+  inline-size: 3.4rem;
+  block-size: 3.4rem;
+  border-radius: 50%;
+  color: #14263a;
+  font: 700 var(--fs-lg)/1 var(--font-latin);
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.55), transparent 44%),
+    var(--model-color, #98a2ad);
+}
+
+.bond-model__atom[data-symbol='H'] { --model-color: #29abe2; }
+.bond-model__atom[data-symbol='O'] { --model-color: #f7941e; }
+.bond-model__atom[data-symbol='N'] { --model-color: #8dc63f; }
+
+.bond-model__bond {
+  display: inline-grid;
+  gap: 6px;
+  align-content: center;
+  min-block-size: 3.4rem;
+}
+
+.bond-model__bond-line {
+  inline-size: 2.8rem;
+  block-size: 3px;
+  border-radius: 2px;
+  background: #e2574b;
+}
+
+/* ==========================================================================
+   Printed electron-transfer figure (page 14)
+   ========================================================================== */
+
+.transfer-diagram {
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+}
+
+.transfer-diagram__panels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.transfer-diagram__ion-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.transfer-diagram__arrow svg path {
+  stroke: var(--text-strong);
+  stroke-width: 2;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.transfer-diagram__transfer-arrow svg path {
+  stroke: #e2574b;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.transfer-diagram__cluster-wrap {
+  display: inline-grid;
+  justify-items: center;
+  gap: var(--space-1);
+}
+
+.transfer-diagram__anion { fill: #f2c14e; }
+
+.transfer-diagram__cation { fill: #2f7fc1; }
+
+.transfer-diagram__cluster-sign {
+  font: 700 11px var(--font-latin);
+  fill: #17324a;
+}
+
+.transfer-diagram__caption {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}

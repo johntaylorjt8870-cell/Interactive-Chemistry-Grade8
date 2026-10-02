@@ -68,6 +68,20 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     description: 'تغيير عدد النيوترونات مع تثبيت البروتونات ومراقبة العدد الكتلي.',
     load: () => import('./IsotopeLab'),
   },
+  {
+    id: 'ionic-bonding-lab',
+    title: 'محاكاة الرابطة الأيونية: انتقال الإلكترون',
+    kind: 'simulation',
+    description: 'نقل الإلكترون السطحي من الصوديوم إلى الكلور ومراقبة تكوّن الأيونين ثم بلورة NaCl.',
+    load: () => import('./IonicBondingLab'),
+  },
+  {
+    id: 'covalent-bond-lab',
+    title: 'مختبر الرابطة المشتركة: الأزواج المشتركة',
+    kind: 'simulation',
+    description: 'مقارنة H₂ وO₂ وN₂ بين تمثيل لويس والنموذج وقراءة الأزواج المشتركة وغير المشتركة.',
+    load: () => import('./CovalentBondLab'),
+  },
 ]
 
 const registry = new Map<string, InteractiveDefinition>(

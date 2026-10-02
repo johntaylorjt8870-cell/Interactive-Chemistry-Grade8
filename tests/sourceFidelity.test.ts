@@ -56,7 +56,7 @@ describe('curriculum registry — first verified chemistry lesson', () => {
     expect(getSubjectDefinition('chemistry').status).toBe('source-verified')
     expect(getLesson('chemistry', 'structural-chemistry', 'atom-and-element')?.title).toContain('الذرّة والعنصر')
     expect(isCurriculumEmpty()).toBe(false)
-    expect(curriculumStats()).toEqual({ units: 1, lessons: 1, steps: 17 })
+    expect(curriculumStats()).toEqual({ units: 1, lessons: 2, steps: 35 })
   })
 
   it('returns nothing for unknown slugs instead of falling back to fabricated content', () => {
