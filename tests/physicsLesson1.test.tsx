@@ -6,7 +6,13 @@ import { readFileSync } from 'node:fs'
 import { getLesson } from '@/data/curriculum/registry'
 import { ContentBlocks } from '@/lessons/ContentBlocks'
 import { strayScriptGlyphs } from './utils/strayGlyphs'
-import { physicsLesson1, bookQuestions, bookActivitySolutions, finalTest } from '@/data/curriculum/physicsLesson1'
+import {
+  physicsLesson1,
+  physicsLesson1TextbookVisuals,
+  bookQuestions,
+  bookActivitySolutions,
+  finalTest,
+} from '@/data/curriculum/physicsLesson1'
 import { validateLesson } from '@/data/sourceFidelity'
 import ParallelogramLab from '@/simulations/ParallelogramLab'
 import ConcurrentForcesLab from '@/simulations/ConcurrentForcesLab'
@@ -110,6 +116,72 @@ describe('verbatim fidelity against the finalized source report', () => {
   it('stores no bidi control characters in data', () => {
     const file = readFileSync('src/data/curriculum/physicsLesson1.ts', 'utf8')
     expect(file).not.toMatch(/[‎‏‪-‮⁦-⁩]/u)
+  })
+})
+
+describe('Fix 10 — textbook visual source fidelity', () => {
+  it('records each missing source visual at its textbook page and student-step location in book order', () => {
+    expect(
+      physicsLesson1TextbookVisuals.map((visual) => [visual.id, visual.source.page, visual.source.item, visual.stepId]),
+    ).toEqual([
+      ['p55-parachutist-photo', '55', 'صورة المظلّي', 'entry-parachute'],
+      ['p56-spring-experiment', '56', 'شكل التجربة', 'concurrent-experiment'],
+      ['p56-concurrent-forces-conclusion', '56', 'شكل الاستنتاج', 'concurrent-experiment'],
+      ['p57-resultant-construction', '57', 'الشكل الجانبي', 'resultant-construction'],
+      ['p57-resultant-conclusion', '57', 'شكل الاستنتاج', 'resultant-construction'],
+      ['p58-parallelogram-worked-example', '58', 'الشكل الجانبي', 'solved-60'],
+      ['p59-perpendicular-resultant-worked-example', '59', 'الشكل الجانبي', 'solved-90'],
+      ['p59-force-components-axes', '59', 'شكل تحليل القوّة', 'components-theory'],
+      ['p60-inclined-plane-activity', '60', 'شكل النشاط', 'incline-activity'],
+      ['p61-summary-parallelogram', '61', 'الشكل الجانبي', 'learn-box'],
+    ])
+
+    const stepIndexes = physicsLesson1TextbookVisuals.map((visual) => {
+      const stepIndex = physicsLesson1.steps.findIndex((step) => step.id === visual.stepId)
+      expect(stepIndex, visual.id).toBeGreaterThanOrEqual(0)
+      expect(physicsLesson1.steps[stepIndex]!.kind, visual.id).not.toBe('simulation')
+      return stepIndex
+    })
+    expect(stepIndexes).toEqual([...stepIndexes].sort((left, right) => left - right))
+    expect(physicsLesson1TextbookVisuals.every((visual) => visual.attribution === 'textbook')).toBe(true)
+  })
+
+  it('does not present an unavailable source visual as a textbook image or a platform-lab replacement', () => {
+    for (const visual of physicsLesson1TextbookVisuals) {
+      expect(visual.assetStatus, visual.id).toBe('source-scan-not-in-workspace')
+      expect(visual, visual.id).not.toHaveProperty('src')
+      expect(visual, visual.id).not.toHaveProperty('interactiveId')
+    }
+
+    const sourceImages = physicsLesson1.steps
+      .flatMap((step) => step.blocks)
+      .filter((block) => block.kind === 'source-image')
+    expect(sourceImages).toEqual([])
+
+    const serializedLesson = JSON.stringify(physicsLesson1)
+    expect(serializedLesson).not.toContain('تُستبدل الصورة هنا بوصفها')
+    expect(serializedLesson).not.toContain('شكل التجربة في الكتاب:')
+    expect(serializedLesson).not.toContain('شكل النشاط في الكتاب:')
+
+    const interactiveSteps = physicsLesson1.steps.filter((step) =>
+      step.blocks.some((block) => block.kind === 'interactive'),
+    )
+    expect(interactiveSteps.map((step) => step.id)).toEqual([
+      'concurrent-lab',
+      'parallelogram-lab-step',
+      'components-lab',
+    ])
+    expect(interactiveSteps.every((step) => step.attribution === 'platform')).toBe(true)
+  })
+
+  it('keeps the printed passage and questions around the parachutist unchanged', () => {
+    const entry = physicsLesson1.steps.find((step) => step.id === 'entry-parachute')!
+    const textbookText = entry.blocks
+      .filter((block) => block.kind === 'textbook-verbatim')
+      .map((block) => (block.kind === 'textbook-verbatim' ? block.text : ''))
+
+    expect(textbookText).toContain('يستخدمُ المظلّيُّ الذي يهبطُ من طائرةٍ على ارتفاعٍ ما من سطح الأرض مظلّةً من أجل الوصول إلى الأرض بسلامةٍ وأمان.')
+    expect(textbookText).toContain('كيف يرتبط المظلّيُّ بمظلّته؟ ما القوى المؤثّرة على المظلّيِّ؟ أين تتلاقى حبالُ المظلّة؟')
   })
 })
 
