@@ -22,7 +22,22 @@ export function InteractiveHost({ interactiveId, caption }: InteractiveHostProps
   const reducedMotion = useReducedMotion()
   const definition = useMemo(() => getInteractive(interactiveId), [interactiveId])
 
-  if (!definition) {
+  // The lazy component must be created once per definition: building it inside
+  // the render body made React see a brand-new component type on every parent
+  // re-render (opening the outline drawer, saving progress…), which unmounted
+  // the experiment and silently reset every slider and construction stage.
+  const LazyModule = useMemo(
+    () =>
+      definition
+        ? lazy(async () => {
+            const module = await definition.load()
+            return { default: module.default as ComponentType<InteractiveProps> }
+          })
+        : null,
+    [definition],
+  )
+
+  if (!definition || !LazyModule) {
     return (
       <div className="interactive-missing" role="note" data-interactive-missing={interactiveId}>
         <p className="interactive-missing__title">عنصر تفاعلي غير مُسجَّل</p>
@@ -33,11 +48,6 @@ export function InteractiveHost({ interactiveId, caption }: InteractiveHostProps
       </div>
     )
   }
-
-  const LazyModule = lazy(async () => {
-    const module = await definition.load()
-    return { default: module.default as ComponentType<InteractiveProps> }
-  })
 
   return (
     <div className="interactive-host" data-interactive={interactiveId} data-interactive-kind={definition.kind}>

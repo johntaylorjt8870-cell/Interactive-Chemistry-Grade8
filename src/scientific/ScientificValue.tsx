@@ -45,7 +45,7 @@ export function ScientificValue({
 
   return (
     <span
-      className={['sci-value', `sci-value--${size}`, className].filter(Boolean).join(' ')}
+      className={['sci-value', `sci-value--${size}`, unit === '°' ? 'sci-value--angle' : null, className].filter(Boolean).join(' ')}
       dir="ltr"
       data-sci="isolated"
       data-value={text}

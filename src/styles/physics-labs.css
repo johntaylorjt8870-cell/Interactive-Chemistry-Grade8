@@ -1,0 +1,873 @@
+/* ============================================================================
+   Physics laboratories (القوى المتلاقية) — namespace `plab`
+   ----------------------------------------------------------------------------
+   Used by the three labs of Unit 2 · Lesson 1 (concurrent forces, parallelogram,
+   force components). Colours come from the semantic vector tokens
+   (--vec-force1 …) which are defined for both themes; the board colour and its
+   grid derive from the surface tokens, so nothing here is theme-specific.
+
+   Motion policy: every animation lives in this file, is gated on
+   `.lab--still` (the JS reduced-motion preference) AND on
+   `prefers-reduced-motion` (the OS preference), and always ends in the same
+   fully-drawn state the static version shows.
+   ========================================================================= */
+
+.plab {
+  container: plab / inline-size;
+  --plab-board: color-mix(in srgb, var(--surface-base) 90%, var(--accent) 10%);
+  --plab-grid: color-mix(in srgb, var(--text-muted) 20%, transparent);
+  --plab-halo: var(--plab-board);
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(var(--space-3), 2.2vw, var(--space-6));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  overflow: visible;
+}
+
+.plab__header {
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.plab__header h3 {
+  margin: 0;
+  font-size: var(--fs-xl);
+  line-height: 1.4;
+}
+
+.plab__phase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.plab__modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.plab__modes .button[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--text-strong);
+}
+
+/* --- Stage stepper -------------------------------------------------------- */
+
+.plab__stepper {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+.plab__actions {
+  gap: var(--space-2);
+}
+
+.plab__actions .button {
+  padding-block: 0.45rem;
+  font-size: var(--fs-sm);
+}
+
+.plab__stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plab__stage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.25rem 0.75rem 0.25rem 0.3rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--dur-fast), background var(--dur-fast);
+}
+
+.plab__stage:hover {
+  border-color: var(--accent);
+}
+
+.plab__stage[data-state='current'] {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--text-strong);
+}
+
+.plab__stage-index {
+  display: grid;
+  place-items: center;
+  inline-size: 1.45rem;
+  block-size: 1.45rem;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.plab__stage[data-state='current'] .plab__stage-index,
+.plab__stage[data-state='done'] .plab__stage-index {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.plab__stage-hint {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.9;
+  color: var(--text-primary);
+}
+
+/* --- Controls ------------------------------------------------------------- */
+
+.plab__controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-3) var(--space-5);
+  align-items: end;
+}
+
+.plab__range {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.plab__range-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: 650;
+}
+
+.plab__range input[type='range'] {
+  inline-size: 100%;
+  accent-color: var(--accent);
+}
+
+.plab__check {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.plab__release[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.plab__presets-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+}
+
+.parallelogram-lab__presets,
+.plab__examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.parallelogram-lab__preset,
+.plab__example {
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color var(--dur-fast), background var(--dur-fast);
+}
+
+.parallelogram-lab__preset:hover,
+.plab__example:hover {
+  border-color: var(--accent);
+}
+
+.parallelogram-lab__preset.is-active {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--text-strong);
+}
+
+/* --- Figure --------------------------------------------------------------- */
+
+.plab__figure {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  min-inline-size: 0;
+}
+
+/* The drawing keeps a readable minimum width and scrolls sideways on narrow screens (see LabCanvas). */
+.plab__scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-radius: var(--radius-md);
+}
+
+.plab__canvas {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 560px;
+}
+
+.plab__canvas > svg {
+  inline-size: 100%;
+  block-size: auto;
+  display: block;
+}
+
+.plab__scroll-hint {
+  display: none;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-2xs);
+}
+
+.plab-board {
+  fill: var(--plab-board);
+  stroke: var(--border-soft);
+  stroke-width: 1.5;
+}
+
+.plab-board-grid,
+.parallelogram-lab__grid line {
+  stroke: var(--plab-grid);
+  stroke-width: 1;
+  fill: none;
+}
+
+.plab-board-label {
+  font-size: 14px;
+}
+
+.plab-carrier {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.plab-carrier--force1 { stroke: var(--vec-force1); }
+.plab-carrier--force2 { stroke: var(--vec-force2); }
+.plab-carrier--weight { stroke: var(--vec-weight); }
+
+.plab-dashed {
+  fill: none;
+  stroke: var(--vec-construction);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+}
+
+.plab-parallelogram {
+  fill: var(--vec-resultant-soft);
+  stroke: none;
+}
+
+.plab-rect {
+  fill: color-mix(in srgb, var(--vec-resultant) 10%, transparent);
+  stroke: var(--vec-construction);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 5;
+}
+
+.plab-angle {
+  fill: none;
+  stroke: var(--vec-angle);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.plab-right-angle {
+  fill: none;
+  stroke: var(--vec-angle);
+  stroke-width: 1.8;
+  stroke-linejoin: miter;
+}
+
+.plab-foot {
+  fill: var(--vec-construction);
+  stroke: var(--plab-board);
+  stroke-width: 1.5;
+}
+
+.plab-point__halo {
+  fill: var(--plab-board);
+  opacity: 0.9;
+}
+
+.plab-point__dot {
+  fill: var(--vec-point);
+  stroke: var(--plab-board);
+  stroke-width: 2;
+}
+
+.plab-spring__coil {
+  fill: none;
+  stroke: var(--vec-spring);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.plab-spring__thread {
+  stroke: var(--text-muted);
+  stroke-width: 1.8;
+  fill: none;
+}
+
+.plab-spring__magnet {
+  fill: var(--surface-sunken);
+  stroke: var(--border-strong);
+  stroke-width: 2;
+}
+
+.plab-spring__magnet-core {
+  fill: var(--vec-spring);
+}
+
+.plab-spring__hook {
+  fill: var(--plab-board);
+  stroke: var(--vec-spring);
+  stroke-width: 2.2;
+}
+
+.plab-body__mass {
+  fill: var(--vec-body);
+  stroke: var(--vec-body-edge);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+
+.plab-body__band {
+  fill: var(--vec-body-edge);
+  opacity: 0.35;
+}
+
+.plab-body__ring {
+  fill: var(--plab-board);
+  stroke: var(--vec-body-edge);
+  stroke-width: 2;
+}
+
+.plab-body__ghost {
+  fill: none;
+  stroke: var(--vec-body-edge);
+  stroke-width: 2.2;
+  stroke-dasharray: 6 4;
+  stroke-linejoin: round;
+}
+
+.plab-wedge__body {
+  fill: color-mix(in srgb, var(--vec-component2) 10%, var(--surface-sunken));
+  stroke: none;
+}
+
+.plab-wedge__surface {
+  stroke: var(--text-secondary);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.plab-ground {
+  stroke: var(--border-strong);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.plab-axis-line {
+  stroke: var(--vec-construction);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 6;
+  stroke-linecap: round;
+}
+
+.plab-scale line {
+  stroke: var(--text-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.plab-dimension line {
+  stroke: var(--text-strong);
+  stroke-width: 1.5;
+}
+
+.plab-dimension .plab-dimension__tick {
+  stroke-dasharray: 3 3;
+  stroke-width: 1;
+  opacity: 0.6;
+}
+
+.svg-text__sub {
+  font-family: KaTeX_Main, var(--font-science);
+  font-style: normal;
+}
+
+/* --- Legend --------------------------------------------------------------- */
+
+.plab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.plab__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.plab__legend-arrow {
+  inline-size: 28px;
+  block-size: 10px;
+  flex: none;
+}
+
+.plab__legend-shaft {
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.plab__legend-head {
+  fill: currentColor;
+}
+
+.plab__legend [data-tone='force1'] { color: var(--vec-force1); }
+.plab__legend [data-tone='force2'] { color: var(--vec-force2); }
+.plab__legend [data-tone='weight'] { color: var(--vec-weight); }
+.plab__legend [data-tone='resultant'] { color: var(--vec-resultant); }
+.plab__legend [data-tone='component1'] { color: var(--vec-component1); }
+.plab__legend [data-tone='component2'] { color: var(--vec-component2); }
+.plab__legend [data-tone='reaction'] { color: var(--vec-on-diagram); }
+
+.plab__legend-text {
+  color: var(--text-secondary);
+}
+
+/* --- Readouts and notes --------------------------------------------------- */
+
+.plab__readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.plab__readout {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-inline-start-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+.plab__readout dt {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+
+.plab__readout dd {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.plab__readout[data-tone='force1'] { border-inline-start-color: var(--vec-force1); }
+.plab__readout[data-tone='force2'] { border-inline-start-color: var(--vec-force2); }
+.plab__readout[data-tone='weight'] { border-inline-start-color: var(--vec-weight); }
+.plab__readout[data-tone='resultant'] { border-inline-start-color: var(--vec-resultant); }
+.plab__readout[data-tone='component1'] { border-inline-start-color: var(--vec-component1); }
+.plab__readout[data-tone='component2'] { border-inline-start-color: var(--vec-component2); }
+.plab__readout[data-tone='reaction'] { border-inline-start-color: var(--vec-on-diagram); }
+.plab__readout[data-tone='ok'] { border-inline-start-color: var(--status-success-border, var(--accent)); }
+
+.plab__check-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.plab__text-value {
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.plab__note {
+  display: grid;
+  gap: var(--space-2);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 3px solid var(--accent);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  line-height: 1.9;
+}
+
+.plab__note p {
+  margin: 0;
+}
+
+.plab__ok {
+  color: var(--status-success-text, var(--accent-strong));
+  font-weight: 650;
+}
+
+.parallelogram-lab__angle-case {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  font-size: var(--fs-sm);
+  line-height: 1.8;
+}
+
+.parallelogram-lab__angle-case p {
+  margin: 0;
+}
+
+.plab__pythagoras {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--accent-border-strong, var(--border-strong));
+  border-radius: var(--radius-md);
+  background: var(--accent-tint);
+}
+
+.plab__pythagoras-title {
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.plab__pythagoras-step {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+}
+
+.plab__pythagoras-step ul {
+  margin: 0;
+  padding-inline-start: var(--space-5);
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* --- Scale legend of the parallelogram lab -------------------------------- */
+
+.parallelogram-lab__scale {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  font-size: var(--fs-sm);
+}
+
+.parallelogram-lab__scale-ruler {
+  display: block;
+  justify-self: start;
+  max-inline-size: 100%;
+}
+
+.parallelogram-lab__scale-bar {
+  display: block;
+  block-size: 10px;
+  border: 2px solid var(--text-primary);
+  border-block-start: 0;
+  border-radius: 0 0 1px 1px;
+}
+
+.parallelogram-lab__scale-caption {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.parallelogram-lab__scale-caption strong {
+  color: var(--text-strong);
+}
+
+/* --- F(angle) plot -------------------------------------------------------- */
+
+.plab__plot {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.plab__plot .svg-text {
+  font-size: 12px;
+}
+
+/* Explanation card and the F(angle) plot sit side by side when the lab is wide enough. */
+.plab__split {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.plab__split-main {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  min-inline-size: 0;
+}
+
+@container plab (min-width: 760px) {
+  .plab__split {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.plab__tick {
+  inline-size: 1.1em;
+  block-size: 1.1em;
+  vertical-align: -0.2em;
+  color: var(--vec-force1);
+  flex: none;
+}
+
+.plab__tick circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+.plab__tick path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.plab__plot svg {
+  inline-size: 100%;
+  block-size: auto;
+  overflow: visible;
+}
+
+.plab__plot figcaption {
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  line-height: 1.8;
+}
+
+.plab-plot__frame {
+  fill: var(--plab-board);
+  stroke: var(--border-soft);
+}
+
+.plab-plot__bound {
+  stroke: var(--vec-construction);
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
+}
+
+.plab-plot__curve {
+  fill: none;
+  stroke: var(--vec-resultant);
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+
+.plab-plot__guide {
+  stroke: var(--vec-construction);
+  stroke-dasharray: 3 3;
+}
+
+.plab-plot__marker {
+  fill: var(--vec-resultant);
+  stroke: var(--plab-board);
+  stroke-width: 2;
+}
+
+/* --- Motion --------------------------------------------------------------- */
+
+.plab-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.plab-slide {
+  transform: translate(var(--tx, 0px), var(--ty, 0px));
+}
+
+.plab-ghost--end {
+  transform: translate(var(--sx, 0px), var(--sy, 0px));
+}
+
+.plab-apparatus {
+  transition: transform 0.9s var(--ease-emphasis), opacity 0.9s ease;
+}
+
+.plab-apparatus--lifted {
+  transform: translateY(-28px);
+  opacity: 0.1;
+}
+
+.plab-apparatus--faded {
+  opacity: 0.4;
+}
+
+.plab-meet__ring {
+  fill: none;
+  stroke: var(--vec-point);
+  stroke-width: 2.5;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes plab-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes plab-pulse {
+  from { transform: scale(0.55); opacity: 0.95; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes plab-slide {
+  from { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  to { transform: translate(var(--tx, 0px), var(--ty, 0px)); opacity: 1; }
+}
+
+@keyframes plab-slide-body {
+  from { transform: translate(0, 0); }
+  to { transform: translate(var(--sx, 0px), var(--sy, 0px)); }
+}
+
+@keyframes plab-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes vec-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .plab:not(.lab--still) .plab-draw {
+    animation: plab-draw 0.9s var(--ease-emphasis) var(--draw-delay, 0ms) both;
+  }
+
+  .plab:not(.lab--still) .plab-slide {
+    animation: plab-slide 0.95s var(--ease-emphasis) both;
+  }
+
+  .plab:not(.lab--still) .plab-ghost--slide {
+    animation: plab-slide-body var(--dur, 1s) cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
+  }
+
+  .plab:not(.lab--still) .plab-meet--pulse .plab-meet__ring {
+    animation: plab-pulse 1.6s ease-out 3;
+  }
+
+  .plab:not(.lab--still) .plab-construction .plab-parallelogram,
+  .plab:not(.lab--still) .plab-construction .plab-dashed,
+  .plab:not(.lab--still) .plab-resultant .plab-dimension {
+    animation: plab-fade 0.6s ease 0.35s both;
+  }
+
+  /* draw-on of an animated vector: the shaft grows, the head appears last */
+  .plab:not(.lab--still) .diagram-vector--animated .diagram-vector__shaft {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: vec-draw 0.8s var(--ease-emphasis) forwards;
+  }
+
+  .plab:not(.lab--still) .diagram-vector--animated .diagram-vector__head {
+    opacity: 0;
+    animation: plab-fade 0.3s ease 0.6s forwards;
+  }
+}
+
+/* The JS preference mirrors the OS one: both leave a finished static drawing. */
+.lab--still .plab-apparatus,
+.lab--still .plab-draw,
+.lab--still .plab-slide {
+  transition: none;
+  animation: none;
+}
+
+.lab--still .plab-meet__ring {
+  display: none;
+}
+
+/* --- Small screens: the figure scrolls instead of shrinking its text ------ */
+
+@container plab (max-width: 599px) {
+  .plab__scroll-hint {
+    display: block;
+  }
+
+  .plab__readouts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .plab {
+    padding: var(--space-3);
+  }
+
+  .plab__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .plab__actions .button {
+    flex: 1 1 auto;
+  }
+}

@@ -75,8 +75,8 @@ export function TextbookSource({ children, page, item, className }: TextbookSour
     <aside className={['textbook-source', className].filter(Boolean).join(' ')} data-origin="textbook">
       <header className="textbook-source__header">
         <span className="textbook-source__label">من الكتاب المدرسي</span>
-        {page ? <span className="textbook-source__ref">{page}</span> : null}
-        {item ? <span className="textbook-source__ref">{item}</span> : null}
+        {page ? <span className="textbook-source__ref textbook-source__ref--page">{page}</span> : null}
+        {item ? <span className="textbook-source__ref textbook-source__ref--item">{item}</span> : null}
       </header>
       <div className="textbook-source__body" lang="ar" dir="rtl">
         {children}

@@ -503,6 +503,12 @@
   color: inherit;
 }
 
+/* An angle sign belongs to its number: 60°, not 60 ° (every other unit keeps
+   its gap: 5 kg, 25 °C). */
+.sci-value.sci-value--angle {
+  gap: 0;
+}
+
 .sci-value--sm {
   font-size: var(--fs-sm);
 }
@@ -714,27 +720,186 @@
   color: var(--text-muted);
 }
 
-.diagram-vector--accent {
-  color: var(--accent);
+/* ============================================================================
+   Vector notation — inline symbols (VectorNotation) and SVG labels/arrows.
+   Colour always comes from semantic tokens and is paired with text labels.
+   ========================================================================= */
+
+.vector-notation {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.18em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  color: var(--vec-on-diagram);
+  font-family: var(--font-science);
+  white-space: nowrap;
 }
 
-.diagram-vector--support {
-  color: var(--subject-support);
+.vector-notation .math-formula {
+  font-size: 1em;
 }
 
-.diagram-vector--muted {
-  color: var(--text-muted);
+.vector-notation--sm { font-size: 0.96em; }
+.vector-notation--md { font-size: 1.08em; }
+.vector-notation--lg { font-size: 1.3em; }
+
+.vector-notation--force1 { color: var(--vec-force1); }
+.vector-notation--force2 { color: var(--vec-force2); }
+.vector-notation--resultant { color: var(--vec-resultant); }
+.vector-notation--weight { color: var(--vec-weight); }
+.vector-notation--component1 { color: var(--vec-component1); }
+.vector-notation--component2 { color: var(--vec-component2); }
+.vector-notation--reaction { color: var(--vec-on-diagram); }
+.vector-notation--neutral { color: var(--vec-on-diagram); }
+
+.vector-notation__magnitude {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22em;
+  font-family: var(--font-latin);
+  font-size: 0.86em;
+  color: var(--text-secondary);
 }
 
-.diagram-vector--danger {
-  color: var(--status-danger-text);
+/* --- SVG vector labels (VectorSvgLabel) ---------------------------------
+   Size comes from the `fontSize` attribute (viewBox units), so the shorthand
+   `font` is deliberately not used here. The symbol uses KaTeX's own math
+   italic, the same face the arrow accent was measured for. -------------- */
+
+.vec-svg-label__symbol,
+.vec-svg-label__sub,
+.vec-svg-label__prime {
+  font-family: KaTeX_Math, 'STIX Two Math', var(--font-science);
+  font-style: italic;
+  font-weight: 400;
+  fill: var(--vec-on-diagram);
+  paint-order: stroke fill;
+  stroke: var(--plab-halo, var(--surface-raised));
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.vec-svg-label__sub {
+  font-family: KaTeX_Main, var(--font-science);
+  font-style: normal;
+}
+
+.vec-svg-label__accent line {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.vec-svg-label__accent path {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+
+.vec-svg-label__magnitude {
+  font-family: var(--font-latin);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  fill: var(--text-secondary);
+  paint-order: stroke fill;
+  stroke: var(--plab-halo, var(--surface-raised));
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.vec-svg-label--force1 { color: var(--vec-force1); }
+.vec-svg-label--force2 { color: var(--vec-force2); }
+.vec-svg-label--resultant { color: var(--vec-resultant); }
+.vec-svg-label--weight { color: var(--vec-weight); }
+.vec-svg-label--component1 { color: var(--vec-component1); }
+.vec-svg-label--component2 { color: var(--vec-component2); }
+.vec-svg-label--reaction { color: var(--vec-on-diagram); }
+.vec-svg-label--neutral { color: var(--vec-on-diagram); }
+
+.vec-svg-label--force1 :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-force1); }
+.vec-svg-label--force2 :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-force2); }
+.vec-svg-label--resultant :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-resultant); }
+.vec-svg-label--weight :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-weight); }
+.vec-svg-label--component1 :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-component1); }
+.vec-svg-label--component2 :is(.vec-svg-label__symbol, .vec-svg-label__sub, .vec-svg-label__prime) { fill: var(--vec-component2); }
+
+/* --- Direction-safe SVG text (SvgText) ------------------------------------ */
+
+.svg-text {
+  font-family: var(--font-latin);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  fill: var(--text-secondary);
+}
+
+.svg-text--ar {
+  font-family: var(--font-arabic);
+  font-weight: 600;
+}
+
+.svg-text--muted { fill: var(--text-muted); }
+.svg-text--strong { fill: var(--text-strong); }
+.svg-text--angle { fill: var(--vec-angle); }
+.svg-text--point {
+  font-family: KaTeX_Math, 'STIX Two Math', var(--font-science);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 17px;
+  fill: var(--vec-on-diagram);
+}
+
+.svg-text--halo {
+  paint-order: stroke fill;
+  stroke: var(--plab-halo, var(--surface-raised));
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
+
+/* --- SVG force vectors (VectorArrow / DiagramVector) --------------------- */
+
+.diagram-vector .diagram-vector__shaft {
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.diagram-vector .diagram-vector__head {
+  fill: currentColor;
+  stroke: none;
+}
+
+.diagram-vector--dashed .diagram-vector__shaft {
+  stroke-dasharray: 7 5;
+}
+
+.diagram-vector--force1 { color: var(--vec-force1); }
+.diagram-vector--force2 { color: var(--vec-force2); }
+.diagram-vector--resultant { color: var(--vec-resultant); }
+.diagram-vector--weight { color: var(--vec-weight); }
+.diagram-vector--component1 { color: var(--vec-component1); }
+.diagram-vector--component2 { color: var(--vec-component2); }
+.diagram-vector--reaction { color: var(--vec-on-diagram); }
+.diagram-vector--construction { color: var(--vec-construction); }
+.diagram-vector--neutral { color: var(--vec-on-diagram); }
+
+.diagram-vector--resultant .diagram-vector__shaft {
+  stroke-width: 3.8;
 }
 
 .diagram-vector__label {
-  font-family: var(--font-latin);
+  font-family: var(--font-science);
+  font-style: italic;
   font-size: 11px;
   fill: currentColor;
 }
+
+/* Legacy marker heads: explicit classes (context-stroke is not portable). */
+.diagram-arrow-head--default { fill: currentColor; }
+.diagram-arrow-head--muted { fill: currentColor; opacity: 0.55; }
 
 .diagram-legend {
   display: flex;
@@ -842,7 +1007,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-5);
+  padding: var(--space-4);
   border-radius: var(--radius-md);
   border: 1px solid var(--accent-border);
   background: var(--surface-base);
@@ -883,6 +1048,35 @@
 
 .textbook-source__text {
   margin: 0;
+}
+
+/* A verbatim block inside a source step is already covered by the step's own
+   frame (label + pages), so it is drawn flat: a thin side rule instead of a
+   second card, and only the item name (« رقم الدرس وعنوانه ») as a small caption.
+   The label and page number stay in the markup — they are just not repeated on
+   screen for every block. */
+.textbook-source .textbook-source {
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-inline-start: 2px solid var(--accent-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.textbook-source .textbook-source .textbook-source__label,
+.textbook-source .textbook-source .textbook-source__ref--page {
+  display: none;
+}
+
+.textbook-source .textbook-source .textbook-source__header:not(:has(.textbook-source__ref--item)) {
+  display: none;
+}
+
+.textbook-source .textbook-source .textbook-source__ref {
+  border: 0;
+  padding: 0;
+  font-size: var(--fs-3xs);
 }
 
 /* --- Math ----------------------------------------------------------------- */

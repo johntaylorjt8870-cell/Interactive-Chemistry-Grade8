@@ -58,6 +58,11 @@
     'Helvetica Neue', Arial, sans-serif;
   --font-latin: 'Inter Variable', Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, Consolas, monospace;
+  /* Mathematical/scientific symbols (force symbols, diagram labels): a real
+     math serif, so `F`, `w`, `M` read as variables exactly like the textbook.
+     This token must exist — components consume it through the `font`
+     shorthand, which becomes invalid at computed-value time if it is missing. */
+  --font-science: 'STIX Two Text', 'Times New Roman', Times, Georgia, serif;
 
   --fs-3xs: 0.6875rem; /* 11px — micro labels */
   --fs-2xs: 0.75rem; /* 12px */
@@ -128,7 +133,12 @@
   --layout-max: 1240px;
   --layout-gutter: clamp(1rem, 4vw, 3rem);
   --header-height: 68px;
-  --outline-width: 300px;
+  /* Lesson navigation is secondary to lesson content. The outline column is
+     sized in viewport units (15vw, clamped to 172–212px) so it stays a small
+     sidebar at every desktop width — 11–16% of the viewport, never the 300px /
+     35–40% slab it used to be — and the reading column always dominates.
+     Below 1080px it becomes a drawer instead of a squeezed column. */
+  --outline-width: clamp(172px, 15vw, 212px);
 
   /* --- Scientific typography ------------------------------------------- */
   --sci-letter-spacing: 0.01em;
@@ -136,6 +146,27 @@
   --sci-sub-size: 0.68em;
   --sci-sup-raise: 0.52em;
   --sci-sub-drop: -0.18em;
+
+  /* --- Physics vector semantics (light) -------------------------------- */
+  /* Semantic roles for force vectors. Every vector must ALSO carry a label
+     and arrow geometry — colour is never the only channel. */
+  --vec-force1: #047857;
+  --vec-force1-soft: #d1fae5;
+  --vec-force2: #1d4ed8;
+  --vec-force2-soft: #dbeafe;
+  --vec-weight: #b91c1c;
+  --vec-weight-soft: #fee2e2;
+  --vec-resultant: #6d28d9;
+  --vec-resultant-soft: #ede9fe;
+  --vec-component1: #a64a07; /* 5.1:1 on the lab board (was 4.4:1) so the F₁ label passes AA */
+  --vec-component2: #0f766e;
+  --vec-construction: #64748b;
+  --vec-angle: #475569;
+  --vec-point: #b91c1c;
+  --vec-body: #d97706;
+  --vec-body-edge: #92400e;
+  --vec-spring: #475569;
+  --vec-on-diagram: #1c2739;
 }
 
 /* ============================================================================
@@ -268,6 +299,25 @@
   --table-cell-active-bg: #24456f;
   --table-cell-active-text: #ffffff;
   --table-caption-text: var(--text-muted);
+
+  /* --- Physics vector semantics (dark) --------------------------------- */
+  --vec-force1: #34d399;
+  --vec-force1-soft: rgba(52, 211, 153, 0.16);
+  --vec-force2: #60a5fa;
+  --vec-force2-soft: rgba(96, 165, 250, 0.16);
+  --vec-weight: #f87171;
+  --vec-weight-soft: rgba(248, 113, 113, 0.16);
+  --vec-resultant: #c4b5fd;
+  --vec-resultant-soft: rgba(196, 181, 253, 0.16);
+  --vec-component1: #fbbf24;
+  --vec-component2: #5eead4;
+  --vec-construction: #94a3b8;
+  --vec-angle: #93c5fd;
+  --vec-point: #f87171;
+  --vec-body: #f59e0b;
+  --vec-body-edge: #b45309;
+  --vec-spring: #94a3b8;
+  --vec-on-diagram: #e8eef8;
 }
 
 /* ============================================================================
