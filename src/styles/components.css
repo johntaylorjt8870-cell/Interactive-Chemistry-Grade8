@@ -2731,6 +2731,15 @@
   .lesson-shell__title-block {
     order: 2;
     flex: 1 1 10rem;
+    align-items: flex-start;
+  }
+
+  /* not pinned on phones, so the full title may wrap instead of being cut to “الدرس الأول — ا…” */
+  .lesson-shell__title {
+    font-size: var(--fs-base);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
   }
 
   .lesson-shell__progress {

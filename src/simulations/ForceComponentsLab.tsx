@@ -5,6 +5,7 @@ import { polar } from '@/utils/vectorGeometry'
 import type { Point } from '@/utils/vectorGeometry'
 import {
   AngleMark,
+  LabCanvas,
   LabFrame,
   LabLegend,
   LabRange,
@@ -198,6 +199,7 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
       </div>
 
       <figure className="plab__figure force-components-lab__figure">
+        <LabCanvas focus={mode === 'axes' ? 0.33 : 0.4}>
         {mode === 'axes' ? (
           <AxesFigure force={force} theta={theta} along={resolved.along} perp={resolved.perp} stage={stage} reducedMotion={reducedMotion} />
         ) : (
@@ -211,6 +213,7 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
             reducedMotion={reducedMotion}
           />
         )}
+        </LabCanvas>
         <LabLegend items={mode === 'axes' ? AXES_LEGEND : INCLINE_LEGEND} />
       </figure>
 

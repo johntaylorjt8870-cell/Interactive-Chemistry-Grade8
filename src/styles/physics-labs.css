@@ -229,14 +229,32 @@
   gap: var(--space-3);
   margin: 0;
   min-inline-size: 0;
-  overflow-x: auto;
 }
 
-.plab__figure > svg {
-  inline-size: 100%;
+/* The drawing keeps a readable minimum width and scrolls sideways on narrow screens (see LabCanvas). */
+.plab__scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-radius: var(--radius-md);
+}
+
+.plab__canvas {
+  display: grid;
+  gap: var(--space-2);
   min-inline-size: 560px;
+}
+
+.plab__canvas > svg {
+  inline-size: 100%;
   block-size: auto;
   display: block;
+}
+
+.plab__scroll-hint {
+  display: none;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-2xs);
 }
 
 .plab-board {
@@ -588,16 +606,15 @@
 /* --- Scale legend of the parallelogram lab -------------------------------- */
 
 .parallelogram-lab__scale {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
   font-size: var(--fs-sm);
 }
 
 .parallelogram-lab__scale-ruler {
   display: block;
-  flex: none;
+  justify-self: start;
   max-inline-size: 100%;
 }
 
@@ -830,6 +847,16 @@
 }
 
 /* --- Small screens: the figure scrolls instead of shrinking its text ------ */
+
+@container plab (max-width: 599px) {
+  .plab__scroll-hint {
+    display: block;
+  }
+
+  .plab__readouts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
 @media (max-width: 640px) {
   .plab {

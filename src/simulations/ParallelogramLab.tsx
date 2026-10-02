@@ -6,6 +6,7 @@ import type { Point } from '@/utils/vectorGeometry'
 import {
   AngleMark,
   CheckMark,
+  LabCanvas,
   LabFrame,
   LabLegend,
   LabRange,
@@ -272,6 +273,8 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
       </div>
 
       <figure className="plab__figure parallelogram-lab__figure">
+        <div className="parallelogram-lab__scale">
+        <LabCanvas focus={((O.x - 60 + Math.max(M.x, P1.x) + 40) / 2) / VIEW.width}>
         <svg
           viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
           role="img"
@@ -372,16 +375,17 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
           ) : null}
         </svg>
 
-        <div className="parallelogram-lab__scale">
-          <span className="parallelogram-lab__scale-ruler" style={{ inlineSize: `${(zoom / VIEW.width) * 100}%` }}>
+          {/* a ruler of exactly one grid cell: its width is a share of the drawing's own width */}
+          <span className="parallelogram-lab__scale-ruler" aria-hidden="true" style={{ inlineSize: `${(zoom / VIEW.width) * 100}%` }}>
             <span className="parallelogram-lab__scale-bar" />
           </span>
-          <p className="parallelogram-lab__scale-caption">
-            <strong>
-              كل <bdi dir="ltr">1 cm</bdi> يمثل <bdi dir="ltr">{scale} N</bdi>
-            </strong>{' '}
-            <span>(مقياس رسم مناسب يُختار تلقائياً؛ الشبكة كلها بأقسام <bdi dir="ltr">1 cm</bdi>)</span>
-          </p>
+        </LabCanvas>
+        <p className="parallelogram-lab__scale-caption">
+          <strong>
+            كل <bdi dir="ltr">1 cm</bdi> يمثل <bdi dir="ltr">{scale} N</bdi>
+          </strong>{' '}
+          <span>(مقياس رسم مناسب يُختار تلقائياً؛ الشبكة كلها بأقسام <bdi dir="ltr">1 cm</bdi>)</span>
+        </p>
         </div>
         <LabLegend items={LEGEND} />
       </figure>

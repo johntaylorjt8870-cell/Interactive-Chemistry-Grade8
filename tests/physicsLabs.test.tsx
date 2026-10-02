@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useState } from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -6,6 +6,7 @@ import ConcurrentForcesLab from '@/simulations/ConcurrentForcesLab'
 import ParallelogramLab from '@/simulations/ParallelogramLab'
 import ForceComponentsLab from '@/simulations/ForceComponentsLab'
 import { InteractiveHost } from '@/components/InteractiveHost'
+import { LabCanvas } from '@/simulations/physicsLabKit'
 import { equilibriumResidual } from '@/utils/forces'
 
 /* ============================================================================
@@ -550,5 +551,80 @@ describe('InteractiveHost — the experiment keeps its state when the page re-re
 
     expect(section(container)).toHaveAttribute('data-a1', '60')
     expect(section(container)).toHaveAttribute('data-stage', '3')
+  })
+})
+
+/* ---------------------------------------------------------------------------
+   The drawing keeps a readable size and stays reachable on a phone
+   ------------------------------------------------------------------------ */
+
+describe('LabCanvas — scrolls instead of shrinking the labels, and is reachable', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+    // remove the layout stubs installed by withOverflow()
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>).scrollWidth
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>).clientWidth
+  })
+
+  /** jsdom has no layout: stub the two measurements the component reads. */
+  function withOverflow(scrollWidth: number, clientWidth: number) {
+    Object.defineProperty(HTMLElement.prototype, 'scrollWidth', { configurable: true, get: () => scrollWidth })
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, get: () => clientWidth })
+  }
+
+  it.each(LABS)('puts the $name drawing inside scroller > canvas', ({ Lab }) => {
+    const { container } = render(<Lab interactiveId="x" reducedMotion={false} />)
+    const svg = one(container, '.plab__canvas > svg')
+    expect(svg.closest('.plab__scroller')).not.toBeNull()
+    expect(one(container, '.plab__scroll-hint').textContent).toContain('مرّر الرسم')
+  })
+
+  it('keeps the 1 cm ruler inside the canvas (it follows the drawing) and the caption outside the scroller (always readable)', () => {
+    const { container } = render(<ParallelogramLab interactiveId="x" reducedMotion={false} />)
+    const canvas = one(container, '.plab__canvas')
+    expect(canvas.contains(one(container, '.parallelogram-lab__scale-ruler'))).toBe(true)
+    const caption = one(container, '.parallelogram-lab__scale-caption')
+    expect(canvas.contains(caption)).toBe(false)
+    expect(caption.closest('.plab__scroller')).toBeNull()
+    // the legend is one box: ruler and caption share the wrapper the stylesheet and the tests call "scale"
+    expect(one(container, '.parallelogram-lab__scale').contains(caption)).toBe(true)
+  })
+
+  it('adds no tab stop when nothing overflows (desktop)', () => {
+    withOverflow(816, 816)
+    const { container } = render(<LabCanvas><svg /></LabCanvas>)
+    const scroller = one(container, '.plab__scroller')
+    expect(scroller).not.toHaveAttribute('tabindex')
+    expect(scroller).not.toHaveAttribute('role')
+    expect(scroller).not.toHaveAttribute('data-scrollable')
+  })
+
+  it('becomes a focusable, named region and centres on its focus when it overflows (LTR)', () => {
+    withOverflow(560, 290)
+    const { container } = render(<LabCanvas focus={0.3}><svg /></LabCanvas>)
+    const scroller = one(container, '.plab__scroller') as HTMLElement
+    expect(scroller).toHaveAttribute('data-scrollable', 'true')
+    expect(scroller).toHaveAttribute('tabindex', '0')
+    expect(scroller).toHaveAttribute('role', 'group')
+    expect(scroller.getAttribute('aria-label')).toContain('أفقياً')
+    // window of 290 centred on 30% of 560 = 168 → left edge 23
+    expect(scroller.scrollLeft).toBe(23)
+  })
+
+  it('never scrolls past either end', () => {
+    withOverflow(560, 290)
+    const left = render(<LabCanvas focus={0}><svg /></LabCanvas>)
+    expect((one(left.container, '.plab__scroller') as HTMLElement).scrollLeft).toBe(0)
+    left.unmount()
+    const right = render(<LabCanvas focus={1}><svg /></LabCanvas>)
+    expect((one(right.container, '.plab__scroller') as HTMLElement).scrollLeft).toBe(270)
+  })
+
+  it('counts scrollLeft from the right edge in an RTL page (0 down to a negative number)', () => {
+    withOverflow(560, 290)
+    vi.spyOn(window, 'getComputedStyle').mockImplementation(() => ({ direction: 'rtl' }) as unknown as CSSStyleDeclaration)
+    const { container } = render(<LabCanvas focus={0.3}><svg /></LabCanvas>)
+    // the same window as in LTR (left edge 23 of 270), expressed the RTL way
+    expect((one(container, '.plab__scroller') as HTMLElement).scrollLeft).toBe(23 - 270)
   })
 })

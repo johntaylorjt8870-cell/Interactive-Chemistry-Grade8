@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { PlatformAddition, ScientificNotationText, VectorNotation } from '@/scientific'
 import type { VectorTone } from '@/scientific'
@@ -56,6 +57,61 @@ export function LabFrame({ className, titleId, title, phase, reducedMotion, data
       </header>
       {children}
     </section>
+  )
+}
+
+/* ---------- the drawing ---------------------------------------------------- */
+
+/**
+ * Holds a lab drawing at a readable size. Text inside the SVG is measured in
+ * drawing units, so on a phone the drawing keeps a minimum width and scrolls
+ * sideways instead of shrinking its labels to nothing. When it does overflow:
+ *  - it is centred on its `focus` (by default its middle) on mount, so the point
+ *    O and the vectors are what the student sees first — an RTL scroller would
+ *    otherwise start at its edge;
+ *  - it becomes a keyboard-focusable, named region (a scrollable area nobody can
+ *    reach with Tab is an accessibility failure) — and only then, so desktop
+ *    gets no useless tab stop.
+ * Anything that must stay in step with the drawing's width (the 1 cm ruler of
+ * the parallelogram lab) lives inside the canvas.
+ */
+export function LabCanvas({ children, focus = 0.5 }: { children: ReactNode; focus?: number }) {
+  const scroller = useRef<HTMLDivElement>(null)
+  const [scrollable, setScrollable] = useState(false)
+  const focusRef = useRef(focus)
+  focusRef.current = focus
+
+  useLayoutEffect(() => {
+    const element = scroller.current
+    if (!element) return undefined
+    const centre = () => {
+      const overflow = element.scrollWidth - element.clientWidth
+      setScrollable(overflow > 1)
+      if (overflow <= 1) return
+      // `focus` is where the interesting part of the drawing is, as a fraction of its width (left to right)
+      const leftEdge = Math.min(Math.max(focusRef.current * element.scrollWidth - element.clientWidth / 2, 0), overflow)
+      // RTL scrollers count scrollLeft from 0 down to a negative number
+      element.scrollLeft = getComputedStyle(element).direction === 'rtl' ? leftEdge - overflow : leftEdge
+    }
+    centre()
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const observer = new ResizeObserver(centre)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <>
+      <div
+        ref={scroller}
+        className="plab__scroller"
+        data-scrollable={scrollable ? 'true' : undefined}
+        {...(scrollable ? { tabIndex: 0, role: 'group', 'aria-label': 'الرسم — يمكن تمريره أفقياً' } : {})}
+      >
+        <div className="plab__canvas">{children}</div>
+      </div>
+      <p className="plab__scroll-hint">مرّر الرسم جانبياً لرؤية بقيّته.</p>
+    </>
   )
 }
 

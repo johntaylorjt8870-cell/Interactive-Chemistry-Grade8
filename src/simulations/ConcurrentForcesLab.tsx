@@ -5,6 +5,7 @@ import { directionOf, lineThroughRect, pointAlong } from '@/utils/vectorGeometry
 import type { Point } from '@/utils/vectorGeometry'
 import {
   AngleMark,
+  LabCanvas,
   LabFrame,
   LabLegend,
   LabRange,
@@ -244,6 +245,7 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
       </div>
 
       <figure className="plab__figure concurrent-forces-lab__figure">
+        <LabCanvas>
         <svg
           viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
           role="img"
@@ -409,6 +411,7 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
             </SvgText>
           </g>
         </svg>
+        </LabCanvas>
         <LabLegend items={stage === 0 ? [{ tone: 'force1', symbol: 'T', text: 'قوّة توتّر النابض' }, LEGEND[2]!] : stage === 4 ? LEGEND : LEGEND.slice(0, 3)} />
       </figure>
 
