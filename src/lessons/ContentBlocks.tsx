@@ -3,7 +3,9 @@ import {
   ChemicalEquation,
   ChemicalFormula,
   ElectronConfiguration,
+  IonicTransferDiagram,
   IonNotation,
+  LewisMolecule,
   LewisStructure,
   MathFormula,
   NuclearNotation,
@@ -188,6 +190,20 @@ function Block({
           caption={block.caption}
         />
       )
+
+    case 'lewis-molecule':
+      return (
+        <LewisMolecule
+          left={{ symbol: block.leftSymbol, lonePairSides: block.leftLonePairSides }}
+          right={{ symbol: block.rightSymbol, lonePairSides: block.rightLonePairSides }}
+          sharedPairs={block.sharedPairs}
+          showModel={block.showModel}
+          caption={block.caption}
+        />
+      )
+
+    case 'transfer-diagram':
+      return <IonicTransferDiagram caption={block.caption} />
 
     case 'table':
       return (
