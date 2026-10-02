@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { DiagramDefs, ScientificValue, VectorArrow, VectorSvgLabel } from '@/scientific'
 import type { InteractiveProps } from './registry'
+import { COMPONENTS_VIEWBOX, axesLayout, inclineLayout } from './diagramLayouts'
 
 /* ============================================================================
    مختبر تحليل القوّة — إضافة من المنصة حول الصفحتين 59–60
@@ -129,20 +130,16 @@ export default function ForceComponentsLab({ reducedMotion }: InteractiveProps) 
 }
 
 function AxesFigure({ force, theta, along, perp, reducedMotion }: { force: number; theta: number; along: number; perp: number; reducedMotion: boolean }) {
-  const O = { x: 100, y: 250 }
-  const s = 22
-  const a = rad(theta)
-  const tip = { x: O.x + force * s * Math.cos(a), y: O.y - force * s * Math.sin(a) }
-  const onX = { x: O.x + along * s, y: O.y }
-  const onY = { x: O.x, y: O.y - perp * s }
+  const layout = axesLayout({ force, theta, along, perp })
+  const { O, tip, onX, onY, xEnd, yEnd, labels } = layout
   return (
-    <svg viewBox="0 0 520 320" role="img" aria-label={`قوّة ${force} نيوتن بزاوية ${theta} درجة تحلّل إلى مركبة أفقية ${along.toFixed(1)} نيوتن ومركبة شاقولية ${perp.toFixed(1)} نيوتن ضمن مستطيل`}>
+    <svg viewBox={`0 0 ${COMPONENTS_VIEWBOX.width} ${COMPONENTS_VIEWBOX.height}`} role="img" aria-label={`قوّة ${force} نيوتن بزاوية ${theta} درجة تحلّل إلى مركبة أفقية ${along.toFixed(1)} نيوتن ومركبة شاقولية ${perp.toFixed(1)} نيوتن ضمن مستطيل`}>
       <DiagramDefs />
       {/* axes with real arrowheads */}
-      <VectorArrow x1={O.x} y1={O.y} x2={470} y2={O.y} role="neutral" strokeWidth={1.6} headSize={8} label="المحور الأفقي" />
-      <VectorArrow x1={O.x} y1={O.y} x2={O.x} y2={36} role="neutral" strokeWidth={1.6} headSize={8} label="المحور الشاقولي" />
-      <text x={478} y={O.y + 5} className="vec-lab__label">x</text>
-      <text x={O.x - 8} y={26} className="vec-lab__label">y</text>
+      <VectorArrow x1={O.x} y1={O.y} x2={xEnd.x} y2={xEnd.y} role="neutral" strokeWidth={1.6} headSize={8} label="المحور الأفقي" />
+      <VectorArrow x1={O.x} y1={O.y} x2={yEnd.x} y2={yEnd.y} role="neutral" strokeWidth={1.6} headSize={8} label="المحور الشاقولي" />
+      <text x={layout.xLabel.x} y={layout.xLabel.y} textAnchor="middle" className="vec-lab__label">x</text>
+      <text x={layout.yLabel.x} y={layout.yLabel.y} textAnchor="middle" className="vec-lab__label">y</text>
 
       {/* the rectangle (parallelogram of components) */}
       <path
@@ -152,9 +149,8 @@ function AxesFigure({ force, theta, along, perp, reducedMotion }: { force: numbe
       />
 
       {/* projection lines from M (مرسم النقطة) */}
-      <line x1={tip.x} y1={tip.y} x2={onX.x} y2={onY.y === tip.y ? onX.y : onX.y} className="vec-lab__dashed" />
+      <line x1={tip.x} y1={tip.y} x2={onX.x} y2={onX.y} className="vec-lab__dashed" />
       <line x1={tip.x} y1={tip.y} x2={onY.x} y2={onY.y} className="vec-lab__dashed" />
-      <line x1={onX.x} y1={onX.y} x2={onX.x} y2={tip.y} className="vec-lab__dashed" opacity={0.6} />
 
       {/* right angles at the projections */}
       <path d={`M ${onX.x - 12} ${O.y} L ${onX.x - 12} ${O.y - 12} L ${onX.x} ${O.y - 12}`} className="vec-lab__angle" />
@@ -165,37 +161,27 @@ function AxesFigure({ force, theta, along, perp, reducedMotion }: { force: numbe
       <VectorArrow x1={O.x} y1={O.y} x2={onX.x} y2={onX.y} role="component1" strokeWidth={3} animated={!reducedMotion} label={`المركّبة الأفقية ${along.toFixed(1)} نيوتن`} />
       <VectorArrow x1={O.x} y1={O.y} x2={onY.x} y2={onY.y} role="component2" strokeWidth={3} animated={!reducedMotion} label={`المركّبة الشاقولية ${perp.toFixed(1)} نيوتن`} />
 
-      {/* labels with their own arrow accents */}
-      <VectorSvgLabel x={tip.x + 12} y={tip.y - 6} symbol="F" tone="resultant" magnitude={`${force} N`} />
-      <VectorSvgLabel x={onX.x - 10} y={onX.y + 34} symbol="F" subscript="1" tone="component1" anchor="middle" magnitude={`${along.toFixed(1)} N`} />
-      <VectorSvgLabel x={onY.x - 34} y={onY.y + 4} symbol="F" subscript="2" tone="component2" anchor="end" magnitude={`${perp.toFixed(1)} N`} />
-
       {/* angle at O */}
-      <path d={`M ${O.x + 36} ${O.y} A 36 36 0 0 0 ${O.x + 36 * Math.cos(a)} ${O.y - 36 * Math.sin(a)}`} className="vec-lab__angle" />
-      <text x={O.x + 46} y={O.y - 12} className="vec-lab__label vec-lab__label--angle">{theta}°</text>
+      <path d={layout.arc} className="vec-lab__angle" />
+      <text x={labels.angle.x} y={labels.angle.y} textAnchor="middle" className="vec-lab__label vec-lab__label--angle vec-lab__label--num">{theta}°</text>
 
       <circle cx={O.x} cy={O.y} r={5} className="vec-lab__point" />
-      <text x={O.x - 20} y={O.y + 18} className="vec-lab__label">O</text>
-      <text x={tip.x + 10} y={tip.y + 16} className="vec-lab__label">M</text>
+      <text x={labels.o.x} y={labels.o.y} textAnchor="middle" className="vec-lab__label">O</text>
+      <text x={labels.m.x} y={labels.m.y} textAnchor="middle" className="vec-lab__label">M</text>
+
+      {/* labels with their own arrow accents; each placed clear of arrows, projections and the other labels */}
+      <VectorSvgLabel x={labels.f.x} y={labels.f.y} {...labels.f.spec} tone="resultant" anchor="middle" />
+      <VectorSvgLabel x={labels.f1.x} y={labels.f1.y} {...labels.f1.spec} tone="component1" anchor="middle" />
+      <VectorSvgLabel x={labels.f2.x} y={labels.f2.y} {...labels.f2.spec} tone="component2" anchor="middle" />
     </svg>
   )
 }
 
 function InclineFigure({ angle, weight, along, perp, reducedMotion }: { angle: number; weight: number; along: number; perp: number; reducedMotion: boolean }) {
-  const a = rad(angle)
-  const s = 22
-  const base = { x: 60, y: 292 }
-  const upSlope = { x: Math.cos(a), y: -Math.sin(a) }
-  const slopeLength = 400
-  const slopeEnd = { x: base.x + slopeLength * upSlope.x, y: base.y + slopeLength * upSlope.y }
-  const body = { x: base.x + 190 * upSlope.x, y: base.y + 190 * upSlope.y }
-  const downSlope = { x: -upSlope.x, y: -upSlope.y }
-  const intoSurface = { x: Math.sin(a), y: Math.cos(a) }
-  const wTip = { x: body.x, y: body.y + weight * s }
-  const alongTip = { x: body.x + along * s * downSlope.x, y: body.y + along * s * downSlope.y }
-  const perpTip = { x: body.x + perp * s * intoSurface.x, y: body.y + perp * s * intoSurface.y }
+  const layout = inclineLayout({ angle, weight, along, perp })
+  const { base, slopeEnd, body, upSlope, intoSurface, wTip, alongTip, perpTip, horizonEnd, labels } = layout
   return (
-    <svg viewBox="0 0 520 320" role="img" aria-label={`جسم على مستوٍ مائل بزاوية ${angle} درجة؛ ثقله ${weight} نيوتن يحلّل إلى مركبة موازية للمستوي ${along.toFixed(1)} نيوتن ومركبة شاقولية على المستوي ${perp.toFixed(1)} نيوتن`}>
+    <svg viewBox={`0 0 ${COMPONENTS_VIEWBOX.width} ${COMPONENTS_VIEWBOX.height}`} role="img" aria-label={`جسم على مستوٍ مائل بزاوية ${angle} درجة؛ ثقله ${weight} نيوتن يحلّل إلى مركبة موازية للمستوي ${along.toFixed(1)} نيوتن ومركبة شاقولية على المستوي ${perp.toFixed(1)} نيوتن`}>
       <DiagramDefs />
       {/* the inclined plane: a real wedge */}
       <path
@@ -203,8 +189,8 @@ function InclineFigure({ angle, weight, along, perp, reducedMotion }: { angle: n
         className="force-components-lab__wedge"
         data-wedge="true"
       />
-      <line x1={base.x - 30} y1={base.y} x2={480} y2={base.y} className="vec-lab__axis" />
-      <text x={486} y={base.y + 4} className="vec-lab__label">الأفق</text>
+      <line x1={base.x - 30} y1={base.y} x2={horizonEnd.x} y2={horizonEnd.y} className="vec-lab__axis" />
+      <text x={layout.horizonLabel.x} y={layout.horizonLabel.y} textAnchor="end" className="vec-lab__label vec-lab__label--ar">{layout.horizonText}</text>
 
       {/* the body on the surface */}
       <rect
@@ -238,19 +224,16 @@ function InclineFigure({ angle, weight, along, perp, reducedMotion }: { angle: n
         className="vec-lab__angle"
       />
 
-      {/* labels */}
-      <VectorSvgLabel x={wTip.x + 12} y={wTip.y} symbol="w" tone="weight" magnitude={`${weight} N`} />
-      <VectorSvgLabel x={alongTip.x + downSlope.x * 26} y={alongTip.y + 26} symbol="F" subscript="1" tone="component1" anchor="middle" magnitude={`${along.toFixed(1)} N`} />
-      <VectorSvgLabel x={perpTip.x + intoSurface.x * 30} y={perpTip.y + 12} symbol="F" subscript="2" tone="component2" anchor="middle" magnitude={`${perp.toFixed(1)} N`} />
-
       {/* incline angle a at the base + the equal angle between w and F₂ */}
-      <path d={`M ${base.x + 52} ${base.y} A 52 52 0 0 0 ${base.x + 52 * Math.cos(a)} ${base.y - 52 * Math.sin(a)}`} className="vec-lab__angle" />
-      <text x={base.x + 62} y={base.y - 10} className="vec-lab__label vec-lab__label--angle">a</text>
-      <path
-        d={`M ${body.x} ${body.y + 34} A 34 34 0 0 0 ${body.x + 34 * Math.sin(a)} ${body.y + 34 * Math.cos(a)}`}
-        className="vec-lab__angle"
-      />
-      <text x={body.x + 10} y={body.y + 52} className="vec-lab__label vec-lab__label--angle">a</text>
+      <path d={layout.baseArc} className="vec-lab__angle" />
+      <text x={labels.aBase.x} y={labels.aBase.y} textAnchor="middle" className="vec-lab__label vec-lab__label--angle">a</text>
+      <path d={layout.bodyArc} className="vec-lab__angle" />
+      <text x={labels.aBody.x} y={labels.aBody.y} textAnchor="middle" className="vec-lab__label vec-lab__label--angle">a</text>
+
+      {/* labels: each placed clear of arrows, arcs, the body and the other labels */}
+      <VectorSvgLabel x={labels.w.x} y={labels.w.y} {...labels.w.spec} tone="weight" anchor="middle" />
+      <VectorSvgLabel x={labels.f1.x} y={labels.f1.y} {...labels.f1.spec} tone="component1" anchor="middle" />
+      <VectorSvgLabel x={labels.f2.x} y={labels.f2.y} {...labels.f2.spec} tone="component2" anchor="middle" />
     </svg>
   )
 }

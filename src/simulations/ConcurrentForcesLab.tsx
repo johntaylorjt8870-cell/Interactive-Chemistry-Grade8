@@ -1,6 +1,13 @@
 import { useMemo, useState } from 'react'
-import { ScientificValue, VectorArrow, VectorSvgLabel } from '@/scientific'
+import { ScientificValue, VectorArrow, VectorArrowSet, VectorSvgLabel } from '@/scientific'
 import type { InteractiveProps } from './registry'
+import {
+  CONCURRENT_BOARD,
+  CONCURRENT_BODY_TEXT,
+  CONCURRENT_TITLE,
+  CONCURRENT_VIEWBOX,
+  concurrentLayout,
+} from './diagramLayouts'
 
 /* ============================================================================
    مختبر القوى المتلاقية — إضافة من المنصة حول تجربة الصفحة 56
@@ -51,20 +58,8 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
     return { t1, t2, sum }
   }, [a1, a2, w])
 
-  const O = { x: 260, y: 190 }
-  const beamY = 34
-  const anchor1 = { x: 260 + 120 * Math.sin(rad(a1)), y: beamY }
-  const anchor2 = { x: 260 - 120 * Math.sin(rad(a2)), y: beamY }
-  const u1 = { x: Math.sin(rad(a1)), y: -Math.cos(rad(a1)) }
-  const u2 = { x: -Math.sin(rad(a2)), y: -Math.cos(rad(a2)) }
-  // force arrow lengths encode the tension magnitudes (1 N ≙ 11 px)
-  const f1Len = 34 + state.t1 * 11
-  const f2Len = 34 + state.t2 * 11
-  const wLen = 34 + w * 11
-  const F1 = { x: O.x + u1.x * f1Len, y: O.y + u1.y * f1Len }
-  const F2 = { x: O.x + u2.x * f2Len, y: O.y + u2.y * f2Len }
-  const W = { x: O.x, y: O.y + wLen }
-  const bodyY = O.y + wLen * 0.62
+  const layout = concurrentLayout({ a1, a2, w, t1: state.t1, t2: state.t2 })
+  const { O, u1, u2, anchor1, anchor2, tail1, tail2, F1, F2, W, bodyY, labels } = layout
 
   return (
     <section
@@ -110,55 +105,67 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
       </div>
 
       <div className="concurrent-forces-lab__figure">
-        <svg viewBox="0 0 520 360" role="img" aria-label={`جسم معلّق بربيعتين مثبّتتين على لوح؛ شدتا الشد ${state.t1.toFixed(1)} و${state.t2.toFixed(1)} نيوتن والثقل ${w} نيوتن، وحوامل القوى الثلاث تتلاقى في النقطة O`}>
-          {/* magnetic spring board */}
-          <rect x={40} y={12} width={440} height={22} rx={6} className="concurrent-forces-lab__board" />
-          <text x={48} y={28} className="concurrent-forces-lab__board-label">لوح الزنابض</text>
+        <svg viewBox={`0 0 ${CONCURRENT_VIEWBOX.width} ${CONCURRENT_VIEWBOX.height}`} role="img" aria-label={`جسم معلّق بربيعتين مثبّتتين على لوح؛ شدتا الشد ${state.t1.toFixed(1)} و${state.t2.toFixed(1)} نيوتن والثقل ${w} نيوتن، وحوامل القوى الثلاث تتلاقى في النقطة O`}>
+          {/* magnetic spring board: a panel, so each spring peg sits where its line of action leaves it */}
+          <rect
+            x={CONCURRENT_BOARD.left}
+            y={CONCURRENT_BOARD.top}
+            width={CONCURRENT_BOARD.right - CONCURRENT_BOARD.left}
+            height={CONCURRENT_BOARD.bottom - CONCURRENT_BOARD.top}
+            rx={12}
+            className="concurrent-forces-lab__board"
+          />
+          <text x={34} y={36} className="concurrent-forces-lab__board-label">{CONCURRENT_TITLE}</text>
 
           {/* lines of action (carriers), all passing through O */}
           {showCarriers ? (
             <g className="vec-lab__construction" data-carriers="true">
-              <line x1={O.x - 200 * u1.x} y1={O.y - 200 * u1.y} x2={anchor1.x} y2={anchor1.y} className="vec-lab__carrier" />
-              <line x1={O.x - 200 * u2.x} y1={O.y - 200 * u2.y} x2={anchor2.x} y2={anchor2.y} className="vec-lab__carrier" />
-              <line x1={O.x} y1={O.y - 170} x2={O.x} y2={330} className="vec-lab__carrier" />
+              <line x1={tail1.x} y1={tail1.y} x2={anchor1.x} y2={anchor1.y} className="vec-lab__carrier" />
+              <line x1={tail2.x} y1={tail2.y} x2={anchor2.x} y2={anchor2.y} className="vec-lab__carrier" />
+              <line x1={O.x} y1={30} x2={O.x} y2={328} className="vec-lab__carrier" />
             </g>
           ) : null}
 
-          {/* the two real springs */}
+          {/* the two real springs: each lies ALONG its force, pegged where the line of action leaves the board */}
           <path d={springPath(anchor1, { x: O.x + u1.x * 12, y: O.y + u1.y * 12 })} className="concurrent-forces-lab__spring" data-spring="1" />
           <path d={springPath(anchor2, { x: O.x + u2.x * 12, y: O.y + u2.y * 12 })} className="concurrent-forces-lab__spring" data-spring="2" />
+          <circle cx={anchor1.x} cy={anchor1.y} r={5} className="concurrent-forces-lab__peg" />
+          <circle cx={anchor2.x} cy={anchor2.y} r={5} className="concurrent-forces-lab__peg" />
 
           {/* strings from the springs to the ring at O */}
           <line x1={O.x + u1.x * 12} y1={O.y + u1.y * 12} x2={O.x} y2={O.y} className="concurrent-forces-lab__string" />
           <line x1={O.x + u2.x * 12} y1={O.y + u2.y * 12} x2={O.x} y2={O.y} className="concurrent-forces-lab__string" />
 
-          {/* hanging body: hook + mass */}
+          {/* hanging body: hook + mass (drawn first, so the weight arrow stays on top and visible) */}
           <line x1={O.x} y1={O.y} x2={O.x} y2={bodyY - 14} className="concurrent-forces-lab__string" />
           <path d={`M ${O.x - 5} ${bodyY - 14} a 5 5 0 1 0 10 0 z`} className="concurrent-forces-lab__hook" />
           <rect x={O.x - 17} y={bodyY - 12} width={34} height={28} rx={5} className="concurrent-forces-lab__body" data-body="true" />
-          <text x={O.x} y={bodyY + 7} textAnchor="middle" className="concurrent-forces-lab__body-label">جسم</text>
+          <text x={layout.bodyLabel.x} y={layout.bodyLabel.y} textAnchor="middle" className="concurrent-forces-lab__body-label">{CONCURRENT_BODY_TEXT}</text>
 
           {/* the three force vectors — real shafts + real arrowheads */}
           <g data-forces="tensions">
-            <VectorArrow x1={O.x} y1={O.y} x2={F1.x} y2={F1.y} role="force1" strokeWidth={3.4} label={`شدّة الربيعة الأولى ${state.t1.toFixed(1)} نيوتن`} />
-            <VectorArrow x1={O.x} y1={O.y} x2={F2.x} y2={F2.y} role="force2" strokeWidth={3.4} label={`شدّة الربيعة الثانية ${state.t2.toFixed(1)} نيوتن`} />
-            <VectorArrow x1={O.x} y1={O.y} x2={W.x} y2={W.y} role="weight" strokeWidth={3.4} label={`ثقل الجسم ${w} نيوتن`} />
+            {/* one shared halo layer under all three: crisp over springs, no fringe over each other */}
+            <VectorArrowSet>
+              <VectorArrow x1={O.x} y1={O.y} x2={F1.x} y2={F1.y} role="force1" strokeWidth={3.4} label={`شدّة الربيعة الأولى ${state.t1.toFixed(1)} نيوتن`} />
+              <VectorArrow x1={O.x} y1={O.y} x2={F2.x} y2={F2.y} role="force2" strokeWidth={3.4} label={`شدّة الربيعة الثانية ${state.t2.toFixed(1)} نيوتن`} />
+              <VectorArrow x1={O.x} y1={O.y} x2={W.x} y2={W.y} role="weight" strokeWidth={3.4} label={`ثقل الجسم ${w} نيوتن`} />
+            </VectorArrowSet>
           </g>
-
-          {/* labels carry their own arrow accents — never colour alone */}
-          <VectorSvgLabel x={F1.x + 12} y={F1.y - 4} symbol="F" subscript="1" tone="force1" magnitude={`${state.t1.toFixed(1)} N`} />
-          <VectorSvgLabel x={F2.x - 12} y={F2.y - 18} symbol="F" subscript="2" tone="force2" anchor="end" magnitude={`${state.t2.toFixed(1)} N`} />
-          <VectorSvgLabel x={W.x + 12} y={W.y + 2} symbol="w" tone="weight" magnitude={`${w} N`} />
 
           {/* concurrency point */}
           <circle cx={O.x} cy={O.y} r={6} className="vec-lab__point" data-meet="O" />
-          <text x={O.x - 22} y={O.y - 10} className="vec-lab__label">O</text>
+          <text x={labels.o.x} y={labels.o.y} textAnchor="middle" className="vec-lab__label">O</text>
 
-          {/* angle arcs against the vertical */}
-          <path d={`M ${O.x + 34 * Math.sin(rad(a1)) * 0.6} ${O.y - 34 * Math.cos(rad(a1)) * 0.6} A 20 20 0 0 1 ${O.x} ${O.y - 20}`} className="vec-lab__angle" />
-          <path d={`M ${O.x - 34 * Math.sin(rad(a2)) * 0.6} ${O.y - 34 * Math.cos(rad(a2)) * 0.6} A 20 20 0 0 0 ${O.x} ${O.y - 20}`} className="vec-lab__angle" />
-          <text x={O.x + 22} y={O.y - 26} className="vec-lab__label vec-lab__label--angle">a₁</text>
-          <text x={O.x - 40} y={O.y - 26} className="vec-lab__label vec-lab__label--angle">a₂</text>
+          {/* angle arcs against the vertical, drawn around O */}
+          <path d={layout.arc1} className="vec-lab__angle" />
+          <path d={layout.arc2} className="vec-lab__angle" />
+          <text x={labels.a1.x} y={labels.a1.y} textAnchor="middle" className="vec-lab__label vec-lab__label--angle">{labels.a1.text}</text>
+          <text x={labels.a2.x} y={labels.a2.y} textAnchor="middle" className="vec-lab__label vec-lab__label--angle">{labels.a2.text}</text>
+
+          {/* labels carry their own arrow accents — never colour alone; each was placed clear of arrows, springs and the other labels */}
+          <VectorSvgLabel x={labels.f1.x} y={labels.f1.y} {...labels.f1.spec} tone="force1" anchor="middle" />
+          <VectorSvgLabel x={labels.f2.x} y={labels.f2.y} {...labels.f2.spec} tone="force2" anchor="middle" />
+          <VectorSvgLabel x={labels.w.x} y={labels.w.y} {...labels.w.spec} tone="weight" anchor="middle" />
         </svg>
       </div>
 

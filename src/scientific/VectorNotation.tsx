@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 import type { ElementType } from 'react'
 import { MathFormula } from './MathFormula'
 import { parseVectorToken } from '@/utils/vectorText'
+import { vectorLabelLayout } from '@/utils/vectorLabelMetrics'
+import type { LabelAnchor } from '@/utils/vectorLabelMetrics'
 
 /* ============================================================================
    VectorNotation — the platform's vector-symbol renderer.
@@ -123,9 +125,20 @@ export function VectorNotation({
    VectorSvgLabel — the same notation inside SVG diagrams.
    ----------------------------------------------------------------------------
    Diagram labels are coordinate-positioned (not bidi-flowed), so the arrow is
-   drawn as real SVG geometry above the symbol: a shaft line plus an arrowhead
-   path. The symbol is italic math serif, the subscript is a real smaller
-   <tspan>, and every label is one inspectable <g data-vector-label>.
+   drawn as real SVG geometry above the symbol: a shaft plus a filled
+   arrowhead. Everything is laid out by `vectorLabelLayout` in LTR *physical*
+   coordinates from advance widths measured on the bundled KaTeX_Math face:
+
+   - The page is RTL and SVG `text-anchor: start|end` follow the inherited
+     `direction`, so the label forces `direction="ltr"` and centres the symbol
+     (`text-anchor: middle`, symmetric in either direction). The accent is
+     centred over the same point, so it can never drift off its letter.
+   - The magnitude (`2.4 N`) is its own LTR run: without that, the bidi
+     algorithm in an RTL page printed it as `N 2.4`.
+   - A halo (surface-coloured stroke under glyphs and accent) keeps the label
+     legible where it crosses springs, grid lines or carriers.
+   - One inspectable <g data-vector-label> per label: real <line>/<path>
+     accent, a real <tspan>-like subscript text, never a Unicode combining mark.
    ========================================================================= */
 
 export type VectorSvgLabelProps = {
@@ -135,23 +148,42 @@ export type VectorSvgLabelProps = {
   subscript?: string
   prime?: boolean
   tone?: VectorTone
-  /** `start` (default) draws the label to the right of (x, y), `middle` centres. */
-  anchor?: 'start' | 'middle' | 'end'
+  /**
+   * Alignment of the whole label block (symbol row + magnitude) at (x, y):
+   * `start` (default) begins at x, `end` finishes at x, `middle` centres on x.
+   * Interpreted in physical left/right terms — never mirrored by the page direction.
+   */
+  anchor?: LabelAnchor
   /** Optional magnitude rendered under the label, e.g. `4 N`. */
   magnitude?: string
+  /** Short Arabic caption to the right of the symbol (read first in RTL): «نسخة F₁». */
+  prefix?: string
+  /** Font size in SVG user units. */
+  size?: number
 }
 
-/** Geometry of the arrow accent above an SVG vector label. */
-function accentGeometry(symbol: string) {
-  const half = 5 + 4.4 * symbol.length
-  return { half, y: -12 }
-}
+export function VectorSvgLabel({
+  x,
+  y,
+  symbol,
+  subscript,
+  prime,
+  tone = 'neutral',
+  anchor = 'start',
+  magnitude,
+  prefix,
+  size,
+}: VectorSvgLabelProps) {
+  const layout = vectorLabelLayout({ symbol, subscript, prime, magnitude, prefix, anchor, size })
+  const { accent } = layout
+  const haloWidth = layout.size * 0.28
+  const headBaseX = accent.x2 - accent.headLength
+  // The shaft ends inside the head so no hairline gap can show between them.
+  const shaftEnd = headBaseX + accent.headLength * 0.2
+  const headPath = `M ${accent.x2} ${accent.y} L ${headBaseX} ${accent.y - accent.headHalf} L ${headBaseX} ${
+    accent.y + accent.headHalf
+  } Z`
 
-export function VectorSvgLabel({ x, y, symbol, subscript, prime, tone = 'neutral', anchor = 'start', magnitude }: VectorSvgLabelProps) {
-  const { half, y: accentY } = accentGeometry(symbol)
-  const head = 3.2
-  // Keep the accent centred over the symbol for every text anchor.
-  const accentShift = anchor === 'middle' ? 0 : anchor === 'end' ? -half : half
   return (
     <g
       transform={`translate(${x} ${y})`}
@@ -159,24 +191,80 @@ export function VectorSvgLabel({ x, y, symbol, subscript, prime, tone = 'neutral
       data-vector-label={symbol}
       data-vector-subscript={subscript ?? ''}
       data-has-arrow="true"
-      textAnchor={anchor === 'middle' ? 'middle' : anchor === 'end' ? 'end' : 'start'}
+      data-label-anchor={anchor}
+      direction="ltr"
+      unicodeBidi="isolate"
     >
-      {/* arrow accent: real shaft + real arrowhead, never a text glyph */}
-      <g className="vec-svg-label__accent" aria-hidden="true" transform={`translate(${accentShift} 0)`}>
-        <line x1={-half} y1={accentY} x2={half - 0.6} y2={accentY} />
-        <path d={`M ${half} ${accentY} L ${half - head * 1.9} ${accentY - head} L ${half - head * 1.9} ${accentY + head} Z`} />
+      {/* halo under the accent, so the arrow reads over springs and grid lines */}
+      <g className="vec-svg-label__halo" aria-hidden="true">
+        <line x1={accent.x1} y1={accent.y} x2={shaftEnd} y2={accent.y} strokeWidth={accent.strokeWidth + haloWidth} />
+        <path d={headPath} strokeWidth={haloWidth} />
       </g>
-      <text className="vec-svg-label__symbol">
+      {/* arrow accent: real shaft + real arrowhead, never a text glyph */}
+      <g className="vec-svg-label__accent" aria-hidden="true">
+        <line x1={accent.x1} y1={accent.y} x2={shaftEnd} y2={accent.y} strokeWidth={accent.strokeWidth} />
+        <path d={headPath} />
+      </g>
+      <text
+        className="vec-svg-label__symbol"
+        x={layout.cx}
+        y={0}
+        textAnchor="middle"
+        fontSize={layout.size}
+        direction="ltr"
+        unicodeBidi="isolate"
+      >
         {symbol}
-        {subscript ? (
-          <tspan className="vec-svg-label__sub" dx="0.5">
-            {subscript}
-          </tspan>
-        ) : null}
-        {prime ? <tspan className="vec-svg-label__prime">′</tspan> : null}
       </text>
-      {magnitude ? (
-        <text className="vec-svg-label__magnitude" y={13}>
+      {layout.sub && subscript ? (
+        <text
+          className="vec-svg-label__sub"
+          x={layout.sub.x}
+          y={layout.sub.y}
+          textAnchor="start"
+          fontSize={layout.sub.size}
+          direction="ltr"
+          unicodeBidi="isolate"
+        >
+          {subscript}
+        </text>
+      ) : null}
+      {layout.prime ? (
+        <text
+          className="vec-svg-label__prime"
+          x={layout.prime.x}
+          y={layout.prime.y}
+          textAnchor="start"
+          fontSize={layout.prime.size}
+          direction="ltr"
+          unicodeBidi="isolate"
+        >
+          ′
+        </text>
+      ) : null}
+      {layout.prefix && prefix ? (
+        <text
+          className="vec-svg-label__prefix"
+          x={layout.prefix.x}
+          y={layout.prefix.y}
+          textAnchor="middle"
+          fontSize={layout.prefix.size}
+          direction="rtl"
+          unicodeBidi="isolate"
+        >
+          {prefix}
+        </text>
+      ) : null}
+      {layout.magnitude && magnitude ? (
+        <text
+          className="vec-svg-label__magnitude"
+          x={layout.magnitude.x}
+          y={layout.magnitude.y}
+          textAnchor={anchor}
+          fontSize={layout.magnitude.size}
+          direction="ltr"
+          unicodeBidi="isolate"
+        >
           {magnitude}
         </text>
       ) : null}

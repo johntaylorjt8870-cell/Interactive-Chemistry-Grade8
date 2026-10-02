@@ -3149,6 +3149,17 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   display: block;
 }
 
+/* The drawings are coordinate-positioned, so they live in LTR *physical* space:
+   SVG `text-anchor: start|end` follow the inherited direction and would mirror in
+   this RTL page (labels anchored from the wrong edge, clipped at the viewBox).
+   Arabic strings inside still shape and order themselves correctly. */
+.parallelogram-lab__figure svg,
+.concurrent-forces-lab__figure svg,
+.force-components-lab__figure svg,
+.parallelogram-lab__scale svg {
+  direction: ltr;
+}
+
 /* --- Non-vector diagram parts -------------------------------------------- */
 
 .vec-lab__dashed {
@@ -3184,9 +3195,19 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   stroke-width: 2;
 }
 
+/* Point names, axes and angles. Letters use the bundled KaTeX italic (same glyphs as
+   the vector labels); numbers use the upright UI face. A surface-coloured halo keeps
+   them legible where they cross a dotted carrier or grid line. */
 .vec-lab__label {
-  font: italic 700 15px var(--font-science);
+  font-family: 'KaTeX_Math', var(--font-latin);
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 700;
   fill: var(--vec-on-diagram);
+  paint-order: stroke fill;
+  stroke: var(--vec-halo);
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 
 .vec-lab__label--angle {
@@ -3194,9 +3215,24 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   fill: var(--vec-angle);
 }
 
+.vec-lab__label--num {
+  font-family: var(--font-latin);
+  font-style: normal;
+  font-weight: 600;
+}
+
 .vec-lab__label--hint {
   font-size: 12px;
   fill: var(--text-muted);
+}
+
+/* Arabic words inside a drawing (e.g. «الأفق»): Arabic face, upright. */
+.vec-lab__label--ar {
+  font-family: var(--font-arabic);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  fill: var(--text-secondary);
 }
 
 /* --- Construction / resultant groups ------------------------------------- */
@@ -3251,14 +3287,20 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
 /* --- Concurrent-forces lab: a real spring setup -------------------------- */
 
 .concurrent-forces-lab__board {
-  fill: var(--surface-sunken);
+  fill: color-mix(in srgb, var(--surface-sunken) 55%, var(--surface-raised));
   stroke: var(--border-strong);
   stroke-width: 1.5;
 }
 
 .concurrent-forces-lab__board-label {
-  font: 600 11px var(--font-arabic);
-  fill: var(--text-muted);
+  font: 600 12px var(--font-arabic);
+  fill: var(--text-secondary);
+}
+
+.concurrent-forces-lab__peg {
+  fill: var(--surface-raised);
+  stroke: var(--vec-spring);
+  stroke-width: 2;
 }
 
 .concurrent-forces-lab__spring {
@@ -3286,9 +3328,14 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   stroke-width: 1.5;
 }
 
+/* Beside the body, not on it: brown-on-amber measured 2.2:1 (light) / 2.3:1 (dark). */
 .concurrent-forces-lab__body-label {
-  font: 700 11px var(--font-arabic);
-  fill: var(--vec-body-edge);
+  font: 700 12px var(--font-arabic);
+  fill: var(--text-secondary);
+  paint-order: stroke fill;
+  stroke: var(--vec-halo);
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 
 /* --- Parallelogram lab: honest scale, angle education -------------------- */

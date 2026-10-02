@@ -63,7 +63,7 @@ export type { ScientificValueProps, ScientificRangeProps, ScientificValueSize } 
 export { ScientificTable } from './ScientificTable'
 export type { ScientificTableProps, ScientificColumn, ScientificRow, TableAlign } from './ScientificTable'
 
-export { ScientificDiagram, DiagramDefs, VectorArrow, DiagramVector, DiagramLegend } from './ScientificDiagram'
+export { ScientificDiagram, DiagramDefs, VectorArrow, VectorArrowSet, DiagramVector, DiagramLegend } from './ScientificDiagram'
 export type { ScientificDiagramProps, VectorArrowProps, VectorRole, DiagramVectorProps, DiagramLegendItem } from './ScientificDiagram'
 
 export { PlatformAddition, TextbookSource, PLATFORM_ADDITION_MARKER } from './PlatformAddition'

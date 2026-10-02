@@ -734,6 +734,15 @@
   font-size: 1em;
 }
 
+/* The KaTeX accent arrow is a hairline at body sizes (shaft ≈ 0.04em). A small
+   stroke thickens shaft and head together, without changing glyph metrics, so
+   the arrowhead stays visible at 1× pixel density. 1 user unit = 0.001em. */
+.vector-notation .katex svg path {
+  stroke: currentColor;
+  stroke-width: 26;
+  stroke-linejoin: round;
+}
+
 .vector-notation--sm { font-size: 0.96em; }
 .vector-notation--md { font-size: 1.08em; }
 .vector-notation--lg { font-size: 1.3em; }
@@ -755,34 +764,77 @@
   color: var(--text-secondary);
 }
 
-/* --- SVG vector labels (VectorSvgLabel) --------------------------------- */
+/* --- SVG vector labels (VectorSvgLabel) ---------------------------------
+   Sizes come from the component as `font-size` attributes in SVG user units,
+   so there is deliberately no `font` shorthand here (it would override them).
+   Glyphs use the bundled KaTeX faces: the same letterforms as the prose
+   notation, available offline, with serif fallbacks. Layout (centred symbol,
+   accent over it, LTR magnitude) is computed in `vectorLabelLayout`. */
 
-.vec-svg-label__symbol {
-  font: italic 700 15px var(--font-science);
-  fill: var(--vec-on-diagram);
+.vec-svg-label {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.vec-svg-label__symbol,
+.vec-svg-label__prime {
+  font-family: 'KaTeX_Math', 'STIX Two Text', 'Times New Roman', Times, serif;
+  font-style: italic;
+  font-weight: 700;
+  fill: currentColor;
 }
 
 .vec-svg-label__sub {
-  font: italic 700 11px var(--font-science);
+  font-family: 'KaTeX_Main', 'STIX Two Text', 'Times New Roman', Times, serif;
+  font-style: normal;
+  font-weight: 400;
+  fill: currentColor;
 }
 
-.vec-svg-label__prime {
-  font: italic 700 13px var(--font-science);
+.vec-svg-label__prefix {
+  font-family: var(--font-arabic);
+  font-weight: 600;
+  fill: var(--text-secondary);
 }
+
+.vec-svg-label__magnitude {
+  font-family: var(--font-latin);
+  font-weight: 600;
+  fill: var(--text-secondary);
+}
+
+/* Halo: a surface-coloured outline painted BEHIND the glyph fill, so labels stay
+   legible where they cross springs, grid lines, carriers or arrowheads. */
+.vec-svg-label__symbol,
+.vec-svg-label__sub,
+.vec-svg-label__prime,
+.vec-svg-label__prefix,
+.vec-svg-label__magnitude {
+  paint-order: stroke fill;
+  stroke: var(--vec-halo);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.vec-svg-label__halo line,
+.vec-svg-label__halo path {
+  stroke: var(--vec-halo);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.vec-svg-label__halo line { fill: none; }
+.vec-svg-label__halo path { fill: var(--vec-halo); }
 
 .vec-svg-label__accent line {
   stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
+  stroke-linecap: butt;
+  fill: none;
 }
 
 .vec-svg-label__accent path {
   fill: currentColor;
-}
-
-.vec-svg-label__magnitude {
-  font: 600 11px var(--font-latin);
-  fill: var(--text-muted);
+  stroke: none;
 }
 
 .vec-svg-label--force1 { color: var(--vec-force1); }
@@ -812,6 +864,21 @@
 .diagram-vector .diagram-vector__head {
   fill: currentColor;
   stroke: none;
+}
+
+/* Halo underlay (surface colour), opt-in via <VectorArrowSet> / `halo`, so shafts and
+   heads stay crisp over springs and grid lines in both themes. Never dashed or animated. */
+.diagram-vector__halo {
+  stroke: var(--vec-halo);
+  stroke-linecap: round;
+  fill: none;
+}
+
+.diagram-vector__head-halo {
+  fill: var(--vec-halo);
+  stroke: var(--vec-halo);
+  stroke-width: 3.6;
+  stroke-linejoin: round;
 }
 
 .diagram-vector--dashed .diagram-vector__shaft {

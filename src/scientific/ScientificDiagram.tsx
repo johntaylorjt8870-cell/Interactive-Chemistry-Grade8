@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { Children, cloneElement, isValidElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 export type ScientificDiagramProps = {
   /** Short title shown above the drawing. */
@@ -156,6 +157,15 @@ export type VectorArrowProps = {
   /** Accessible name for the whole vector, when meaningful. */
   label?: string
   children?: ReactNode
+  /**
+   * Surface-coloured halo under THIS arrow, so it stays crisp over springs or grid lines.
+   * Off by default: an arrow's own halo is painted over every arrow drawn before it (a white
+   * fringe where arrows share an origin). When several arrows cross something busy, wrap
+   * them in <VectorArrowSet>, which draws every halo beneath every arrow.
+   */
+  halo?: boolean
+  /** Used by <VectorArrowSet>: render only the halo layer, or only the arrow itself. */
+  layer?: 'halo' | 'body'
 }
 
 function arrowHeadPath(x1: number, y1: number, x2: number, y2: number, headSize: number) {
@@ -190,8 +200,32 @@ export function VectorArrow({
   className,
   label,
   children,
+  halo = false,
+  layer,
 }: VectorArrowProps) {
   const geometry = arrowHeadPath(x1, y1, x2, y2, headSize)
+  // The shaft width is applied inline: a CSS rule (`.diagram-vector__shaft`) would
+  // otherwise override the SVG presentation attribute and silently ignore the prop.
+  const shaftStyle = strokeWidth !== undefined ? { strokeWidth } : undefined
+  const haloWidth = (strokeWidth ?? 3) + 3.6
+
+  if (layer === 'halo') {
+    return (
+      <g className="diagram-vector-halo" aria-hidden="true">
+        <line
+          className="diagram-vector__halo"
+          x1={x1}
+          y1={y1}
+          x2={geometry.shaft.x2}
+          y2={geometry.shaft.y2}
+          style={{ strokeWidth: haloWidth }}
+        />
+        <path className="diagram-vector__head-halo" d={geometry.head} />
+      </g>
+    )
+  }
+
+  const ownHalo = layer === undefined && halo
   return (
     <g
       className={['diagram-vector', `diagram-vector--${role}`, lineStyle === 'dashed' ? 'diagram-vector--dashed' : null, animated ? 'diagram-vector--animated' : null, className]
@@ -201,17 +235,48 @@ export function VectorArrow({
       data-arrow-head="true"
       {...(label ? { role: 'img', 'aria-label': label } : {})}
     >
+      {ownHalo ? (
+        <>
+          <line
+            className="diagram-vector__halo"
+            x1={x1}
+            y1={y1}
+            x2={geometry.shaft.x2}
+            y2={geometry.shaft.y2}
+            style={{ strokeWidth: haloWidth }}
+            aria-hidden="true"
+          />
+          <path className="diagram-vector__head-halo" d={geometry.head} aria-hidden="true" />
+        </>
+      ) : null}
       <line
         className="diagram-vector__shaft"
         x1={x1}
         y1={y1}
         x2={geometry.shaft.x2}
         y2={geometry.shaft.y2}
-        {...(strokeWidth !== undefined ? { strokeWidth } : {})}
+        style={shaftStyle}
       />
       <path className="diagram-vector__head" d={geometry.head} />
       {children}
     </g>
+  )
+}
+
+/**
+ * Draws a group of <VectorArrow>s with ONE shared halo layer underneath all of them, so
+ * the halo of a later arrow never covers an earlier one (the fringe that appears where
+ * arrows share an origin). Children must be <VectorArrow> elements.
+ */
+export function VectorArrowSet({ children }: { children: ReactNode }) {
+  const arrows = Children.toArray(children).filter(isValidElement) as ReactElement<VectorArrowProps>[]
+  return (
+    <>
+      <g className="diagram-vector-halos" aria-hidden="true">
+        {arrows.map((arrow) => cloneElement(arrow, { layer: 'halo' }))}
+      </g>
+      {arrows.map((arrow) => cloneElement(arrow, { layer: 'body' }))}
+    </>
   )
 }
 

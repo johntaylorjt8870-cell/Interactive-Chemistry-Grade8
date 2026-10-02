@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { DiagramDefs, MathFormula, VectorArrow, VectorSvgLabel, ScientificValue } from '@/scientific'
 import type { InteractiveProps } from './registry'
+import { PARALLELOGRAM_VIEWBOX, PX_PER_CM, parallelogramLayout } from './diagramLayouts'
 
 /* ============================================================================
    مختبر متوازي الأضلاع — إضافة من المنصة حول الصفحتين 57–59
@@ -12,16 +13,6 @@ import type { InteractiveProps } from './registry'
    ========================================================================= */
 
 const rad = (deg: number) => (deg * Math.PI) / 180
-
-/** Picks a drawing scale the way the book does: «كل 1 cm يمثل X N». */
-function scaleFor(maxNewton: number): number {
-  if (maxNewton > 40) return 20
-  if (maxNewton > 20) return 10
-  if (maxNewton > 8) return 5
-  return 1
-}
-
-const PX_PER_CM = 30
 
 type AngleCase = { title: string; text: string }
 
@@ -56,21 +47,8 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
   const [angle, setAngle] = useState(60)
   const [stage, setStage] = useState(reducedMotion ? 2 : 0)
 
-  const geometry = useMemo(() => {
-    const resultant = Math.sqrt(f1 * f1 + f2 * f2 + 2 * f1 * f2 * Math.cos(rad(angle)))
-    const direction = (Math.atan2(f1 * Math.sin(rad(angle)), f2 + f1 * Math.cos(rad(angle))) * 180) / Math.PI
-    const perCm = scaleFor(Math.max(f1, f2, resultant))
-    const s = PX_PER_CM / perCm
-    const O = { x: 90, y: 272 }
-    const u1 = { x: Math.cos(rad(angle)), y: -Math.sin(rad(angle)) }
-    const u2 = { x: 1, y: 0 }
-    const P1 = { x: O.x + f1 * s * u1.x, y: O.y + f1 * s * u1.y }
-    const P2 = { x: O.x + f2 * s * u2.x, y: O.y + f2 * s * u2.y }
-    const M = { x: O.x + (f1 * u1.x + f2 * u2.x) * s, y: O.y + (f1 * u1.y + f2 * u2.y) * s }
-    return { resultant, direction, perCm, O, P1, P2, M, u1, u2, s }
-  }, [f1, f2, angle])
-
-  const { resultant, direction, perCm, O, P1, P2, M, u1, u2 } = geometry
+  const layout = useMemo(() => parallelogramLayout({ f1, f2, angle }), [f1, f2, angle])
+  const { resultant, direction, perCm, O, P1, P2, M, u1, u2, labels } = layout
   const rightAngle = angle === 90
   const special = angleCase(angle, f1, f2)
   const advance = () => setStage((current) => (reducedMotion ? 2 : Math.min(current + 1, 2)))
@@ -137,15 +115,15 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
       </div>
 
       <div className="parallelogram-lab__figure">
-        <svg viewBox="0 0 520 340" role="img" aria-label={`متوازي أضلاع للقوتين ${f1} و${f2} نيوتن بزاوية ${angle} درجة، والمحصلة ${resultant.toFixed(1)} نيوتن`}>
+        <svg viewBox={`0 0 ${PARALLELOGRAM_VIEWBOX.width} ${PARALLELOGRAM_VIEWBOX.height}`} role="img" aria-label={`متوازي أضلاع للقوتين ${f1} و${f2} نيوتن بزاوية ${angle} درجة، والمحصلة ${resultant.toFixed(1)} نيوتن`}>
           <DiagramDefs />
-          {/* centimetre grid — one cell = 1 cm at the chosen scale */}
+          {/* centimetre grid — one cell = 1 cm at the chosen scale; a vertical line always passes through O */}
           <g className="parallelogram-lab__grid" aria-hidden="true">
-            {Array.from({ length: 15 }, (_, i) => (
-              <line key={`v${i}`} x1={O.x + i * PX_PER_CM} y1={30} x2={O.x + i * PX_PER_CM} y2={330} />
+            {layout.gridX.map((x) => (
+              <line key={`v${x}`} x1={x} y1={30} x2={x} y2={330} />
             ))}
-            {Array.from({ length: 11 }, (_, i) => (
-              <line key={`h${i}`} x1={10} y1={O.y - i * PX_PER_CM} x2={510} y2={O.y - i * PX_PER_CM} />
+            {layout.gridY.map((y) => (
+              <line key={`h${y}`} x1={10} y1={y} x2={510} y2={y} />
             ))}
           </g>
 
@@ -158,16 +136,16 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
             <VectorArrow x1={O.x} y1={O.y} x2={P1.x} y2={P1.y} role="force1" strokeWidth={3.4} animated={!reducedMotion} label={`القوّة الأولى ${f1} نيوتن`} />
             <VectorArrow x1={O.x} y1={O.y} x2={P2.x} y2={P2.y} role="force2" strokeWidth={3.4} animated={!reducedMotion} label={`القوّة الثانية ${f2} نيوتن`} />
           </g>
-          <VectorSvgLabel x={P1.x + u1.x * 22} y={P1.y + u1.y * 22} symbol="F" subscript="1" tone="force1" anchor="middle" magnitude={`${f1} N`} />
-          <VectorSvgLabel x={P2.x + 14} y={P2.y + 34} symbol="F" subscript="2" tone="force2" anchor="middle" magnitude={`${f2} N`} />
+          <VectorSvgLabel x={labels.f1.x} y={labels.f1.y} {...labels.f1.spec} tone="force1" anchor="middle" />
+          <VectorSvgLabel x={labels.f2.x} y={labels.f2.y} {...labels.f2.spec} tone="force2" anchor="middle" />
 
           {/* stage 1+: translated copies + the parallelogram */}
           {stage >= 1 ? (
             <g className="vec-lab__construction" data-stage-copies="true">
-              <VectorArrow x1={P2.x} y1={P2.y} x2={M.x} y2={M.y} role="force1" lineStyle="dashed" strokeWidth={2.4} headSize={9} label="نسخة مترجمة من القوّة الأولى" />
-              <VectorArrow x1={P1.x} y1={P1.y} x2={M.x} y2={M.y} role="force2" lineStyle="dashed" strokeWidth={2.4} headSize={9} label="نسخة مترجمة من القوّة الثانية" />
-              <text x={(P1.x + M.x) / 2 + 8} y={(P1.y + M.y) / 2 - 10} className="vec-lab__label vec-lab__label--hint">نسخة F₁</text>
-              <text x={(P2.x + M.x) / 2 + 8} y={(P2.y + M.y) / 2 + 20} className="vec-lab__label vec-lab__label--hint">نسخة F₂</text>
+              <VectorArrow x1={layout.copy1.a.x} y1={layout.copy1.a.y} x2={layout.copy1.b.x} y2={layout.copy1.b.y} role="force1" lineStyle="dashed" strokeWidth={2.4} headSize={9} label="نسخة مترجمة من القوّة الأولى" />
+              <VectorArrow x1={layout.copy2.a.x} y1={layout.copy2.a.y} x2={layout.copy2.b.x} y2={layout.copy2.b.y} role="force2" lineStyle="dashed" strokeWidth={2.4} headSize={9} label="نسخة مترجمة من القوّة الثانية" />
+              <VectorSvgLabel x={labels.copy1.x} y={labels.copy1.y} {...labels.copy1.spec} tone="force1" anchor="middle" />
+              <VectorSvgLabel x={labels.copy2.x} y={labels.copy2.y} {...labels.copy2.spec} tone="force2" anchor="middle" />
             </g>
           ) : null}
 
@@ -175,25 +153,16 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
           {stage >= 2 ? (
             <g className="vec-lab__resultant-group" data-stage-resultant="true">
               <VectorArrow x1={O.x} y1={O.y} x2={M.x} y2={M.y} role="resultant" strokeWidth={4} animated={!reducedMotion} label={`المحصّلة ${resultant.toFixed(1)} نيوتن`} />
-              <VectorSvgLabel x={(O.x + M.x) / 2 + 10} y={(O.y + M.y) / 2 - 14} symbol="F" tone="resultant" anchor="middle" magnitude={`${resultant.toFixed(1)} N`} />
-              <text x={M.x + 10} y={M.y - 8} className="vec-lab__label">M</text>
+              <VectorSvgLabel x={labels.resultant.x} y={labels.resultant.y} {...labels.resultant.spec} tone="resultant" anchor="middle" />
+              <text x={labels.m.x} y={labels.m.y} textAnchor="middle" className="vec-lab__label">M</text>
             </g>
           ) : null}
 
-          {/* angle arc + right-angle mark */}
-          {angle !== 90 ? (
-            <>
-              <path d={`M ${O.x + 32} ${O.y} A 32 32 0 ${angle > 180 ? 1 : 0} 0 ${O.x + 32 * Math.cos(rad(angle))} ${O.y - 32 * Math.sin(rad(angle))}`} className="vec-lab__angle" />
-              <text x={O.x + 44} y={O.y - 14} className="vec-lab__label vec-lab__label--angle">{angle}°</text>
-            </>
-          ) : (
-            <>
-              <path d={`M ${O.x + 20} ${O.y} L ${O.x + 20} ${O.y - 20} L ${O.x} ${O.y - 20}`} className="vec-lab__angle" />
-              <text x={O.x + 28} y={O.y - 26} className="vec-lab__label vec-lab__label--angle">90°</text>
-            </>
-          )}
+          {/* angle arc (or the right-angle mark) + its label */}
+          <path d={layout.arc} className="vec-lab__angle" />
+          <text x={labels.angle.x} y={labels.angle.y} textAnchor="middle" className="vec-lab__label vec-lab__label--angle vec-lab__label--num">{angle}°</text>
           <circle cx={O.x} cy={O.y} r={5} className="vec-lab__point" />
-          <text x={O.x - 18} y={O.y + 18} className="vec-lab__label">O</text>
+          <text x={labels.o.x} y={labels.o.y} textAnchor="middle" className="vec-lab__label">O</text>
         </svg>
       </div>
 
@@ -203,8 +172,8 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
           <rect x={10} y={12} width={PX_PER_CM} height={12} className="parallelogram-lab__scale-bar" />
           <line x1={10} y1={8} x2={10} y2={28} className="parallelogram-lab__scale-tick" />
           <line x1={10 + PX_PER_CM} y1={8} x2={10 + PX_PER_CM} y2={28} className="parallelogram-lab__scale-tick" />
-          <text x={10 + PX_PER_CM / 2} y={40} textAnchor="middle" className="vec-lab__label">1 cm</text>
-          <text x={10 + PX_PER_CM + 14} y={23} className="vec-lab__label vec-lab__label--hint">= {perCm} N</text>
+          <text x={10 + PX_PER_CM / 2} y={40} textAnchor="middle" className="vec-lab__label vec-lab__label--num">1 cm</text>
+          <text x={10 + PX_PER_CM + 14} y={23} textAnchor="start" className="vec-lab__label vec-lab__label--hint vec-lab__label--num">= {perCm} N</text>
         </svg>
         <p className="parallelogram-lab__scale-text">
           مقياس الرسم: <strong>كل 1 cm يمثل {perCm} N</strong> — كل خلية في الشبكة سنتيمتر واحد، فطول الشعاع على
