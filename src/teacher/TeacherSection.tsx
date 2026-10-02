@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { BookGlyph, ClipboardCheckGlyph, KeyGlyph } from '@/components/Icons'
 import { routes } from '@/app/navigation'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScientificNotationText } from '@/scientific'
-import { bookActivitySolutions, bookQuestions, finalTest } from '@/data/curriculum/chemistryLesson1'
+import { TEACHER_LESSONS, getTeacherLesson } from './teacherContent'
 import type { Question } from '@/assessment/types'
 import type { ReactNode } from 'react'
 
@@ -15,9 +15,19 @@ const CONTENT: Record<TeacherSectionKind, { title: string; lead: string; icon: t
   'final-test-solutions': { title: 'حلول الاختبار الشامل', lead: 'الإجابة المرجعية وطريق الوصول إليها لكل سؤال.', icon: KeyGlyph },
 }
 
+/**
+ * One teacher section (book solutions / comprehensive test / its solutions).
+ *
+ * Each published lesson owns an independent tab selected with `?lesson=`;
+ * content is never mixed across lessons, and the default tab is the first
+ * published lesson.
+ */
 export function TeacherSection({ kind }: { kind: TeacherSectionKind }) {
   const content = CONTENT[kind]
-  const questions = kind === 'book-solutions' ? [...bookActivitySolutions, ...bookQuestions] : finalTest.questions
+  const [searchParams] = useSearchParams()
+  const location = useLocation()
+  const lesson = getTeacherLesson(searchParams.get('lesson'))
+  const questions = kind === 'book-solutions' ? lesson.bookQuestions : lesson.finalTest.questions
   const showSolutions = kind !== 'final-test'
   useDocumentTitle(`${content.title} — مساحة المعلم`)
 
@@ -33,12 +43,25 @@ export function TeacherSection({ kind }: { kind: TeacherSectionKind }) {
       </header>
 
       <nav className="teacher-lesson-tabs" aria-label="دروس مساحة المعلم">
-        <span className="teacher-lesson-tab" aria-current="page">الدرس الأول — كيمياء: الذرّة والعنصر</span>
+        {TEACHER_LESSONS.map((entry) => (
+          <Link
+            key={entry.lessonId}
+            className="teacher-lesson-tab"
+            to={`${location.pathname}?lesson=${entry.lessonId}`}
+            aria-current={entry.lessonId === lesson.lessonId ? 'page' : undefined}
+          >
+            {entry.label}
+          </Link>
+        ))}
       </nav>
 
       <section aria-labelledby="teacher-lesson-title">
-        <h2 id="teacher-lesson-title">الدرس الأول — كيمياء: الذرّة والعنصر</h2>
-        <p className="panel__body">{kind === 'book-solutions' ? 'الصفحات 3–12 · تتضمن أسئلة أختبر نفسي كاملة وحلول النشاطات الواردة في سياق الدرس.' : `اختبار من ${finalTest.questions.length} سؤالاً جديداً ومتنوّعاً · إضافة من المنصة.`}</p>
+        <h2 id="teacher-lesson-title">{lesson.label}</h2>
+        <p className="panel__body">
+          {kind === 'book-solutions'
+            ? `${lesson.pages} · ${lesson.bookNote}`
+            : `اختبار من ${lesson.finalTest.questions.length} سؤالاً جديداً ومتنوّعاً · إضافة من المنصة.`}
+        </p>
         <ol className="teacher-answer-list">
           {questions.map((question, index) => <TeacherQuestion key={question.id} question={question} index={index + 1} showSolution={showSolutions} />)}
         </ol>
@@ -53,7 +76,7 @@ function TeacherQuestion({ question, index, showSolution }: { question: Question
       <div className="teacher-answer__meta">
         <span>السؤال {index}</span><span>·</span><span>{typeLabel(question.type)}</span>
         <span>·</span><span>{question.origin === 'textbook' ? 'من الكتاب المدرسي' : 'إضافة من المنصة'}</span>
-        {question.source ? <span>· ص{question.source.page}{question.source.item ? ` — ${question.source.item}` : ''}</span> : null}
+        {question.source ? <span>· مرجع الكتاب: الصفحة {question.source.page}{question.source.item ? ` — ${question.source.item}` : ''}</span> : null}
       </div>
       <p className="teacher-answer__prompt"><ScientificNotationText>{question.prompt}</ScientificNotationText></p>
       <QuestionMaterial question={question} />
