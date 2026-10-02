@@ -1483,7 +1483,15 @@
 }
 
 .lesson-shell__header-inner {
-  padding-block: var(--space-4) var(--space-5);
+  padding-block: var(--space-2) var(--space-3);
+}
+
+.lesson-shell__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-block-size: 2rem;
 }
 
 .lesson-shell__breadcrumb {
@@ -1491,9 +1499,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-2xs);
   color: var(--text-muted);
-  margin-block-end: var(--space-3);
 }
 
 .lesson-shell__breadcrumb a {
@@ -1503,19 +1510,43 @@
 
 .lesson-shell__title-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--space-5);
+  gap: var(--space-4);
+  margin-block-start: var(--space-1);
+}
+
+.lesson-shell__title-block {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-inline-size: 0;
 }
 
 .lesson-shell__title {
-  font-size: var(--fs-3xl);
+  font-size: var(--fs-xl);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lesson-shell__subtitle {
-  margin-block-start: var(--space-2);
+  margin: 0;
   color: var(--text-muted);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
+}
+
+.lesson-shell__step-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-hairline);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
 }
 
 .lesson-shell__mobile-trigger {
@@ -1525,15 +1556,19 @@
 .lesson-shell__progress {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  margin-block-start: var(--space-4);
+  gap: var(--space-3);
+  flex: 0 0 auto;
+}
+
+.lesson-shell__progress .progress {
+  flex: 0 1 180px;
 }
 
 .lesson-shell__progress-label {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: var(--fs-xs);
+  gap: 1px;
+  font-size: var(--fs-2xs);
   color: var(--text-muted);
   white-space: nowrap;
 }
@@ -1541,21 +1576,21 @@
 .lesson-shell__progress-visited {
   color: var(--text-muted);
   opacity: 0.8;
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-3xs);
 }
 
 .lesson-shell__body {
   display: grid;
   grid-template-columns: var(--outline-width) minmax(0, 1fr);
-  gap: clamp(var(--space-6), 4vw, var(--space-12));
+  gap: clamp(var(--space-4), 2.5vw, var(--space-8));
   align-items: start;
-  padding-block-start: var(--space-8);
+  padding-block-start: var(--space-6);
 }
 
 .lesson-shell__aside {
   position: sticky;
-  top: calc(var(--header-height) + 120px);
-  max-block-size: calc(100dvh - var(--header-height) - 150px);
+  top: calc(var(--header-height) + 84px);
+  max-block-size: calc(100dvh - var(--header-height) - 110px);
   overflow-y: auto;
   padding-inline-end: var(--space-2);
 }
@@ -1608,8 +1643,8 @@
   inline-size: 100%;
   display: flex;
   align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-3);
+  gap: var(--space-2);
+  padding: var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
@@ -1636,14 +1671,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: 26px;
-  block-size: 26px;
+  inline-size: 22px;
+  block-size: 22px;
   flex: 0 0 auto;
   border-radius: var(--radius-xs);
   border: 1px solid var(--border-hairline);
   background: var(--surface-base);
   font-family: var(--font-latin);
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-3xs);
   font-weight: var(--fw-bold);
   color: var(--text-muted);
 }
@@ -2647,6 +2682,12 @@
 
   .lesson-shell__title-row {
     flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .lesson-shell__progress .progress {
+    flex: 1 1 auto;
   }
 
   .lesson-nav {
@@ -2679,22 +2720,22 @@
   overflow: hidden;
 }
 .lab__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
-.lab__header h3 { margin: 0; font-size: var(--text-xl); }
-.lab__phase { margin: 0 0 var(--space-1); color: var(--accent); font-size: var(--text-sm); font-weight: 700; }
+.lab__header h3 { margin: 0; font-size: var(--fs-xl); }
+.lab__phase { margin: 0 0 var(--space-1); color: var(--accent); font-size: var(--fs-sm); font-weight: 700; }
 .lab__range { display: grid; gap: var(--space-2); min-inline-size: min(100%, 15rem); font-weight: 650; }
 .lab__range input { inline-size: 100%; accent-color: var(--accent); }
 .lab__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .lab__measurements { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
 .lab__measurements > div { display: grid; gap: var(--space-1); min-inline-size: 0; padding: var(--space-3); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); background: var(--surface-raised); }
-.lab__measurements span { color: var(--text-muted); font-size: var(--text-sm); }
-.lab__measurements strong { color: var(--text-primary); font: 750 var(--text-xl)/1 var(--font-science); direction: ltr; unicode-bidi: isolate; }
+.lab__measurements span { color: var(--text-muted); font-size: var(--fs-sm); }
+.lab__measurements strong { color: var(--text-primary); font: 750 var(--fs-xl)/1 var(--font-science); direction: ltr; unicode-bidi: isolate; }
 .lab__conclusion { margin: 0; padding-inline-start: var(--space-4); border-inline-start: 3px solid var(--accent); color: var(--text-primary); }
 .electron-counter { display: grid; place-items: center; inline-size: 5rem; block-size: 5rem; border: 1px solid var(--accent); border-radius: 50%; }
-.electron-counter span { font-size: var(--text-xs); color: var(--text-muted); }
-.electron-counter strong { font: 800 var(--text-2xl)/1 var(--font-science); }
+.electron-counter span { font-size: var(--fs-xs); color: var(--text-muted); }
+.electron-counter strong { font: 800 var(--fs-2xl)/1 var(--font-science); }
 
 .rutherford-stage { position: relative; min-block-size: 19rem; border-radius: var(--radius-xl); background: radial-gradient(circle at 65% 50%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 20%), linear-gradient(90deg, color-mix(in srgb, var(--palette-ink-900) 7%, transparent), transparent); overflow: hidden; direction: ltr; }
-.rutherford-stage__source { position: absolute; inset-inline-start: 1rem; inset-block-start: 50%; display: grid; place-items: center; inline-size: 3rem; block-size: 5rem; translate: 0 -50%; border-radius: var(--radius-md); background: var(--palette-ink-900); color: var(--text-inverse); font: 800 var(--text-xl)/1 var(--font-science); }
+.rutherford-stage__source { position: absolute; inset-inline-start: 1rem; inset-block-start: 50%; display: grid; place-items: center; inline-size: 3rem; block-size: 5rem; translate: 0 -50%; border-radius: var(--radius-md); background: var(--palette-ink-900); color: var(--text-inverse); font: 800 var(--fs-xl)/1 var(--font-science); }
 .rutherford-stage__foil { position: absolute; inset-inline-start: 61%; inset-block: 1rem; inline-size: .4rem; border-radius: 99px; background: linear-gradient(#e6b94f, #fff1a8, #b67e14); box-shadow: 0 0 1rem #e6b94f66; }
 .rutherford-stage__nucleus { position: absolute; z-index: 2; inset-inline-start: calc(61% - .85rem); inset-block-start: calc(50% - .85rem); display: grid; place-items: center; inline-size: 2rem; block-size: 2rem; border-radius: 50%; background: #d85a55; color: #fff; font-weight: 900; }
 .alpha { --start-y: calc(1.25rem + var(--lane) * 1.65rem); position: absolute; inset-inline-start: 4.5rem; inset-block-start: var(--start-y); color: var(--accent); font: 800 .72rem/1 var(--font-science); animation: alpha-straight 1.2s ease-in var(--delay) both; }
@@ -2707,13 +2748,13 @@
 .shell-model { position: relative; justify-self: center; inline-size: min(100%, 28rem); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 12%, transparent), transparent 65%); direction: ltr; }
 .shell-model__nucleus { position: absolute; z-index: 4; inset: 50% auto auto 50%; display: grid; place-items: center; inline-size: 3rem; block-size: 3rem; translate: -50% -50%; border-radius: 50%; background: #d85a55; color: white; font-size: 1.5rem; font-weight: 900; }
 .shell-ring { --size: calc(5.5rem + var(--ring) * 4.2rem); position: absolute; inset: 50% auto auto 50%; inline-size: var(--size); block-size: var(--size); translate: -50% -50%; border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border-soft)); border-radius: 50%; animation: shell-spin calc(15s + var(--ring) * 4s) linear infinite; }
-.shell-ring__label { position: absolute; inset: -.7rem auto auto 50%; translate: -50% 0; padding: 0 .25rem; background: var(--surface-base); color: var(--text-muted); font: 700 var(--text-xs)/1 var(--font-science); }
+.shell-ring__label { position: absolute; inset: -.7rem auto auto 50%; translate: -50% 0; padding: 0 .25rem; background: var(--surface-base); color: var(--text-muted); font: 700 var(--fs-xs)/1 var(--font-science); }
 .shell-electron { position: absolute; inset: 50% auto auto 50%; inline-size: .72rem; block-size: .72rem; margin: -.36rem; transform: rotate(var(--angle)) translateX(calc(var(--size) / 2)) rotate(calc(-1 * var(--angle))); border: 2px solid var(--surface-base); border-radius: 50%; background: var(--accent); box-shadow: 0 0 .5rem color-mix(in srgb, var(--accent) 55%, transparent); }
 .shell-model--still .shell-ring { animation: none; }
 @keyframes shell-spin { to { rotate: 1turn; } }
 
 .nucleus-builder { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: .35rem; justify-self: center; inline-size: min(100%, 18rem); min-block-size: 12rem; padding: var(--space-6); border-radius: 46% 54% 51% 49%; background: color-mix(in srgb, var(--accent) 9%, var(--surface-raised)); animation: nucleus-breathe 3s ease-in-out infinite alternate; }
-.nucleon { display: grid; place-items: center; inline-size: 2.15rem; block-size: 2.15rem; border-radius: 50%; color: #fff; font: 750 var(--text-sm)/1 var(--font-science); box-shadow: inset 0 -3px 7px #0003; }
+.nucleon { display: grid; place-items: center; inline-size: 2.15rem; block-size: 2.15rem; border-radius: 50%; color: #fff; font: 750 var(--fs-sm)/1 var(--font-science); box-shadow: inset 0 -3px 7px #0003; }
 .nucleon--proton { background: #d85a55; }
 .nucleon--neutron { background: #55728e; }
 .nucleus-builder--still { animation: none; }
@@ -2723,7 +2764,7 @@
 .teacher-lesson-tab { flex: 0 0 auto; padding: var(--space-3) var(--space-4); border: 1px solid var(--accent); border-radius: 999px; background: color-mix(in srgb, var(--accent) 11%, var(--surface-base)); color: var(--text-primary); font-weight: 750; }
 .teacher-answer-list { display: grid; gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
 .teacher-answer { padding: clamp(var(--space-4), 3vw, var(--space-6)); border: 1px solid var(--border-soft); border-radius: var(--radius-xl); background: var(--surface-raised); }
-.teacher-answer__meta { display: flex; gap: var(--space-2); flex-wrap: wrap; color: var(--text-muted); font-size: var(--text-sm); }
+.teacher-answer__meta { display: flex; gap: var(--space-2); flex-wrap: wrap; color: var(--text-muted); font-size: var(--fs-sm); }
 .teacher-answer__prompt { margin-block: var(--space-3); color: var(--text-primary); font-weight: 750; }
 .teacher-answer__result { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: color-mix(in srgb, var(--status-success-text) 12%, var(--surface-base)); color: var(--text-primary); }
 .teacher-answer__explanation { margin-block-end: 0; color: var(--text-muted); }
@@ -3073,8 +3114,12 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
 }
 
 /* ============================================================================
-   Physics vector laboratories (القوى المتلاقية) — subject identity: blue accent
-   ========================================================================== */
+   Physics vector laboratories (القوى المتلاقية) — subject identity: blue/indigo
+   ----------------------------------------------------------------------------
+   Force colours come from the semantic design tokens (--vec-force1 …) so the
+   diagrams stay visible in both themes. Vector geometry itself is drawn by
+   <VectorArrow>/<VectorSvgLabel> (real shaft + real filled arrowhead).
+   ========================================================================= */
 
 .parallelogram-lab__controls {
   display: grid;
@@ -3097,31 +3142,233 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
 
 .parallelogram-lab__figure svg,
 .concurrent-forces-lab__figure svg,
-.force-components-lab__figure svg {
+.force-components-lab__figure svg,
+.parallelogram-lab__scale svg {
   inline-size: 100%;
   block-size: auto;
   display: block;
 }
 
-.vec-lab__force { stroke-width: 3; fill: none; }
-.vec-lab__force--f1 { stroke: #059669; }
-.vec-lab__force--f2 { stroke: #2563eb; }
-.vec-lab__force--w { stroke: #dc2626; }
-.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.5; fill: none; }
-.vec-lab__dashed { stroke: #60a5fa; stroke-width: 1.6; stroke-dasharray: 6 5; fill: none; }
-.vec-lab__carrier { stroke: #94a3b8; stroke-width: 1.2; stroke-dasharray: 2 4; fill: none; }
-.vec-lab__axis { stroke: var(--text-muted); stroke-width: 1.4; fill: none; }
-.vec-lab__angle { stroke: var(--accent); stroke-width: 1.6; fill: none; }
-.vec-lab__point { fill: #dc2626; stroke: var(--surface-raised); stroke-width: 1.5; }
+/* --- Non-vector diagram parts -------------------------------------------- */
+
+.vec-lab__dashed {
+  stroke: var(--vec-construction);
+  stroke-width: 1.6;
+  stroke-dasharray: 6 5;
+  fill: none;
+}
+
+.vec-lab__carrier {
+  stroke: var(--vec-construction);
+  stroke-width: 1.3;
+  stroke-dasharray: 2 4;
+  fill: none;
+  opacity: 0.9;
+}
+
+.vec-lab__axis {
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.vec-lab__angle {
+  stroke: var(--vec-angle);
+  stroke-width: 1.8;
+  fill: none;
+}
+
+.vec-lab__point {
+  fill: var(--vec-point);
+  stroke: var(--surface-raised);
+  stroke-width: 2;
+}
+
 .vec-lab__label {
   font: italic 700 15px var(--font-science);
-  fill: var(--text-primary);
+  fill: var(--vec-on-diagram);
 }
-.vec-lab__label--resultant { fill: var(--accent-strong); }
-.concurrent-forces-lab__body { fill: #f59e0b; stroke: #92400e; stroke-width: 1.2; }
+
+.vec-lab__label--angle {
+  font-size: 13px;
+  fill: var(--vec-angle);
+}
+
+.vec-lab__label--hint {
+  font-size: 12px;
+  fill: var(--text-muted);
+}
+
+/* --- Construction / resultant groups ------------------------------------- */
 
 .vec-lab__construction,
-.vec-lab__resultant-group { animation: vec-lab-fade 0.5s ease both; }
+.vec-lab__resultant-group {
+  animation: vec-lab-fade 0.5s ease both;
+}
+
+@keyframes vec-lab-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Draw-on motion for animated vectors: the arrow grows along its own shaft.
+   Reduced motion keeps the finished vector fully visible. */
+.diagram-vector--animated .diagram-vector__shaft {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: vec-draw 0.7s var(--ease-emphasis) forwards;
+}
+
+.diagram-vector--animated .diagram-vector__head {
+  opacity: 0;
+  animation: vec-lab-fade 0.3s ease 0.55s forwards;
+}
+
+@keyframes vec-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.lab--still .vec-lab__construction,
+.lab--still .vec-lab__resultant-group,
+.lab--still .diagram-vector--animated .diagram-vector__shaft,
+.lab--still .diagram-vector--animated .diagram-vector__head {
+  animation: none;
+  opacity: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vec-lab__construction,
+  .vec-lab__resultant-group,
+  .diagram-vector--animated .diagram-vector__shaft,
+  .diagram-vector--animated .diagram-vector__head {
+    animation: none;
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* --- Concurrent-forces lab: a real spring setup -------------------------- */
+
+.concurrent-forces-lab__board {
+  fill: var(--surface-sunken);
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+
+.concurrent-forces-lab__board-label {
+  font: 600 11px var(--font-arabic);
+  fill: var(--text-muted);
+}
+
+.concurrent-forces-lab__spring {
+  fill: none;
+  stroke: var(--vec-spring);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.concurrent-forces-lab__string {
+  stroke: var(--vec-on-diagram);
+  stroke-width: 1.8;
+}
+
+.concurrent-forces-lab__hook {
+  fill: none;
+  stroke: var(--vec-body-edge);
+  stroke-width: 2;
+}
+
+.concurrent-forces-lab__body {
+  fill: var(--vec-body);
+  stroke: var(--vec-body-edge);
+  stroke-width: 1.5;
+}
+
+.concurrent-forces-lab__body-label {
+  font: 700 11px var(--font-arabic);
+  fill: var(--vec-body-edge);
+}
+
+/* --- Parallelogram lab: honest scale, angle education -------------------- */
+
+.parallelogram-lab__grid line {
+  stroke: var(--grid-line-strong);
+  stroke-width: 1;
+}
+
+.parallelogram-lab__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
+}
+
+.parallelogram-lab__preset {
+  min-inline-size: 4.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.parallelogram-lab__preset.is-active {
+  background: var(--accent-tint);
+  border-color: var(--accent-border);
+  color: var(--text-strong);
+  font-weight: var(--fw-bold);
+}
+
+.parallelogram-lab__scale {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--accent-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--accent-tint);
+  margin-block-end: var(--space-4);
+}
+
+.parallelogram-lab__scale svg {
+  flex: 0 0 auto;
+  inline-size: 180px;
+}
+
+.parallelogram-lab__scale-bar {
+  fill: var(--accent);
+  stroke: var(--accent-strong);
+  stroke-width: 1;
+}
+
+.parallelogram-lab__scale-tick {
+  stroke: var(--accent-strong);
+  stroke-width: 1.5;
+}
+
+.parallelogram-lab__scale-text {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.parallelogram-lab__angle-case {
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 3px solid var(--vec-resultant);
+  background: var(--vec-resultant-soft);
+  border-radius: var(--radius-lg);
+  margin-block-end: var(--space-4);
+  color: var(--text-primary);
+}
+
+.parallelogram-lab__angle-case strong {
+  display: block;
+  margin-block-end: var(--space-1);
+  color: var(--text-strong);
+}
+
+.parallelogram-lab__angle-case p {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
 
 .parallelogram-lab__pythagoras {
   padding: var(--space-3) var(--space-4);
@@ -3131,23 +3378,35 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   margin-block-end: var(--space-4);
 }
 
+.parallelogram-lab__pythagoras-step {
+  margin-block: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.parallelogram-lab__pythagoras-step strong {
+  color: var(--text-strong);
+}
+
+/* --- Force-components lab ------------------------------------------------ */
+
+.force-components-lab__rect {
+  fill: color-mix(in srgb, var(--accent) 8%, transparent);
+  stroke: var(--vec-construction);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+}
+
+.force-components-lab__wedge {
+  fill: color-mix(in srgb, var(--vec-component2) 12%, var(--surface-sunken));
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+
 .concurrent-forces-lab__toggle,
 .covalent-bond-lab__highlight {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   font-weight: 650;
-}
-
-.lab--still .vec-lab__construction,
-.lab--still .vec-lab__resultant-group { animation: none; }
-
-@keyframes vec-lab-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .vec-lab__construction,
-  .vec-lab__resultant-group { animation: none; }
 }
