@@ -6,6 +6,7 @@ import {
   buildPointMotionStyle,
   buildSegmentMotionStyle,
   vectorAngleDeg,
+  vectorLabelPoint,
   vectorLength,
   type Point2D,
 } from './vectorAnimation'
@@ -103,6 +104,13 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
   const carrier2Start: Point2D = { x: O.x - (P2.x - O.x) * 0.35, y: O.y - (P2.y - O.y) * 0.35 }
   const diagMid: Point2D = { x: (O.x + M.x) / 2, y: (O.y + M.y) / 2 }
   const prevDiagMid: Point2D | undefined = prev ? { x: (prev.O.x + prev.M.x) / 2, y: (prev.O.y + prev.M.y) / 2 } : undefined
+
+  // Labels are centred and placed clear of the arrowheads, so they are never
+  // measured against the resolved bidi base direction. See vectorLabelPoint.
+  const labelP1 = vectorLabelPoint(O, P1)
+  const labelP2 = vectorLabelPoint(O, P2)
+  const labelM = vectorLabelPoint(O, M)
+  const labelResultant = vectorLabelPoint(O, diagMid)
 
   const stageLabel =
     stage === 0
@@ -279,20 +287,37 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
             markerEnd="url(#diagram-arrow)"
           />
           <text
-            x={P1.x + 6}
-            y={P1.y - 4}
+            x={labelP1.x}
+            y={labelP1.y}
+            textAnchor="middle"
             className="vec-lab__label"
             data-anim-role="vector-label"
-            style={buildPointMotionStyle(P1, prev?.P1, { delayMs: 200, reducedMotion })}
+            data-label-for="F1"
+            style={buildPointMotionStyle(
+            labelP1,
+            prev ? vectorLabelPoint(prev.O, prev.P1) : undefined,
+            {
+              delayMs: 200,
+              reducedMotion,
+            })}
           >
             F₁
           </text>
           <text
-            x={P2.x + 4}
-            y={P2.y + 14}
+            x={labelP2.x}
+            y={labelP2.y}
+            textAnchor="middle"
             className="vec-lab__label"
             data-anim-role="vector-label"
-            style={buildPointMotionStyle(P2, prev?.P2, { delayMs: 260, reducedMotion })}
+            data-label-for="F2"
+            style={buildPointMotionStyle(
+              labelP2,
+              prev ? vectorLabelPoint(prev.O, prev.P2) : undefined,
+              {
+                delayMs: 260,
+                reducedMotion,
+              },
+            )}
           >
             F₂
           </text>
@@ -345,11 +370,16 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
                 style={buildPointMotionStyle(M, prev?.M, { delayMs: 240, reducedMotion })}
               />
               <text
-                x={M.x + 6}
-                y={M.y - 4}
+                x={labelM.x}
+                y={labelM.y}
+                textAnchor="middle"
                 className="vec-lab__label"
                 data-anim-role="vector-label"
-                style={buildPointMotionStyle(M, prev?.M, { delayMs: 260, reducedMotion })}
+                data-label-for="M"
+                style={buildPointMotionStyle(labelM, prev ? vectorLabelPoint(prev.O, prev.M) : undefined, {
+                  delayMs: 260,
+                  reducedMotion,
+                })}
               >
                 M
               </text>
@@ -377,11 +407,18 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
                 markerEnd="url(#diagram-arrow)"
               />
               <text
-                x={diagMid.x - 14}
-                y={diagMid.y - 6}
+                x={labelResultant.x}
+                y={labelResultant.y}
+                textAnchor="middle"
                 className="vec-lab__label vec-lab__label--resultant"
                 data-anim-role="resultant-label"
-                style={buildPointMotionStyle(diagMid, prevDiagMid, { delayMs: 240, reducedMotion })}
+                data-label-for="F"
+                data-label-anchor="midpoint"
+                style={buildPointMotionStyle(
+                  labelResultant,
+                  prevDiagMid ? vectorLabelPoint(prev!.O, prevDiagMid) : undefined,
+                  { delayMs: 240, reducedMotion },
+                )}
               >
                 F
               </text>
@@ -399,7 +436,7 @@ export default function ParallelogramLab({ reducedMotion }: InteractiveProps) {
             />
           )}
           <circle cx={O.x} cy={O.y} r={4} className="vec-lab__point" data-anim-role="origin" />
-          <text x={O.x - 16} y={O.y + 16} className="vec-lab__label">
+          <text x={O.x - 16} y={O.y + 18} textAnchor="middle" className="vec-lab__label" data-label-kind="marker">
             O
           </text>
         </svg>

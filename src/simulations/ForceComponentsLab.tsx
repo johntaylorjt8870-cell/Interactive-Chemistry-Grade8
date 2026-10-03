@@ -5,7 +5,9 @@ import type { InteractiveProps } from './registry'
 import {
   buildPointMotionStyle,
   buildSegmentMotionStyle,
+  clampToSurface,
   vectorAngleDeg,
+  vectorLabelPoint,
   vectorLength,
   type Point2D,
 } from './vectorAnimation'
@@ -319,6 +321,15 @@ function AxesFigure({
     prevRef.current = { O, tip, onX, onY }
   }, [O.x, O.y, tip.x, tip.y, onX.x, onX.y, onY.x, onY.y])
 
+  // Centred vector labels, placed clear of their arrowheads so their position
+  // is independent of the resolved bidi base direction. See vectorLabelPoint.
+  const labelResultant = vectorLabelPoint(O, tip)
+  const labelOnX = vectorLabelPoint(O, onX, { side: 'below' })
+  const labelOnY = vectorLabelPoint(O, onY)
+  // The rectangle vertex M sits beside the resultant tip so the two labels
+  // never collide.
+  const labelVertexM = clampToSurface({ x: tip.x + 14, y: tip.y + 6 })
+
   return (
     <svg
       viewBox="0 0 480 300"
@@ -329,10 +340,10 @@ function AxesFigure({
       <DiagramDefs />
       <line x1={O.x} y1={O.y} x2={440} y2={O.y} className="vec-lab__axis" />
       <line x1={O.x} y1={O.y} x2={O.x} y2={20} className="vec-lab__axis" />
-      <text x={444} y={O.y + 4} className="vec-lab__label">
+      <text x={444} y={O.y - 8} textAnchor="middle" className="vec-lab__label" data-label-kind="marker">
         x
       </text>
-      <text x={O.x - 4} y={14} className="vec-lab__label">
+      <text x={O.x + 16} y={18} textAnchor="middle" className="vec-lab__label" data-label-kind="marker">
         y
       </text>
 
@@ -417,20 +428,31 @@ function AxesFigure({
           markerEnd="url(#diagram-arrow)"
         />
         <text
-          x={tip.x + 6}
-          y={tip.y - 4}
+          x={labelResultant.x}
+          y={labelResultant.y}
+          textAnchor="middle"
           className="vec-lab__label vec-lab__label--resultant"
           data-anim-role="vector-label"
-          style={buildPointMotionStyle(tip, prev?.tip, { delayMs: 110, reducedMotion })}
+          data-label-for="F"
+          style={buildPointMotionStyle(labelResultant, prev ? vectorLabelPoint(prev.O, prev.tip) : undefined, {
+            delayMs: 110,
+            reducedMotion,
+          })}
         >
           F
         </text>
         <text
-          x={tip.x + 8}
-          y={tip.y + 14}
+          x={labelVertexM.x}
+          y={labelVertexM.y}
+          textAnchor="middle"
           className="vec-lab__label"
           data-anim-role="vector-label"
-          style={buildPointMotionStyle(tip, prev?.tip, { delayMs: 120, reducedMotion })}
+          data-label-for="M"
+          style={buildPointMotionStyle(
+            labelVertexM,
+            prev ? clampToSurface({ x: prev.tip.x + 14, y: prev.tip.y + 6 }) : undefined,
+            { delayMs: 120, reducedMotion },
+          )}
         >
           M
         </text>
@@ -483,27 +505,42 @@ function AxesFigure({
           markerEnd="url(#diagram-arrow)"
         />
         <text
-          x={onX.x + 4}
-          y={onX.y + 16}
+          x={labelOnX.x}
+          y={labelOnX.y}
+          textAnchor="middle"
           className="vec-lab__label"
           data-anim-role="vector-label"
-          style={buildPointMotionStyle(onX, prev?.onX, { delayMs: 390, reducedMotion })}
+          data-label-for="F1"
+          data-label-placement="below"
+          style={buildPointMotionStyle(
+            labelOnX,
+            prev ? vectorLabelPoint(prev.O, prev.onX, { side: 'below' }) : undefined,
+            {
+              delayMs: 390,
+              reducedMotion,
+            },
+          )}
         >
           F₁
         </text>
         <text
-          x={onY.x - 24}
-          y={onY.y + 4}
+          x={labelOnY.x}
+          y={labelOnY.y}
+          textAnchor="middle"
           className="vec-lab__label"
           data-anim-role="vector-label"
-          style={buildPointMotionStyle(onY, prev?.onY, { delayMs: 420, reducedMotion })}
+          data-label-for="F2"
+          style={buildPointMotionStyle(labelOnY, prev ? vectorLabelPoint(prev.O, prev.onY) : undefined, {
+            delayMs: 420,
+            reducedMotion,
+          })}
         >
           F₂
         </text>
       </g>
 
       <circle cx={O.x} cy={O.y} r={4} className="vec-lab__point" data-anim-role="origin" />
-      <text x={O.x - 20} y={O.y + 16} className="vec-lab__label">
+      <text x={O.x - 16} y={O.y + 18} textAnchor="middle" className="vec-lab__label" data-label-kind="marker">
         O
       </text>
     </svg>
@@ -548,6 +585,12 @@ function InclineFigure({
   useEffect(() => {
     prevRef.current = { body, wTip, alongTip, perpTip }
   }, [body.x, body.y, wTip.x, wTip.y, alongTip.x, alongTip.y, perpTip.x, perpTip.y])
+
+  // Centred vector labels, placed clear of their arrowheads so their position
+  // is independent of the resolved bidi base direction. See vectorLabelPoint.
+  const labelW = vectorLabelPoint(body, wTip)
+  const labelAlong = vectorLabelPoint(body, alongTip)
+  const labelPerp = vectorLabelPoint(body, perpTip)
 
   return (
     <svg
@@ -668,11 +711,16 @@ function InclineFigure({
           markerEnd="url(#diagram-arrow)"
         />
         <text
-          x={wTip.x + 8}
-          y={wTip.y - 4}
+          x={labelW.x}
+          y={labelW.y}
+          textAnchor="middle"
           className="vec-lab__label vec-lab__label--resultant"
           data-anim-role="vector-label"
-          style={buildPointMotionStyle(wTip, prev?.wTip, { delayMs: 120, reducedMotion })}
+          data-label-for="w"
+          style={buildPointMotionStyle(labelW, prev ? vectorLabelPoint(prev.body, prev.wTip) : undefined, {
+            delayMs: 120,
+            reducedMotion,
+          })}
         >
           w
         </text>
@@ -721,20 +769,30 @@ function InclineFigure({
           markerEnd="url(#diagram-arrow)"
         />
         <text
-          x={alongTip.x - 4}
-          y={alongTip.y + 16}
+          x={labelAlong.x}
+          y={labelAlong.y}
+          textAnchor="middle"
           className="vec-lab__label"
           data-anim-role="vector-label"
-          style={buildPointMotionStyle(alongTip, prev?.alongTip, { delayMs: 390, reducedMotion })}
+          data-label-for="F1"
+          style={buildPointMotionStyle(labelAlong, prev ? vectorLabelPoint(prev.body, prev.alongTip) : undefined, {
+            delayMs: 390,
+            reducedMotion,
+          })}
         >
           F₁
         </text>
         <text
-          x={perpTip.x + 8}
-          y={perpTip.y + 4}
+          x={labelPerp.x}
+          y={labelPerp.y}
+          textAnchor="middle"
           className="vec-lab__label"
           data-anim-role="vector-label"
-          style={buildPointMotionStyle(perpTip, prev?.perpTip, { delayMs: 420, reducedMotion })}
+          data-label-for="F2"
+          style={buildPointMotionStyle(labelPerp, prev ? vectorLabelPoint(prev.body, prev.perpTip) : undefined, {
+            delayMs: 420,
+            reducedMotion,
+          })}
         >
           F₂
         </text>
@@ -745,7 +803,7 @@ function InclineFigure({
         d={`M ${base.x + 50} ${base.y} A 50 50 0 0 0 ${base.x + 50 * Math.cos(a)} ${base.y - 50 * Math.sin(a)}`}
         className="vec-lab__angle"
       />
-      <text x={base.x + 60} y={base.y - 8} className="vec-lab__label">
+      <text x={base.x + 60} y={base.y - 10} textAnchor="middle" className="vec-lab__label" data-label-kind="marker">
         a
       </text>
     </svg>
