@@ -1600,6 +1600,7 @@
 
 .lesson-rail__progress {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
 }
@@ -2871,8 +2872,19 @@
 .lab__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .lab__measurements { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
 .lab__measurements > div { display: grid; gap: var(--space-1); min-inline-size: 0; padding: var(--space-3); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); background: var(--surface-raised); }
-.lab__measurements span { color: var(--text-muted); font-size: var(--text-sm); }
-.lab__measurements strong { color: var(--text-primary); font: 750 var(--text-xl)/1 var(--font-science); direction: ltr; unicode-bidi: isolate; }
+.lab__measurements span { color: var(--text-muted); font-size: var(--fs-sm); }
+.lab__measurements strong {
+  color: var(--text-primary);
+  /* LTR isolate for the numeric values; Arabic sentences opt back out through
+     `.lab__measurement-text`. Longhands, not the `font` shorthand — see
+     `.vec-lab__label` for why. */
+  font-family: var(--font-latin);
+  font-size: var(--fs-xl);
+  font-weight: 750;
+  line-height: 1;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
 .lab__conclusion { margin: 0; padding-inline-start: var(--space-4); border-inline-start: 3px solid var(--accent); color: var(--text-primary); }
 .electron-counter { display: grid; place-items: center; inline-size: 5rem; block-size: 5rem; border: 1px solid var(--accent); border-radius: 50%; }
 .electron-counter span { font-size: var(--text-xs); color: var(--text-muted); }
@@ -3311,9 +3323,27 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   stroke-dasharray: 3 3;
 }
 .vec-lab__label {
+  /*
+   * Latin scientific label (F₁, F₂, w, O …) drawn inside an Arabic RTL page.
+   *
+   * Isolation is local to this <text> element only — the document, the lesson
+   * and the surrounding SVG all stay RTL, and the Arabic prose around the
+   * diagram is untouched.
+   *
+   * Written as explicit longhands rather than the `font` shorthand: a
+   * shorthand built from var() is invalid *as a whole* if a single custom
+   * property is missing, which silently drops family, size, weight and style
+   * together. That is what used to happen here — `--font-science` was
+   * referenced but never declared, so every label fell back to the inherited
+   * Arabic body font and stopped matching its own coordinates.
+   */
   direction: ltr;
   unicode-bidi: isolate;
-  font: italic 700 15px var(--font-science);
+  font-family: var(--font-latin);
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
   fill: var(--text-primary);
 }
 .vec-lab__label--resultant { fill: var(--accent-strong); }
