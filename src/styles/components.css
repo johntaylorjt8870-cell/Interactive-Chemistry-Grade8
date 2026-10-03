@@ -1502,7 +1502,10 @@
 }
 
 .lesson-shell__header-inner {
-  padding-block: var(--space-4) var(--space-5);
+  /* Compact chrome: on desktop the site header and this header are both
+     sticky, so anything added here is taken from the step content for the
+     whole session. Everything is still present — only the rhythm is tighter. */
+  padding-block: var(--space-2) var(--space-3);
 }
 
 .lesson-shell__breadcrumb {
@@ -1511,8 +1514,9 @@
   align-items: center;
   gap: var(--space-2);
   font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
   color: var(--text-muted);
-  margin-block-end: var(--space-3);
+  margin-block-end: var(--space-2);
 }
 
 .lesson-shell__breadcrumb a {
@@ -1528,13 +1532,14 @@
 }
 
 .lesson-shell__title {
-  font-size: var(--fs-3xl);
+  font-size: var(--fs-2xl);
 }
 
 .lesson-shell__subtitle {
-  margin-block-start: var(--space-2);
+  margin-block-start: var(--space-1);
   color: var(--text-muted);
   font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
 }
 
 .lesson-shell__mobile-trigger {
@@ -1543,16 +1548,22 @@
 
 .lesson-shell__progress {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-4);
-  margin-block-start: var(--space-4);
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
 }
 
 .lesson-shell__progress-label {
+  /* One line instead of a two-line stack: the counter and the visited count
+     read as a single progress caption next to the bar. */
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
   color: var(--text-muted);
   white-space: nowrap;
 }
@@ -1573,8 +1584,8 @@
 
 .lesson-shell__aside {
   position: sticky;
-  top: calc(var(--header-height) + 120px);
-  max-block-size: calc(100dvh - var(--header-height) - 150px);
+  top: calc(var(--header-height) + 108px);
+  max-block-size: calc(100dvh - var(--header-height) - 132px);
   overflow-y: auto;
   padding-inline-end: var(--space-2);
 }
@@ -2705,8 +2716,19 @@
 .lab__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .lab__measurements { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
 .lab__measurements > div { display: grid; gap: var(--space-1); min-inline-size: 0; padding: var(--space-3); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); background: var(--surface-raised); }
-.lab__measurements span { color: var(--text-muted); font-size: var(--text-sm); }
-.lab__measurements strong { color: var(--text-primary); font: 750 var(--text-xl)/1 var(--font-science); direction: ltr; unicode-bidi: isolate; }
+.lab__measurements span { color: var(--text-muted); font-size: var(--fs-sm); }
+.lab__measurements strong {
+  color: var(--text-primary);
+  /* LTR isolate for the numeric values; Arabic sentences opt back out through
+     `.lab__measurement-text`. Longhands, not the `font` shorthand — see
+     `.vec-lab__label` for why. */
+  font-family: var(--font-latin);
+  font-size: var(--fs-xl);
+  font-weight: 750;
+  line-height: 1;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
 .lab__conclusion { margin: 0; padding-inline-start: var(--space-4); border-inline-start: 3px solid var(--accent); color: var(--text-primary); }
 .electron-counter { display: grid; place-items: center; inline-size: 5rem; block-size: 5rem; border: 1px solid var(--accent); border-radius: 50%; }
 .electron-counter span { font-size: var(--text-xs); color: var(--text-muted); }
@@ -3145,9 +3167,27 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   stroke-dasharray: 3 3;
 }
 .vec-lab__label {
+  /*
+   * Latin scientific label (F₁, F₂, w, O …) drawn inside an Arabic RTL page.
+   *
+   * Isolation is local to this <text> element only — the document, the lesson
+   * and the surrounding SVG all stay RTL, and the Arabic prose around the
+   * diagram is untouched.
+   *
+   * Written as explicit longhands rather than the `font` shorthand: a
+   * shorthand built from var() is invalid *as a whole* if a single custom
+   * property is missing, which silently drops family, size, weight and style
+   * together. That is what used to happen here — `--font-science` was
+   * referenced but never declared, so every label fell back to the inherited
+   * Arabic body font and stopped matching its own coordinates.
+   */
   direction: ltr;
   unicode-bidi: isolate;
-  font: italic 700 15px var(--font-science);
+  font-family: var(--font-latin);
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
   fill: var(--text-primary);
 }
 .vec-lab__label--resultant { fill: var(--accent-strong); }

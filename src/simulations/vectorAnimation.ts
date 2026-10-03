@@ -10,6 +10,75 @@ export type Segment2D = {
   end: Point2D
 }
 
+/** Drawing surface shared by the Physics Lesson 1 lab figures. */
+export const LAB_SURFACE = { width: 480, height: 300 } as const
+
+function clampTo(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
+}
+
+/** Keeps a label inside the drawing surface, with room for the glyphs. */
+export function clampToSurface(point: Point2D, margin = 10): Point2D {
+  return {
+    x: Number(clampTo(point.x, margin, LAB_SURFACE.width - margin).toFixed(2)),
+    y: Number(clampTo(point.y, margin + 4, LAB_SURFACE.height - margin).toFixed(2)),
+  }
+}
+
+/**
+ * Position for a vector label, clear of its own arrowhead.
+ *
+ * These labels live inside an Arabic RTL page, so their *anchor* must not be
+ * direction-dependent: every vector label is drawn with `text-anchor: middle`
+ * and centred on the returned point. Under the SVG default (`start`) the same
+ * coordinate resolves to the left edge in LTR and the right edge in RTL, which
+ * is how a label ends up beside or around its shaft instead of beside the
+ * arrowhead.
+ *
+ * Placement is geometric rather than bidi-dependent. The default `auto` side
+ * offsets the label along the normal of the shaft (`dy, -dx`), which is the
+ * "reading" side — straight above a horizontal vector, and beside a vertical
+ * one — so the label stays `gap` px clear of the shaft at every angle. Because
+ * the normal is derived from the *drawing* coordinates only, the result is
+ * identical in an RTL and an LTR document. Callers may override the side for a
+ * specific figure (see ForceComponentsLab's on-axis component).
+ */
+export type VectorLabelSide = 'auto' | 'above' | 'above-left' | 'above-right' | 'below' | 'left' | 'right'
+
+export function vectorLabelPoint(
+  origin: Point2D,
+  anchor: Point2D,
+  options: { gap?: number; side?: VectorLabelSide } = {},
+): Point2D {
+  const gap = options.gap ?? 11
+  const dx = anchor.x - origin.x
+  const dy = anchor.y - origin.y
+  const length = Math.hypot(dx, dy) || 1
+
+  switch (options.side ?? 'auto') {
+    case 'above':
+      return clampToSurface({ x: anchor.x, y: anchor.y - gap })
+    case 'above-left':
+      return clampToSurface({ x: anchor.x - gap, y: anchor.y - gap })
+    case 'above-right':
+      return clampToSurface({ x: anchor.x + gap, y: anchor.y - gap })
+    case 'below':
+      return clampToSurface({ x: anchor.x, y: anchor.y + gap })
+    case 'left':
+      return clampToSurface({ x: anchor.x - gap, y: anchor.y })
+    case 'right':
+      return clampToSurface({ x: anchor.x + gap, y: anchor.y })
+    default:
+      break
+  }
+
+  // Counter-clockwise normal of the shaft: above a rightward vector, beside a
+  // vertical one. Always on the same side of the drawing, never of the text.
+  const nx = dy / length
+  const ny = -dx / length
+  return clampToSurface({ x: anchor.x + nx * gap, y: anchor.y + ny * gap })
+}
+
 /** Euclidean length of an SVG vector segment in viewBox units. */
 export function vectorLength(start: Point2D, end: Point2D): number {
   return Number(Math.hypot(end.x - start.x, end.y - start.y).toFixed(2))

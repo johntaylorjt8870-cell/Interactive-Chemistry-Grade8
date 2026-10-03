@@ -6,6 +6,7 @@ import {
   buildPointMotionStyle,
   buildSegmentMotionStyle,
   vectorAngleDeg,
+  vectorLabelPoint,
   vectorLength,
   type Point2D,
 } from './vectorAnimation'
@@ -52,6 +53,13 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
   const S2: Point2D = { x: O.x + len2 * u2.x, y: O.y + len2 * u2.y }
   const wLen = w * pixelsPerNewton
   const W: Point2D = { x: O.x, y: O.y + wLen }
+
+  // Labels are centred (text-anchor: middle) and placed clear of the arrowhead,
+  // so their position never depends on the resolved bidi base direction and
+  // they never sit on top of the shaft they annotate.
+  const labelF1 = vectorLabelPoint(O, S1)
+  const labelF2 = vectorLabelPoint(O, S2)
+  const labelW = vectorLabelPoint(O, W)
 
   const prevRef = useRef<{ O: Point2D; S1: Point2D; S2: Point2D; W: Point2D } | null>(null)
   const prev = prevRef.current
@@ -264,20 +272,30 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
             markerEnd="url(#diagram-arrow)"
           />
           <text
-            x={S1.x + 6}
-            y={S1.y}
+            x={labelF1.x}
+            y={labelF1.y}
+            textAnchor="middle"
             className="vec-lab__label"
             data-anim-role="vector-label"
-            style={buildPointMotionStyle(S1, prev?.S1, { delayMs: 180, reducedMotion })}
+            data-label-for="F1"
+            style={buildPointMotionStyle(labelF1, prev ? vectorLabelPoint(prev.O, prev.S1) : undefined, {
+              delayMs: 180,
+              reducedMotion,
+            })}
           >
             F₁
           </text>
           <text
-            x={S2.x - 20}
-            y={S2.y}
+            x={labelF2.x}
+            y={labelF2.y}
+            textAnchor="middle"
             className="vec-lab__label"
             data-anim-role="vector-label"
-            style={buildPointMotionStyle(S2, prev?.S2, { delayMs: 220, reducedMotion })}
+            data-label-for="F2"
+            style={buildPointMotionStyle(labelF2, prev ? vectorLabelPoint(prev.O, prev.S2) : undefined, {
+              delayMs: 220,
+              reducedMotion,
+            })}
           >
             F₂
           </text>
@@ -314,16 +332,21 @@ export default function ConcurrentForcesLab({ reducedMotion }: InteractiveProps)
             markerEnd="url(#diagram-arrow)"
           />
           <text
-            x={W.x + 8}
-            y={W.y}
+            x={labelW.x}
+            y={labelW.y}
+            textAnchor="middle"
             className="vec-lab__label"
             data-anim-role="vector-label"
-            style={buildPointMotionStyle(W, prev?.W, { delayMs: 260, reducedMotion })}
+            data-label-for="w"
+            style={buildPointMotionStyle(labelW, prev ? vectorLabelPoint(prev.O, prev.W) : undefined, {
+              delayMs: 260,
+              reducedMotion,
+            })}
           >
             w
           </text>
           <circle cx={O.x} cy={O.y} r={5} className="vec-lab__point" data-meet="O" data-anim-role="origin" />
-          <text x={O.x - 20} y={O.y + 4} className="vec-lab__label">
+          <text x={O.x - 16} y={O.y + 18} textAnchor="middle" className="vec-lab__label" data-label-kind="marker">
             O
           </text>
         </svg>
