@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react'
 
 export type LessonShellProps = {
-  /** Breadcrumb trail rendered above the lesson title. */
+  /** Breadcrumb trail, rendered at the top of the lesson rail. */
   breadcrumb?: ReactNode
   title: string
+  /** What the lesson covers, taken from the lesson definition. */
+  description?: ReactNode
+  /** Line about the step that is currently open (kind + intention). */
   subtitle?: ReactNode
   /** Step counter text, e.g. `الخطوة 3 من 9`. */
   progress: {
@@ -14,27 +17,39 @@ export type LessonShellProps = {
     /** Number of distinct steps visited so far. */
     visited?: number
   }
-  /** Desktop outline column. */
+  /** Step outline: the rail's own list on desktop, the drawer's list on mobile. */
   outline: ReactNode
-  /** Mobile outline trigger + the step content. */
+  /** The step content (one step at a time) and the previous/next navigation. */
   children: ReactNode
-  /** Previous / next navigation. */
+  /** Previous / next navigation, rendered with the step. */
   navigation: ReactNode
-  /** Mobile-only outline opener, rendered next to the title. */
+  /** Compact outline opener for narrow screens; lives in the rail. */
   mobileOutlineTrigger?: ReactNode
 }
 
 /**
- * Lesson layout.
+ * Lesson layout — one rail, no header band.
  *
- * Desktop: content column + persistent outline column, so the student always
- * sees the shape of the lesson. Mobile: a compact progress bar with an
- * accessible drawer for the outline (never a squeezed copy of the desktop
- * layout).
+ * The lesson page owns no header of its own. Everything that used to sit in a
+ * full-width band above the content now lives in a single rail element:
+ *
+ * - **Desktop**: the rail is a sticky column beside the content column. The
+ *   lesson starts directly under the site header, and the step content — the
+ *   experiments, figures and tables — gets the whole remaining surface.
+ * - **Narrow screens**: the very same rail collapses into a one-line compact
+ *   bar (title, step counter, an accessible drawer trigger and a slim progress
+ *   line) at the top of the content flow. Nothing is reserved above the step,
+ *   and the full outline plus the lesson information move into the drawer.
+ *
+ * One element renders both presentations, so the lesson keeps exactly one
+ * `h1`, one progressbar and one outline landmark at any breakpoint. The
+ * content column keeps its own `region` landmark, and the drawer keeps its
+ * `dialog` semantics (see `Drawer` and `LessonFlow`).
  */
 export function LessonShell({
   breadcrumb,
   title,
+  description,
   subtitle,
   progress,
   outline,
@@ -47,19 +62,21 @@ export function LessonShell({
 
   return (
     <div className="lesson-shell">
-      <div className="lesson-shell__header">
-        <div className="container lesson-shell__header-inner">
-          {breadcrumb ? <div className="lesson-shell__breadcrumb">{breadcrumb}</div> : null}
-          <div className="lesson-shell__title-row">
-            <div>
-              <h1 className="lesson-shell__title">{title}</h1>
-              {subtitle ? <p className="lesson-shell__subtitle">{subtitle}</p> : null}
+      <div className="container container--lesson lesson-shell__body">
+        <aside className="lesson-shell__rail" aria-label="مخطط الدرس">
+          <div className="lesson-rail__identity">
+            {breadcrumb ? <div className="lesson-rail__breadcrumb">{breadcrumb}</div> : null}
+            <div className="lesson-rail__title-row">
+              <h1 className="lesson-rail__title">{title}</h1>
+              {mobileOutlineTrigger ? (
+                <div className="lesson-shell__mobile-trigger">{mobileOutlineTrigger}</div>
+              ) : null}
             </div>
-            {mobileOutlineTrigger ? (
-              <div className="lesson-shell__mobile-trigger">{mobileOutlineTrigger}</div>
-            ) : null}
+            {description ? <p className="lesson-rail__description">{description}</p> : null}
+            {subtitle ? <p className="lesson-rail__subtitle">{subtitle}</p> : null}
           </div>
-          <div className="lesson-shell__progress">
+
+          <div className="lesson-rail__progress">
             <div
               className="progress"
               role="progressbar"
@@ -73,23 +90,28 @@ export function LessonShell({
                 <div className="progress__bar" style={{ inlineSize: `${percent}%` }} />
               </div>
             </div>
-            <p className="lesson-shell__progress-label">
-              <span>
+            <p className="lesson-rail__progress-label">
+              <span className="lesson-rail__steps">
                 الخطوة {progress.current} من {progress.total}
               </span>
               {progress.visited !== undefined ? (
-                <span className="lesson-shell__progress-visited">
+                <span className="lesson-rail__visited">
                   زُرت {progress.visited} من {progress.total}
                 </span>
               ) : null}
             </p>
           </div>
-        </div>
-      </div>
 
-      <div className="container lesson-shell__body">
-        <aside className="lesson-shell__aside" aria-label="مخطط الدرس">{outline}</aside>
-        <section className="lesson-shell__main" id="lesson-content" tabIndex={-1} role="region" aria-label="محتوى الدرس">
+          <div className="lesson-rail__outline">{outline}</div>
+        </aside>
+
+        <section
+          className="lesson-shell__main"
+          id="lesson-content"
+          tabIndex={-1}
+          role="region"
+          aria-label="محتوى الدرس"
+        >
           {children}
           <div className="lesson-shell__nav">{navigation}</div>
         </section>

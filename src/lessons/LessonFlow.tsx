@@ -148,11 +148,8 @@ export function LessonFlow({
       <LessonShell
         breadcrumb={breadcrumb}
         title={lesson.title}
-        subtitle={
-          <span className="lesson-shell__step-summary">
-            {meta.label}: {meta.intention}
-          </span>
-        }
+        description={lesson.summary}
+        subtitle={`${meta.label}: ${meta.intention}`}
         progress={{
           current: currentIndex + 1,
           total,
@@ -170,7 +167,7 @@ export function LessonFlow({
         mobileOutlineTrigger={
           <button
             type="button"
-            className="button button--quiet"
+            className="button button--quiet button--small lesson-shell__outline-trigger"
             onClick={() => setDrawerOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={drawerOpen}
@@ -217,6 +214,20 @@ export function LessonFlow({
       </LessonShell>
 
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="خطوات الدرس" side="start">
+        {/* On narrow screens this drawer is the only place where the lesson
+            identity and the progress counters are shown, so it carries them
+            together with the outline instead of showing the outline alone. */}
+        <div className="drawer-lesson">
+          {breadcrumb ? <div className="drawer-lesson__breadcrumb">{breadcrumb}</div> : null}
+          <p className="drawer-lesson__title">{lesson.title}</p>
+          {lesson.summary ? <p className="drawer-lesson__summary">{lesson.summary}</p> : null}
+          <p className="drawer-lesson__progress">
+            الخطوة {currentIndex + 1} من {total} · زُرت {progress.seen} من {total}
+          </p>
+          <p className="drawer-lesson__step">
+            {meta.label}: {meta.intention}
+          </p>
+        </div>
         <LessonOutline
           lesson={lesson}
           currentIndex={currentIndex}

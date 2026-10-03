@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { STEP_KIND_META } from './stepKinds'
 import type { LessonDefinition } from '@/data/curriculum/schema'
 
@@ -24,6 +25,20 @@ export function LessonOutline({
   variant = 'sidebar',
 }: LessonOutlineProps) {
   const seen = new Set(seenStepIds)
+  const currentRef = useRef<HTMLButtonElement>(null)
+
+  /**
+   * The desktop rail scrolls on its own: a long lesson outline must never
+   * push the step content down, and the step the student is on must stay
+   * visible in it. `block: 'nearest'` scrolls the rail only — the page itself
+   * never moves because of the outline. Skipped in the drawer variant, whose
+   * own focus handling decides what is visible.
+   */
+  useEffect(() => {
+    if (variant !== 'sidebar') return
+    // jsdom has no layout engine and no `scrollIntoView`, hence the optional call.
+    currentRef.current?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+  }, [variant, currentIndex])
 
   return (
     <nav
@@ -40,6 +55,7 @@ export function LessonOutline({
           return (
             <li key={step.id} className="lesson-outline__item">
               <button
+                ref={isCurrent ? currentRef : undefined}
                 type="button"
                 className="lesson-outline__button"
                 data-current={isCurrent ? 'true' : undefined}

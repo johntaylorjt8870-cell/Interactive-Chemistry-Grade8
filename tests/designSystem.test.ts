@@ -158,8 +158,12 @@ describe('accessibility foundations in CSS', () => {
 describe('layout responsiveness contract', () => {
   it('switches the lesson outline to a drawer on narrow screens', () => {
     expect(components).toMatch(/@media \(max-width: 1080px\)/)
-    expect(components).toMatch(/\.lesson-shell__aside\s*\{\s*display:\s*none;/)
+    // The rail collapses to a compact, non-sticky bar: its outline column and
+    // the lesson information it repeats are moved into the drawer, which the
+    // compact trigger opens.
+    expect(components).toMatch(/\.lesson-rail__outline\s*\{\s*display:\s*none;/)
     expect(components).toMatch(/\.lesson-shell__mobile-trigger\s*\{\s*display:\s*block;/)
+    expect(components).toMatch(/\.lesson-shell__rail\s*\{[^}]*position:\s*relative/s)
   })
 
   it('collapses the desktop navigation into the menu button on small screens', () => {

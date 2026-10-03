@@ -126,6 +126,9 @@
 
   /* --- Layout ----------------------------------------------------------- */
   --layout-max: 1240px;
+  /* Lesson pages are the widest surface: experiments, figures and tables get
+     the extra width, and the reading measure stays capped by the components. */
+  --layout-max-lesson: 1440px;
   --layout-gutter: clamp(1rem, 4vw, 3rem);
   --header-height: 68px;
   --outline-width: 300px;

@@ -1487,107 +1487,164 @@
   gap: var(--space-6);
 }
 
-/* --- Lesson shell --------------------------------------------------------- */
+/* --- Lesson shell ---------------------------------------------------------
+   A lesson page owns no header band. Lesson identity, progress and the step
+   outline live together in one rail:
+
+   Desktop — the rail is a sticky column beside the content, and the lesson
+             starts directly under the site header.
+   Narrow  — the same rail collapses into a one-line compact bar (title, step
+             counter, drawer trigger, slim progress edge) at the top of the
+             content flow; the outline and the lesson information move into the
+             drawer, so the step content keeps almost the whole screen.
+
+   Nothing above the content reserves the old header height: the only vertical
+   gap is the small space token below. */
+
+.container--lesson {
+  /* Lessons are the widest surface on the platform: experiments, figures and
+     data tables get the extra width; the reading measure is capped by the
+     components themselves (`.prose`, `.lead`). */
+  max-width: var(--layout-max-lesson);
+}
 
 .lesson-shell {
   padding-block-end: var(--space-12);
 }
 
-.lesson-shell__header {
-  border-block-end: 1px solid var(--border-hairline);
-  background: var(--surface-base);
+.lesson-shell__body {
+  display: grid;
+  grid-template-columns: var(--outline-width) minmax(0, 1fr);
+  gap: clamp(var(--space-6), 2.4vw, var(--space-10));
+  align-items: start;
+  padding-block-start: var(--space-6);
+}
+
+.lesson-shell__rail {
   position: sticky;
-  top: var(--header-height);
-  z-index: 10;
+  top: calc(var(--header-height) + var(--space-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-block-size: calc(100dvh - var(--header-height) - var(--space-8));
+  overflow: hidden;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-base);
+  box-shadow: var(--shadow-xs);
 }
 
-.lesson-shell__header-inner {
-  /* Compact chrome: on desktop the site header and this header are both
-     sticky, so anything added here is taken from the step content for the
-     whole session. Everything is still present — only the rhythm is tighter. */
-  padding-block: var(--space-2) var(--space-3);
+.lesson-rail__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-inline-size: 0;
 }
 
-.lesson-shell__breadcrumb {
+.lesson-rail__breadcrumb {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
-  font-size: var(--fs-xs);
-  line-height: var(--lh-snug);
+  font-size: var(--fs-2xs);
   color: var(--text-muted);
-  margin-block-end: var(--space-2);
 }
 
-.lesson-shell__breadcrumb a {
+.lesson-rail__breadcrumb a {
   color: var(--text-secondary);
   text-decoration: none;
 }
 
-.lesson-shell__title-row {
+.lesson-rail__breadcrumb a:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
+}
+
+.lesson-rail__title-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-5);
+  gap: var(--space-3);
+  min-inline-size: 0;
 }
 
-.lesson-shell__title {
+.lesson-rail__title {
   font-size: var(--fs-2xl);
+  line-height: var(--lh-snug);
+  min-inline-size: 0;
 }
 
-.lesson-shell__subtitle {
-  margin-block-start: var(--space-1);
-  color: var(--text-muted);
-  font-size: var(--fs-sm);
+.lesson-rail__description {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+
+/* The step that is currently open, as a quiet chip: it changes as the student
+   moves, so it reads as state rather than as part of the lesson identity. */
+.lesson-rail__subtitle {
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-size: var(--fs-2xs);
   line-height: var(--lh-snug);
+  color: var(--text-secondary);
 }
 
 .lesson-shell__mobile-trigger {
   display: none;
 }
 
-.lesson-shell__progress {
+.lesson-rail__progress {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
-  margin-block-start: var(--space-2);
 }
 
-.lesson-shell__progress-label {
-  /* One line instead of a two-line stack: the counter and the visited count
-     read as a single progress caption next to the bar. */
+.lesson-rail__progress-label {
   display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  font-size: var(--fs-xs);
-  line-height: var(--lh-snug);
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-2xs);
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-.lesson-shell__progress-visited {
+.lesson-rail__visited {
   color: var(--text-muted);
-  opacity: 0.8;
+  opacity: 0.85;
   font-size: var(--fs-2xs);
 }
 
-.lesson-shell__body {
-  display: grid;
-  grid-template-columns: var(--outline-width) minmax(0, 1fr);
-  gap: clamp(var(--space-6), 4vw, var(--space-12));
-  align-items: start;
-  padding-block-start: var(--space-8);
+.lesson-shell__rail .progress__track {
+  block-size: 6px;
 }
 
-.lesson-shell__aside {
-  position: sticky;
-  top: calc(var(--header-height) + 108px);
-  max-block-size: calc(100dvh - var(--header-height) - 132px);
+/* Only the outline scrolls inside the rail, so a long lesson never lengthens
+   the content column and the current step stays reachable. */
+.lesson-rail__outline {
+  flex: 1 1 auto;
+  min-block-size: 0;
   overflow-y: auto;
-  padding-inline-end: var(--space-2);
+  overscroll-behavior: contain;
+  padding-block: var(--space-3) var(--space-1);
+  border-block-start: 1px solid var(--border-hairline);
+}
+
+.lesson-shell__rail .lesson-outline__button {
+  gap: var(--space-2);
+  padding: var(--space-2);
+  /* Keeps the focused entry (and its focus ring) clear of the scroll edge. */
+  scroll-margin-block: var(--space-2);
+}
+
+.lesson-shell__rail .lesson-outline__index {
+  inline-size: 22px;
+  block-size: 22px;
 }
 
 .lesson-shell__main {
@@ -1598,6 +1655,49 @@
   margin-block-start: var(--space-8);
   padding-block-start: var(--space-5);
   border-block-start: 1px solid var(--border-hairline);
+}
+
+/* --- Lesson drawer (mobile lesson information + outline) ------------------ */
+
+.drawer-lesson {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-block-end: var(--space-5);
+  padding-block-end: var(--space-4);
+  border-block-end: 1px solid var(--border-hairline);
+}
+
+.drawer-lesson__breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.drawer-lesson__breadcrumb a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.drawer-lesson__title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.drawer-lesson__summary {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+
+.drawer-lesson__progress,
+.drawer-lesson__step {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
 }
 
 .progress {
@@ -2625,14 +2725,66 @@
 
   .lesson-shell__body {
     grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block-start: var(--space-3);
   }
 
-  .lesson-shell__aside {
+  /* The rail collapses into the compact bar: it scrolls away with the content,
+     never sticks, and takes one line plus the progress edge — the step content
+     starts almost at the top of the screen. */
+  .lesson-shell__rail {
+    position: relative;
+    max-block-size: none;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2) var(--space-2);
+    border-radius: var(--radius-md);
+    box-shadow: none;
+  }
+
+  .lesson-rail__identity {
+    gap: var(--space-1);
+  }
+
+  /* Lesson information is not lost on mobile: it moves into the drawer, which
+     is also the only place the full outline is rendered at this width. */
+  .lesson-rail__breadcrumb,
+  .lesson-rail__description,
+  .lesson-rail__subtitle,
+  .lesson-rail__outline {
     display: none;
+  }
+
+  .lesson-rail__title-row {
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .lesson-rail__title {
+    flex: 1 1 auto;
+    font-size: var(--fs-md);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .lesson-shell__mobile-trigger {
     display: block;
+    order: -1;
+    flex: 0 0 auto;
+  }
+
+  .lesson-rail__progress {
+    gap: var(--space-2);
+  }
+
+  .lesson-rail__progress-label {
+    flex-direction: row;
+    gap: var(--space-2);
+    font-size: var(--fs-2xs);
+  }
+
+  .lesson-shell__rail .progress__track {
+    block-size: 5px;
   }
 }
 
@@ -2671,12 +2823,16 @@
     border-radius: var(--radius-lg);
   }
 
-  .lesson-shell__header {
-    position: static;
+  .lesson-shell__rail {
+    border-radius: var(--radius-sm);
   }
 
-  .lesson-shell__title-row {
-    flex-direction: column;
+  /* On phone widths the lesson name may take a second line instead of being
+     clipped to an unreadable fragment — the compact bar only grows by one
+     line, and the site header stays the tallest fixed element on screen. */
+  .lesson-rail__title {
+    white-space: normal;
+    overflow: visible;
   }
 
   .lesson-nav {
