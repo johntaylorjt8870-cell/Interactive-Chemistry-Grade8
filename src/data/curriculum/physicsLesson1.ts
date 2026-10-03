@@ -1,4 +1,5 @@
 import type { FinalTest, Question } from '@/assessment/types'
+import type { PageReference } from '@/data/source'
 import type { LessonDefinition, LessonStep } from './schema'
 
 /* ============================================================================
@@ -29,6 +30,36 @@ const verifiedSource = {
     notes: 'تنقيح 1 (2026-10-02): أُنشئ التقرير في هذه الجلسة؛ أُغلق F9 بقراءة مباشرة لسطر البند 3 صفحة 56 («الزّنابض») وصُحّح F6 إلى «أسائل».',
   },
 }
+
+/**
+ * Audit inventory for the textbook visuals actually placed in this lesson.
+ *
+ * The supplied page scans are not present as files in this repository or the
+ * current workspace. These records deliberately carry no `src`, so they are
+ * never rendered as `source-image` blocks or substituted with a lab. They
+ * retain the textbook location and student-step order for a future restoration
+ * using only the actual page scan or figure asset.
+ */
+export type PhysicsLesson1TextbookVisual = {
+  id: string
+  stepId: string
+  source: PageReference
+  attribution: 'textbook'
+  assetStatus: 'source-scan-not-in-workspace'
+}
+
+export const physicsLesson1TextbookVisuals = [
+  { id: 'p55-parachutist-photo', stepId: 'entry-parachute', source: source('55', 'صورة المظلّي'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p56-spring-experiment', stepId: 'concurrent-experiment', source: source('56', 'شكل التجربة'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p56-concurrent-forces-conclusion', stepId: 'concurrent-experiment', source: source('56', 'شكل الاستنتاج'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p57-resultant-construction', stepId: 'resultant-construction', source: source('57', 'الشكل الجانبي'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p57-resultant-conclusion', stepId: 'resultant-construction', source: source('57', 'شكل الاستنتاج'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p58-parallelogram-worked-example', stepId: 'solved-60', source: source('58', 'الشكل الجانبي'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p59-perpendicular-resultant-worked-example', stepId: 'solved-90', source: source('59', 'الشكل الجانبي'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p59-force-components-axes', stepId: 'components-theory', source: source('59', 'شكل تحليل القوّة'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p60-inclined-plane-activity', stepId: 'incline-activity', source: source('60', 'شكل النشاط'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+  { id: 'p61-summary-parallelogram', stepId: 'learn-box', source: source('61', 'الشكل الجانبي'), attribution: 'textbook', assetStatus: 'source-scan-not-in-workspace' },
+] as const satisfies readonly PhysicsLesson1TextbookVisual[]
 
 /* ---------------------------------------------------------------------------
    أسئلة الكتاب — الصفحتان 61–62 «أختبر نفسي»
@@ -297,20 +328,19 @@ const bookAssessment: FinalTest = {
 
 const steps: LessonStep[] = [
   {
-    id: 'entry-parachute', kind: 'source', title: 'مدخل الدرس: الأهداف والكلمات المفتاحية والمظلّي', summary: 'صفحة 55 كما هي: الأهداف الأربعة والكلمات المفتاحية وفقرة المظلّي وأسئلتها.', attribution: 'mixed',
+    id: 'entry-parachute', kind: 'source', title: 'مدخل الدرس: الأهداف والكلمات المفتاحية والمظلّي', summary: 'صفحة 55: الأهداف الأربعة والكلمات المفتاحية وفقرة المظلّي وأسئلتها.', attribution: 'textbook',
     source: { pages: [source('55')], verified: true }, minutes: 6,
     blocks: [
       { kind: 'textbook-verbatim', text: 'الوحدة الثانية الحركة والقوى', source: { page: '55' } },
       { kind: 'textbook-verbatim', text: '1 القوى المتلاقية', source: { page: '55', item: 'رقم الدرس وعنوانه' } },
       { kind: 'list', attribution: 'textbook', items: ['يتعرّفُ القوى المتلاقية.', 'يوضّحُ بالرّسم القوى المتلاقية.', 'يجدُ عناصر محصّلة قوّتين متلاقيتين.', 'يحلّلُ القوّة إلى مركّبتين متعامدتين.'] },
       { kind: 'textbook-verbatim', text: 'الكلمات المفتاحية: القوى المتلاقية – تحليل القوّة.', source: { page: '55' } },
-      { kind: 'paragraph', attribution: 'platform', text: 'صورة الصفحة فوتوغرافية: مظلّيٌّ يهبط بمظلّة حمراء–صفراء. تُستبدل الصورة هنا بوصفها، والأسئلة بعدها هي مدخل الكتاب إلى الدرس.' },
       { kind: 'textbook-verbatim', text: 'يستخدمُ المظلّيُّ الذي يهبطُ من طائرةٍ على ارتفاعٍ ما من سطح الأرض مظلّةً من أجل الوصول إلى الأرض بسلامةٍ وأمان.', source: { page: '55' } },
       { kind: 'textbook-verbatim', text: 'كيف يرتبط المظلّيُّ بمظلّته؟ ما القوى المؤثّرة على المظلّيِّ؟ أين تتلاقى حبالُ المظلّة؟', source: { page: '55' } },
     ],
   },
   {
-    id: 'concurrent-experiment', kind: 'experiment', title: 'تجربة الكتاب: ربيعتان وجسم معلّق', summary: 'صفحة 56: أدوات التجربة وخطواتها السبعة واستنتاج تعريف القوى المتلاقية.', attribution: 'mixed',
+    id: 'concurrent-experiment', kind: 'experiment', title: 'تجربة الكتاب: ربيعتان وجسم معلّق', summary: 'صفحة 56: أدوات التجربة وخطواتها السبعة واستنتاج تعريف القوى المتلاقية.', attribution: 'textbook',
     source: { pages: [source('56', 'تجربة تعريف القوى المتلاقية')], verified: true }, minutes: 10,
     blocks: [
       { kind: 'textbook-verbatim', text: 'تعريف القوى المتلاقية:', source: { page: '56' } },
@@ -327,14 +357,13 @@ const steps: LessonStep[] = [
           'أين تلتقي الخطوط الممثّلة لحوامل القوى الثلاث؟',
         ],
       },
-      { kind: 'paragraph', attribution: 'platform', text: 'شكل التجربة في الكتاب: ربيعتان مائلتان تسحبان نحو الأعلى يميناً ويساراً (F₁⃗ أخضر وF₂⃗ أزرق)، والجسم معلّق بينهما ويتدلّى ثقله w⃗ أحمر نحو الأسفل من النقطة O.' },
       { kind: 'callout', tone: 'note', title: 'أستنتج', attribution: 'textbook', text: 'القوى المتلاقية: هي القوى التي تتلاقى حواملها في نقطة واحدة.' },
     ],
   },
   {
     id: 'concurrent-lab', kind: 'simulation', title: 'محاكاة: تجربة الربيعتين بيدك', summary: 'غيّر الزاويتين والثقل وراقب شدّتي الشدّ وتلاقي الحوامل في O.', attribution: 'platform', minutes: 8,
     blocks: [
-      { kind: 'paragraph', attribution: 'platform', text: 'المحاكاة تعيد بناء تجربة الصفحة 56 رقمياً: ربيعتان وجسم معلّق. حرّك المنزلقات وراقب العدّادات، ثم فعّل امتدادات الحوامل لترى بعينيك أن الخطوط الثلاثة تلتقي في نقطة واحدة مهما غيّرت.' },
+      { kind: 'paragraph', attribution: 'platform', text: 'هذه محاكاة تفاعلية من المنصة مستلهمة من تجربة الصفحة 56، وليست إعادة إنتاج لشكل الكتاب: جسم معلّق بربيعتين. حرّك المنزلقات وراقب العدّادات، ثم فعّل امتدادات الحوامل لترى أن الخطوط الثلاثة تلتقي في نقطة واحدة مهما غيّرت.' },
       { kind: 'interactive', interactiveId: 'concurrent-forces-lab', caption: 'حرّك المنزلقات الثلاثة وبدّل إظهار الامتدادات، ثم اقرأ الاستنتاج.' },
     ],
   },
@@ -381,7 +410,7 @@ const steps: LessonStep[] = [
   {
     id: 'parallelogram-lab-step', kind: 'simulation', title: 'محاكاة: ابنِ متوازي الأضلاع وغيّر الزاوية', summary: 'القوّتان والزاوية منزلقات، والبناء يظهر مراحل: الحاملان، المتوازي، القطر.', attribution: 'platform', minutes: 10,
     blocks: [
-      { kind: 'paragraph', attribution: 'platform', text: 'المحاكاة تنفّذ خطوات الصفحة 57 بيدك: ارسم الشعاعين، أكمل المتوازي، ارسم القطر، ثم اقرأ الشدّة والجهة من العدّادات. جرّب الزاوية 90° لترى حالة المستطيل وقانون فيتاغورث بأرقامك أنت.' },
+      { kind: 'paragraph', attribution: 'platform', text: 'هذه محاكاة تفاعلية من المنصة لتجربة بناء المحصّلة الموصوفة في الصفحة 57، وليست إعادة إنتاج لرسم الكتاب. ارسم الشعاعين، أكمل المتوازي، ارسم القطر، ثم اقرأ الشدّة والجهة من العدّادات. جرّب الزاوية 90° لترى حالة المستطيل وقانون فيتاغورث بأرقامك أنت.' },
       { kind: 'interactive', interactiveId: 'parallelogram-lab', caption: 'ابدأ بـ«ارسم القوّتين» وتتابع المراحل، ثم حرّك المنزلقات وراقب المحصّلة.' },
     ],
   },
@@ -509,7 +538,7 @@ const steps: LessonStep[] = [
   {
     id: 'components-lab', kind: 'simulation', title: 'محاكاة: من قوّة واحدة إلى مركّبتين', summary: 'وضعان: تحليل على محورين متعامدين، وتحليل الثقل على المستوي المائل.', attribution: 'platform', minutes: 9,
     blocks: [
-      { kind: 'paragraph', attribution: 'platform', text: 'المحاكاة تطبق خطوات الصفحة 60: ارسم القوّة، ارسم المحورين، أسقط العمودين من M، واقرأ المركّبتين. ثم انتقل إلى وضع المستوي المائل لتنفّذ نشاط الصفحة 60 وتكتشف الشكل الناتج بنفسك.' },
+      { kind: 'paragraph', attribution: 'platform', text: 'هذه محاكاة تفاعلية من المنصة تطبق طريقة التحليل الموصوفة في الصفحة 60، وليست إعادة إنتاج لرسم الكتاب: ارسم القوّة، ارسم المحورين، أسقط العمودين من M، واقرأ المركّبتين. ثم انتقل إلى وضع المستوي المائل لتنفّذ نشاط الصفحة 60 وتكتشف الشكل الناتج بنفسك.' },
       { kind: 'interactive', interactiveId: 'force-components-lab', caption: 'بدّل بين الوضعين وغيّر الزاوية والشدّة وراقب المركّبتين والشكل الناتج.' },
     ],
   },
@@ -519,7 +548,6 @@ const steps: LessonStep[] = [
     blocks: [
       { kind: 'textbook-verbatim', text: 'نشاط: إذا وضع جسم صلب فوق مستوٍ مائل أملس يميل عن الأفق بزاوية، والمطلوب:', source: { page: '60' } },
       { kind: 'list', attribution: 'textbook', ordered: true, items: ['أحدّدُ بالرّسم القوى المؤثّرة عليه.', 'أحلّل قوّة ثقله إلى مركّبتين متعامدتين، ما الشّكل الذي أحصل عليه؟'] },
-      { kind: 'paragraph', attribution: 'platform', text: 'شكل النشاط في الكتاب: مستوٍ مائل بزاوية a، والجسم عليه، وسهم الثقل w⃗ شاقولي نحو الأسفل يُحلّ بامتدادين متقطعين إلى مركّبة على امتداد الميل وأخرى عمودية عليه، مع سهم ردّ الفعل R⃗ الخارج من السطح. حلّ البندَين موجود في مساحة المعلم.' },
     ],
   },
   {

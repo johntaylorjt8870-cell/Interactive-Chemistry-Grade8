@@ -1,11 +1,12 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { BookGlyph, ClipboardCheckGlyph, KeyGlyph } from '@/components/Icons'
+import { InteractiveHost } from '@/components/InteractiveHost'
 import { routes } from '@/app/navigation'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { ScientificNotationText } from '@/scientific'
+import { isInteractiveRegistered } from '@/simulations/registry'
 import { TEACHER_LESSONS, getTeacherLesson } from './teacherContent'
 import type { Question } from '@/assessment/types'
-import type { ReactNode } from 'react'
 
 export type TeacherSectionKind = 'book-solutions' | 'final-test' | 'final-test-solutions'
 
@@ -73,19 +74,63 @@ export function TeacherSection({ kind }: { kind: TeacherSectionKind }) {
 function TeacherQuestion({ question, index, showSolution }: { question: Question; index: number; showSolution: boolean }) {
   return (
     <li className="teacher-answer">
-      <div className="teacher-answer__meta">
-        <span>السؤال {index}</span><span>·</span><span>{typeLabel(question.type)}</span>
-        <span>·</span><span>{question.origin === 'textbook' ? 'من الكتاب المدرسي' : 'إضافة من المنصة'}</span>
-        {question.source ? <span>· مرجع الكتاب: الصفحة {question.source.page}{question.source.item ? ` — ${question.source.item}` : ''}</span> : null}
-      </div>
+      <QuestionMeta label={`السؤال ${index}`} question={question} />
       <p className="teacher-answer__prompt"><ScientificNotationText>{question.prompt}</ScientificNotationText></p>
       <QuestionMaterial question={question} />
-      {showSolution ? <>
-        <div className="teacher-answer__result"><strong>الإجابة:</strong> <ScientificAnswer>{answerOf(question)}</ScientificAnswer></div>
-        {question.explanation ? <p className="teacher-answer__explanation"><strong>التفسير وخطوات الحل:</strong> <ScientificNotationText>{question.explanation}</ScientificNotationText></p> : null}
-        {question.type === 'short-answer' && question.rubric ? <div><p><strong>عناصر الإجابة المكتملة:</strong></p><ul>{question.rubric.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
-      </> : <p className="teacher-answer__explanation">تظهر الإجابة المفصّلة في قسم «حلول الاختبار الشامل» داخل تبويب هذا الدرس.</p>}
+      <SubQuestions question={question} showSolution={showSolution} />
+      <QuestionSolution question={question} showSolution={showSolution} />
     </li>
+  )
+}
+
+function QuestionMeta({ label, question }: { label: string; question: Question }) {
+  return (
+    <div className="teacher-answer__meta">
+      <span>{label}</span><span>·</span><span>{typeLabel(question.type)}</span>
+      <span>·</span><span>{question.origin === 'textbook' ? 'من الكتاب المدرسي' : 'إضافة من المنصة'}</span>
+      {question.source ? <span>· مرجع الكتاب: الصفحة {question.source.page}{question.source.item ? ` — ${question.source.item}` : ''}</span> : null}
+    </div>
+  )
+}
+
+function QuestionSolution({ question, showSolution }: { question: Question; showSolution: boolean }) {
+  if (!showSolution) {
+    return <p className="teacher-answer__explanation">تظهر الإجابة المفصّلة في قسم «حلول الاختبار الشامل» داخل تبويب هذا الدرس.</p>
+  }
+
+  return (
+    <>
+      <div className="teacher-answer__result"><strong>الإجابة:</strong> <ScientificNotationText>{answerOf(question)}</ScientificNotationText></div>
+      {question.explanation ? <p className="teacher-answer__explanation"><strong>التفسير وخطوات الحل:</strong> <ScientificNotationText>{question.explanation}</ScientificNotationText></p> : null}
+      {question.type === 'short-answer' && question.rubric ? <div><p><strong>عناصر الإجابة المكتملة:</strong></p><ul>{question.rubric.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
+    </>
+  )
+}
+
+/**
+ * Sub-questions of a composite question (diagram / table interpretation).
+ *
+ * Their prompt, options, correct choice and explanation live in the parent's
+ * `questions` array, so a solution view that only renders the parent silently
+ * loses them. Each sub-question is rendered here as a complete answer card of
+ * its own — the same material the student answers — recursively, so nested
+ * composites are never flattened.
+ */
+function SubQuestions({ question, showSolution }: { question: Question; showSolution: boolean }) {
+  if (question.type !== 'diagram-interpretation' && question.type !== 'table-interpretation') return null
+
+  return (
+    <ol className="teacher-answer-list">
+      {question.questions.map((child, index) => (
+        <li className="teacher-answer" key={child.id}>
+          <QuestionMeta label={`الفرع ${index + 1}`} question={child} />
+          <p className="teacher-answer__prompt"><ScientificNotationText>{child.prompt}</ScientificNotationText></p>
+          <QuestionMaterial question={child} />
+          <SubQuestions question={child} showSolution={showSolution} />
+          <QuestionSolution question={child} showSolution={showSolution} />
+        </li>
+      ))}
+    </ol>
   )
 }
 
@@ -97,17 +142,18 @@ function QuestionMaterial({ question }: { question: Question }) {
     case 'ordering': return <ul>{question.items.map((item) => <li key={item.id}>{item.label}</li>)}</ul>
     case 'matching': return <div className="cluster"><ul>{question.left.map((item) => <li key={item.id}>{item.label}</li>)}</ul><ul>{question.right.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul></div>
     case 'table-interpretation': return <p>{question.table.caption}</p>
-    case 'diagram-interpretation': return <p>{question.diagramDescription}</p>
+    // Same architecture as the student page: the registered diagram id mounts
+    // its real figure, with the authored description as caption. An
+    // unregistered id keeps the description instead of inventing a drawing.
+    case 'diagram-interpretation': return isInteractiveRegistered(question.diagramId)
+      ? <InteractiveHost interactiveId={question.diagramId} caption={question.diagramDescription} />
+      : <p><ScientificNotationText>{question.diagramDescription}</ScientificNotationText></p>
     case 'numerical':
     case 'short-answer': return null
   }
 }
 
-function ScientificAnswer({ children }: { children: ReactNode }) {
-  return typeof children === 'string' ? <ScientificNotationText>{children}</ScientificNotationText> : children
-}
-
-function answerOf(question: Question): ReactNode {
+function answerOf(question: Question): string {
   switch (question.type) {
     case 'multiple-choice': return question.options.filter((option) => question.correctOptionIds.includes(option.id)).map((option) => option.label).join('، ')
     case 'true-false': return question.correctAnswer ? 'صح.' : 'غلط.'
@@ -117,7 +163,7 @@ function answerOf(question: Question): ReactNode {
     case 'numerical': return `${question.acceptedAnswers.join(' أو ')}${question.unit ? ` ${question.unit}` : ''}`
     case 'short-answer': return question.referenceAnswer
     case 'table-interpretation':
-    case 'diagram-interpretation': return 'تُحل البنود الفرعية كلٌّ وفق نوعه.'
+    case 'diagram-interpretation': return question.questions.map((child, index) => `الفرع ${index + 1}: ${answerOf(child)}`).join('؛ ')
   }
 }
 

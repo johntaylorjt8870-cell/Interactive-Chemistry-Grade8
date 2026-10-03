@@ -74,6 +74,7 @@ export function SiteHeader() {
             onClick={() => setMenuOpen(true)}
             aria-label="فتح قائمة التنقل"
             aria-haspopup="dialog"
+            aria-expanded={menuOpen}
           >
             <MenuGlyph />
           </button>

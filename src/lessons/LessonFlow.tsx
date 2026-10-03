@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { LessonShell } from '@/layouts/LessonShell'
 import { LessonOutline } from './LessonOutline'
 import { getStepRenderer } from './stepRenderers'
 import { STEP_KIND_META } from './stepKinds'
 import { Drawer } from '@/components/Drawer'
+import { LiveStatus } from '@/components/LiveStatus'
 import { ArrowEndGlyph, ArrowStartGlyph, CheckGlyph, ListGlyph } from '@/components/Icons'
 import { computeLessonProgress, useLessonProgress } from '@/data/progress'
 import type { LessonDefinition } from '@/data/curriculum/schema'
@@ -66,6 +67,7 @@ export function LessonFlow({
     return 0
   })
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const focusContentAfterDrawer = useRef(false)
 
   const { seenStepIds, markStepSeen, setCompleted } = useLessonProgress(lesson.id)
   const progress = useMemo(
@@ -92,13 +94,30 @@ export function LessonFlow({
     (index: number) => {
       if (index < 0 || index >= total) return
       setCurrentIndex(index)
+
+      // Closing the drawer hands focus back to the trigger that opened it. When
+      // the student chose a step, the step that is now displayed has to receive
+      // focus instead — otherwise a keyboard or screen-reader user is dropped
+      // back on «خطوات الدرس» with no sign that the step changed. The drawer
+      // restores focus while it unmounts, so the move happens after it closed.
+      focusContentAfterDrawer.current = drawerOpen
       setDrawerOpen(false)
-      if (typeof document !== 'undefined') {
+
+      if (!drawerOpen && typeof document !== 'undefined') {
         document.getElementById('lesson-content')?.focus?.()
       }
     },
-    [total],
+    [drawerOpen, total],
   )
+
+  // Runs after the drawer's own focus restore, so the new step wins.
+  useEffect(() => {
+    if (drawerOpen || !focusContentAfterDrawer.current) return
+    focusContentAfterDrawer.current = false
+    if (typeof document !== 'undefined') {
+      document.getElementById('lesson-content')?.focus?.()
+    }
+  }, [drawerOpen])
 
   const handleFinish = useCallback(() => {
     setCompleted(true)
@@ -119,6 +138,10 @@ export function LessonFlow({
   const meta = STEP_KIND_META[currentStep.kind]
   const StepRenderer = getStepRenderer(currentStep.kind)
   const isFinalStep = currentStep.kind === 'final-test'
+
+  // Announced when the step changes, so the student learns *where* they landed
+  // and not only that the counter moved. Mount state stays silent.
+  const stepAnnouncement = `الخطوة ${currentIndex + 1} من ${total}: ${currentStep.title}`
 
   return (
     <>
@@ -150,6 +173,7 @@ export function LessonFlow({
             className="button button--quiet"
             onClick={() => setDrawerOpen(true)}
             aria-haspopup="dialog"
+            aria-expanded={drawerOpen}
           >
             <ListGlyph size={18} />
             <span>خطوات الدرس</span>
@@ -181,6 +205,7 @@ export function LessonFlow({
           </div>
         }
       >
+        <LiveStatus message={stepAnnouncement} delayMs={0} />
         <StepRenderer
           step={currentStep}
           meta={meta}

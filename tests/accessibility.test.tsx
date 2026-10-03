@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import axe from 'axe-core'
 import { renderApp } from './utils/renderApp'
 
@@ -44,8 +44,26 @@ describe('semantic structure', () => {
     expect(screen.getByRole('navigation', { name: 'التنقل الرئيسي' })).toBeInTheDocument()
   })
 
+  it('keeps the lesson within one named main landmark and names its content regions', () => {
+    renderApp('/physics/motion-and-forces/concurrent-forces')
+
+    expect(screen.getAllByRole('main')).toHaveLength(1)
+    expect(screen.getByRole('region', { name: 'محتوى الدرس' })).toBeInTheDocument()
+    expect(screen.getByRole('complementary', { name: 'مخطط الدرس' })).toBeInTheDocument()
+  })
+
+  it('exposes the navigation drawer expanded state', () => {
+    renderApp('/')
+    const trigger = screen.getByRole('button', { name: 'فتح قائمة التنقل' })
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.click(trigger)
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('dialog', { name: 'التنقل' })).toBeInTheDocument()
+  })
+
   it('gives every button an accessible name', () => {
-    for (const path of ['/', '/physics']) {
+    for (const path of ['/', '/physics', '/physics/motion-and-forces/concurrent-forces']) {
       const { container, unmount } = renderApp(path)
       const buttons = [...container.querySelectorAll('button')]
 

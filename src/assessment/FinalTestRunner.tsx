@@ -25,9 +25,8 @@ const OUTCOME_LABELS: Record<AttemptSummary['results'][number]['outcome'], strin
  *
  * Marking happens only after the whole test is submitted — never question by
  * question — so the test measures understanding rather than rewarding
- * guesswork. Nothing here contains authored content: questions come from the
- * lesson's `tests` definition, which stays empty until the textbook pages are
- * supplied.
+ * guesswork. Questions and answer data come from the lesson's `tests`
+ * definition; an empty test is handled explicitly without fabricated content.
  */
 export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestRunnerProps) {
   const [responses, setResponses] = useState<Record<string, QuestionResponse | undefined>>({})
@@ -90,6 +89,7 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
           aria-valuemin={0}
           aria-valuemax={questions.length}
           aria-valuenow={answeredCount}
+          aria-valuetext={`أُجيب عن ${answeredCount} من ${questions.length} سؤالاً`}
           aria-label="التقدّم في الاختبار"
         >
           <div className="progress__track">
@@ -145,7 +145,10 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
       ) : null}
 
       {summary ? (
-        <section className="attempt-summary" aria-live="polite">
+        <section className="attempt-summary">
+          <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+            اكتمل الاختبار. أُجيب عن {summary.answered} من {summary.total} سؤالاً.
+          </p>
           <h3 className="attempt-summary__title">نتيجة المحاولة</h3>
           <ul className="attempt-summary__list">
             {summary.results.map((result, index) => (

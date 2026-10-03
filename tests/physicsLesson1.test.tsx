@@ -1,12 +1,18 @@
-import { describe, expect, it, beforeEach } from 'vitest'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
 import { readFileSync } from 'node:fs'
 import { getLesson } from '@/data/curriculum/registry'
 import { ContentBlocks } from '@/lessons/ContentBlocks'
 import { strayScriptGlyphs } from './utils/strayGlyphs'
-import { physicsLesson1, bookQuestions, bookActivitySolutions, finalTest } from '@/data/curriculum/physicsLesson1'
+import {
+  physicsLesson1,
+  physicsLesson1TextbookVisuals,
+  bookQuestions,
+  bookActivitySolutions,
+  finalTest,
+} from '@/data/curriculum/physicsLesson1'
 import { validateLesson } from '@/data/sourceFidelity'
 import ParallelogramLab from '@/simulations/ParallelogramLab'
 import ConcurrentForcesLab from '@/simulations/ConcurrentForcesLab'
@@ -113,6 +119,72 @@ describe('verbatim fidelity against the finalized source report', () => {
   })
 })
 
+describe('Fix 10 — textbook visual source fidelity', () => {
+  it('records each missing source visual at its textbook page and student-step location in book order', () => {
+    expect(
+      physicsLesson1TextbookVisuals.map((visual) => [visual.id, visual.source.page, visual.source.item, visual.stepId]),
+    ).toEqual([
+      ['p55-parachutist-photo', '55', 'صورة المظلّي', 'entry-parachute'],
+      ['p56-spring-experiment', '56', 'شكل التجربة', 'concurrent-experiment'],
+      ['p56-concurrent-forces-conclusion', '56', 'شكل الاستنتاج', 'concurrent-experiment'],
+      ['p57-resultant-construction', '57', 'الشكل الجانبي', 'resultant-construction'],
+      ['p57-resultant-conclusion', '57', 'شكل الاستنتاج', 'resultant-construction'],
+      ['p58-parallelogram-worked-example', '58', 'الشكل الجانبي', 'solved-60'],
+      ['p59-perpendicular-resultant-worked-example', '59', 'الشكل الجانبي', 'solved-90'],
+      ['p59-force-components-axes', '59', 'شكل تحليل القوّة', 'components-theory'],
+      ['p60-inclined-plane-activity', '60', 'شكل النشاط', 'incline-activity'],
+      ['p61-summary-parallelogram', '61', 'الشكل الجانبي', 'learn-box'],
+    ])
+
+    const stepIndexes = physicsLesson1TextbookVisuals.map((visual) => {
+      const stepIndex = physicsLesson1.steps.findIndex((step) => step.id === visual.stepId)
+      expect(stepIndex, visual.id).toBeGreaterThanOrEqual(0)
+      expect(physicsLesson1.steps[stepIndex]!.kind, visual.id).not.toBe('simulation')
+      return stepIndex
+    })
+    expect(stepIndexes).toEqual([...stepIndexes].sort((left, right) => left - right))
+    expect(physicsLesson1TextbookVisuals.every((visual) => visual.attribution === 'textbook')).toBe(true)
+  })
+
+  it('does not present an unavailable source visual as a textbook image or a platform-lab replacement', () => {
+    for (const visual of physicsLesson1TextbookVisuals) {
+      expect(visual.assetStatus, visual.id).toBe('source-scan-not-in-workspace')
+      expect(visual, visual.id).not.toHaveProperty('src')
+      expect(visual, visual.id).not.toHaveProperty('interactiveId')
+    }
+
+    const sourceImages = physicsLesson1.steps
+      .flatMap((step) => step.blocks)
+      .filter((block) => block.kind === 'source-image')
+    expect(sourceImages).toEqual([])
+
+    const serializedLesson = JSON.stringify(physicsLesson1)
+    expect(serializedLesson).not.toContain('تُستبدل الصورة هنا بوصفها')
+    expect(serializedLesson).not.toContain('شكل التجربة في الكتاب:')
+    expect(serializedLesson).not.toContain('شكل النشاط في الكتاب:')
+
+    const interactiveSteps = physicsLesson1.steps.filter((step) =>
+      step.blocks.some((block) => block.kind === 'interactive'),
+    )
+    expect(interactiveSteps.map((step) => step.id)).toEqual([
+      'concurrent-lab',
+      'parallelogram-lab-step',
+      'components-lab',
+    ])
+    expect(interactiveSteps.every((step) => step.attribution === 'platform')).toBe(true)
+  })
+
+  it('keeps the printed passage and questions around the parachutist unchanged', () => {
+    const entry = physicsLesson1.steps.find((step) => step.id === 'entry-parachute')!
+    const textbookText = entry.blocks
+      .filter((block) => block.kind === 'textbook-verbatim')
+      .map((block) => (block.kind === 'textbook-verbatim' ? block.text : ''))
+
+    expect(textbookText).toContain('يستخدمُ المظلّيُّ الذي يهبطُ من طائرةٍ على ارتفاعٍ ما من سطح الأرض مظلّةً من أجل الوصول إلى الأرض بسلامةٍ وأمان.')
+    expect(textbookText).toContain('كيف يرتبط المظلّيُّ بمظلّته؟ ما القوى المؤثّرة على المظلّيِّ؟ أين تتلاقى حبالُ المظلّة؟')
+  })
+})
+
 describe('parallelogram interactive', () => {
   it('builds the resultant and recomputes it when the angle changes', async () => {
     const { container } = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />)
@@ -152,6 +224,217 @@ describe('parallelogram interactive', () => {
     expect(still.container.querySelector('section')).toHaveClass('lab--still')
     expect(still.container.querySelector('section')).toHaveAttribute('data-stage', '2')
   })
+
+  it('keeps the construction inside the SVG at both angle extremes', () => {
+    const { container } = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />)
+    const [f1, f2, angle] = [...container.querySelectorAll('input[type="range"]')]
+    fireEvent.change(f1!, { target: { value: '100' } })
+    fireEvent.change(f2!, { target: { value: '100' } })
+    fireEvent.change(angle!, { target: { value: '165' } })
+    const firstForce = container.querySelector('.vec-lab__force--f1')!
+    expect(Number(firstForce.getAttribute('x2'))).toBeGreaterThan(0)
+
+    fireEvent.change(angle!, { target: { value: '15' } })
+    const svg = container.querySelector('svg')!
+    const resultant = container.querySelector('.vec-lab__resultant')!
+    expect(Number(resultant.getAttribute('x2'))).toBeLessThan(480)
+    const labelCoordinates = [...svg.querySelectorAll('text')].flatMap((label) => [
+      Number(label.getAttribute('x')),
+      Number(label.getAttribute('y')),
+    ])
+    expect(Math.min(...labelCoordinates)).toBeGreaterThanOrEqual(0)
+    expect(Math.max(...labelCoordinates.filter((_, index) => index % 2 === 0))).toBeLessThan(480)
+    expect(Math.max(...labelCoordinates.filter((_, index) => index % 2 === 1))).toBeLessThan(300)
+  })
+
+  it('announces a settled parameter summary without an initial live-region message', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />)
+      const status = container.querySelector('[role="status"]')!
+      const [f1] = [...container.querySelectorAll('input[type="range"]')]
+      expect(status.textContent).toBe('')
+
+      fireEvent.change(f1!, { target: { value: '6' } })
+      expect(f1).toHaveAttribute('aria-valuetext', '6 نيوتن')
+      expect(status.textContent).toBe('')
+      act(() => vi.advanceTimersByTime(400))
+
+      expect(status).toHaveAttribute('aria-live', 'polite')
+      expect(status).toHaveAttribute('aria-atomic', 'true')
+      // Fix 13 announces settled values as Arabic prose with the unit spelled out.
+      expect(status.textContent).toContain(container.querySelector('section')!.getAttribute('data-resultant')!)
+      expect(status.textContent).toContain('نيوتن')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
+describe('Fix 11 — educational vector and force construction animations', () => {
+  it('constructs the parallelogram resultant through progressive geometric stages without hiding measurements', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+
+    expect(section).toHaveAttribute('data-stage', '0')
+    expect(section).toHaveAttribute('data-anim-mode', 'animated')
+
+    // Stage 0: force shafts F1 and F2 grow from the drawn point of application O;
+    // parallel sides and resultant are not yet drawn.
+    const origin = container.querySelector('[data-anim-role="origin"]')!
+    const originPoint = `${origin.getAttribute('cx')}px ${origin.getAttribute('cy')}px`
+    const f1Shaft = container.querySelector('[data-vector="F1"]')!
+    const f2Shaft = container.querySelector('[data-vector="F2"]')!
+    expect(f1Shaft).toHaveAttribute('pathLength', '100')
+    expect(f2Shaft).toHaveAttribute('pathLength', '100')
+    expect(f1Shaft).toHaveAttribute('data-anim-role', 'vector-shaft')
+    expect(f1Shaft.getAttribute('style')).toContain(originPoint)
+    expect(Number(f1Shaft.getAttribute('data-vector-length'))).toBeGreaterThan(Number(f2Shaft.getAttribute('data-vector-length')))
+    expect(container.querySelectorAll('[data-anim-role="parallel-side"]')).toHaveLength(0)
+    expect(container.querySelector('[data-anim-role="resultant-shaft"]')).toBeNull()
+    expect(container.querySelectorAll('.lab__measurements > div')).toHaveLength(6)
+
+    // Stage 1: translated parallel sides extend from P1 and P2 to meet at vertex M
+    const [advanceButton] = container.querySelectorAll('.lab__actions button')
+    await user.click(advanceButton!)
+    expect(section).toHaveAttribute('data-stage', '1')
+    const parallelSides = container.querySelectorAll('[data-anim-role="parallel-side"]')
+    expect(parallelSides).toHaveLength(2)
+    expect(parallelSides[0]).toHaveAttribute('data-from', 'P1')
+    expect(parallelSides[1]).toHaveAttribute('data-from', 'P2')
+    expect(container.querySelector('[data-vertex="M"]')).not.toBeNull()
+    expect(container.querySelector('[data-shape="parallelogram"]')).not.toBeNull()
+    expect(container.querySelector('[data-anim-role="resultant-shaft"]')).toBeNull()
+    expect(container.querySelectorAll('.lab__measurements > div')).toHaveLength(6)
+
+    // Stage 2: resultant diagonal grows from O to M
+    await user.click(advanceButton!)
+    expect(section).toHaveAttribute('data-stage', '2')
+    const resultantShaft = container.querySelector('[data-anim-role="resultant-shaft"]')!
+    expect(resultantShaft).not.toBeNull()
+    expect(resultantShaft).toHaveAttribute('data-vector', 'F')
+    expect(resultantShaft).toHaveAttribute('pathLength', '100')
+    expect(resultantShaft.getAttribute('style')).toContain(originPoint)
+    expect(Number(resultantShaft.getAttribute('data-vector-length'))).toBeGreaterThan(Number(f1Shaft.getAttribute('data-vector-length')))
+    expect(container.querySelectorAll('.lab__measurements > div')).toHaveLength(6)
+  })
+
+  it('transitions vector geometry smoothly when parallelogram parameters change', () => {
+    const { container } = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+    const [f1Input, , angleInput] = [...container.querySelectorAll('input[type="range"]')]
+
+    fireEvent.change(angleInput!, { target: { value: '90' } })
+    expect(section).toHaveAttribute('data-last-changed', 'angle')
+    expect(section).toHaveAttribute('data-anim-trigger', 'param')
+    const f1Shaft = container.querySelector('[data-vector="F1"]')!
+    expect(f1Shaft.getAttribute('style')).toContain('--delta-rot:')
+    expect(container.querySelector('[data-shape="rectangle"]')).not.toBeNull()
+
+    fireEvent.change(f1Input!, { target: { value: '3' } })
+    expect(section).toHaveAttribute('data-last-changed', 'f1')
+    expect(container.querySelector('[data-shape="square"]')).not.toBeNull()
+  })
+
+  it('animates force decomposition progressively on axes and on the inclined plane', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+
+    expect(section).toHaveAttribute('data-mode', 'axes')
+    expect(section).toHaveAttribute('data-stage', '2')
+    expect(section).toHaveAttribute('data-anim-mode', 'animated')
+
+    // Original force F, perpendicular projections from M, and components F1/F2 from O
+    const forceShaft = container.querySelector('[data-vector="F"]')!
+    const f1Comp = container.querySelector('[data-vector="F1"]')!
+    const f2Comp = container.querySelector('[data-vector="F2"]')!
+    const projections = container.querySelectorAll('[data-anim-role="projection-line"]')
+    expect(forceShaft).toHaveAttribute('data-anim-role', 'original-force')
+    expect(forceShaft).toHaveAttribute('pathLength', '100')
+    expect(f1Comp).toHaveAttribute('data-anim-role', 'component-shaft')
+    expect(f2Comp).toHaveAttribute('data-anim-role', 'component-shaft')
+    expect(projections).toHaveLength(2)
+    expect(container.querySelector('[data-projection-foot="x"]')).not.toBeNull()
+    expect(container.querySelector('[data-projection-foot="y"]')).not.toBeNull()
+
+    // Step-by-step decomposition stages (0 -> 1 -> 2) keep all measurements visible
+    const stepButton = screen.getByRole('button', { name: /أعد التحليل خطوة بخطوة/ })
+    await user.click(stepButton)
+    expect(section).toHaveAttribute('data-stage', '0')
+    expect(container.querySelector('[data-decomposition-stage="1"]')).toHaveAttribute('data-stage-active', 'false')
+    expect(container.querySelector('[data-decomposition-stage="2"]')).toHaveAttribute('data-stage-active', 'false')
+    expect(container.querySelectorAll('.lab__measurements > div')).toHaveLength(4)
+
+    const nextStageButton = screen.getByRole('button', { name: /إسقاط العمودين/ })
+    await user.click(nextStageButton)
+    expect(section).toHaveAttribute('data-stage', '1')
+    expect(container.querySelector('[data-decomposition-stage="1"]')).toHaveAttribute('data-stage-active', 'true')
+    expect(container.querySelector('[data-decomposition-stage="2"]')).toHaveAttribute('data-stage-active', 'false')
+
+    await user.click(screen.getByRole('button', { name: /رسم المركّبتين/ }))
+    expect(section).toHaveAttribute('data-stage', '2')
+    expect(container.querySelector('[data-decomposition-stage="2"]')).toHaveAttribute('data-stage-active', 'true')
+
+    // Switch to inclined-plane mode and verify decomposition geometry updates with slope angle
+    await user.click(screen.getByRole('button', { name: /المستوي المائل/ }))
+    expect(section).toHaveAttribute('data-mode', 'incline')
+    const weightShaft = container.querySelector('[data-vector="w"]')!
+    expect(weightShaft).toHaveAttribute('data-anim-role', 'original-force')
+    expect(container.querySelectorAll('[data-anim-role="incline-axis"]')).toHaveLength(2)
+
+    const beforeAlongLen = Number(container.querySelector('[data-vector="F1"]')!.getAttribute('data-vector-length'))
+    const [inclineInput] = [...container.querySelectorAll('input[type="range"]')]
+    fireEvent.change(inclineInput!, { target: { value: '45' } })
+    const afterAlongLen = Number(container.querySelector('[data-vector="F1"]')!.getAttribute('data-vector-length'))
+    expect(section).toHaveAttribute('data-last-changed', 'incline')
+    expect(afterAlongLen).toBeGreaterThan(beforeAlongLen)
+  })
+
+  it('ties concurrent-force vector lengths and carrier extensions to physical values and O', () => {
+    const { container } = render(<ConcurrentForcesLab interactiveId="concurrent-forces-lab" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+
+    const f1Before = Number(container.querySelector('[data-vector="F1"]')!.getAttribute('data-vector-length'))
+    const wBefore = Number(container.querySelector('[data-vector="w"]')!.getAttribute('data-vector-length'))
+    expect(container.querySelectorAll('[data-anim-role="carrier-line"]')).toHaveLength(3)
+    expect(container.querySelector('[data-anim-role="concurrency-ring"]')).not.toBeNull()
+
+    const [, , weightInput] = [...container.querySelectorAll('input[type="range"]')]
+    fireEvent.change(weightInput!, { target: { value: '8' } })
+
+    const f1After = Number(container.querySelector('[data-vector="F1"]')!.getAttribute('data-vector-length'))
+    const wAfter = Number(container.querySelector('[data-vector="w"]')!.getAttribute('data-vector-length'))
+    expect(section).toHaveAttribute('data-last-changed', 'w')
+    expect(f1After).toBeGreaterThan(f1Before)
+    expect(wAfter).toBeGreaterThan(wBefore)
+  })
+
+  it('provides a stable final state in reduced-motion mode across all three physics labs', () => {
+    const p = render(<ParallelogramLab interactiveId="parallelogram-lab" reducedMotion={true} />)
+    expect(p.container.querySelector('section')).toHaveAttribute('data-anim-mode', 'still')
+    expect(p.container.querySelector('section')).toHaveAttribute('data-stage', '2')
+    expect(p.container.querySelector('[data-anim-role="resultant-shaft"]')).not.toBeNull()
+
+    const fc = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={true} />)
+    expect(fc.container.querySelector('section')).toHaveAttribute('data-anim-mode', 'still')
+    expect(fc.container.querySelector('section')).toHaveAttribute('data-stage', '2')
+    expect(fc.container.querySelector('[data-decomposition-stage="2"]')).toHaveAttribute('data-stage-active', 'true')
+
+    const cf = render(<ConcurrentForcesLab interactiveId="concurrent-forces-lab" reducedMotion={true} />)
+    expect(cf.container.querySelector('section')).toHaveAttribute('data-anim-mode', 'still')
+    expect(cf.container.querySelector('[data-meet="O"]')).not.toBeNull()
+  })
+
+  it('replaces fade-only CSS rules with progressive vector-shaft and geometric transition keyframes', () => {
+    const css = readFileSync('src/styles/components.css', 'utf8')
+    expect(css).toContain('@keyframes vec-lab-draw-shaft')
+    expect(css).toContain('@keyframes vec-lab-extend-line')
+    expect(css).toContain('@keyframes vec-lab-morph-a')
+    expect(css).toContain('@keyframes vec-lab-morph-b')
+    expect(css).toContain('@media (prefers-reduced-motion: reduce)')
+  })
 })
 
 describe('concurrent forces interactive', () => {
@@ -161,15 +444,55 @@ describe('concurrent forces interactive', () => {
 
     expect(section).toHaveAttribute('data-a1', '35')
     expect(section).toHaveAttribute('data-w', '4')
-    const t1 = Number(section.getAttribute('data-t1'))
-    expect(t1).toBeGreaterThan(2)
-    expect(t1).toBeLessThan(3)
+    const roundedT1 = Number(section.getAttribute('data-t1'))
+    const t1 = (4 * Math.sin((35 * Math.PI) / 180)) / Math.sin((70 * Math.PI) / 180)
+    const t2 = t1
+    expect(roundedT1).toBeGreaterThan(2)
+    expect(roundedT1).toBeLessThan(3)
+
+    const vectorLength = (line: Element) => Math.hypot(
+      Number(line.getAttribute('x2')) - Number(line.getAttribute('x1')),
+      Number(line.getAttribute('y2')) - Number(line.getAttribute('y1')),
+    )
+    const f1Line = container.querySelector('.vec-lab__force--f1')!
+    const f2Line = container.querySelector('.vec-lab__force--f2')!
+    const weightLine = container.querySelector('.vec-lab__force--w')!
+    const body = container.querySelector('.concurrent-forces-lab__body')!
+    expect(body.compareDocumentPosition(weightLine) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(vectorLength(f1Line) / t1).toBeCloseTo(6, 5)
+    expect(vectorLength(f2Line) / t2).toBeCloseTo(6, 5)
+    expect(vectorLength(weightLine) / 4).toBeCloseTo(6, 5)
 
     const w = container.querySelectorAll('input[type="range"]')[2]!
     fireEvent.change(w, { target: { value: '8' } })
     expect(section).toHaveAttribute('data-w', '8')
-    expect(Number(section.getAttribute('data-t1'))).toBeCloseTo(t1 * 2, 0)
+    const roundedUpdatedT1 = Number(section.getAttribute('data-t1'))
+    const updatedT1 = (8 * Math.sin((35 * Math.PI) / 180)) / Math.sin((70 * Math.PI) / 180)
+    expect(roundedUpdatedT1).toBeCloseTo(t1 * 2, 0)
+    expect(vectorLength(f1Line)).toBeGreaterThan(0)
+    expect(vectorLength(f1Line) / updatedT1).toBeCloseTo(6, 5)
+    expect(vectorLength(f1Line)).toBeGreaterThan(t1 * 6)
     expect(container.querySelector('[data-meet="O"]')).not.toBeNull()
+  })
+
+  it('announces the updated forces only after the controls settle', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<ConcurrentForcesLab interactiveId="concurrent-forces-lab" reducedMotion={false} />)
+      const status = container.querySelector('[role="status"]')!
+      const weight = screen.getByRole('slider', { name: 'ثقل الجسم المعلق نيوتن' })
+      expect(status.textContent).toBe('')
+
+      fireEvent.change(weight, { target: { value: '8' } })
+      expect(weight).toHaveAttribute('aria-valuetext', '8 نيوتن')
+      expect(status.textContent).toBe('')
+      act(() => vi.advanceTimersByTime(400))
+
+      expect(status.textContent).toContain('4.9 نيوتن')
+      expect(status.textContent).toContain('ثقل الجسم 8 نيوتن')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('toggles the carriers display', async () => {
@@ -199,6 +522,40 @@ describe('force components interactive', () => {
     // default 25°, w = 5 N: along = 5 sin25 ≈ 2.1, normal = 5 cos25 ≈ 4.5
     expect(Number(section.getAttribute('data-fx'))).toBeCloseTo(2.1, 0)
     expect(Number(section.getAttribute('data-fy'))).toBeCloseTo(4.5, 0)
+  })
+
+  it('keeps the low-angle, high-weight inclined-plane vectors inside the SVG and announces settled values', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<ForceComponentsLab interactiveId="force-components-lab" reducedMotion={false} />)
+      const status = container.querySelector('[role="status"]')!
+      expect(status.textContent).toBe('')
+      fireEvent.click(screen.getByRole('button', { name: /المستوي المائل/ }))
+      const [angle, weight] = [...container.querySelectorAll('input[type="range"]')]
+      fireEvent.change(angle!, { target: { value: '5' } })
+      fireEvent.change(weight!, { target: { value: '10' } })
+
+      const svg = container.querySelector('.force-components-lab__figure svg')!
+      const coordinates = [...svg.querySelectorAll('line')].flatMap((line) => [
+        Number(line.getAttribute('y1')),
+        Number(line.getAttribute('y2')),
+      ])
+      const labels = [...svg.querySelectorAll('text')].flatMap((label) => [
+        Number(label.getAttribute('x')),
+        Number(label.getAttribute('y')),
+      ])
+      expect(Math.max(...coordinates)).toBeLessThan(300)
+      expect(Math.min(...labels)).toBeGreaterThanOrEqual(0)
+      expect(Math.max(...labels.filter((_, index) => index % 2 === 0))).toBeLessThan(480)
+      expect(Math.max(...labels.filter((_, index) => index % 2 === 1))).toBeLessThan(300)
+      expect(weight).toHaveAttribute('aria-valuetext', '10 نيوتن')
+      expect(status.textContent).toBe('')
+
+      act(() => vi.advanceTimersByTime(400))
+      expect(status.textContent).toContain('10 نيوتن')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 

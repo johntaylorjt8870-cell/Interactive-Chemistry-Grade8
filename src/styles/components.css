@@ -286,6 +286,9 @@
   flex-direction: column;
   background: var(--surface-base);
   box-shadow: var(--shadow-lg);
+  /* Entrance shift follows the logical side, so the panel always slides in from
+     the edge it is anchored to — in RTL the `start` drawer sits on the right. */
+  --drawer-enter-shift: -12%;
   animation: slide-in var(--dur-med) var(--ease-emphasis);
 }
 
@@ -295,6 +298,15 @@
 
 .drawer--end {
   inset-inline-end: 0;
+  --drawer-enter-shift: 12%;
+}
+
+[dir='rtl'] .drawer--start {
+  --drawer-enter-shift: 12%;
+}
+
+[dir='rtl'] .drawer--end {
+  --drawer-enter-shift: -12%;
 }
 
 .drawer__header {
@@ -329,8 +341,15 @@
 
 @keyframes slide-in {
   from {
-    transform: translateX(-12%);
+    transform: translateX(var(--drawer-enter-shift, -12%));
     opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .drawer-backdrop {
+    animation: none;
   }
 }
 
@@ -3103,25 +3122,123 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   display: block;
 }
 
-.vec-lab__force { stroke-width: 3; fill: none; }
+.vec-lab__force { stroke-width: 3; fill: none; stroke-linecap: round; }
 .vec-lab__force--f1 { stroke: #059669; }
 .vec-lab__force--f2 { stroke: #2563eb; }
 .vec-lab__force--w { stroke: #dc2626; }
-.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.5; fill: none; }
+.vec-lab__resultant { stroke: var(--accent-strong); stroke-width: 3.5; fill: none; stroke-linecap: round; }
 .vec-lab__dashed { stroke: #60a5fa; stroke-width: 1.6; stroke-dasharray: 6 5; fill: none; }
 .vec-lab__carrier { stroke: #94a3b8; stroke-width: 1.2; stroke-dasharray: 2 4; fill: none; }
 .vec-lab__axis { stroke: var(--text-muted); stroke-width: 1.4; fill: none; }
 .vec-lab__angle { stroke: var(--accent); stroke-width: 1.6; fill: none; }
 .vec-lab__point { fill: #dc2626; stroke: var(--surface-raised); stroke-width: 1.5; }
+.vec-lab__vertex { fill: var(--accent-strong); stroke: var(--surface-raised); stroke-width: 1.4; }
+.vec-lab__projection-foot { fill: #2563eb; stroke: var(--surface-raised); stroke-width: 1.2; }
+.vec-lab__quad-fill {
+  fill: color-mix(in srgb, var(--accent) 8%, transparent);
+  stroke: none;
+}
+.vec-lab__concurrency-ring {
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
+}
 .vec-lab__label {
+  direction: ltr;
+  unicode-bidi: isolate;
   font: italic 700 15px var(--font-science);
   fill: var(--text-primary);
 }
 .vec-lab__label--resultant { fill: var(--accent-strong); }
 .concurrent-forces-lab__body { fill: #f59e0b; stroke: #92400e; stroke-width: 1.2; }
 
-.vec-lab__construction,
-.vec-lab__resultant-group { animation: vec-lab-fade 0.5s ease both; }
+.vec-lab__stages {
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.lab__measurements > div[data-highlight='true'] {
+  border-color: var(--accent-border-strong);
+  transition: border-color var(--dur-fast) var(--ease-standard);
+}
+
+[data-decomposition-stage][data-stage-active='false'] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+
+[data-decomposition-stage][data-stage-active='true'] {
+  opacity: 1;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+
+/* Progressive vector-shaft and construction-line animations */
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='vector-shaft'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='resultant-shaft'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='original-force'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='component-shaft'] {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: vec-lab-draw-shaft var(--dur-slow) var(--ease-emphasis) var(--vec-delay, 0ms) both;
+}
+
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='parallel-side'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='projection-line'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='carrier-line'] {
+  animation: vec-lab-extend-line var(--dur-med) var(--ease-standard) var(--vec-delay, 0ms) both;
+}
+
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='vector-label'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='resultant-label'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='vertex'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] .vec-lab__projection-foot,
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='parallelogram-surface'],
+[data-anim-mode='animated'][data-anim-trigger='construct'] [data-anim-role='decomposition-rectangle'] {
+  animation: vec-lab-reveal-tip var(--dur-med) var(--ease-standard) var(--vec-delay, 140ms) both;
+}
+
+[data-anim-mode='animated'] [data-anim-role='concurrency-ring'] {
+  transform-origin: 240px 170px;
+  animation: vec-lab-concurrency-pulse var(--dur-slow) var(--ease-emphasis) 180ms both;
+}
+
+/* State-aware geometric interpolation when parameters change */
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='vector-shaft'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='resultant-shaft'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='original-force'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='component-shaft'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='parallel-side'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='projection-line'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='carrier-line'] {
+  animation: vec-lab-morph-a var(--dur-med) var(--ease-standard) both;
+}
+
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='vector-shaft'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='resultant-shaft'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='original-force'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='component-shaft'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='parallel-side'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='projection-line'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='carrier-line'] {
+  animation: vec-lab-morph-b var(--dur-med) var(--ease-standard) both;
+}
+
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='vector-label'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='resultant-label'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] [data-anim-role='vertex'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] .vec-lab__projection-foot,
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='a'] .concurrent-forces-lab__body {
+  animation: vec-lab-point-morph-a var(--dur-med) var(--ease-standard) both;
+}
+
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='vector-label'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='resultant-label'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] [data-anim-role='vertex'],
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] .vec-lab__projection-foot,
+[data-anim-mode='animated'][data-anim-trigger='param'] svg[data-morph-phase='b'] .concurrent-forces-lab__body {
+  animation: vec-lab-point-morph-b var(--dur-med) var(--ease-standard) both;
+}
 
 .parallelogram-lab__pythagoras {
   padding: var(--space-3) var(--space-4);
@@ -3139,15 +3256,106 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   font-weight: 650;
 }
 
-.lab--still .vec-lab__construction,
-.lab--still .vec-lab__resultant-group { animation: none; }
+@keyframes vec-lab-draw-shaft {
+  from {
+    stroke-dashoffset: 100;
+    transform: scale(0.08);
+  }
+  to {
+    stroke-dashoffset: 0;
+    transform: scale(1);
+  }
+}
 
-@keyframes vec-lab-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes vec-lab-extend-line {
+  from {
+    transform: scale(0);
+    opacity: 0.25;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes vec-lab-reveal-tip {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vec-lab-concurrency-pulse {
+  0% {
+    transform: scale(0.45);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes vec-lab-morph-a {
+  from {
+    transform: translate(var(--origin-dx, 0px), var(--origin-dy, 0px)) rotate(var(--delta-rot, 0deg)) scale(var(--scale-ratio, 1));
+  }
+  to {
+    transform: translate(0px, 0px) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes vec-lab-morph-b {
+  from {
+    transform: translate(var(--origin-dx, 0px), var(--origin-dy, 0px)) rotate(var(--delta-rot, 0deg)) scale(var(--scale-ratio, 1));
+  }
+  to {
+    transform: translate(0px, 0px) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes vec-lab-point-morph-a {
+  from {
+    transform: translate(var(--point-dx, 0px), var(--point-dy, 0px));
+  }
+  to {
+    transform: translate(0px, 0px);
+  }
+}
+
+@keyframes vec-lab-point-morph-b {
+  from {
+    transform: translate(var(--point-dx, 0px), var(--point-dy, 0px));
+  }
+  to {
+    transform: translate(0px, 0px);
+  }
+}
+
+.lab--still [data-anim-role],
+.lab--still .vec-lab__projection-foot,
+.lab--still .concurrent-forces-lab__body,
+.lab--still .vec-lab__construction,
+.lab--still .vec-lab__resultant-group {
+  animation: none !important;
+  transition: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  [data-anim-role],
+  .vec-lab__projection-foot,
+  .concurrent-forces-lab__body,
   .vec-lab__construction,
-  .vec-lab__resultant-group { animation: none; }
+  .vec-lab__resultant-group {
+    animation: none !important;
+    transition: none !important;
+  }
 }

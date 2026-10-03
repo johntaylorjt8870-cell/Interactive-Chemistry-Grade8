@@ -129,6 +129,18 @@ describe('accessibility foundations in CSS', () => {
     expect(components).toContain('@media (prefers-reduced-motion: reduce)')
   })
 
+  it('isolates physics SVG labels as LTR scientific tokens', () => {
+    const label = components.match(/\.vec-lab__label\s*\{[^}]*\}/s)?.[0] ?? ''
+    expect(label).toContain('direction: ltr')
+    expect(label).toContain('unicode-bidi: isolate')
+  })
+
+  it('slides drawers from the logical edge in RTL and removes drawer motion when requested', () => {
+    expect(components).toContain("[dir='rtl'] .drawer--start {\n  --drawer-enter-shift: 12%;")
+    expect(components).toContain("[dir='rtl'] .drawer--end {\n  --drawer-enter-shift: -12%;")
+    expect(components).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.drawer,\s*\.drawer-backdrop\s*\{\s*animation:\s*none;/s)
+  })
+
   it('keeps a skip link available for keyboard users', () => {
     expect(base).toMatch(/\.skip-link\s*\{/)
     expect(base).toContain('.skip-link:focus-visible')
