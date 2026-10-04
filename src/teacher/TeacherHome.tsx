@@ -31,7 +31,7 @@ const SECTIONS = [
 
 /** Teacher area landing page — three sections only, no admin dashboard. */
 export function TeacherHome() {
-  useDocumentTitle('مساحة المعلم — منصة الفيزياء والكيمياء')
+  useDocumentTitle('مساحة المعلم — منصة الكيمياء للصف الثامن')
   const { lock } = useTeacherAccess()
   const stats = curriculumStats()
 

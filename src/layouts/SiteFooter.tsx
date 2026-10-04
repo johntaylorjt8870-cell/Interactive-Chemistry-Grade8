@@ -15,7 +15,7 @@ export function SiteFooter() {
         <div className="site-footer__brand">
           <BrandMark size={34} />
           <div>
-            <p className="site-footer__title">منصة تفاعلية تعليمية للفيزياء والكيمياء للصف الثامن</p>
+            <p className="site-footer__title">منصة تفاعلية تعليمية للكيمياء للصف الثامن</p>
             <p className="site-footer__note">
               المصدر الوحيد للمحتوى الدراسي هو الكتاب المدرسي الرسمي. الوحدات المنشورة حالياً:{' '}
               {stats.units} — والدروس المنشورة: {stats.lessons}.

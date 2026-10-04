@@ -9,7 +9,6 @@ import {
 } from './schema'
 import { chemistryLesson1 } from './chemistryLesson1'
 import { chemistryLesson2 } from './chemistryLesson2'
-import { physicsLesson1 } from './physicsLesson1'
 
 /* ============================================================================
    Curriculum registry
@@ -18,38 +17,11 @@ import { physicsLesson1 } from './physicsLesson1'
 
    Currently registered content (all `source-verified`):
    - Chemistry — unit 1 «الكيمياء البنيوية»: lessons 1–2 (pages 3–17).
-   - Physics — unit 2 «الحركة والقوى»: lesson 1 (pages 55–62).
    No further unit or lesson may be authored until its textbook pages are
    supplied and read. This file is the only file that should change when new
    content is added, and the validators in @/data/sourceFidelity keep that
    content honest.
    ========================================================================= */
-
-const PHYSICS: SubjectDefinition = {
-  id: 'physics',
-  title: 'الفيزياء',
-  latinTitle: 'Physics',
-  description:
-    'مسار الفيزياء للصف الثامن، ويُبنى حرفياً من صفحات الكتاب المدرسي بعد قراءتها واعتماد تقرير وضوحها؛ يبدأ بالوحدة الثانية: الحركة والقوى.',
-  motifs: [
-    { label: 'حركة', glyph: 'vector' },
-    { label: 'موجات', glyph: 'wave' },
-    { label: 'طاقة', glyph: 'energy' },
-    { label: 'مدارات', glyph: 'orbit' },
-  ],
-  status: 'source-verified',
-  units: [
-    {
-      id: 'phys-u2',
-      slug: 'motion-and-forces',
-      title: 'الوحدة الثانية — الحركة والقوى',
-      order: 2,
-      status: 'source-verified',
-      source: { pages: Array.from({ length: 8 }, (_, index) => ({ page: String(index + 55) })), verified: true },
-      lessons: [physicsLesson1],
-    },
-  ],
-}
 
 const CHEMISTRY: SubjectDefinition = {
   id: 'chemistry',
@@ -78,7 +50,6 @@ const CHEMISTRY: SubjectDefinition = {
 }
 
 export const curriculum: Curriculum = {
-  physics: PHYSICS,
   chemistry: CHEMISTRY,
 }
 
@@ -146,7 +117,7 @@ export function isSubjectPopulated(subject: SubjectId): boolean {
   return curriculum[subject].units.length > 0
 }
 
-/** True when nothing has been published yet, for either subject. */
+/** True when nothing has been published in the curriculum yet. */
 export function isCurriculumEmpty(): boolean {
   const stats = curriculumStats()
   return stats.units === 0 && stats.lessons === 0

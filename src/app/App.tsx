@@ -6,7 +6,7 @@ import { ThemeProvider } from './theme'
  * Normalises Vite's `BASE_URL` into a router basename.
  *
  * On GitHub Pages the app is published under
- * `/Interactive-Physics-Chemistry-Grade8/`, so every route and link must be
+ * `/Interactive-Chemistry-Grade8/`, so every route and link must be
  * created relative to that prefix. In development BASE_URL is `/`, so this
  * resolves to an empty basename.
  */

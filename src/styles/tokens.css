@@ -1,5 +1,5 @@
 /* ============================================================================
-   Design tokens — Interactive Physics & Chemistry Grade 8
+   Design tokens — Interactive Chemistry Grade 8
    Single source of truth for colour, type, space, radius, elevation, motion.
    Components must consume tokens, never raw colour literals.
    ========================================================================= */
@@ -21,15 +21,6 @@
   --palette-paper: #ffffff;
   --palette-paper-2: #f7f9fc;
   --palette-paper-3: #eef2f8;
-
-  /* Physics — signal blue / cyan */
-  --palette-physics-700: #1d4ed8;
-  --palette-physics-600: #2563eb;
-  --palette-physics-500: #3b82f6;
-  --palette-physics-300: #93c5fd;
-  --palette-physics-100: #dbeafe;
-  --palette-physics-tint: #eff4ff;
-  --palette-physics-glow: #7cc4ff;
 
   /* Chemistry — reaction amber / copper with an emerald support tone */
   --palette-chem-700: #a2520a;
@@ -167,14 +158,14 @@
   --border-soft: #dbe3ee;
   --border-strong: #c3cddd;
 
-  --grid-line: rgba(29, 78, 216, 0.07);
-  --grid-line-strong: rgba(29, 78, 216, 0.12);
+  --grid-line: rgba(194, 106, 17, 0.07);
+  --grid-line-strong: rgba(194, 106, 17, 0.12);
 
   --shadow-xs: 0 1px 2px rgba(13, 23, 41, 0.06);
   --shadow-sm: 0 1px 3px rgba(13, 23, 41, 0.07), 0 1px 2px rgba(13, 23, 41, 0.04);
   --shadow-md: 0 6px 18px -6px rgba(13, 23, 41, 0.16), 0 2px 6px rgba(13, 23, 41, 0.05);
   --shadow-lg: 0 22px 48px -22px rgba(13, 23, 41, 0.32), 0 4px 12px rgba(13, 23, 41, 0.06);
-  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.32);
+  --shadow-focus: 0 0 0 3px rgba(194, 106, 17, 0.32);
 
   --status-success-bg: #edfbf1;
   --status-success-border: #b7ebc8;
@@ -233,8 +224,8 @@
   --border-soft: rgba(148, 163, 184, 0.24);
   --border-strong: rgba(148, 163, 184, 0.4);
 
-  --grid-line: rgba(124, 196, 255, 0.08);
-  --grid-line-strong: rgba(124, 196, 255, 0.14);
+  --grid-line: rgba(245, 196, 105, 0.08);
+  --grid-line-strong: rgba(245, 196, 105, 0.14);
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.42);
@@ -274,35 +265,10 @@
 }
 
 /* ============================================================================
-   Subject identity — shared design language, different accent DNA
+   Chemistry identity — one shared design language and accent system
    ========================================================================= */
 :root,
 [data-subject='neutral'],
-[data-subject='physics'] {
-  --accent: var(--palette-physics-600);
-  --accent-strong: var(--palette-physics-700);
-  --accent-soft: var(--palette-physics-100);
-  --accent-tint: var(--palette-physics-tint);
-  --accent-glow: var(--palette-physics-glow);
-  --accent-contrast: #ffffff;
-  --accent-border: rgba(37, 99, 235, 0.28);
-  --accent-border-strong: rgba(37, 99, 235, 0.5);
-  --accent-wash: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(124, 196, 255, 0.05));
-}
-
-[data-theme='dark'],
-[data-theme='dark'][data-subject='neutral'],
-[data-theme='dark'][data-subject='physics'] {
-  --accent: var(--palette-physics-glow);
-  --accent-strong: var(--palette-physics-300);
-  --accent-soft: rgba(124, 196, 255, 0.16);
-  --accent-tint: rgba(124, 196, 255, 0.08);
-  --accent-contrast: #06111f;
-  --accent-border: rgba(124, 196, 255, 0.34);
-  --accent-border-strong: rgba(124, 196, 255, 0.58);
-  --accent-wash: linear-gradient(135deg, rgba(37, 99, 235, 0.28), rgba(124, 196, 255, 0.06));
-}
-
 [data-subject='chemistry'] {
   --accent: var(--palette-chem-600);
   --accent-strong: var(--palette-chem-700);
@@ -314,8 +280,11 @@
   --accent-border-strong: rgba(162, 82, 10, 0.52);
   --accent-wash: linear-gradient(135deg, rgba(217, 131, 36, 0.16), rgba(94, 234, 212, 0.06));
   --subject-support: var(--palette-chem-support-600);
+  --subject-chemistry: var(--palette-chem-600);
 }
 
+[data-theme='dark'],
+[data-theme='dark'][data-subject='neutral'],
 [data-theme='dark'][data-subject='chemistry'] {
   --accent: var(--palette-chem-glow);
   --accent-strong: var(--palette-chem-300);
@@ -326,12 +295,7 @@
   --accent-border-strong: rgba(245, 196, 105, 0.6);
   --accent-wash: linear-gradient(135deg, rgba(217, 131, 36, 0.3), rgba(94, 234, 212, 0.07));
   --subject-support: var(--palette-chem-support-300);
-}
-
-:root {
-  --subject-support: var(--palette-chem-support-600);
-  --subject-physics: var(--palette-physics-600);
-  --subject-chemistry: var(--palette-chem-600);
+  --subject-chemistry: var(--palette-chem-glow);
 }
 
 /* ============================================================================

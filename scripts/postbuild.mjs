@@ -4,7 +4,7 @@
  *
  * GitHub Pages serves a static site with no server-side routing. The app uses
  * a real (non-hash) router under the repository base path, so a deep link such
- * as `/Interactive-Physics-Chemistry-Grade8/physics` would otherwise hit
+ * as `/Interactive-Chemistry-Grade8/chemistry` would otherwise hit
  * Pages' 404 page. Publishing `404.html` as a copy of `index.html` makes the
  * app boot for that URL and resolve the route client-side.
  */

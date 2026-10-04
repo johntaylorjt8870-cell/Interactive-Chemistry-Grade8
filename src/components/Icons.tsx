@@ -22,63 +22,28 @@ function Icon({ size = 20, children, ...rest }: IconProps) {
   )
 }
 
-/** Platform brand mark: an orbit (physics) crossing a hexagonal lattice (chemistry). */
+/** Chemistry brand mark: a connected hexagonal molecular structure. */
 export function BrandMark({ size = 40, ...rest }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true" focusable="false" {...rest}>
-      <defs>
-        <linearGradient id="brand-arc" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="var(--subject-physics)" />
-          <stop offset="100%" stopColor="var(--subject-chemistry)" />
-        </linearGradient>
-      </defs>
       <rect x="1.5" y="1.5" width="45" height="45" rx="13" fill="var(--surface-sunken)" />
       <path
-        d="M24 10.5 35.5 17v14L24 37.5 12.5 31V17z"
+        d="M24 8.5 37.5 16v16L24 39.5 10.5 32V16z"
         fill="none"
-        stroke="url(#brand-arc)"
-        strokeWidth="1.6"
-        opacity="0.55"
+        stroke="var(--subject-chemistry)"
+        strokeWidth="1.8"
       />
-      <ellipse
-        cx="24"
-        cy="24"
-        rx="13.5"
-        ry="6.2"
-        fill="none"
-        stroke="url(#brand-arc)"
-        strokeWidth="1.9"
-        transform="rotate(-28 24 24)"
-      />
-      <ellipse
-        cx="24"
-        cy="24"
-        rx="13.5"
-        ry="6.2"
-        fill="none"
-        stroke="var(--subject-physics)"
-        strokeWidth="1.2"
-        opacity="0.45"
-        transform="rotate(34 24 24)"
-      />
-      <circle cx="24" cy="24" r="3.1" fill="url(#brand-arc)" />
+      <path d="M24 8.5v15.5m0 0 13.5-8M24 24 10.5 16M24 24v15.5" fill="none" stroke="var(--subject-support)" strokeWidth="1.6" />
+      <circle cx="24" cy="8.5" r="2.6" fill="var(--subject-chemistry)" />
+      <circle cx="37.5" cy="16" r="2.6" fill="var(--subject-support)" />
+      <circle cx="10.5" cy="16" r="2.6" fill="var(--subject-support)" />
+      <circle cx="24" cy="24" r="3.2" fill="var(--subject-chemistry)" />
+      <circle cx="24" cy="39.5" r="2.6" fill="var(--subject-chemistry)" />
     </svg>
   )
 }
 
-/** Physics motif: vector arrows on a coordinate frame. */
-export function PhysicsGlyph({ size = 28, ...rest }: IconProps) {
-  return (
-    <Icon size={size} {...rest}>
-      <path d="M3 19h18" />
-      <path d="M6 21V3" />
-      <path d="M6 19c3.6 0 5.2-9 10.5-9" strokeWidth={2} />
-      <path d="M13.6 7.8 17 10l-3.4 2.2" />
-    </Icon>
-  )
-}
-
-/** Chemistry motif: a reaction flask with a benzene-like ring. */
+/** Chemistry motif: a reaction flask with a molecular ring. */
 export function ChemistryGlyph({ size = 28, ...rest }: IconProps) {
   return (
     <Icon size={size} {...rest}>

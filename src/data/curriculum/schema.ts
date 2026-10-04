@@ -1,9 +1,9 @@
 import type { Attribution, ContentStatus, PageReference, SourceReference } from '@/data/source'
 import type { FinalTest } from '@/assessment/types'
 
-export type SubjectId = 'physics' | 'chemistry'
+export type SubjectId = 'chemistry'
 
-export const SUBJECT_IDS: readonly SubjectId[] = ['physics', 'chemistry']
+export const SUBJECT_IDS: readonly SubjectId[] = ['chemistry']
 
 export function isSubjectId(value: string): value is SubjectId {
   return (SUBJECT_IDS as readonly string[]).includes(value)
@@ -214,14 +214,14 @@ export type UnitDefinition = {
 
 export type SubjectMotif = {
   label: string
-  glyph: 'vector' | 'wave' | 'energy' | 'orbit' | 'atom' | 'flask' | 'reaction' | 'lattice'
+  glyph: 'atom' | 'flask' | 'reaction' | 'lattice'
 }
 
 export type SubjectDefinition = {
   id: SubjectId
-  /** Subject name in Arabic, e.g. `الفيزياء`. */
+  /** Subject name in Arabic, e.g. `الكيمياء`. */
   title: string
-  /** Subject name in Latin script, e.g. `Physics`. */
+  /** Subject name in Latin script, e.g. `Chemistry`. */
   latinTitle: string
   /** Honest description of the track; must not claim curriculum content. */
   description: string

@@ -1,9 +1,9 @@
 {
-  "name": "interactive-physics-chemistry-grade8",
+  "name": "interactive-chemistry-grade8",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "منصة تفاعلية تعليمية للفيزياء والكيمياء للصف الثامن - Interactive Physics & Chemistry Grade 8",
+  "description": "منصة تفاعلية تعليمية للكيمياء للصف الثامن - Interactive Chemistry Grade 8",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/postbuild.mjs",

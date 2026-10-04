@@ -6,52 +6,44 @@ import { renderApp } from './utils/renderApp'
 import { readProjectFile } from './utils/projectFiles'
 
 /** Mirrors vite.config.ts; the deployment test asserts the two agree. */
-const PAGES_BASE_PATH = '/Interactive-Physics-Chemistry-Grade8/'
+const PAGES_BASE_PATH = '/Interactive-Chemistry-Grade8/'
 
 describe('application boot and routing', () => {
-  it('boots the course home with the platform identity', () => {
+  it('boots the course home with the Chemistry platform identity', () => {
     renderApp('/')
 
-    expect(screen.getByRole('heading', { level: 1, name: /الفيزياء.*الكيمياء/ })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'مسار الفيزياء' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'مسار الكيمياء' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'الكيمياء' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'دخول مسار الكيمياء' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /مساحة المعلم/ }).length).toBeGreaterThan(0)
   })
 
-  it('reports the published curriculum counts', () => {
+  it('reports the published Chemistry curriculum counts', () => {
     renderApp('/')
 
     const status = screen.getByText(/الوحدات المنشورة حتى الآن/)
     expect(status).toBeInTheDocument()
-    expect(status).toHaveTextContent('الوحدات المنشورة حتى الآن: 2')
-    expect(status).toHaveTextContent('الدروس: 3')
+    expect(status).toHaveTextContent('الوحدات المنشورة حتى الآن: 1')
+    expect(status).toHaveTextContent('الدروس: 2')
   })
 
-  it('routes to the physics subject page with its published unit', async () => {
-    renderApp('/physics')
-
-    expect(await screen.findByRole('heading', { level: 1, name: 'الفيزياء' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /الوحدة الثانية — الحركة والقوى/ })).toBeInTheDocument()
-    expect(screen.getByText(/الكتاب المدرسي الجامع للفيزياء والكيمياء/)).toBeInTheDocument()
-  })
-
-  it('routes to the chemistry subject page with its own identity', () => {
+  it('routes to the Chemistry subject page with its published unit', () => {
     const { container } = renderApp('/chemistry')
 
     expect(screen.getByRole('heading', { level: 1, name: 'الكيمياء' })).toBeInTheDocument()
     expect(container.querySelector('[data-subject="chemistry"]')).not.toBeNull()
     expect(screen.getByRole('link', { name: /الوحدة الأولى — الكيمياء البنيوية/ })).toBeInTheDocument()
+    expect(screen.getByText('الكتاب المدرسي الرسمي للصف الثامن')).toBeInTheDocument()
   })
 
-  it('shows a pending state for a unit that does not exist instead of fabricating one', () => {
-    renderApp('/physics/unit-1')
+  it('shows an honest pending state for a Chemistry unit that is not published', () => {
+    renderApp('/chemistry/not-a-published-unit')
 
     expect(screen.getByText('هذه الوحدة غير منشورة بعد')).toBeInTheDocument()
     expect(screen.getByText(/لا تُعرض وحدات بديلة أو محتوى مُصطنع/)).toBeInTheDocument()
   })
 
-  it('shows a pending state for a lesson that does not exist', () => {
-    renderApp('/chemistry/unit-1/lesson-1')
+  it('shows a pending state for a Chemistry lesson that is not published', () => {
+    renderApp('/chemistry/structural-chemistry/not-a-published-lesson')
 
     expect(screen.getByText('هذا الدرس غير منشور بعد')).toBeInTheDocument()
     expect(screen.getByText(/يُبنى الدرس من صفحاته في الكتاب المدرسي/)).toBeInTheDocument()
@@ -99,12 +91,17 @@ describe('application boot and routing', () => {
 
   it('derives the router basename from the Vite base path', () => {
     expect(routerBasename('/')).toBe('')
-    expect(routerBasename(PAGES_BASE_PATH)).toBe('/Interactive-Physics-Chemistry-Grade8')
-    expect(PAGES_BASE_PATH).toBe('/Interactive-Physics-Chemistry-Grade8/')
+    expect(routerBasename(PAGES_BASE_PATH)).toBe('/Interactive-Chemistry-Grade8')
+    expect(PAGES_BASE_PATH).toBe('/Interactive-Chemistry-Grade8/')
   })
 
-  it('renders a single h1 and a skip link on every public page', () => {
-    for (const path of ['/', '/physics', '/chemistry', '/physics/unit-1']) {
+  it('renders a single h1 and a skip link on every public Chemistry page', () => {
+    for (const path of [
+      '/',
+      '/chemistry',
+      '/chemistry/structural-chemistry',
+      '/chemistry/structural-chemistry/atom-and-element',
+    ]) {
       const { unmount, container } = renderApp(path)
       expect(container.querySelectorAll('h1')).toHaveLength(1)
       expect(screen.getByRole('link', { name: 'تخطَّ إلى المحتوى' })).toBeInTheDocument()
@@ -112,13 +109,14 @@ describe('application boot and routing', () => {
     }
   })
 
-  it('puts the subject tracks in the header navigation', () => {
+  it('keeps only the Chemistry course in the subject navigation', () => {
     renderApp('/')
 
     const nav = screen.getByRole('navigation', { name: 'التنقل الرئيسي' })
-    const links = within(nav).getAllByRole('link')
-    expect(links.map((link) => link.textContent?.trim())).toEqual(
-      expect.arrayContaining(['المنصة', 'الفيزياء', 'الكيمياء']),
-    )
+    const labels = within(nav).getAllByRole('link').map((link) => link.textContent?.trim())
+    expect(labels).toContain('المنصة')
+    expect(labels).toContain('الكيمياء')
+    expect(labels).toContain('مساحة المعلم')
+    expect(labels).toHaveLength(3)
   })
 })

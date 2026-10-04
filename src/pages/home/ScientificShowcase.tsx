@@ -12,9 +12,8 @@ import {
 
 /**
  * Shows what the rendering foundation can do — notation capability, not
- * curriculum content. Every example is a universal scientific notation
- * convention (a formula, an ion, a unit, a fraction); nothing here claims to
- * come from the textbook, and the section says so explicitly.
+ * curriculum content. Chemistry examples use source material already present
+ * in the course and illustrate LTR isolation.
  */
 export function ScientificShowcase() {
   return (
@@ -29,7 +28,7 @@ export function ScientificShowcase() {
       </div>
 
       <p className="showcase-note" role="note">
-        الأمثلة التالية توضح أنماط الكتابة العلمية التي تدعمها المنصة، وليست محتوى دراسياً من الكتاب.
+        الأمثلة التالية توضح أنماط الكتابة العلمية التي تدعمها المنصة، وليست محتوى دراسياً جديداً.
       </p>
 
       <div className="showcase-grid">
@@ -37,13 +36,10 @@ export function ScientificShowcase() {
           <h3 className="showcase-card__title">القيم والوحدات داخل جملة عربية</h3>
           <ul className="showcase-list">
             <li>
-              <ScientificText>كتلة الجسم 5 kg في هذا المثال التوضيحي.</ScientificText>
+              <ScientificText>كمية المادة 1 mol في هذا المثال التوضيحي.</ScientificText>
             </li>
             <li>
               <ScientificText>درجة الحرارة 25 °C في هذا المثال التوضيحي.</ScientificText>
-            </li>
-            <li>
-              <ScientificText>تسارع الجاذبية 9.8 m/s² في هذا المثال التوضيحي.</ScientificText>
             </li>
           </ul>
           <p className="showcase-card__hint">الرقم أولاً ثم الوحدة إلى يمينه — بلا انعكاس اتجاه.</p>
@@ -52,9 +48,8 @@ export function ScientificShowcase() {
         <article className="showcase-card">
           <h3 className="showcase-card__title">قيمة ووحدة</h3>
           <div className="showcase-row">
-            <ScientificValue value={5} unit="kg" size="lg" />
+            <ScientificValue value={1} unit="mol" size="lg" />
             <ScientificValue value={25} unit="°C" size="lg" />
-            <ScientificValue value={9.8} unit="m/s²" size="lg" />
           </div>
           <div className="showcase-row">
             <ScientificValue value="6.02" exponent="23" unit="mol⁻¹" size="lg" />
@@ -64,12 +59,11 @@ export function ScientificShowcase() {
         <article className="showcase-card">
           <h3 className="showcase-card__title">الكسور والأسس والجذور</h3>
           <div className="showcase-row">
-            <MathFormula tex="\frac{1}{2}" />
-            <MathFormula tex="\frac{m}{V}" />
-            <MathFormula tex="a^{2}+b^{2}" />
-            <MathFormula tex="\sqrt{2}" />
+            <MathFormula tex="\\frac{1}{2}" />
+            <MathFormula tex="y = 2(n)^{2}" />
+            <MathFormula tex="\\sqrt{2}" />
           </div>
-          <MathFormula tex="v=\frac{\Delta x}{\Delta t}" display="block" />
+          <MathFormula tex="y = 2(n)^{2}" display="block" />
         </article>
 
         <article className="showcase-card">
@@ -131,22 +125,23 @@ export function ScientificShowcase() {
         </article>
 
         <article className="showcase-card showcase-card--wide">
-          <h3 className="showcase-card__title">جدول علمي قابل للقراءة</h3>
+          <h3 className="showcase-card__title">جدول كيميائي قابل للقراءة</h3>
           <ScientificTable
-            caption="مقادير أساسية ورموزها ووحداتها في النظام الدولي (مثال على نظام الجداول)"
+            caption="الترميز النووي والجسيمات والشحنة — أمثلة من درس الذرة والعنصر"
             columns={[
-              { key: 'quantity', header: 'المقدار', rowHeader: true },
-              { key: 'symbol', header: 'الرمز', align: 'center' },
-              { key: 'unit', header: 'الوحدة', unit: 'SI', align: 'center' },
-              { key: 'kind', header: 'النوع' },
+              { key: 'form', header: 'الجسيم', rowHeader: true },
+              { key: 'nucleus', header: 'رمز النواة', align: 'center' },
+              { key: 'electrons', header: 'عدد الإلكترونات', numeric: true },
+              { key: 'protons', header: 'عدد البروتونات', numeric: true },
+              { key: 'sum', header: 'المجموع الجبري للشحنات', align: 'center' },
             ]}
             rows={[
-              { id: 'length', cells: { quantity: 'الطول', symbol: 'l', unit: 'm', kind: 'أساسي' } },
-              { id: 'mass', cells: { quantity: 'الكتلة', symbol: 'm', unit: 'kg', kind: 'أساسي' }, selected: true },
-              { id: 'time', cells: { quantity: 'الزمن', symbol: 't', unit: 's', kind: 'أساسي' } },
-              { id: 'temperature', cells: { quantity: 'درجة الحرارة', symbol: 'T', unit: 'K', kind: 'أساسي' }, active: true },
+              { id: 'na-atom', cells: { form: 'ذرة الصوديوم', nucleus: '²³₁₁Na', electrons: '11', protons: '11', sum: '0' } },
+              { id: 'na-ion', cells: { form: 'أيون الصوديوم', nucleus: '²³₁₁Na', electrons: '10', protons: '11', sum: '+1' }, selected: true },
+              { id: 'cl-atom', cells: { form: 'ذرة الكلور', nucleus: '³⁵₁₇Cl', electrons: '17', protons: '17', sum: '0' } },
+              { id: 'cl-ion', cells: { form: 'أيون الكلور', nucleus: '³⁵₁₇Cl', electrons: '18', protons: '17', sum: '−1' }, active: true },
             ]}
-            footnote="جدول توضيحي لنظام العرض؛ الرموز والوحدات مأخوذة من العُرف الدولي للنظام الدولي للوحدات."
+            footnote="الأمثلة مأخوذة من محتوى الكيمياء المنشور؛ الجدول يوضح طريقة العرض فقط."
           />
         </article>
       </div>

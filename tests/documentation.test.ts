@@ -28,14 +28,13 @@ describe('README truthfulness', () => {
   })
 
   it('documents only lessons that actually exist in the curriculum registry', () => {
-    // The three lesson route slugs named in the README must resolve.
+    // Both Chemistry lesson route slugs named in the README must resolve.
     expect(getLesson('chemistry', 'structural-chemistry', 'atom-and-element')).toBeDefined()
     expect(getLesson('chemistry', 'structural-chemistry', 'chemical-bonds')).toBeDefined()
-    expect(getLesson('physics', 'motion-and-forces', 'concurrent-forces')).toBeDefined()
   })
 
   it('documents exactly the interactive ids that are actually registered', () => {
-    const sectionStart = readme.indexOf('### العناصر التفاعلية المسجّلة')
+    const sectionStart = readme.indexOf('### التجارب والمحاكيات المسجّلة')
     expect(sectionStart).toBeGreaterThan(-1)
     const section = readme.slice(sectionStart)
     const tableEnd = section.indexOf('>')
@@ -56,7 +55,7 @@ describe('README truthfulness', () => {
     // Fix 10 established the scans are absent; the README must keep saying so.
     // Normalize markdown blockquote markers and line wrapping first.
     const flattened = readme.replace(/^>\s?/gm, '').replace(/\s+/g, ' ')
-    expect(flattened).toContain('غير موجودة كملفات في هذا المستودع')
+    expect(flattened).toContain('غير محفوظة كملفات في هذا المستودع')
   })
 })
 

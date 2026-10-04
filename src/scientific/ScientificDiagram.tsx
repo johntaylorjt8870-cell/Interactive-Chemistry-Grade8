@@ -73,7 +73,7 @@ export function ScientificDiagram({
 
 /**
  * Shared SVG definitions (arrowheads, grid pattern) available to every drawing
- * so vectors and grids look identical throughout the platform.
+ * so chemical process arrows and grids look consistent throughout the platform.
  */
 export function DiagramDefs() {
   return (
@@ -104,51 +104,6 @@ export function DiagramDefs() {
         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeOpacity="0.14" strokeWidth="1" />
       </pattern>
     </defs>
-  )
-}
-
-export type DiagramVectorProps = {
-  x1: number
-  y1: number
-  x2: number
-  y2: number
-  /** Semantic tone — always paired with a legend label, never colour alone. */
-  tone?: 'accent' | 'support' | 'muted' | 'danger'
-  label?: string
-  dashed?: boolean
-  arrow?: boolean
-}
-
-/** A vector arrow. Drawn as a real SVG line with an arrowhead marker. */
-export function DiagramVector({
-  x1,
-  y1,
-  x2,
-  y2,
-  tone = 'accent',
-  label,
-  dashed = false,
-  arrow = true,
-}: DiagramVectorProps) {
-  return (
-    <g className={`diagram-vector diagram-vector--${tone}`} data-tone={tone}>
-      <line
-        x1={x1}
-        y1={y1}
-        x2={x2}
-        y2={y2}
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeDasharray={dashed ? '6 5' : undefined}
-        markerEnd={arrow ? 'url(#diagram-arrow)' : undefined}
-      />
-      {label ? (
-        <text x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 6} className="diagram-vector__label" textAnchor="middle">
-          {label}
-        </text>
-      ) : null}
-    </g>
   )
 }
 

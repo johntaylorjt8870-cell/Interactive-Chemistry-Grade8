@@ -10,15 +10,9 @@ import { routes } from '@/app/navigation'
 import { curriculumStats } from '@/data/curriculum/registry'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
-/**
- * CourseHome — the entrance to the platform.
- *
- * It communicates the current curriculum totals and the source policy for both
- * subject tracks. Only verified units, lessons, topics, and statistics appear;
- * unpublished future content is never invented to make the page look fuller.
- */
+/** Chemistry course home: published content and shared learning tools only. */
 export function CourseHome() {
-  useDocumentTitle('منصة الفيزياء والكيمياء — الصف الثامن')
+  useDocumentTitle('الكيمياء التفاعلية — الصف الثامن | Interactive Chemistry Grade 8')
   const stats = curriculumStats()
 
   return (
@@ -33,39 +27,32 @@ export function CourseHome() {
             </p>
 
             <h1 className="hero__title" id="hero-title">
-              <span className="hero__title-physics">الفيزياء</span>
-              <span className="hero__title-plus" aria-hidden="true">
-                +
-              </span>
               <span className="hero__title-chemistry">الكيمياء</span>
             </h1>
 
             <p className="hero__lead">
-              منصة واحدة تُبنى على كتاب الصف الثامن المدرسي الجامع للمادتين. يُعرض محتوى الكتاب كما
-              هو، مدعوماً بشرح عميق وتجارب ومحاكيات وأسئلة تفاعلية.
+              منصة تعليمية تفاعلية لكيمياء الصف الثامن. تعرض مادة الكتاب المدرسي كما هي، وتدعمها
+              بشرح المنصة وتجارب ومحاكيات وأسئلة تفاعلية.
             </p>
 
             <dl className="hero__facts">
               <div className="hero__fact">
-                <dt>الكتاب</dt>
-                <dd>كتاب واحد يجمع الفيزياء والكيمياء</dd>
+                <dt>المادة</dt>
+                <dd>الكيمياء — الصف الثامن</dd>
               </div>
               <div className="hero__fact">
-                <dt>المسارات</dt>
-                <dd>مسارَان مستقلان: فيزياء وكيمياء</dd>
+                <dt>المصدر</dt>
+                <dd>الكتاب المدرسي الرسمي</dd>
               </div>
               <div className="hero__fact">
                 <dt>العرض العلمي</dt>
-                <dd>معادلات وصيغ كيميائية وترميز نووي بعزل اتجاه دقيق</dd>
+                <dd>صيغ كيميائية وأيونية ونووية بعزل اتجاه دقيق</dd>
               </div>
             </dl>
 
             <div className="hero__actions">
-              <Link className="button button--primary" to={routes.physics}>
-                مسار الفيزياء
-              </Link>
-              <Link className="button button--secondary" to={routes.chemistry}>
-                مسار الكيمياء
+              <Link className="button button--primary" to={routes.chemistry}>
+                دخول مسار الكيمياء
               </Link>
             </div>
 
@@ -73,7 +60,7 @@ export function CourseHome() {
               <HourglassGlyph size={16} />
               <span>
                 الوحدات المنشورة حتى الآن: {stats.units} · الدروس: {stats.lessons} · الخطوات:{' '}
-                {stats.steps} — الوحدات الجديدة لا تُنشر إلا بعد قراءة صفحات الكتاب المدرسي.
+                {stats.steps} — لا تُنشر وحدة جديدة إلا بعد قراءة صفحات الكتاب المدرسي.
               </span>
             </p>
           </div>
@@ -84,14 +71,14 @@ export function CourseHome() {
         </div>
       </section>
 
-      <section className="section" aria-labelledby="tracks-title">
+      <section className="section" aria-labelledby="chemistry-track-title">
         <div className="container">
           <div className="section-heading">
-            <p className="eyebrow">المسارَان</p>
-            <h2 id="tracks-title">مادتان، منصة واحدة</h2>
+            <p className="eyebrow">مسار الكيمياء</p>
+            <h2 id="chemistry-track-title">محتوى الكيمياء للصف الثامن</h2>
             <p className="lead">
-              لكل مادة هوية بصرية خاصة بها، مع نظام تصميم واحد: الخطوط والمسافات والتنقّل وأنماط
-              التفاعل متطابقة، فلا يشعر الطالب بأنه انتقل إلى موقع آخر.
+              يعرض المسار الوحدات والدروس المنشورة من الكتاب فقط، ضمن نظام موحّد للتعلّم والتجارب
+              والعرض العلمي.
             </p>
           </div>
           <SubjectDoors />

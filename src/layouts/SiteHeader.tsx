@@ -22,8 +22,8 @@ export function SiteHeader() {
         <Link to={routes.home} className="brand" aria-label="الصفحة الرئيسية للمنصة">
           <BrandMark size={38} />
           <span className="brand__text">
-            <span className="brand__title">الفيزياء والكيمياء</span>
-            <span className="brand__subtitle">الصف الثامن · الكتاب المدرسي</span>
+            <span className="brand__title">الكيمياء التفاعلية</span>
+            <span className="brand__subtitle">الكيمياء · الصف الثامن</span>
           </span>
         </Link>
 

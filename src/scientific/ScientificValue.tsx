@@ -7,7 +7,7 @@ export type ScientificValueProps = {
   /** Numeric or preformatted value. */
   value: number | string
   /**
-   * Unit symbol exactly as printed in the source, e.g. `kg`, `°C`, `m/s²`.
+   * Unit symbol exactly as printed in the source, e.g. `mol`, `°C`, `g/mol`.
    * The unit is placed to the right of the number and never reordered.
    */
   unit?: string
@@ -27,8 +27,8 @@ export type ScientificValueProps = {
  * A measurement: number, optional uncertainty, optional power of ten, unit.
  *
  * The whole expression is one LTR isolated unit, so in Arabic prose the value
- * always reads `9.8 m/s²` — the unit to the right of the number — and bidi
- * reordering can never produce `kg 5` or `°C 25`.
+ * always reads `6.02×10²³ mol⁻¹` — the unit to the right of the number — and bidi
+ * reordering can never produce `mol 1` or `°C 25`.
  */
 export function ScientificValue({
   value,

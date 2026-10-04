@@ -7,7 +7,7 @@ export type ScientificColumn = {
   /** Key into each row's `cells` record. */
   key: string
   header: ReactNode
-  /** Unit or qualifier shown under the header, e.g. `kg`. */
+  /** Unit or qualifier shown under the header, e.g. `mol`. */
   unit?: ReactNode
   align?: TableAlign
   /** Numeric columns are tabular and right-aligned by default. */

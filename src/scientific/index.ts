@@ -14,7 +14,7 @@
  *  - <ChargeValue />        standalone charges, sign first (−2, +2)
  *  - <NuclearNotation />    mass number / atomic number / symbol
  *  - <LewisStructure />     electron-dot structures, dot by dot
- *  - <ScientificValue />    value + unit (5 kg, 25 °C, 9.8 m/s²)
+ *  - <ScientificValue />    value + unit (5 g, 25 °C, 44 g/mol)
  *  - <ScientificTable />    readable scientific tables
  *  - <ScientificDiagram />  labelled SVG figure frames
  *  - <PlatformAddition />   marks platform-authored material
@@ -59,8 +59,8 @@ export type { ScientificValueProps, ScientificRangeProps, ScientificValueSize } 
 export { ScientificTable } from './ScientificTable'
 export type { ScientificTableProps, ScientificColumn, ScientificRow, TableAlign } from './ScientificTable'
 
-export { ScientificDiagram, DiagramDefs, DiagramVector, DiagramLegend } from './ScientificDiagram'
-export type { ScientificDiagramProps, DiagramVectorProps, DiagramLegendItem } from './ScientificDiagram'
+export { ScientificDiagram, DiagramDefs, DiagramLegend } from './ScientificDiagram'
+export type { ScientificDiagramProps, DiagramLegendItem } from './ScientificDiagram'
 
 export { PlatformAddition, TextbookSource, PLATFORM_ADDITION_MARKER } from './PlatformAddition'
 export type { PlatformAdditionProps, TextbookSourceProps } from './PlatformAddition'

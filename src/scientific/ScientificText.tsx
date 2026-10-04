@@ -6,7 +6,7 @@ import { ElectronConfiguration } from './ElectronConfiguration'
    ScientificText — the bidi boundary of the whole platform.
    Arabic prose stays RTL; scientific runs are lifted into their own
    `direction: ltr; unicode-bidi: isolate` elements so the browser's bidi
-   algorithm can never reorder `5 kg` into `kg 5` or split `9.8 m/s²`.
+   algorithm can never reorder `5 g` into `g 5` or split `6.02×10²³ mol⁻¹`.
    ========================================================================= */
 
 export type SciVariant = 'mono' | 'textual' | 'plain'
@@ -84,7 +84,7 @@ export function SciSub({ children, className, title }: ScriptProps) {
 }
 
 export type ScientificTextProps<T extends ElementType = 'span'> = {
-  /** Mixed Arabic + scientific content, e.g. `الكتلة 5 kg تماماً`. */
+  /** Mixed Arabic + scientific content, e.g. `كمية المادة 1 mol تماماً`. */
   children: string
   as?: T
   className?: string

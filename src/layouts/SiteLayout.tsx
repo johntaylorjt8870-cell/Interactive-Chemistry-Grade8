@@ -7,9 +7,9 @@ import { subjectFromPath } from '@/app/navigation'
 /**
  * Public site shell.
  *
- * Sets `data-subject` on the root wrapper so the accent identity (physics /
- * chemistry / neutral) travels with the route while typography, spacing,
- * components and interaction patterns stay identical across the platform.
+ * Sets `data-subject` on the root wrapper so the Chemistry accent identity
+ * travels with course routes while typography, spacing, components and
+ * interaction patterns stay identical across the platform.
  */
 export function SiteLayout() {
   const { pathname } = useLocation()

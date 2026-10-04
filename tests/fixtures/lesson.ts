@@ -7,7 +7,7 @@ import type { FinalTest, Question } from '@/assessment/types'
  * This file is imported exclusively by the test suite. It is not part of the
  * curriculum registry and is never bundled into the application: it exists so
  * the lesson engine, the step renderers and the assessment layer can be tested
- * with realistic shapes while the real textbook content is unavailable.
+ * with realistic shapes without using published lesson content.
  *
  * Nothing here may be presented to students as curriculum content.
  */
@@ -30,11 +30,11 @@ export const fixtureQuestions: Question[] = [
   {
     id: 'q-2',
     type: 'numerical',
-    prompt: 'أدخل القيمة العددية.',
+    prompt: 'أدخل كمية المادة.',
     origin: 'platform',
-    acceptedAnswers: [9.8],
+    acceptedAnswers: [0.5],
     tolerance: 0.05,
-    unit: 'm/s²',
+    unit: 'mol',
   },
 ]
 
@@ -74,8 +74,8 @@ export const fixtureLesson: LessonDefinition = {
       attribution: 'platform',
       blocks: [
         { kind: 'paragraph', text: 'شرح تجريبي من إعداد المنصة.', attribution: 'platform' },
-        { kind: 'formula', tex: 'v=\\frac{\\Delta x}{\\Delta t}', attribution: 'platform' },
-        { kind: 'value', value: 5, unit: 'kg', attribution: 'platform' },
+        { kind: 'formula', tex: 'n=\\frac{m}{M}', attribution: 'platform' },
+        { kind: 'value', value: 5, unit: 'g', attribution: 'platform' },
         { kind: 'chemical-formula', formula: 'H2O', attribution: 'platform' },
         { kind: 'ion', formula: 'Ca', charge: '2+', attribution: 'platform' },
         { kind: 'nuclear', symbol: 'C', massNumber: 12, atomicNumber: 6, attribution: 'platform' },

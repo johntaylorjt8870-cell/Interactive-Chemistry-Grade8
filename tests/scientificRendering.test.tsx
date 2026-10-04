@@ -29,11 +29,11 @@ function expectIsolatedLtr(element: Element) {
 
 describe('bidi isolation primitives', () => {
   it('isolates a scientific run with an explicit LTR direction', () => {
-    const { container } = render(<ScientificText>كتلة الجسم 5 kg هنا</ScientificText>)
+    const { container } = render(<ScientificText>كتلة العينة 5 g هنا</ScientificText>)
     const isolated = container.querySelector('[data-sci="isolated"]')
 
     expect(isolated).not.toBeNull()
-    expect(isolated!.textContent).toBe('5 kg')
+    expect(isolated!.textContent).toBe('5 g')
     expectIsolatedLtr(isolated!)
   })
 
@@ -56,19 +56,19 @@ describe('bidi isolation primitives', () => {
 
 describe('ScientificValue — number before unit', () => {
   it('renders the number first and the unit to its right, LTR isolated', () => {
-    const { container } = render(<ScientificValue value={5} unit="kg" />)
+    const { container } = render(<ScientificValue value={5} unit="g" />)
     const value = container.querySelector('.sci-value')!
 
     expect(value.getAttribute('dir')).toBe('ltr')
     const children = [...value.children].map((child) => child.className)
     expect(children).toEqual(['sci-value__number', 'sci-value__unit'])
-    expect(value.textContent).toBe('5kg')
+    expect(value.textContent).toBe('5g')
   })
 
   it('keeps a compound unit intact after the number', () => {
-    const { container } = render(<ScientificValue value={9.8} unit="m/s²" />)
-    expect(container.querySelector('.sci-value__number')!.textContent).toBe('9.8')
-    expect(container.querySelector('.sci-value__unit')!.textContent).toBe('m/s²')
+    const { container } = render(<ScientificValue value={44} unit="g/mol" />)
+    expect(container.querySelector('.sci-value__number')!.textContent).toBe('44')
+    expect(container.querySelector('.sci-value__unit')!.textContent).toBe('g/mol')
   })
 
   it('renders scientific notation with a raised exponent', () => {
@@ -81,7 +81,7 @@ describe('ScientificValue — number before unit', () => {
   })
 
   it('supports uncertainty', () => {
-    const { container } = render(<ScientificValue value="9.8" uncertainty="0.1" unit="m/s²" />)
+    const { container } = render(<ScientificValue value="0.5" uncertainty="0.1" unit="mol" />)
     expect(container.querySelector('.sci-value__uncertainty')!.textContent).toBe('0.1')
     expect(container.textContent).toContain('±')
   })
@@ -180,7 +180,7 @@ describe('IonNotation and ChargeValue — the two charge conventions', () => {
     expect(ion.getAttribute('data-ion')).toBe(`${formula}${expectedCharge}`)
   })
 
-  it('locks the Ca charge sign into the grid column physically right of its magnitude', () => {
+  it('locks the Ca charge sign into the grid column to the right of its magnitude', () => {
     const positive = render(<div dir="rtl"><IonNotation formula="Ca" charge="2+" /></div>)
     const positiveRun = positive.container.querySelector('.ion-notation__charge-run')!
     expect([...positiveRun.children].map((child) => child.textContent)).toEqual(['2', '+'])
@@ -407,13 +407,13 @@ describe('ScientificTable', () => {
     const { container } = render(
       <ScientificTable
         caption="جدول"
-        columns={[{ key: 'mass', header: 'الكتلة', unit: 'kg' }]}
+        columns={[{ key: 'mass', header: 'الكتلة', unit: 'g/mol' }]}
         rows={[{ id: 'a', cells: { mass: '5' } }]}
       />,
     )
     const unit = container.querySelector('.sci-table__head-unit')!
 
-    expect(unit.textContent).toBe('kg')
+    expect(unit.textContent).toBe('g/mol')
     expect(unit.getAttribute('dir')).toBe('ltr')
   })
 })
