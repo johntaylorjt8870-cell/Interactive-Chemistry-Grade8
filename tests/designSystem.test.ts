@@ -68,14 +68,12 @@ describe('design tokens', () => {
   })
 })
 
-describe('subject identities', () => {
-  it('gives physics and chemistry different accents from the same system', () => {
-    const physics = declarations(tokens, ':root,\n[data-subject=\'neutral\'],\n[data-subject=\'physics\']')
-    const chemistry = declarations(tokens, "[data-subject='chemistry']")
+describe('Chemistry design identity', () => {
+  it('uses the Chemistry accent in the shared design system', () => {
+    const chemistry = declarations(tokens, ':root,\n[data-subject=\'neutral\'],\n[data-subject=\'chemistry\']')
 
-    expect(physics['--accent']).toBeDefined()
     expect(chemistry['--accent']).toBeDefined()
-    expect(physics['--accent']).not.toBe(chemistry['--accent'])
+    expect(tokens).toContain('--palette-chem-600')
   })
 
   it('keeps typography, spacing and radius shared between subjects', () => {
@@ -129,10 +127,10 @@ describe('accessibility foundations in CSS', () => {
     expect(components).toContain('@media (prefers-reduced-motion: reduce)')
   })
 
-  it('isolates physics SVG labels as LTR scientific tokens', () => {
-    const label = components.match(/\.vec-lab__label\s*\{[^}]*\}/s)?.[0] ?? ''
-    expect(label).toContain('direction: ltr')
-    expect(label).toContain('unicode-bidi: isolate')
+  it('isolates scientific values as LTR tokens within the RTL interface', () => {
+    const value = scientificComponents.match(/\.sci-value\s*\{[^}]*\}/s)?.[0] ?? ''
+    expect(value).toContain('direction: ltr')
+    expect(value).toContain('unicode-bidi: isolate')
   })
 
   it('slides drawers from the logical edge in RTL and removes drawer motion when requested', () => {

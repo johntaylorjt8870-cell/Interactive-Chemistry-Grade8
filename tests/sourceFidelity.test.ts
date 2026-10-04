@@ -42,29 +42,32 @@ const verifiedSource: SourceReference = {
 }
 
 describe('curriculum registry — first verified chemistry lesson', () => {
-  it('exposes both subjects', () => {
+  it('exposes Chemistry as the only subject', () => {
     expect(listSubjects().map((subject) => subject.id)).toEqual([...SUBJECT_IDS])
   })
 
-  it('publishes the verified chemistry and physics units', () => {
-    expect(listUnits('physics')).toHaveLength(1)
-    expect(isSubjectPopulated('physics')).toBe(true)
-    expect(getSubjectDefinition('physics').status).toBe('source-verified')
-    expect(getLesson('physics', 'motion-and-forces', 'concurrent-forces')?.title).toContain('القوى المتلاقية')
-
+  it('publishes the verified Chemistry unit and its two source-verified lessons', () => {
+    expect([...SUBJECT_IDS]).toEqual(['chemistry'])
     expect(listUnits('chemistry')).toHaveLength(1)
     expect(isSubjectPopulated('chemistry')).toBe(true)
     expect(getSubjectDefinition('chemistry').status).toBe('source-verified')
     expect(getLesson('chemistry', 'structural-chemistry', 'atom-and-element')?.title).toContain('الذرّة والعنصر')
+    expect(getLesson('chemistry', 'structural-chemistry', 'chemical-bonds')?.title).toContain('الروابط الكيميائية')
     expect(isCurriculumEmpty()).toBe(false)
-    expect(curriculumStats()).toEqual({ units: 2, lessons: 3, steps: 54 })
+
+    const lessons = curriculum.chemistry.units.flatMap((unit) => unit.lessons)
+    expect(curriculumStats()).toEqual({
+      units: 1,
+      lessons: 2,
+      steps: lessons.reduce((count, lesson) => count + lesson.steps.length, 0),
+    })
   })
 
-  it('returns nothing for unknown slugs instead of falling back to fabricated content', () => {
-    expect(getUnit('physics', 'unit-1')).toBeUndefined()
-    expect(getLesson('physics', 'unit-1', 'lesson-1')).toBeUndefined()
-    expect(getStep('chemistry', 'unit-1', 'lesson-1', 'step-1')).toBeUndefined()
-    expect(getUnit('physics', '')).toBeUndefined()
+  it('returns nothing for unknown Chemistry slugs instead of falling back to fabricated content', () => {
+    expect(getUnit('chemistry', 'not-a-published-unit')).toBeUndefined()
+    expect(getLesson('chemistry', 'structural-chemistry', 'not-a-published-lesson')).toBeUndefined()
+    expect(getStep('chemistry', 'structural-chemistry', 'atom-and-element', 'not-a-published-step')).toBeUndefined()
+    expect(getUnit('chemistry', '')).toBeUndefined()
   })
 
   it('labels subject motifs as visual identity, not curriculum', () => {
@@ -206,10 +209,4 @@ describe('fidelity validators', () => {
     expect(lesson.tests?.find((test) => test.id.endsWith('final'))?.questions).toHaveLength(15)
   })
 
-  it('ships the verified physics lesson with pages 55–62', () => {
-    expect(curriculum.physics.units).toHaveLength(1)
-    const lesson = curriculum.physics.units[0]!.lessons[0]!
-    expect(lesson.source.verified).toBe(true)
-    expect(lesson.source.pages.map((page) => page.page)).toEqual(['55', '56', '57', '58', '59', '60', '61', '62'])
-  })
 })

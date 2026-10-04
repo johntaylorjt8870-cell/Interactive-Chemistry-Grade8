@@ -59,7 +59,7 @@ export function splitExponent(exponent: number | string): { base: string; power:
   return { base: '10', power: raw === '' ? '0' : raw }
 }
 
-/** `m/s²` → `m/s^2` for contexts that cannot render superscript markup. */
+/** `g·mol⁻¹` → `g·mol^-1` for contexts that cannot render superscript markup. */
 export function unitToPlainText(unit: string): string {
   const SUPERSCRIPTS: Record<string, string> = {
     '⁰': '^0',

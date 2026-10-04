@@ -30,10 +30,10 @@ describe('ScientificNotationText promotes compact runs inside RTL prose', () => 
     expect(strayScriptGlyphs(container)).toEqual([])
   })
 
-  it('never promotes ordinary Latin words such as Newton', () => {
-    const { container } = renderRTL('قانون Newton الثاني يربط القوة بالكتلة والتسارع.')
+  it('never promotes ordinary Latin words such as Avogadro', () => {
+    const { container } = renderRTL('ثابت Avogadro يربط كمية المادة بعدد الجسيمات.')
     expect(container.querySelector('.chem-formula')).toBeNull()
-    expect(container.textContent).toContain('Newton')
+    expect(container.textContent).toContain('Avogadro')
   })
 
   it('keeps ion and nuclide promotion ahead of formula promotion', () => {

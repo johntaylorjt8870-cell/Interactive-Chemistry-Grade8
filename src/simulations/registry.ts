@@ -7,13 +7,11 @@ import type { ComponentType } from 'react'
  * loaded lazily through this registry — so a lesson page never pulls every
  * simulation in the book into the initial bundle.
  *
- * `BUILT_IN_INTERACTIVES` below lists every interactive currently implemented:
- * the labs and simulations used by the source-verified lessons (Chemistry
- * lessons 1–2 and Physics lesson 1). An interactive is only built and
+ * `BUILT_IN_INTERACTIVES` lists the labs and simulations used by the
+ * source-verified Chemistry lessons 1–2. An interactive is only built and
  * registered after its textbook pages are supplied and read, and every entry
  * stays a platform addition rather than a reproduction of a textbook figure.
- * Further modules
- * are added to `BUILT_IN_INTERACTIVES` (or registered at runtime through
+ * Further Chemistry modules are added here (or registered at runtime through
  * `defineInteractive`), and the host renders an explicit, honest state for
  * anything unregistered.
  */
@@ -86,27 +84,6 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     kind: 'simulation',
     description: 'مقارنة H₂ وO₂ وN₂ بين تمثيل لويس والنموذج وقراءة الأزواج المشتركة وغير المشتركة.',
     load: () => import('./CovalentBondLab'),
-  },
-  {
-    id: 'concurrent-forces-lab',
-    title: 'مختبر القوى المتلاقية: تجربة الربيعتين',
-    kind: 'experiment',
-    description: 'تغيير زاويتي الربيعتين وثقل الجسم ومراقبة شدّتي الشدّ وتلاقي الحوامل في نقطة واحدة.',
-    load: () => import('./ConcurrentForcesLab'),
-  },
-  {
-    id: 'parallelogram-lab',
-    title: 'مختبر متوازي الأضلاع: بناء المحصّلة',
-    kind: 'simulation',
-    description: 'تغيير الشدّتين والزاوية وبناء متوازي الأضلاع وقراءة شدّة المحصّلة وجهتها، مع حالة فيتاغورث للزاوية القائمة.',
-    load: () => import('./ParallelogramLab'),
-  },
-  {
-    id: 'force-components-lab',
-    title: 'مختبر تحليل القوّة إلى مركّبتين متعامدتين',
-    kind: 'simulation',
-    description: 'تحليل قوّة واحدة إلى مركّبتين متعامدتين على محورين، وتحليل الثقل على مستوٍ مائل كما في نشاط الصفحة 60.',
-    load: () => import('./ForceComponentsLab'),
   },
 ]
 

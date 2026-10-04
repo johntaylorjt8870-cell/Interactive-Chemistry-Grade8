@@ -14,7 +14,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const EXPECTED_BASE_PATH = '/Interactive-Physics-Chemistry-Grade8/'
+export const EXPECTED_BASE_PATH = '/Interactive-Chemistry-Grade8/'
 
 /** @param {string} root repository root */
 export function verifyDist(root, { basePath = EXPECTED_BASE_PATH } = {}) {
@@ -106,7 +106,7 @@ export function verifyDist(root, { basePath = EXPECTED_BASE_PATH } = {}) {
     if (/(localhost|127\.0\.0\.1)(:\d+)?/.test(content)) {
       fail('bundle/localhost', `${file} contains a localhost reference.`)
     }
-    if (/\/Interactive-Physics-Chemistry-Grade8\/Interactive-Physics-Chemistry-Grade8\//.test(content)) {
+    if (/\/Interactive-Chemistry-Grade8\/Interactive-Chemistry-Grade8\//.test(content)) {
       fail('bundle/double-base', `${file} contains a doubled base path.`)
     }
   }

@@ -4,13 +4,13 @@ import { defineConfig } from 'vitest/config'
 
 /**
  * Production hosting: GitHub Pages, project site.
- * https://johntaylorjt8870-cell.github.io/Interactive-Physics-Chemistry-Grade8/
+ * https://johntaylorjt8870-cell.github.io/Interactive-Chemistry-Grade8/
  *
  * The published site is served from a repository sub-path, so every emitted
  * asset URL must carry that prefix. The dev server keeps `/` so local
  * development and the Arena live preview work identically.
  */
-export const PAGES_BASE_PATH = '/Interactive-Physics-Chemistry-Grade8/'
+export const PAGES_BASE_PATH = '/Interactive-Chemistry-Grade8/'
 
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? (process.env.VITE_BASE_PATH ?? PAGES_BASE_PATH) : '/',

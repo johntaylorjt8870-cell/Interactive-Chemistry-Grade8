@@ -119,9 +119,9 @@ describe('splitScientificRuns — one run per electron configuration', () => {
   })
 
   it('still splits ordinary prose and measurements exactly as before', () => {
-    expect(splitScientificRuns('كتلة الجسم 5 kg تقريباً')).toEqual([
-      { kind: 'prose', value: 'كتلة الجسم ' },
-      { kind: 'science', value: '5 kg' },
+    expect(splitScientificRuns('كتلة العينة 5 g تقريباً')).toEqual([
+      { kind: 'prose', value: 'كتلة العينة ' },
+      { kind: 'science', value: '5 g' },
       { kind: 'prose', value: ' تقريباً' },
     ])
   })

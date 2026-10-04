@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { EmptyState } from '@/components/EmptyState'
-import { BookGlyph, ChemistryGlyph, PhysicsGlyph } from '@/components/Icons'
+import { BookGlyph, ChemistryGlyph } from '@/components/Icons'
 import { routes, SUBJECT_LABELS } from '@/app/navigation'
 import { getSubjectDefinition } from '@/data/curriculum/registry'
 import { contentStatusLabel } from '@/data/source'
@@ -9,7 +9,6 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { NotFound } from './NotFound'
 
 const GLYPHS = {
-  physics: PhysicsGlyph,
   chemistry: ChemistryGlyph,
 } as const
 
@@ -58,7 +57,7 @@ function SubjectHomeView({ subject }: { subject: SubjectId }) {
               </li>
               <li>
                 <span className="subject-hero__fact-label">الكتاب المعتمد</span>
-                <span className="subject-hero__fact-value">الكتاب المدرسي الجامع للفيزياء والكيمياء — الصف الثامن</span>
+                <span className="subject-hero__fact-value">الكتاب المدرسي الرسمي للصف الثامن</span>
               </li>
             </ul>
           </div>

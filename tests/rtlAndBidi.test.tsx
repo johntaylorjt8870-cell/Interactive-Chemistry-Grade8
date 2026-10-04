@@ -45,9 +45,9 @@ describe('isolation contract in CSS', () => {
 describe('unit ordering inside Arabic prose', () => {
   it('accepts the three canonical measurement cases without reordering', () => {
     const cases: Array<[string, string]> = [
-      ['كتلة 5 kg هنا', '5 kg'],
+      ['كتلة العينة 5 g هنا', '5 g'],
       ['حرارة 25 °C هنا', '25 °C'],
-      ['تسارع 9.8 m/s² هنا', '9.8 m/s²'],
+      ['الكتلة المولية 44 g/mol هنا', '44 g/mol'],
     ]
 
     for (const [input, expected] of cases) {
@@ -68,15 +68,15 @@ describe('unit ordering inside Arabic prose', () => {
   it('never produces the reversed forms in rendered output', () => {
     const { container } = render(
       <p>
-        <ScientificText>كتلة 5 kg</ScientificText>
+        <ScientificText>كتلة العينة 5 g</ScientificText>
         <ScientificText>حرارة 25 °C</ScientificText>
       </p>,
     )
     const text = container.textContent ?? ''
 
-    expect(text).not.toContain('kg 5')
+    expect(text).not.toContain('g 5')
     expect(text).not.toContain('°C 25')
-    expect(text).toContain('5 kg')
+    expect(text).toContain('5 g')
     expect(text).toContain('25 °C')
   })
 })

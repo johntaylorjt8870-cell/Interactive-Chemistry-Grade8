@@ -185,7 +185,7 @@ describe('lesson chrome content is preserved', () => {
     return render(
       <LessonShell
         breadcrumb={<span>المنصة</span>}
-        title="القوى المتلاقية"
+        title="الروابط الكيميائية"
         description="وصف الدرس من بيانات الدرس."
         subtitle="مدخل الدرس: الأهداف"
         progress={{ current: 3, total: 9, ratio: 2 / 9, visited: 3 }}
@@ -214,7 +214,7 @@ describe('lesson chrome content is preserved', () => {
     const railEl = railElement(container)
 
     expect(railEl.querySelector('.lesson-rail__breadcrumb')?.textContent).toBe('المنصة')
-    expect(railEl.querySelector('.lesson-rail__title')?.textContent).toBe('القوى المتلاقية')
+    expect(railEl.querySelector('.lesson-rail__title')?.textContent).toBe('الروابط الكيميائية')
     expect(railEl.querySelector('.lesson-rail__description')?.textContent).toContain('وصف الدرس')
     expect(railEl.querySelector('.lesson-rail__subtitle')?.textContent).toContain('مدخل الدرس')
   })

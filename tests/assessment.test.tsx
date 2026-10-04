@@ -57,16 +57,16 @@ describe('answer evaluation', () => {
     const question: Question = {
       id: 'fb',
       type: 'fill-blank',
-      prompt: 'أكمل',
+      prompt: 'أكمل وحدة كمية المادة',
       origin: 'platform',
-      template: 'الوحدة {b1}',
-      blanks: [{ id: 'b1', acceptedAnswers: ['نيوتن', 'Newton'] }],
+      template: 'كمية المادة تقاس بوحدة {b1}',
+      blanks: [{ id: 'b1', acceptedAnswers: ['مول', 'mol'] }],
     }
     expect(
-      evaluateQuestion(question, { questionId: 'fb', value: { type: 'blanks', values: { b1: 'نيوتن' } } }).outcome,
+      evaluateQuestion(question, { questionId: 'fb', value: { type: 'blanks', values: { b1: 'مول' } } }).outcome,
     ).toBe('correct')
     expect(
-      evaluateQuestion(question, { questionId: 'fb', value: { type: 'blanks', values: { b1: ' newton ' } } }).outcome,
+      evaluateQuestion(question, { questionId: 'fb', value: { type: 'blanks', values: { b1: ' mol ' } } }).outcome,
     ).toBe('correct')
   })
 
@@ -74,26 +74,26 @@ describe('answer evaluation', () => {
     const question: Question = {
       id: 'num',
       type: 'numerical',
-      prompt: 'أدخل القيمة',
+      prompt: 'أدخل كمية المادة',
       origin: 'platform',
-      acceptedAnswers: [9.8],
+      acceptedAnswers: [1],
       tolerance: 0.05,
-      unit: 'm/s²',
+      unit: 'mol',
     }
 
     expect(
-      evaluateQuestion(question, { questionId: 'num', value: { type: 'number', value: '9.81', unit: 'm/s²' } }).outcome,
+      evaluateQuestion(question, { questionId: 'num', value: { type: 'number', value: '1.01', unit: 'mol' } }).outcome,
     ).toBe('correct')
 
     const wrongUnit = evaluateQuestion(question, {
       questionId: 'num',
-      value: { type: 'number', value: '9.8', unit: 'kg' },
+      value: { type: 'number', value: '1', unit: 'g/mol' },
     })
     expect(wrongUnit.outcome).toBe('incorrect')
     expect(wrongUnit.notes).toContain('unit-mismatch')
 
     expect(
-      evaluateQuestion(question, { questionId: 'num', value: { type: 'number', value: '9.0', unit: 'm/s²' } }).outcome,
+      evaluateQuestion(question, { questionId: 'num', value: { type: 'number', value: '0.9', unit: 'mol' } }).outcome,
     ).toBe('incorrect')
   })
 
@@ -235,7 +235,7 @@ describe('QuestionView — real controls, no immediate feedback', () => {
     render(<QuestionView question={fixtureQuestions[1]!} index={2} value={null} onChange={() => {}} />)
 
     expect(screen.getByLabelText('القيمة')).toBeInTheDocument()
-    expect(screen.getByLabelText('الوحدة')).toHaveValue('m/s²')
+    expect(screen.getByLabelText('الوحدة')).toHaveValue('mol')
   })
 
   it('renders fill-in-the-blank inputs inside the sentence', () => {
@@ -244,17 +244,17 @@ describe('QuestionView — real controls, no immediate feedback', () => {
       type: 'fill-blank',
       prompt: 'أكمل الفراغ',
       origin: 'platform',
-      template: 'الكتلة تقاس بـ {b1} والزمن بـ {b2}',
+      template: 'كمية المادة تقاس بـ {b1} والكتلة المولية بـ {b2}',
       blanks: [
-        { id: 'b1', acceptedAnswers: ['kg'] },
-        { id: 'b2', acceptedAnswers: ['s'] },
+        { id: 'b1', acceptedAnswers: ['mol'] },
+        { id: 'b2', acceptedAnswers: ['g/mol'] },
       ],
     }
     render(<QuestionView question={question} index={1} value={null} onChange={() => {}} />)
 
     expect(screen.getByLabelText('الفراغ b1')).toBeInTheDocument()
     expect(screen.getByLabelText('الفراغ b2')).toBeInTheDocument()
-    expect(screen.getByText('الكتلة تقاس بـ')).toBeInTheDocument()
+    expect(screen.getByText('كمية المادة تقاس بـ')).toBeInTheDocument()
   })
 
   it('moves ordering items with accessible buttons', async () => {

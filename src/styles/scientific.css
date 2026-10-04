@@ -7,7 +7,7 @@
 /* --- The isolation primitive ---------------------------------------------
    `unicode-bidi: isolate` creates a neutral boundary so surrounding Arabic
    cannot reorder the enclosed Latin/technical run, and `direction: ltr`
-   guarantees numbers precede their units (5 kg, 25 °C, 9.8 m/s²). */
+   guarantees numbers precede their units (5 g, 25 °C, 6.02×10²³ mol⁻¹). */
 .sci {
   direction: ltr;
   unicode-bidi: isolate;

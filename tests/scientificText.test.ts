@@ -15,11 +15,11 @@ import { formatNumber, splitExponent, unitToPlainText } from '@/utils/format'
 
 describe('splitScientificRuns — RTL/LTR separation', () => {
   it('keeps Arabic prose intact and lifts out a value with a unit', () => {
-    const runs = splitScientificRuns('كتلة الجسم 5 kg تقريباً')
+    const runs = splitScientificRuns('كتلة العينة 5 g تقريباً')
 
     expect(runs).toEqual([
-      { kind: 'prose', value: 'كتلة الجسم ' },
-      { kind: 'science', value: '5 kg' },
+      { kind: 'prose', value: 'كتلة العينة ' },
+      { kind: 'science', value: '5 g' },
       { kind: 'prose', value: ' تقريباً' },
     ])
   })
@@ -29,14 +29,14 @@ describe('splitScientificRuns — RTL/LTR separation', () => {
     expect(runs.find((run) => run.kind === 'science')?.value).toBe('25 °C')
   })
 
-  it('isolates an acceleration value with a compound unit', () => {
-    const runs = splitScientificRuns('تسارع الجاذبية 9.8 m/s² هنا')
-    expect(runs.find((run) => run.kind === 'science')?.value).toBe('9.8 m/s²')
+  it('isolates a molar-mass value with a compound unit', () => {
+    const runs = splitScientificRuns('الكتلة المولية 44 g/mol هنا')
+    expect(runs.find((run) => run.kind === 'science')?.value).toBe('44 g/mol')
   })
 
   it('isolates latin identifiers inside Arabic sentences', () => {
-    const runs = splitScientificRuns('العالم Newton وضع القانون')
-    expect(runs.filter((run) => run.kind === 'science').map((run) => run.value)).toEqual(['Newton'])
+    const runs = splitScientificRuns('العالم Avogadro قدّر عدد الجسيمات')
+    expect(runs.filter((run) => run.kind === 'science').map((run) => run.value)).toEqual(['Avogadro'])
   })
 
   it('isolates scientific notation', () => {
@@ -55,47 +55,38 @@ describe('splitScientificRuns — RTL/LTR separation', () => {
   })
 
   it('terminates on adversarial input containing lone operators', () => {
-    for (const input of ['= = =', '+ - ×', 'x', '5', '=', 'kg']) {
+    for (const input of ['= = =', '+ - ×', 'x', '5', '=', 'mol']) {
       expect(() => splitScientificRuns(input)).not.toThrow()
     }
   })
 })
 
-describe('physics notation stays one logical run (vectors and printed equations)', () => {
-  it('keeps a vector symbol with its combining arrow inside one isolate', () => {
-    const runs = splitScientificRuns('وليكن الشعاع OM⃗ .')
+describe('scientific notation stays in logical LTR runs inside Arabic text', () => {
+  it('keeps a chemical formula with subscripts inside one isolate', () => {
+    const runs = splitScientificRuns('جزيء الماء H₂O.')
     expect(runs).toEqual([
-      { kind: 'prose', value: 'وليكن الشعاع ' },
-      { kind: 'science', value: 'OM⃗' },
-      { kind: 'prose', value: ' .' },
+      { kind: 'prose', value: 'جزيء الماء ' },
+      { kind: 'science', value: 'H₂O' },
+      { kind: 'prose', value: '.' },
     ])
   })
 
-  it('keeps subscripted force symbols intact', () => {
-    const sciences = splitScientificRuns('يمثّلان المركّبتين F₁⃗ ، F₂⃗ .').filter((run) => run.kind === 'science')
-    expect(sciences.map((run) => run.value)).toEqual(['F₁⃗', 'F₂⃗'])
+  it('isolates scientific notation and its unit as one value', () => {
+    const runs = splitScientificRuns('عدد أفوغادرو 6.02×10²³ mol⁻¹ تقريباً')
+    expect(runs).toEqual([
+      { kind: 'prose', value: 'عدد أفوغادرو ' },
+      { kind: 'science', value: '6.02×10²³ mol⁻¹' },
+      { kind: 'prose', value: ' تقريباً' },
+    ])
   })
 
-  it('keeps the printed graphical-scale equation one run', () => {
-    expect(splitScientificRuns('حسب مقياس الرسم: F = 6 × 1 = 6 N').find((run) => run.kind === 'science')?.value).toBe('F = 6 × 1 = 6 N')
-  })
-
-  it('keeps the printed Pythagoras equation one run', () => {
-    const value = splitScientificRuns('تُحسب من العلاقة: F = √(F₁² + F₂²) أو من الرسم.').find((run) => run.kind === 'science')?.value
-    expect(value).toBe('F = √(F₁² + F₂²)')
-  })
-
-  it('isolates angles and scale values with their units', () => {
-    const runs = splitScientificRuns('زاوية 60° ومقياس 1cm يمثل 1N')
-    const sciences = runs.filter((run) => run.kind === 'science').map((run) => run.value)
-    expect(sciences).toEqual(['60°', '1cm', '1N'])
-  })
-
-  it('never swallows Arabic prose that follows an equation', () => {
-    const runs = splitScientificRuns('الشدّة: F = 100 N ويمكن أن نحسب')
-    expect(runs[0]).toEqual({ kind: 'prose', value: 'الشدّة: ' })
-    expect(runs[1]).toEqual({ kind: 'science', value: 'F = 100 N' })
-    expect(runs[2]).toEqual({ kind: 'prose', value: ' ويمكن أن نحسب' })
+  it('isolates common chemical quantities without swallowing Arabic prose', () => {
+    const runs = splitScientificRuns('كمية المادة 0.5 mol ويمكن أن نحسب')
+    expect(runs).toEqual([
+      { kind: 'prose', value: 'كمية المادة ' },
+      { kind: 'science', value: '0.5 mol' },
+      { kind: 'prose', value: ' ويمكن أن نحسب' },
+    ])
   })
 })
 
@@ -309,7 +300,7 @@ describe('number and unit formatting', () => {
   })
 
   it('converts superscript units to plain text where markup is impossible', () => {
-    expect(unitToPlainText('m/s²')).toBe('m/s^2')
-    expect(unitToPlainText('kg')).toBe('kg')
+    expect(unitToPlainText('g/mol²')).toBe('g/mol^2')
+    expect(unitToPlainText('mol')).toBe('mol')
   })
 })

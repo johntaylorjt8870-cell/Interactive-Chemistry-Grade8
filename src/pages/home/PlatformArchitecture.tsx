@@ -3,13 +3,13 @@ const LAYERS = [
     id: 'course-home',
     title: 'الصفحة الرئيسية للمسار',
     latin: 'CourseHome',
-    body: 'نقطة الدخول: المسارَان، حالة الكتاب، ومساحة المعلم.',
+    body: 'نقطة الدخول إلى منهج الكيمياء، حالة الكتاب، ومساحة المعلم.',
   },
   {
     id: 'subject',
     title: 'المادة',
-    latin: 'Subject',
-    body: 'الفيزياء أو الكيمياء: هوية بصرية مستقلة داخل نظام تصميم واحد.',
+    latin: 'Chemistry',
+    body: 'منهج الكيمياء للصف الثامن داخل نظام موحّد للتعلّم والعرض العلمي.',
   },
   {
     id: 'unit',
@@ -43,17 +43,13 @@ const LAYERS = [
   },
 ] as const
 
-/**
- * Explains how the platform is put together. This is real structural
- * information about the application — it never lists units, lessons or
- * curriculum content, because none has been supplied yet.
- */
+/** Explains the shared application structure without introducing curriculum content. */
 export function PlatformArchitecture() {
   return (
     <section className="section" aria-labelledby="architecture-title">
       <div className="section-heading">
         <p className="eyebrow">بنية المنصة</p>
-        <h2 id="architecture-title">مسار واحد واضح من المادة إلى الخطوة</h2>
+        <h2 id="architecture-title">بنية واضحة من الكيمياء إلى خطوة التعلّم</h2>
         <p className="lead">
           كل مستوى في المنصة له مسؤولية واحدة، ويُقرأ المحتوى من ملفات بيانات منفصلة عن الواجهة —
           لذلك يمكن التحقق من مطابقة كل عنصر لصفحته في الكتاب.

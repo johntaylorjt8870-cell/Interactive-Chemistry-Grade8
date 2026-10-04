@@ -714,28 +714,6 @@
   color: var(--text-muted);
 }
 
-.diagram-vector--accent {
-  color: var(--accent);
-}
-
-.diagram-vector--support {
-  color: var(--subject-support);
-}
-
-.diagram-vector--muted {
-  color: var(--text-muted);
-}
-
-.diagram-vector--danger {
-  color: var(--status-danger-text);
-}
-
-.diagram-vector__label {
-  font-family: var(--font-latin);
-  font-size: 11px;
-  fill: currentColor;
-}
-
 .diagram-legend {
   display: flex;
   flex-direction: column;

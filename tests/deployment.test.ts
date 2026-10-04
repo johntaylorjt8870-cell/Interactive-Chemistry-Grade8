@@ -97,7 +97,7 @@ describe('Pages base path configuration', () => {
   it('matches the repository name in vite.config.ts', () => {
     const viteConfig = readProjectFile('vite.config.ts')
 
-    expect(EXPECTED_BASE_PATH).toBe('/Interactive-Physics-Chemistry-Grade8/')
+    expect(EXPECTED_BASE_PATH).toBe('/Interactive-Chemistry-Grade8/')
     expect(viteConfig).toContain(`export const PAGES_BASE_PATH = '${EXPECTED_BASE_PATH}'`)
     expect(viteConfig).toMatch(/command === 'build'/)
   })

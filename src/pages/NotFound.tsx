@@ -7,7 +7,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 /** Route-level not-found state. Nothing is simulated with layout tricks or redirected silently. */
 export function NotFound() {
   const { pathname } = useLocation()
-  useDocumentTitle('صفحة غير موجودة — منصة الفيزياء والكيمياء')
+  useDocumentTitle('صفحة غير موجودة — منصة الكيمياء للصف الثامن')
 
   return (
     <div className="container not-found">
@@ -20,9 +20,6 @@ export function NotFound() {
           <div className="cluster">
             <Link className="button button--primary" to={routes.home}>
               الصفحة الرئيسية
-            </Link>
-            <Link className="button button--secondary" to={routes.physics}>
-              مسار الفيزياء
             </Link>
             <Link className="button button--secondary" to={routes.chemistry}>
               مسار الكيمياء

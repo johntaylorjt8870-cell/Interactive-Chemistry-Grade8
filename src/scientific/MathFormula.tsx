@@ -75,7 +75,7 @@ export type EquationRowProps = {
   caption?: string
 }
 
-/** A relation chain such as `F = m × a` that stays LTR as one unit. */
+/** A relation chain such as `n = m / M` that stays LTR as one unit. */
 export function EquationRow({ parts, display = 'block', caption }: EquationRowProps) {
   return (
     <span className={['equation-row', `equation-row--${display}`].join(' ')} dir="ltr">

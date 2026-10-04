@@ -14,21 +14,21 @@
 كل شيء يُعلن في `src/data/curriculum/registry.ts`:
 
 ```ts
-const PHYSICS: SubjectDefinition = {
+const CHEMISTRY: SubjectDefinition = {
   ...,
   status: 'source-verified',
   units: [
     {
-      id: 'physics-u1',
-      slug: 'unit-1',                 // المسار: /physics/unit-1
+      id: 'chemistry-u1',
+      slug: 'unit-1',                 // المسار: /chemistry/unit-1
       title: '<عنوان الوحدة كما هو مطبوع>',
       order: 1,
       status: 'source-verified',
       source: { pages: [{ page: '10' }], verified: true },
       lessons: [
         {
-          id: 'physics-u1-l1',
-          slug: 'lesson-1',           // المسار: /physics/unit-1/lesson-1
+          id: 'chemistry-u1-l1',
+          slug: 'lesson-1',           // المسار: /chemistry/unit-1/lesson-1
           title: '<عنوان الدرس كما هو مطبوع>',
           order: 1,
           status: 'source-verified',
@@ -66,11 +66,11 @@ const PHYSICS: SubjectDefinition = {
 
 ```ts
 defineInteractive({
-  id: 'pressure-vs-area',
-  kind: 'experiment',
+  id: 'new-chemistry-interactive',
+  kind: 'simulation',
   title: '…',
   description: '…',
-  load: () => import('./pressure-vs-area/PressureVsArea'),
+  load: () => import('./NewChemistryInteractive'),
 })
 ```
 
@@ -117,7 +117,7 @@ npm run verify   # أنواع + اختبارات + بناء + تحقّق من م
 ### الرسوم التعليمية
 
 تُستخدم رسومات SVG أو Canvas أو مخططات DOM المتحركة عندما تكون البنية أو الحركة أو التسلسل
-جزءاً من الفهم، ولا سيما في التجارب والجسيمات وانتقالات الطاقة والقوى والتفاعلات. لا يعاد رسم
+جزءاً من الفهم، ولا سيما في التجارب والجسيمات والذرات والروابط والتفاعلات. لا يعاد رسم
 شكل معقد من الكتاب إن لم يكن مقروءاً بما يكفي لإعادة بنائه بأمانة.
 
 ### الرياضيات والترميز العلمي

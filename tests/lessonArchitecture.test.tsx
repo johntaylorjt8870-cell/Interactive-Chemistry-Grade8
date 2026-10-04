@@ -183,7 +183,7 @@ describe('LessonFlow — one meaningful step at a time', () => {
     expect(container.querySelector('.chem-formula sub')).not.toBeNull()
     expect(container.querySelector('.ion-notation sup')).not.toBeNull()
     expect(container.querySelector('.nuclear-notation__mass')!.textContent).toBe('12')
-    expect(container.querySelector('.sci-value__unit')!.textContent).toBe('kg')
+    expect(container.querySelector('.sci-value__unit')!.textContent).toBe('g')
   })
 
   it('moves forward and backward through steps with real buttons', async () => {

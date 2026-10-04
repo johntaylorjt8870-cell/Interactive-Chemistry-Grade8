@@ -89,7 +89,7 @@ export type FidelityIssue = {
   severity: FidelitySeverity
   code: string
   message: string
-  /** Dotted path to the offending object, e.g. `physics.unit-1.lesson-1`. */
+  /** Dotted path to the offending object, e.g. `chemistry.unit-1.lesson-1`. */
   path: string
 }
 

@@ -11,10 +11,10 @@ const COMPACT_ION_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+[�
 // A formula token consumes the whole Latin run (`Cl₂`, `H₂O`, `CH₄`, `AlCl₃`)
 // and may not be embedded in a longer word: the optional leading-character
 // capture plus the trailing lookahead reject mid-word matches such as the `H`
-// in `pH` or the `Ne` in `Newton`. Only tokens carrying a real subscript are
+// in `pH` or the initial letters of `Avogadro`. Only tokens carrying a real subscript are
 // promoted; plain runs like `NaCl` fall back to ScientificText, which already
 // isolates them correctly.
-const COMPACT_FORMULA_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+(?![A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⃗])'
+const COMPACT_FORMULA_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+(?![A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹])'
 const COMPACT_NOTATION_RUN = new RegExp(
   `${COMPACT_NUCLEAR_SOURCE}|${COMPACT_ION_SOURCE}|${COMPACT_FORMULA_SOURCE}`,
   'gu',

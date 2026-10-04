@@ -21,7 +21,7 @@ async function audit(container: HTMLElement) {
   )
 }
 
-const PUBLIC_ROUTES = ['/', '/physics', '/chemistry', '/physics/unit-1', '/teacher', '/does-not-exist']
+const PUBLIC_ROUTES = ['/', '/chemistry', '/chemistry/structural-chemistry', '/teacher', '/does-not-exist']
 
 describe('page accessibility', () => {
   it.each(PUBLIC_ROUTES)('has no serious or critical axe violations on %s', async (path) => {
@@ -45,7 +45,7 @@ describe('semantic structure', () => {
   })
 
   it('keeps the lesson within one named main landmark and names its content regions', () => {
-    renderApp('/physics/motion-and-forces/concurrent-forces')
+    renderApp('/chemistry/structural-chemistry/atom-and-element')
 
     expect(screen.getAllByRole('main')).toHaveLength(1)
     expect(screen.getByRole('region', { name: 'محتوى الدرس' })).toBeInTheDocument()
@@ -63,7 +63,7 @@ describe('semantic structure', () => {
   })
 
   it('gives every button an accessible name', () => {
-    for (const path of ['/', '/physics', '/physics/motion-and-forces/concurrent-forces']) {
+    for (const path of ['/', '/chemistry', '/chemistry/structural-chemistry/atom-and-element']) {
       const { container, unmount } = renderApp(path)
       const buttons = [...container.querySelectorAll('button')]
 

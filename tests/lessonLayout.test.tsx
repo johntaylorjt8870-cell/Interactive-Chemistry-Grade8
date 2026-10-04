@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { LessonShell } from '@/layouts/LessonShell'
-import { physicsLesson1 } from '@/data/curriculum/physicsLesson1'
+import { chemistryLesson1 } from '@/data/curriculum/chemistryLesson1'
 import { progressStore } from '@/data/progress'
 import { renderApp, renderWithTheme } from './utils/renderApp'
 import { readProjectFile } from './utils/projectFiles'
@@ -28,7 +28,7 @@ import { readProjectFile } from './utils/projectFiles'
  * the sticky rail that collapses to a static compact bar.
  */
 
-const LESSON_PATH = '/physics/motion-and-forces/concurrent-forces'
+const LESSON_PATH = '/chemistry/structural-chemistry/atom-and-element'
 const components = readProjectFile('src/styles/components.css')
 
 /** First declaration block for an exact selector. */
@@ -50,13 +50,13 @@ const COMPACT_QUERY = '@media (max-width: 1080px)'
 
 beforeEach(() => {
   window.history.replaceState(null, '', '#step-1')
-  progressStore.resetLesson(physicsLesson1.id)
+  progressStore.resetLesson(chemistryLesson1.id)
 })
 
 describe('lesson layout — no header band above the step', () => {
   it('renders no lesson header element above the step content', async () => {
     const { container } = renderApp(LESSON_PATH)
-    await screen.findByRole('heading', { level: 1, name: /القوى المتلاقية/ })
+    await screen.findByRole('heading', { level: 1, name: /الذرّة والعنصر/ })
 
     // The old band must not exist in the document at all — hiding it in CSS
     // while its box still reserves space is exactly what this fix removes.
@@ -67,7 +67,7 @@ describe('lesson layout — no header band above the step', () => {
 
   it('starts the content region with the step itself, not with lesson chrome', async () => {
     const { container } = renderApp(LESSON_PATH)
-    await screen.findByRole('heading', { level: 1, name: /القوى المتلاقية/ })
+    await screen.findByRole('heading', { level: 1, name: /الذرّة والعنصر/ })
 
     const content = screen.getByRole('region', { name: 'محتوى الدرس' })
 
@@ -78,13 +78,13 @@ describe('lesson layout — no header band above the step', () => {
       (child) => !child.classList.contains('visually-hidden'),
     )
     expect(firstVisible?.hasAttribute('data-step')).toBe(true)
-    expect(firstVisible?.getAttribute('data-step')).toBe(physicsLesson1.steps[0]!.id)
+    expect(firstVisible?.getAttribute('data-step')).toBe(chemistryLesson1.steps[0]!.id)
     expect(container.querySelector('[data-step]')).toBe(firstVisible)
   })
 
   it('keeps exactly one h1 and never repeats it inside the content column', async () => {
     renderApp(LESSON_PATH)
-    await screen.findByRole('heading', { level: 1, name: /القوى المتلاقية/ })
+    await screen.findByRole('heading', { level: 1, name: /الذرّة والعنصر/ })
 
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     const content = screen.getByRole('region', { name: 'محتوى الدرس' })
@@ -95,24 +95,24 @@ describe('lesson layout — no header band above the step', () => {
 describe('lesson layout — identity and progress in the rail', () => {
   it('moves the lesson identity, progress and outline into the rail', async () => {
     renderApp(LESSON_PATH)
-    await screen.findByRole('heading', { level: 1, name: /القوى المتلاقية/ })
+    await screen.findByRole('heading', { level: 1, name: /الذرّة والعنصر/ })
 
     const rail = screen.getByRole('complementary', { name: 'مخطط الدرس' })
 
     // Lesson name and breadcrumb identity.
-    expect(within(rail).getByRole('heading', { level: 1, name: /القوى المتلاقية/ })).toBeInTheDocument()
-    expect(within(rail).getByRole('link', { name: 'الفيزياء' })).toBeInTheDocument()
-    expect(within(rail).getByRole('link', { name: /الوحدة الثانية/ })).toBeInTheDocument()
+    expect(within(rail).getByRole('heading', { level: 1, name: /الذرّة والعنصر/ })).toBeInTheDocument()
+    expect(within(rail).getByRole('link', { name: 'الكيمياء' })).toBeInTheDocument()
+    expect(within(rail).getByRole('link', { name: /الوحدة الأولى/ })).toBeInTheDocument()
     // Lesson description taken from the lesson definition itself.
-    expect(within(rail).getByText(physicsLesson1.summary!)).toBeInTheDocument()
+    expect(within(rail).getByText(chemistryLesson1.summary!)).toBeInTheDocument()
     // Progress: a real progressbar, plus the step and visited counters.
     const bar = within(rail).getByRole('progressbar', { name: 'التقدّم في الدرس' })
-    expect(bar).toHaveAttribute('aria-valuemax', String(physicsLesson1.steps.length))
+    expect(bar).toHaveAttribute('aria-valuemax', String(chemistryLesson1.steps.length))
     expect(bar).toHaveAttribute('aria-valuenow', '1')
-    expect(within(rail).getByText(`الخطوة 1 من ${physicsLesson1.steps.length}`)).toBeInTheDocument()
+    expect(within(rail).getByText(`الخطوة 1 من ${chemistryLesson1.steps.length}`)).toBeInTheDocument()
     // The step outline with every step is in the rail.
     const nav = within(rail).getByRole('navigation', { name: 'خطوات الدرس' })
-    expect(within(nav).getAllByRole('button')).toHaveLength(physicsLesson1.steps.length)
+    expect(within(nav).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length)
 
     // The content column carries the step only: no title, progress or outline.
     const content = screen.getByRole('region', { name: 'محتوى الدرس' })
@@ -138,7 +138,7 @@ describe('lesson layout — identity and progress in the rail', () => {
     try {
       const user = userEvent.setup()
       renderApp(LESSON_PATH)
-      await screen.findByRole('heading', { level: 1, name: /القوى المتلاقية/ })
+      await screen.findByRole('heading', { level: 1, name: /الذرّة والعنصر/ })
       scrollIntoView.mockClear()
 
       await user.click(screen.getByRole('button', { name: /^التالي/ }))
@@ -156,11 +156,11 @@ describe('lesson layout — identity and progress in the rail', () => {
   it('updates rail progress and visited state as steps are opened', async () => {
     const user = userEvent.setup()
     renderApp(LESSON_PATH)
-    await screen.findByRole('heading', { level: 1, name: /القوى المتلاقية/ })
+    await screen.findByRole('heading', { level: 1, name: /الذرّة والعنصر/ })
 
     const rail = screen.getByRole('complementary', { name: 'مخطط الدرس' })
     expect(within(rail).getByRole('button', { current: 'step' })).toHaveAccessibleName(
-      new RegExp(physicsLesson1.steps[0]!.title),
+      new RegExp(chemistryLesson1.steps[0]!.title),
     )
 
     await user.click(screen.getByRole('button', { name: /^التالي/ }))
@@ -168,7 +168,7 @@ describe('lesson layout — identity and progress in the rail', () => {
     const bar = within(rail).getByRole('progressbar', { name: 'التقدّم في الدرس' })
     expect(bar).toHaveAttribute('aria-valuenow', '2')
     expect(within(rail).getByRole('button', { current: 'step' })).toHaveAccessibleName(
-      new RegExp(physicsLesson1.steps[1]!.title),
+      new RegExp(chemistryLesson1.steps[1]!.title),
     )
     expect(within(rail).getAllByText('تمت زيارتها').length).toBeGreaterThan(0)
     expect(within(rail).getByText(/زُرت 2 من/)).toBeInTheDocument()
@@ -179,7 +179,7 @@ describe('lesson layout — compact trigger and drawer on narrow screens', () =>
   it('keeps lesson information and the outline inside the drawer', async () => {
     const user = userEvent.setup()
     renderApp(LESSON_PATH)
-    await screen.findByRole('heading', { level: 1, name: /القوى المتلاقية/ })
+    await screen.findByRole('heading', { level: 1, name: /الذرّة والعنصر/ })
 
     const trigger = screen.getByRole('button', { name: /خطوات الدرس/ })
     expect(trigger).toHaveAttribute('aria-haspopup', 'dialog')
@@ -190,22 +190,22 @@ describe('lesson layout — compact trigger and drawer on narrow screens', () =>
 
     const dialog = screen.getByRole('dialog', { name: 'خطوات الدرس' })
     const nav = within(dialog).getByRole('navigation', { name: 'خطوات الدرس' })
-    expect(within(nav).getAllByRole('button')).toHaveLength(physicsLesson1.steps.length)
+    expect(within(nav).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length)
     expect(within(dialog).getByRole('button', { current: 'step' })).toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: 'إغلاق القائمة' })).toBeInTheDocument()
     // Lesson information travels with the drawer on mobile.
-    expect(within(dialog).getByText(physicsLesson1.summary!)).toBeInTheDocument()
-    expect(within(dialog).getByText(new RegExp(`الخطوة 1 من ${physicsLesson1.steps.length}`))).toBeInTheDocument()
-    expect(within(dialog).getByRole('link', { name: 'الفيزياء' })).toBeInTheDocument()
+    expect(within(dialog).getByText(chemistryLesson1.summary!)).toBeInTheDocument()
+    expect(within(dialog).getByText(new RegExp(`الخطوة 1 من ${chemistryLesson1.steps.length}`))).toBeInTheDocument()
+    expect(within(dialog).getByRole('link', { name: 'الكيمياء' })).toBeInTheDocument()
 
     // The outlined controls are the outline plus the close button, nothing else.
-    expect(within(dialog).getAllByRole('button')).toHaveLength(physicsLesson1.steps.length + 1)
+    expect(within(dialog).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length + 1)
   })
 
   it('closes with Escape and returns focus to the compact trigger', async () => {
     const user = userEvent.setup()
     renderApp(LESSON_PATH)
-    await screen.findByRole('heading', { level: 1, name: /القوى المتلاقية/ })
+    await screen.findByRole('heading', { level: 1, name: /الذرّة والعنصر/ })
 
     const trigger = screen.getByRole('button', { name: /خطوات الدرس/ })
     await user.click(trigger)
@@ -224,7 +224,7 @@ describe('lesson layout — shell structure and CSS geometry contract', () => {
       <LessonShell
         title="عنوان الدرس"
         description="وصف الدرس"
-        breadcrumb={<a href="/physics">الفيزياء</a>}
+        breadcrumb={<a href="/chemistry">الكيمياء</a>}
         progress={{ current: 2, total: 4, ratio: 0.5, visited: 1 }}
         outline={<nav aria-label="خطوات الدرس">قائمة الخطوات</nav>}
         navigation={<div>تنقل</div>}
