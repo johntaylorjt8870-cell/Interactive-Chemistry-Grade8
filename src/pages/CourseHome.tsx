@@ -5,6 +5,7 @@ import { PlatformArchitecture } from './home/PlatformArchitecture'
 import { ScientificShowcase } from './home/ScientificShowcase'
 import { SourcePolicy } from './home/SourcePolicy'
 import { TeacherEntryBand } from './home/TeacherEntryBand'
+import { TestAreaEntryCard } from './home/TestAreaEntryCard'
 import { HourglassGlyph } from '@/components/Icons'
 import { routes } from '@/app/navigation'
 import { curriculumStats } from '@/data/curriculum/registry'
@@ -89,6 +90,7 @@ export function CourseHome() {
         <PlatformArchitecture />
         <ScientificShowcase />
         <SourcePolicy />
+        <TestAreaEntryCard />
         <TeacherEntryBand />
       </div>
     </>

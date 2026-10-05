@@ -65,6 +65,21 @@ function UnitContent({ subject, unit }: { subject: SubjectId; unit: UnitDefiniti
           </li>
         ))}
       </ol>
+
+      <section className="unit-view__test-entry ta-card" aria-labelledby="unit-test-entry-title">
+        <div>
+          <p className="eyebrow">تقييم مستقل</p>
+          <h2 className="unit-view__test-entry-title" id="unit-test-entry-title">
+            اختبار الوحدة الأولى
+          </h2>
+          <p className="unit-view__test-entry-text">
+            ستون سؤالاً أصلياً تربط بين دروس الوحدة، مع سياسة تصحيح معلنة وحلول منفصلة.
+          </p>
+        </div>
+        <Link className="button button--primary" to={routes.testAreaTest('chem-u1')}>
+          بدء اختبار الوحدة
+        </Link>
+      </section>
     </div>
   )
 }

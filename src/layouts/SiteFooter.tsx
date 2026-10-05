@@ -33,6 +33,9 @@ export function SiteFooter() {
             <li>
               <Link to={routes.teacher}>مساحة المعلم</Link>
             </li>
+            <li>
+              <Link to={routes.testArea}>منطقة الاختبارات</Link>
+            </li>
           </ul>
         </nav>
 

@@ -9,7 +9,39 @@ import { NotFound } from '@/pages/NotFound'
 import { TeacherGate } from '@/teacher/TeacherGate'
 import { TeacherHome } from '@/teacher/TeacherHome'
 import { TeacherSection } from '@/teacher/TeacherSection'
+import { lazy, Suspense } from 'react'
+// Side-effect import: registers every published Test Area bank + solution set.
+import '@/data/testArea/register'
 import { routes } from './navigation'
+
+/* The Test Area is code-split: its pages, question banks and solutions are
+   loaded only when the student opens them, and the solutions module is a
+   separate chunk from the bank so an attempt never downloads an explanation. */
+const TestAreaHome = lazy(() =>
+  import('@/testArea/pages/TestAreaHome').then((m) => ({ default: m.TestAreaHome })),
+)
+const TestRunnerPage = lazy(() =>
+  import('@/testArea/pages/TestRunnerPage').then((m) => ({ default: m.TestRunnerPage })),
+)
+const SolutionsBrowserPage = lazy(() =>
+  import('@/testArea/pages/SolutionsBrowserPage').then((m) => ({ default: m.SolutionsBrowserPage })),
+)
+
+function TestAreaBoundary({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="container ta-page">
+          <p className="ta-loading" role="status">
+            جارٍ التحميل…
+          </p>
+        </div>
+      }
+    >
+      {children}
+    </Suspense>
+  )
+}
 
 /** Resets scroll position on navigation, except when deep-linking to a step. */
 function ScrollToTop() {
@@ -77,6 +109,31 @@ export function AppRoutes() {
               <TeacherGate>
                 <TeacherSection kind="final-test-solutions" />
               </TeacherGate>
+            }
+          />
+
+          <Route
+            path={routes.testArea}
+            element={
+              <TestAreaBoundary>
+                <TestAreaHome />
+              </TestAreaBoundary>
+            }
+          />
+          <Route
+            path="/test-area/:testId"
+            element={
+              <TestAreaBoundary>
+                <TestRunnerPage />
+              </TestAreaBoundary>
+            }
+          />
+          <Route
+            path="/test-area/:testId/solutions"
+            element={
+              <TestAreaBoundary>
+                <SolutionsBrowserPage />
+              </TestAreaBoundary>
             }
           />
 
