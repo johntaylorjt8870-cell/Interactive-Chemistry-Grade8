@@ -9,6 +9,9 @@ export const routes = {
   teacherBookSolutions: '/teacher/book-solutions',
   teacherFinalTest: '/teacher/final-test',
   teacherFinalTestSolutions: '/teacher/final-test-solutions',
+  testArea: '/test-area',
+  testAreaTest: (testId: string) => `/test-area/${testId}`,
+  testAreaSolutions: (testId: string) => `/test-area/${testId}/solutions`,
   subject: (subject: SubjectId) => `/${subject}`,
   unit: (subject: SubjectId, unitSlug: string) => `/${subject}/${unitSlug}`,
   lesson: (subject: SubjectId, unitSlug: string, lessonSlug: string) =>
