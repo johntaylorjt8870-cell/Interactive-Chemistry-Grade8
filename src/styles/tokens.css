@@ -124,12 +124,31 @@
   --header-height: 68px;
   --outline-width: 300px;
 
-  /* --- Scientific typography ------------------------------------------- */
+  /* --- Scientific typography -------------------------------------------
+     Script scripts (charge, exponent, index) have ONE owner: `.sci-sup` /
+     `.sci-sub` in scientific.css. The tokens below are that single owner's
+     vocabulary, and they are deliberately asymmetric:
+
+       --sci-sup-scale  UNITLESS ratio — the size of the script relative to
+                        the symbol it belongs to. Unitless on purpose: the
+                        raise is divided by it, so changing the scale can
+                        never silently change how far the script is raised.
+       --sci-sup-raise  em of the SYMBOL's font, never of the script's. This
+                        is the textbook statement of the contract: "a charge
+                        is raised by 0.36em of the letter it is attached to".
+                        The previous implementation applied this same number
+                        to an already-scaled element, so the effective raise
+                        was 0.52 × 0.62 = 0.32em and it drifted with every
+                        component that overrode the script's font-size.
+       --sci-sub-drop   same convention, downwards, for indices.
+
+     Changing `--sci-sup-scale` therefore changes the size only; the raise
+     stays a single scientific constant that is identical in every context. */
   --sci-letter-spacing: 0.01em;
-  --sci-sup-size: 0.68em;
-  --sci-sub-size: 0.68em;
-  --sci-sup-raise: 0.52em;
-  --sci-sub-drop: -0.18em;
+  --sci-sup-scale: 0.62;
+  --sci-sub-scale: 0.68;
+  --sci-sup-raise: 0.36em;
+  --sci-sub-drop: 0.17em;
 }
 
 /* ============================================================================

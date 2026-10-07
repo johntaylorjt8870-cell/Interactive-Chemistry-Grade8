@@ -36,29 +36,50 @@
   font-family: var(--font-arabic);
 }
 
-/* --- Script positions ----------------------------------------------------- */
+/* --- Script positions ----------------------------------------------------
+   THE SUPERSCRIPT CONTRACT. Everything about how a charge, an exponent or an
+   index leaves the baseline is decided here and nowhere else.
+
+   1. The script is an ordinary INLINE box inside the notation's own inline
+      flow, and it is raised with `vertical-align` — the one CSS mechanism
+      that is defined relative to a baseline. It is never moved with
+      `position`/`top`/`transform`: a relative offset paints the glyph
+      somewhere its own box is not, so the box stops describing the ink and
+      every measurement, centring and overflow calculation built on it
+      silently drifts.
+
+   2. `line-height: 0` gives the script a zero-height inline box. A raised
+      script therefore cannot grow the line box, cannot push the notation on
+      to a second line, and cannot be reflowed into a second grid/flex row by
+      whatever container the notation happens to sit in.
+
+   3. The raise is written in em of the SYMBOL, not of the script. `em` on
+      `vertical-align` resolves against the element's own font-size, so the
+      token is divided by the scale before it reaches the property: the
+      effective raise stays `--sci-sup-raise` of the notation's font even when
+      a component changes the scale.
+
+   Because this is plain inline formatting, the parent's display mode cannot
+   change the result: a notation unit may be a flex item, a grid item or plain
+   inline text and the charge still lands on the symbol's baseline at the same
+   distance, raised by the same token. */
 .sci-sup,
 .sci-sub {
-  font-size: var(--sci-sub-size);
+  position: static;
+  font-size: calc(var(--script-scale, var(--sci-sup-scale)) * 1em);
   line-height: 0;
-  position: relative;
+  letter-spacing: 0;
   font-feature-settings: normal;
+  white-space: nowrap;
 }
 
 .sci-sup {
-  vertical-align: baseline;
-  top: calc(-1 * var(--sci-sup-raise));
+  vertical-align: calc(var(--sci-sup-raise) / var(--sci-sup-scale));
 }
 
 .sci-sub {
-  vertical-align: baseline;
-  bottom: var(--sci-sub-drop);
-}
-
-/* Superscripts must never inherit Arabic letter-spacing quirks */
-.sci-sup,
-.sci-sub {
-  letter-spacing: 0;
+  font-size: calc(var(--script-scale, var(--sci-sub-scale)) * 1em);
+  vertical-align: calc(-1 * var(--sci-sub-drop) / var(--sci-sub-scale));
 }
 
 /* --- Formulae ------------------------------------------------------------- */
