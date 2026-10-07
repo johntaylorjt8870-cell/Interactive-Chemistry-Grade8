@@ -23,7 +23,7 @@ describe('application boot and routing', () => {
     const status = screen.getByText(/الوحدات المنشورة حتى الآن/)
     expect(status).toBeInTheDocument()
     expect(status).toHaveTextContent('الوحدات المنشورة حتى الآن: 1')
-    expect(status).toHaveTextContent('الدروس: 2')
+    expect(status).toHaveTextContent('الدروس: 3')
   })
 
   it('routes to the Chemistry subject page with its published unit', () => {

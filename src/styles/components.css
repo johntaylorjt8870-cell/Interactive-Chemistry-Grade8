@@ -3199,3 +3199,346 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   background: var(--accent);
   color: var(--text-on-accent);
 }
+
+/* ============================================================================
+   الدرس الثالث — مختبرات «صيغة المركّبات الكيميائية» (ص18–23)
+   كلها إضافات من المنصة فوق مختبر .lab الأساسي؛ وتحترم prefers-reduced-motion
+   عبر .lab--still كما في المختبرات السابقة.
+   ========================================================================= */
+
+/* --- مختبر التكافؤ في النماذج (H₂O / NH₃ / CH₄) --------------------------- */
+
+.valence-lab__picker { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.valence-lab__choice {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: center;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  cursor: pointer;
+}
+
+.valence-lab__choice small { color: var(--text-muted); font-size: var(--fs-xs); }
+
+.valence-lab__choice[aria-pressed='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft, rgba(37, 99, 235, 0.18));
+}
+
+.valence-lab__stage-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.valence-lab__stage { inline-size: 100%; block-size: auto; }
+
+.valence-lab__bond {
+  stroke: var(--border-strong, var(--border-soft));
+  stroke-width: 4;
+  stroke-linecap: round;
+  opacity: 0.35;
+  transition: opacity var(--dur-med) var(--ease-standard);
+}
+
+.valence-lab__bond[data-formed='true'] { opacity: 1; }
+
+.valence-lab__shared-dot { fill: var(--accent); opacity: 0; }
+
+.valence-lab__shared-pair { animation: valence-pair-in var(--dur-slow) var(--ease-emphasis) forwards; }
+
+@keyframes valence-pair-in {
+  from { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.4); }
+  to { opacity: 1; scale: 1; }
+}
+
+.valence-lab__hydrogen circle { fill: #d81f3f; stroke: #8f1226; stroke-width: 2; }
+
+.valence-lab__hydrogen text {
+  fill: #ffffff;
+  font-family: var(--font-latin);
+  font-size: 16px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.valence-lab__hydrogen { transition: transform var(--dur-slow) var(--ease-emphasis); }
+
+.valence-lab__hydrogen[data-attached='false'] { opacity: 0.55; }
+
+.valence-lab__central text {
+  fill: #ffffff;
+  font-family: var(--font-latin);
+  font-size: 22px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.valence-lab__panel { display: grid; gap: var(--space-3); }
+
+.valence-lab__status { margin: 0; font-weight: 650; color: var(--text-strong); }
+
+.valence-lab__reading {
+  margin: 0;
+  padding-inline-start: var(--space-3);
+  border-inline-start: 3px solid var(--border-soft);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+@media (max-width: 720px) {
+  .valence-lab__stage-wrap { grid-template-columns: 1fr; }
+}
+
+/* --- مختبر المعادلات الأيونية --------------------------------------------- */
+
+.ion-equation-lab__picker { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.ion-equation-lab__choice {
+  min-inline-size: 3.2rem;
+  padding: var(--space-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  font-family: var(--font-latin);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ion-equation-lab__choice[aria-pressed='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft, rgba(37, 99, 235, 0.18));
+}
+
+.ion-equation-lab__process {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(6rem, 0.5fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+}
+
+.ion-equation-lab__atom-state {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.ion-equation-lab__atom-state--result { border-color: var(--accent); }
+
+.ion-equation-lab__caption { color: var(--text-muted); font-size: var(--fs-sm); }
+
+.ion-equation-lab__atom-state > strong { font-family: var(--font-latin); font-size: var(--text-xl); }
+
+.ion-equation-lab__shell {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  min-block-size: 2rem;
+  align-items: center;
+}
+
+.ion-equation-lab__electron {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.6rem;
+  block-size: 1.6rem;
+  border-radius: 999px;
+  background: var(--accent-soft, rgba(37, 99, 235, 0.14));
+  color: var(--text-strong);
+  font-weight: 700;
+  transition: opacity var(--dur-med) var(--ease-standard), transform var(--dur-med) var(--ease-standard);
+}
+
+.ion-equation-lab__electron--gone { opacity: 0.18; transform: scale(0.6); }
+
+.ion-equation-lab__electron--arrived { animation: ion-arrive var(--dur-slow) var(--ease-emphasis); }
+
+@keyframes ion-arrive {
+  from { opacity: 0; transform: translateY(-0.6rem) scale(0.5); }
+  to { opacity: 1; transform: none; }
+}
+
+.ion-equation-lab__channel {
+  display: grid;
+  gap: var(--space-2);
+  place-items: center;
+  align-content: center;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.ion-equation-lab__arrow { font-size: 1.6rem; color: var(--text-strong); }
+
+.ion-equation-lab__particle {
+  display: inline-grid;
+  place-items: center;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-family: var(--font-latin);
+  font-weight: 700;
+  animation: ion-particle 900ms var(--ease-standard) infinite alternate;
+}
+
+.ion-equation-lab__particle--out { animation-name: ion-particle-out; }
+.ion-equation-lab__particle--in { animation-name: ion-particle-in; }
+
+@keyframes ion-particle-out {
+  from { transform: translateX(-0.5rem); }
+  to { transform: translateX(0.5rem); }
+}
+
+@keyframes ion-particle-in {
+  from { transform: translateX(0.5rem); }
+  to { transform: translateX(-0.5rem); }
+}
+
+.ion-equation-lab__pending { opacity: 0.4; }
+
+.ion-equation-lab__remain { align-self: center; color: var(--text-muted); font-size: var(--fs-sm); }
+
+.ion-equation-lab__equation {
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  overflow-x: auto;
+}
+
+.ion-equation-lab__equation .chem-equation { justify-content: center; }
+
+@media (max-width: 720px) {
+  .ion-equation-lab__process { grid-template-columns: 1fr; }
+}
+
+/* --- مختبر بناء الصيغة الكيميائية ----------------------------------------- */
+
+.formula-builder-lab__pickers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-4);
+}
+
+.formula-builder-lab__group {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+}
+
+.formula-builder-lab__group legend { font-weight: 700; padding-inline: var(--space-2); }
+
+.formula-builder-lab__group > div { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.formula-builder-lab__ion {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: center;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  cursor: pointer;
+}
+
+.formula-builder-lab__ion small { color: var(--text-muted); font-size: var(--fs-xs); }
+
+.formula-builder-lab__ion[aria-pressed='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft, rgba(37, 99, 235, 0.18));
+}
+
+.formula-builder-lab__stage {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-4);
+  margin-block-start: var(--space-4);
+}
+
+.formula-builder-lab__column {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+
+.formula-builder-lab__column h4 { margin: 0; font-size: var(--text-lg); }
+
+.formula-builder-lab__balance {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  font-family: var(--font-latin);
+  font-size: var(--fs-md);
+  text-align: center;
+}
+
+.formula-builder-lab__tiles { display: flex; gap: var(--space-2); flex-wrap: wrap; min-block-size: 2.2rem; }
+
+.formula-builder-lab__tile {
+  display: inline-grid;
+  place-items: center;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  animation: tile-in var(--dur-slow) var(--ease-emphasis);
+}
+
+.formula-builder-lab__tile--cation { background: var(--accent-soft, rgba(37, 99, 235, 0.14)); }
+.formula-builder-lab__tile--anion { background: var(--warn-soft, rgba(180, 83, 9, 0.14)); }
+
+@keyframes tile-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: none; }
+}
+
+.formula-builder-lab__verdict { margin: 0; font-weight: 650; }
+
+.formula-builder-lab__result { margin: 0; text-align: center; }
+
+.formula-builder-lab__paren-note,
+.formula-builder-lab__verify,
+.formula-builder-lab__hint { margin: 0; color: var(--text-muted); font-size: var(--fs-sm); }
+
+.formula-builder-lab__presets { margin-block-start: var(--space-4); }
+
+.formula-builder-lab__presets h4 { margin: 0 0 var(--space-2); }
+
+.formula-builder-lab__presets > div { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.formula-builder-lab__preset {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  cursor: pointer;
+}
+
+.formula-builder-lab__preset small { color: var(--text-muted); font-size: var(--fs-xs); }
+
+.formula-builder-lab__final { display: inline-block; margin-inline-start: var(--space-2); }
+
+/* --- احترام تقليل الحركة في المختبرات الثلاث ------------------------------ */
+
+.lab--still .valence-lab__bond,
+.lab--still .valence-lab__hydrogen { transition: none; }
+
+.lab--still .valence-lab__shared-pair,
+.lab--still .ion-equation-lab__electron--arrived,
+.lab--still .formula-builder-lab__tile { animation: none; }
+
+.lab--still .ion-equation-lab__particle { animation: none; }

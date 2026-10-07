@@ -27,6 +27,7 @@ import { canonicalAnswerOf, keyResponseOf } from '@/testArea/answers'
 
 const LESSON_1_ID = 'chem-u1-l1'
 const LESSON_2_ID = 'chem-u1-l2'
+const LESSON_3_ID = 'chem-u1-l3'
 const UNIT_1_ID = 'chem-u1'
 
 async function loadBank(id: string): Promise<TestBank> {
@@ -152,7 +153,7 @@ describe('Lesson 1 test — الذرة والعنصر', () => {
 
 describe('Grading agrees with the published key', () => {
   it('marks the keyed answer correct for every question in all banks', async () => {
-    for (const id of [LESSON_1_ID, LESSON_2_ID, UNIT_1_ID]) {
+    for (const id of [LESSON_1_ID, LESSON_2_ID, LESSON_3_ID, UNIT_1_ID]) {
       const bank = await loadBank(id)
       for (const question of bank.questions) {
         const grade = gradeQuestion(question, keyResponseOf(question), {
@@ -165,7 +166,7 @@ describe('Grading agrees with the published key', () => {
   })
 
   it('refuses a wrong answer for every question in all banks', async () => {
-    for (const id of [LESSON_1_ID, LESSON_2_ID, UNIT_1_ID]) {
+    for (const id of [LESSON_1_ID, LESSON_2_ID, LESSON_3_ID, UNIT_1_ID]) {
       const bank = await loadBank(id)
       for (const question of bank.questions) {
         const grade = gradeQuestion(question, wrongResponseOf(question), {
@@ -178,7 +179,7 @@ describe('Grading agrees with the published key', () => {
   })
 
   it('marks an empty attempt as fully unanswered for all banks', async () => {
-    for (const id of [LESSON_1_ID, LESSON_2_ID, UNIT_1_ID]) {
+    for (const id of [LESSON_1_ID, LESSON_2_ID, LESSON_3_ID, UNIT_1_ID]) {
       const bank = await loadBank(id)
       const result = gradeAttempt(bank, {})
       expect(result.score).toBe(0)
@@ -190,7 +191,7 @@ describe('Grading agrees with the published key', () => {
   })
 
   it('marks a perfect attempt as 100% for all banks', async () => {
-    for (const id of [LESSON_1_ID, LESSON_2_ID, UNIT_1_ID]) {
+    for (const id of [LESSON_1_ID, LESSON_2_ID, LESSON_3_ID, UNIT_1_ID]) {
       const bank = await loadBank(id)
       const responses = Object.fromEntries(
         bank.questions.map((question) => [question.id, keyResponseOf(question)]),
@@ -217,7 +218,7 @@ describe('Grading agrees with the published key', () => {
   })
 
   it('prints a canonical answer for every question in all banks', async () => {
-    for (const id of [LESSON_1_ID, LESSON_2_ID, UNIT_1_ID]) {
+    for (const id of [LESSON_1_ID, LESSON_2_ID, LESSON_3_ID, UNIT_1_ID]) {
       const bank = await loadBank(id)
       for (const question of bank.questions) {
         expect(canonicalAnswerOf(question).trim()).not.toBe('')

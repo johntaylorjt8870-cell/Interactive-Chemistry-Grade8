@@ -24,16 +24,19 @@ export const CURRICULUM_UNIT_ID = 'chem-u1'
 /** Pages of the published unit, exactly as declared in the curriculum registry. */
 export const UNIT_PAGES: readonly string[] = [
   '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17',
+  '18', '19', '20', '21', '22', '23',
 ]
 
 export const LESSON_PAGES: Record<string, readonly string[]> = {
   'chem-u1-l1': ['3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
   'chem-u1-l2': ['13', '14', '15', '16', '17'],
+  'chem-u1-l3': ['18', '19', '20', '21', '22', '23'],
 }
 
 export const LESSON_TITLES: Record<string, string> = {
   'chem-u1-l1': 'الدرس الأول — الذرّة والعنصر',
   'chem-u1-l2': 'الدرس الثاني — الروابط الكيميائية',
+  'chem-u1-l3': 'الدرس الثالث — صيغةُ المركّباتِ الكيميائيَّةِ',
 }
 
 export const UNIT_TITLE = 'الوحدة الأولى — الكيمياء البنيوية'
@@ -65,7 +68,13 @@ export const ALLOWED_LATIN_TOKENS: ReadonlyArray<{ token: string; why: string }>
   { token: 'Cl', why: 'كلور — ص 8 و14 و17' },
   { token: 'Ar', why: 'أرغون — ص 12 (سؤال لويس)' },
   { token: 'K', why: 'بوتاسيوم — ص 8 (K⁺)؛ واسم السوية الأولى' },
-  { token: 'Ca', why: 'كالسيوم — ص 16 (CaO)' },
+  { token: 'Ca', why: 'كالسيوم — ص 16 و20 و22 (CaO، جدول التكافؤات)' },
+  { token: 'Zn', why: 'زنك — ص 20–23 (ZnCl₂، ZnO، خَلّات الزنك)' },
+  { token: 'Br', why: 'بروم — ص 20 (جدول التكافؤات)' },
+  { token: 'Ag', why: 'فضة — ص 20 (جدول التكافؤات)' },
+  { token: 'Cu', why: 'نحاس — ص 20 (Cu(I)، Cu(II))' },
+  { token: 'Fe', why: 'حديد — ص 20 و23 (Fe(II)، Fe(III)، FeO، أكسيد الحديد I)' },
+  { token: 'I', why: 'رقم روماني في «أكسيدُ الحَديدِ I» — ص 23' },
   { token: 'L', why: 'اسم السوية الرئيسية الثانية — ص 5–6' },
   { token: 'M', why: 'اسم السوية الرئيسية الثالثة — ص 6 و12' },
 ]

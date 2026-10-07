@@ -85,6 +85,27 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     description: 'مقارنة H₂ وO₂ وN₂ بين تمثيل لويس والنموذج وقراءة الأزواج المشتركة وغير المشتركة.',
     load: () => import('./CovalentBondLab'),
   },
+  {
+    id: 'valence-model-lab',
+    title: 'مختبر التكافؤ في النماذج الجزيئية',
+    kind: 'simulation',
+    description: 'تشكيل روابط H₂O وNH₃ وCH₄ رابطةً رابطة وقراءة التكافؤ كعدد الروابط المشتركة.',
+    load: () => import('./ValenceModelLab'),
+  },
+  {
+    id: 'ion-equation-lab',
+    title: 'مختبر المعادلات الأيونية: الفقد والاكتساب',
+    kind: 'simulation',
+    description: 'تنفيذ المعادلات الخمس للصفحة 19 إلكتروناً إلكتروناً مع قراءة الشحنة والتوزع.',
+    load: () => import('./IonEquationLab'),
+  },
+  {
+    id: 'formula-builder-lab',
+    title: 'مختبر بناء الصيغة الكيميائية',
+    kind: 'simulation',
+    description: 'اختيار أيونين وتحقيق التعادل الكهربائي وكتابة الصيغة مع قوس الجذر عند التكرار.',
+    load: () => import('./FormulaBuilderLab'),
+  },
 ]
 
 const registry = new Map<string, InteractiveDefinition>(
