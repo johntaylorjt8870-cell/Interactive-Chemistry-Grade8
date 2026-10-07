@@ -5,6 +5,7 @@ import { LessonOutline } from './LessonOutline'
 import { getStepRenderer } from './stepRenderers'
 import { STEP_KIND_META } from './stepKinds'
 import { Drawer } from '@/components/Drawer'
+import { RtlRun } from '@/components/BidiText'
 import { LiveStatus } from '@/components/LiveStatus'
 import { ArrowEndGlyph, ArrowStartGlyph, CheckGlyph, ListGlyph } from '@/components/Icons'
 import { computeLessonProgress, useLessonProgress } from '@/data/progress'
@@ -221,9 +222,9 @@ export function LessonFlow({
           {breadcrumb ? <div className="drawer-lesson__breadcrumb">{breadcrumb}</div> : null}
           <p className="drawer-lesson__title">{lesson.title}</p>
           {lesson.summary ? <p className="drawer-lesson__summary">{lesson.summary}</p> : null}
-          <p className="drawer-lesson__progress">
+          <RtlRun as="p" className="drawer-lesson__progress">
             الخطوة {currentIndex + 1} من {total} · زُرت {progress.seen} من {total}
-          </p>
+          </RtlRun>
           <p className="drawer-lesson__step">
             {meta.label}: {meta.intention}
           </p>

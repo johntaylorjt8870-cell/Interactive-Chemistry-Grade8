@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { QuestionView } from './QuestionView'
+import { RtlRun } from '@/components/BidiText'
 import { isAttemptComplete, summariseAttempt } from './evaluate'
 import type { AttemptSummary, FinalTest, QuestionResponse, ResponseValue } from './types'
 
@@ -147,7 +148,7 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
       {summary ? (
         <section className="attempt-summary">
           <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
-            اكتمل الاختبار. أُجيب عن {summary.answered} من {summary.total} سؤالاً.
+            <RtlRun>اكتمل الاختبار. أُجيب عن {summary.answered} من {summary.total} سؤالاً.</RtlRun>
           </p>
           <h3 className="attempt-summary__title">نتيجة المحاولة</h3>
           <ul className="attempt-summary__list">

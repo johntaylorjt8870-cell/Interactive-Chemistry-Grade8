@@ -55,7 +55,7 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     lessonId: 'chem-u1-l3',
     label: 'الدرس الثالث — كيمياء: صيغةُ المركّباتِ الكيميائيَّةِ',
     pages: 'الصفحات 18–23',
-    bookNote: 'تتضمن حلول السؤال التمهيدي ونشاط النماذج وجدول الأيونات ونشاط التفكك (ص19–20)، وحلول «أخبر نفسي» الخمسة كاملة بترتيبها القرائي (ص23).',
+    bookNote: 'تتضمن حلول السؤال التمهيدي ونشاط النماذج وجدول الأيونات ونشاط التفكك (ص19–20)، وحلول «أختبر نفسي» الخمسة كاملة بترتيبها القرائي (ص23).',
     bookQuestions: [...lesson3Activities, ...lesson3Questions],
     finalTest: lesson3FinalTest,
   },

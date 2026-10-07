@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 
 import { routes } from '@/app/navigation'
 import { EmptyState } from '@/components/EmptyState'
+import { RtlRun } from '@/components/BidiText'
 import { getTestDefinition, hasTest } from '@/data/testArea/registry'
 import type { TestBank } from '@/data/testArea/types'
 import { BlueprintView } from '@/testArea/components/BlueprintView'
@@ -63,9 +64,9 @@ function Runner({ bank }: { bank: TestBank }) {
 
       {state.unansweredWarning ? (
         <div className="ta-banner ta-banner--warning" role="alert">
-          <p className="ta-banner__text">
+          <RtlRun as="p" className="ta-banner__text">
             لم تُجب عن {attempt.unansweredIndices.length} من {attempt.total} سؤالاً.
-          </p>
+          </RtlRun>
           <div className="ta-banner__actions">
             <button type="button" className="ta-button ta-button--danger" onClick={attempt.submitAnyway}>
               أرسل على أي حال
@@ -102,9 +103,9 @@ function Runner({ bank }: { bank: TestBank }) {
             >
               السابق
             </button>
-            <span className="ta-runner__position">
+            <RtlRun className="ta-runner__position">
               السؤال {currentIndex + 1} من {attempt.total}
-            </span>
+            </RtlRun>
             <button
               type="button"
               className="ta-button"
