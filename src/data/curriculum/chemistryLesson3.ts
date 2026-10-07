@@ -72,7 +72,7 @@ export const bookActivitySolutions: Question[] = [
 ]
 
 /* ---------------------------------------------------------------------------
-   أسئلة الكتاب — الصفحة 23 «أخبر نفسي»
+   أسئلة الكتاب — الصفحة 23 «أختبر نفسي»
    ------------------------------------------------------------------------ */
 
 export const bookQuestions: Question[] = [
@@ -348,7 +348,7 @@ const steps: LessonStep[] = [
         'حين يكون عدد الذرّات واحدًا لا يُكتب رقم؛ فنقول O فقط لا O₁.',
         'الأرقام العلوية الصغيرة شحنات الأيونات وليست جزءًا من قراءة الصيغة المتعادلة: Na⁺ أيون ناقص إلكترون واحد.',
       ] },
-      { kind: 'callout', tone: 'note', title: 'الفرق بين الرمز والصيغة (هدف الدرس الرابع)', attribution: 'platform', text: 'الرمز يمثّل عنصرًا واحدًا: Na رمز الصوديوم. الصيغة تمثّل مركّبًا من أكثر من مؤلِّف: NaCl صيغة كلوريد الصوديوم. من قال إن «رمز الصوديوم هو Na⁺» خلط الرمز بالأيون، وهذا هو الخطأ الأول في سؤال «أخبر نفسي».' },
+      { kind: 'callout', tone: 'note', title: 'الفرق بين الرمز والصيغة (هدف الدرس الرابع)', attribution: 'platform', text: 'الرمز يمثّل عنصرًا واحدًا: Na رمز الصوديوم. الصيغة تمثّل مركّبًا من أكثر من مؤلِّف: NaCl صيغة كلوريد الصوديوم. من قال إن «رمز الصوديوم هو Na⁺» خلط الرمز بالأيون، وهذا هو الخطأ الأول في سؤال «أختبر نفسي».' },
       { kind: 'paragraph', attribution: 'platform', text: 'ولماذا نحتاج صيغة أصلًا؟ لأن المادة الواحدة نسب مكوّناتها ثابتة دائمًا: كل جزيء ماء ذرّتا هيدروجين وذرّة أكسجين، لا أكثر ولا أقل. الصيغة تكتب هذه النسبة كتابةً لا لبس فيها يفهمها أي كيميائي في العالم مهما كانت لغته.' },
     ],
   },
@@ -633,8 +633,8 @@ const steps: LessonStep[] = [
     ],
   },
   {
-    id: 'book-check-q1', kind: 'question', title: 'أخبر نفسي: ضعْ علامةَ (✓) أو (×)', summary: 'الصفحة 23 — السؤال الأول بعباراته الأربع.', attribution: 'textbook',
-    source: { pages: [source('23', 'أخبر نفسي — السؤال الأول')], verified: true }, minutes: 6,
+    id: 'book-check-q1', kind: 'question', title: 'أختبر نفسي: ضعْ علامةَ (✓) أو (×)', summary: 'الصفحة 23 — السؤال الأول بعباراته الأربع.', attribution: 'textbook',
+    source: { pages: [source('23', 'أختبر نفسي — السؤال الأول')], verified: true }, minutes: 6,
     blocks: [
       { kind: 'question', questionId: 'l3-book-tf-1' },
       { kind: 'question', questionId: 'l3-book-tf-2' },
@@ -643,16 +643,16 @@ const steps: LessonStep[] = [
     ],
   },
   {
-    id: 'book-check-q2', kind: 'question', title: 'أخبر نفسي: اخترِ الإجابةَ الصّحيحةَ', summary: 'الصفحة 23 — السؤال الثاني بفقرتيه.', attribution: 'textbook',
-    source: { pages: [source('23', 'أخبر نفسي — السؤال الثاني')], verified: true }, minutes: 5,
+    id: 'book-check-q2', kind: 'question', title: 'أختبر نفسي: اخترِ الإجابةَ الصّحيحةَ', summary: 'الصفحة 23 — السؤال الثاني بفقرتيه.', attribution: 'textbook',
+    source: { pages: [source('23', 'أختبر نفسي — السؤال الثاني')], verified: true }, minutes: 5,
     blocks: [
       { kind: 'question', questionId: 'l3-book-mc-1' },
       { kind: 'question', questionId: 'l3-book-mc-2' },
     ],
   },
   {
-    id: 'book-check-q3', kind: 'question', title: 'أخبر نفسي: أكتبْ صيغةَ كلٍّ من المركّباتِ', summary: 'الصفحة 23 — السؤال الثالث بموادّه الأربع بترتيبها القرائي.', attribution: 'textbook',
-    source: { pages: [source('23', 'أخبر نفسي — السؤال الثالث')], verified: true }, minutes: 10,
+    id: 'book-check-q3', kind: 'question', title: 'أختبر نفسي: أكتبْ صيغةَ كلٍّ من المركّباتِ', summary: 'الصفحة 23 — السؤال الثالث بموادّه الأربع بترتيبها القرائي.', attribution: 'textbook',
+    source: { pages: [source('23', 'أختبر نفسي — السؤال الثالث')], verified: true }, minutes: 10,
     blocks: [
       { kind: 'question', questionId: 'l3-book-q3-1' },
       { kind: 'question', questionId: 'l3-book-q3-2' },
@@ -661,8 +661,8 @@ const steps: LessonStep[] = [
     ],
   },
   {
-    id: 'book-check-q4', kind: 'question', title: 'أخبر نفسي: أكتبْ اسمَ كلٍّ من المركّباتِ', summary: 'الصفحة 23 — السؤال الرابع بصيغه الأربع بترتيبها القرائي.', attribution: 'textbook',
-    source: { pages: [source('23', 'أخبر نفسي — السؤال الرابع')], verified: true }, minutes: 8,
+    id: 'book-check-q4', kind: 'question', title: 'أختبر نفسي: أكتبْ اسمَ كلٍّ من المركّباتِ', summary: 'الصفحة 23 — السؤال الرابع بصيغه الأربع بترتيبها القرائي.', attribution: 'textbook',
+    source: { pages: [source('23', 'أختبر نفسي — السؤال الرابع')], verified: true }, minutes: 8,
     blocks: [
       { kind: 'question', questionId: 'l3-book-q4-1' },
       { kind: 'question', questionId: 'l3-book-q4-2' },
@@ -671,8 +671,8 @@ const steps: LessonStep[] = [
     ],
   },
   {
-    id: 'book-check-q5', kind: 'activity', title: 'أخبر نفسي: أبحثُ عن الأسماءِ العلميّةِ', summary: 'الصفحة 23 — السؤال الخامس: موادّ شائعة وأسماؤها العلمية وصيغها.', attribution: 'textbook',
-    source: { pages: [source('23', 'أخبر نفسي — السؤال الخامس')], verified: true }, minutes: 8,
+    id: 'book-check-q5', kind: 'activity', title: 'أختبر نفسي: أبحثُ عن الأسماءِ العلميّةِ', summary: 'الصفحة 23 — السؤال الخامس: موادّ شائعة وأسماؤها العلمية وصيغها.', attribution: 'textbook',
+    source: { pages: [source('23', 'أختبر نفسي — السؤال الخامس')], verified: true }, minutes: 8,
     blocks: [
       { kind: 'question', questionId: 'l3-book-q5' },
     ],
@@ -680,7 +680,7 @@ const steps: LessonStep[] = [
   {
     id: 'common-errors', kind: 'common-error', title: 'أخطاء شائعة في الصيغ والتكافؤ', summary: 'تنبيهات المنصة: الإشارة، والأُسّ السفلي، والقوس، والتعادل.', attribution: 'platform', minutes: 5,
     blocks: [
-      { kind: 'callout', tone: 'warning', title: 'الرمز ليس أيونًا', attribution: 'platform', text: 'Na رمز الذرّة المتعادلة وNa⁺ رمز الأيون؛ الخلط بينهما هو عبارة سؤال «أخبر نفسي» الأولى نفسها. الشحنة العلوية لا تُكتب إلا للأيون.' },
+      { kind: 'callout', tone: 'warning', title: 'الرمز ليس أيونًا', attribution: 'platform', text: 'Na رمز الذرّة المتعادلة وNa⁺ رمز الأيون؛ الخلط بينهما هو عبارة سؤال «أختبر نفسي» الأولى نفسها. الشحنة العلوية لا تُكتب إلا للأيون.' },
       { kind: 'callout', tone: 'warning', title: 'التكافؤ ليس إلكترونات السطح', attribution: 'platform', text: 'الأكسجين سطحه 6 إلكترونات وتكافؤه 2؛ لأنه يكتسب 2. اقرأ التكافؤ من الروابط أو من الفقد والاكتساب، لا من إلكترونات السطح.' },
       { kind: 'callout', tone: 'warning', title: 'القوس يخصّ الجذر كله', attribution: 'platform', text: 'في Ca(OH)₂ العدد 2 يضاعف الأكسجين والهيدروجين معًا؛ وكتابة CaO₂H₂ رغم صحتها النسبية مخالفة لطريقة الكتاب في كتابة الجذور كوحدات.' },
       { kind: 'callout', tone: 'warning', title: 'أختبر الصيغة بالتعادل لا بالألفة', attribution: 'platform', text: 'صيغة تبدو مألوفة قد تكون معطلة كهربائيًا: AlO مجموعها +3−2 = +1 فلا تصح؛ الصحيح Al₂O₃. تعوّد أن تتحقق بالضرب والجمع دائمًا.' },

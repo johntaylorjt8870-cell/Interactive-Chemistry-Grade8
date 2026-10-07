@@ -7,7 +7,7 @@
  */
 
 /** Structured notations that get their own renderer instead of a generic isolate. */
-export type ScientificNotation = 'electron-configuration'
+export type ScientificNotation = 'electron-configuration' | 'charge' | 'range' | 'expression'
 
 export type ScientificRun =
   | { kind: 'prose'; value: string }
@@ -19,9 +19,14 @@ const NUMBER = String.raw`\d+(?:[.,]\d+)?`
 /**
  * Subscript and superscript glyphs printed inside Chemistry symbols travel
  * inside the same LTR isolate as the Latin symbol they belong to — never float
- * in the surrounding RTL prose.
+ * in the surrounding RTL prose. Charge signs (`⁺`, `⁻`) belong to the same
+ * class as the digits they follow: `Cl⁻` is one species, never `Cl` plus a
+ * loose sign the RTL paragraph is free to move.
  */
-const SCRIPT_GLYPHS = '₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁹'
+const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
+const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
+const CHARGE_GLYPHS = '⁺⁻'
+const SCRIPT_GLYPHS = `${SUBSCRIPT_DIGITS}${SUPERSCRIPT_DIGITS}`
 /** Latin identifier carrying its own scripts, e.g. `Cl₂`, `H₂O`, `CaCO₃`. */
 const IDENT_EXT = String.raw`[A-Za-z][A-Za-z0-9_'’.\-${SCRIPT_GLYPHS}]*`
 /**
@@ -32,7 +37,7 @@ const IDENT_EXT = String.raw`[A-Za-z][A-Za-z0-9_'’.\-${SCRIPT_GLYPHS}]*`
  * or operator). Arabic text and Arabic punctuation are not in the class, so
  * prose always terminates the run.
  */
-const MATH_RUN = String.raw`[A-Za-z0-9](?:[A-Za-z0-9\s=+\-−×÷·±√/()%°²³${SCRIPT_GLYPHS}'’._]*[A-Za-z0-9)²³])?`
+const MATH_RUN = String.raw`[A-Za-z0-9](?:[A-Za-z0-9\s=+\-−–—×÷·±√/()%°²³${SCRIPT_GLYPHS}${CHARGE_GLYPHS}'’._]*[A-Za-z0-9)²³${SCRIPT_GLYPHS}])?`
 /** Scientific notation such as 6.02×10²³ or 3.2 x 10^-4 */
 const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺²³⁴⁵⁶⁷⁸⁹]+))?`
 
@@ -77,15 +82,8 @@ function scienceRun(value: string): ScientificRun {
     : { kind: 'science', value }
 }
 
-/**
- * Splits mixed Arabic/scientific prose into ordered runs.
- *
- * `"كمية المادة 1 mol تقريباً"` becomes
- * `[prose: "كمية المادة ", science: "1 mol", prose: " تقريباً"]`
- */
-export function splitScientificRuns(input: string): ScientificRun[] {
-  if (!input) return []
-
+/** The generic pass: lifts single Latin/numeric fragments out of Arabic prose. */
+function splitGenericRuns(input: string): ScientificRun[] {
   const runs: ScientificRun[] = []
   let cursor = 0
 
@@ -111,6 +109,50 @@ export function splitScientificRuns(input: string): ScientificRun[] {
   }
 
   return runs
+}
+
+/** Consecutive prose fragments are one fragment; empty prose is dropped. */
+function mergeProse(runs: ScientificRun[]): ScientificRun[] {
+  const merged: ScientificRun[] = []
+  for (const run of runs) {
+    const previous = merged[merged.length - 1]
+    if (run.kind === 'prose') {
+      if (run.value === '') continue
+      if (previous?.kind === 'prose') {
+        previous.value += run.value
+        continue
+      }
+    }
+    merged.push(run)
+  }
+  return merged
+}
+
+/**
+ * Splits mixed Arabic/scientific prose into ordered runs.
+ *
+ * `"كمية المادة 1 mol تقريباً"` becomes
+ * `[prose: "كمية المادة ", science: "1 mol", prose: " تقريباً"]`
+ *
+ * Values that must never be split — equations, ranges and charges — are claimed
+ * by `collectPrioritySpans` first; the generic pass fills the remaining prose.
+ */
+export function splitScientificRuns(input: string): ScientificRun[] {
+  if (!input) return []
+
+  const spans = collectPrioritySpans(input)
+  const runs: ScientificRun[] = []
+  let cursor = 0
+
+  for (const span of spans) {
+    if (span.start > cursor) runs.push(...splitGenericRuns(input.slice(cursor, span.start)))
+    runs.push(span.run)
+    cursor = span.end
+  }
+
+  if (cursor < input.length) runs.push(...splitGenericRuns(input.slice(cursor)))
+
+  return mergeProse(runs)
 }
 
 /** True when the string contains at least one run that needs LTR isolation. */
@@ -149,6 +191,111 @@ function shellCapacity(shellIndex: number): number {
 
 /** Anchor the same shape used by the splitter, so both stay in step. */
 const NUMERIC_HYPHEN_SEQUENCE_PATTERN = new RegExp(`^${NUMERIC_HYPHEN_SEQUENCE}$`, 'u')
+
+/* ---------------------------------------------------------------------------
+ * High-priority runs
+ * ---------------------------------------------------------------------------
+ * The generic splitter is deliberately conservative: it lifts Latin and numeric
+ * fragments out of Arabic prose one at a time. That is right for a measurement
+ * (`5 g`) but wrong for a token that is ONE logical value spread over several
+ * fragments — an equation, a range or a charge. Each fragment would become its
+ * own isolate, and an RTL paragraph lays sibling isolates out right-to-left, so
+ * `2 + 3 = 5` reaches the eye as `5 = 3 + 2`.
+ *
+ * These rules therefore claim those spans BEFORE the generic pass sees the
+ * text, so the whole value arrives as one LTR isolate. They are ordered from
+ * the most specific to the least specific, and a span already claimed by an
+ * earlier rule is never re-matched by a later one.
+ * ------------------------------------------------------------------------ */
+
+/** `e⁻`, `2e⁻`, `Cl⁻`, `Na⁺`, `Ca²⁺`, `O²⁻`, `Al³⁺`, `SO₄²⁻` — one species. */
+const CHARGE_NOTATION_PARTS = String.raw`(?<![A-Za-z${SCRIPT_GLYPHS}${CHARGE_GLYPHS}])(\d+)?([A-Za-z][A-Za-z0-9${SUBSCRIPT_DIGITS}]*)([${SUPERSCRIPT_DIGITS}]*)([${CHARGE_GLYPHS}])(?![${SUPERSCRIPT_DIGITS}])`
+
+/** `18–23`, `18 – 23` — a page or figure range, never two separate numbers. */
+const NUMERIC_RANGE_SOURCE = String.raw`\d+(?:[.,]\d+)?\s?[–—]\s?\d+(?:[.,]\d+)?`
+
+/** Widest candidate span for a relation: `2 + 3 = 5`, `(+3)(2) + (−2)(3) = 0`. */
+const EXPRESSION_SOURCE = String.raw`[A-Za-z0-9(+\-−][A-Za-z0-9\s.()=+\-−–—×÷·±√/%°${SCRIPT_GLYPHS}${CHARGE_GLYPHS}]*[A-Za-z0-9)²³${SCRIPT_GLYPHS}]`
+
+/**
+ * A candidate is only an equation when it carries a relation (`=`) or a spaced
+ * operator. That keeps `25 °C`, `6.02×10²³ mol⁻¹` and `44 g/mol` on the
+ * measurement path, where the value-then-unit order is already guaranteed.
+ */
+const EXPRESSION_RELATION = /=|\s[+\-−×÷±]\s/
+
+/** True when the run is one complete arithmetic or scientific relation. */
+export function isMathExpression(value: string): boolean {
+  const candidate = value.trim()
+  if (!/\d/.test(candidate)) return false
+  if (/[\u0600-\u06ff]/.test(candidate)) return false
+  return EXPRESSION_RELATION.test(candidate)
+}
+
+type PriorityRule = {
+  pattern: RegExp
+  resolve: (value: string) => ScientificRun | null
+}
+
+const PRIORITY_RULES: PriorityRule[] = [
+  {
+    // A hyphen-joined numeric sequence (`2-8-8`, `4-2`) keeps its existing rule.
+    pattern: new RegExp(NUMERIC_HYPHEN_SEQUENCE, 'gu'),
+    resolve: (value) => scienceRun(value),
+  },
+  {
+    // A charge-bearing token is promoted to real superscript markup, so `e⁻`,
+    // `Cl⁻` and `Ca²⁺` never leave a raw sign loose in the RTL prose.
+    pattern: new RegExp(CHARGE_NOTATION_PARTS, 'gu'),
+    resolve: (value) =>
+      parseCompactCharge(value) === null ? null : { kind: 'science', value, notation: 'charge' },
+  },
+  {
+    // A range such as `18–23` is one value: the dash stays inside the isolate,
+    // otherwise the two numbers can be reordered around it.
+    pattern: new RegExp(NUMERIC_RANGE_SOURCE, 'gu'),
+    resolve: (value) => ({ kind: 'science', value, notation: 'range' }),
+  },
+  {
+    // A relation is one LTR isolate, never a chain of `2` + `+ 3` + `= 5`.
+    pattern: new RegExp(EXPRESSION_SOURCE, 'gu'),
+    resolve: (value) =>
+      isMathExpression(value) ? { kind: 'science', value, notation: 'expression' } : null,
+  },
+]
+
+type PrioritySpan = { start: number; end: number; run: ScientificRun }
+
+/**
+ * Collects the highest-priority non-overlapping spans of `input`.
+ * A later rule may never cut into a span an earlier rule has claimed.
+ */
+function collectPrioritySpans(input: string): PrioritySpan[] {
+  const spans: PrioritySpan[] = []
+  const overlaps = (start: number, end: number): boolean =>
+    spans.some((span) => start < span.end && end > span.start)
+
+  for (const rule of PRIORITY_RULES) {
+    rule.pattern.lastIndex = 0
+    let match: RegExpExecArray | null
+    while ((match = rule.pattern.exec(input)) !== null) {
+      const value = match[0]
+      if (!value) {
+        // Defensive: never allow a zero-length match to spin the loop forever.
+        rule.pattern.lastIndex += 1
+        continue
+      }
+      const start = match.index
+      const end = start + value.length
+      if (overlaps(start, end)) continue
+      const run = rule.resolve(value)
+      if (run === null) continue
+      spans.push({ start, end, run })
+    }
+  }
+
+  return spans.sort((a, b) => a.start - b.start)
+}
 
 /**
  * Reads an electron configuration as shell occupancies.
@@ -249,11 +396,66 @@ export function chargeGlyph(sign: ChargeSign): string {
   return ''
 }
 
+/** One parsed compact charge token: `e⁻`, `2e⁻`, `Cl⁻`, `Ca²⁺`, `SO₄²⁻`. */
+export type CompactChargeNotation = {
+  /** The source characters verbatim, e.g. `Ca²⁺`. Never re-spelled. */
+  source: string
+  /** Leading coefficient of a multi-electron token (`2e⁻`); empty otherwise. */
+  coefficient: string
+  /** Species body verbatim, e.g. `Cl`, `Ca`, `e`, `SO₄`. */
+  body: string
+  /** Plain ASCII formula for <ChemicalFormula /> when the body is one. */
+  formula: string | null
+  /** Charge magnitude in ASCII digits (`2`); empty for a bare sign. */
+  magnitude: string
+  sign: '+' | '-'
+}
+
+const EXACT_CHARGE_NOTATION = new RegExp(`^${CHARGE_NOTATION_PARTS}$`, 'u')
+
+/** `2` → `₂`: converts glyphs of one alphabet; unknown glyphs pass through. */
+function plainDigits(value: string, alphabet: string): string {
+  return [...value]
+    .map((glyph) => {
+      const index = alphabet.indexOf(glyph)
+      return index === -1 ? glyph : String(index)
+    })
+    .join('')
+}
+
+/**
+ * Reads a compact charge token that was authored in Unicode superscript form.
+ *
+ * `e⁻` and `2e⁻` are the electron spellings used throughout Unit 1; `Cl⁻`,
+ * `Na⁺`, `Ca²⁺`, `O²⁻`, `Al³⁺` and `SO₄²⁻` are the ionic spellings. The parser
+ * only ever *reads* the source: the renderer re-emits the same characters,
+ * with the charge carried by real <sup> markup instead of raw glyphs.
+ *
+ * Returns `null` for negative exponents such as `mol⁻¹`, whose sign is not
+ * final, so unit strings are never mistaken for ions.
+ */
+export function parseCompactCharge(value: string): CompactChargeNotation | null {
+  const match = value.match(EXACT_CHARGE_NOTATION)
+  if (!match) return null
+
+  const body = match[2] ?? ''
+  if (body === '') return null
+
+  const ascii = plainDigits(body, SUBSCRIPT_DIGITS)
+  return {
+    source: value,
+    coefficient: match[1] ?? '',
+    body,
+    formula: /^[A-Z][A-Za-z0-9]*$/.test(ascii) ? ascii : null,
+    magnitude: plainDigits(match[3] ?? '', SUPERSCRIPT_DIGITS),
+    sign: match[4] === '⁺' ? '+' : '-',
+  }
+}
+
 /* ---------------------------------------------------------------------------
  * Sub / superscript characters (compact inline notation only)
  * ------------------------------------------------------------------------ */
 
-const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
 const SUPERSCRIPT_CHARS: Record<string, string> = {
   '0': '⁰',
   '1': '¹',

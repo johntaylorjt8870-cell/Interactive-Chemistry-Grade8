@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { routes } from '@/app/navigation'
 import { chunksOf } from '@/testArea/utils/chunk'
+import { RtlRun } from '@/components/BidiText'
 
 /* ============================================================================
    SolutionChunkNav — moving through a long solutions set
@@ -39,9 +40,9 @@ export function SolutionChunkNav({
     <nav className="ta-chunk-nav" aria-label="أجزاء الحلول">
       <div className="ta-chunk-nav__status">
         <span className="ta-chip ta-chip--scope">{chunk.label}</span>
-        <span className="ta-chunk-nav__count">
+        <RtlRun className="ta-chunk-nav__count">
           الأسئلة {chunk.first}–{chunk.last} من {total}
-        </span>
+        </RtlRun>
       </div>
 
       <div className="ta-chunk-nav__buttons">

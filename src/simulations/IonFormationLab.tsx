@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ElectronConfiguration, IonNotation } from '@/scientific'
+import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
 type IonExample = {
@@ -64,7 +65,9 @@ export default function IonFormationLab({ reducedMotion }: InteractiveProps) {
         <div className="ion-process__arrow" aria-live="polite">
           <span aria-hidden="true">{direction < 0 ? '⟶ e⁻' : 'e⁻ ⟶'}</span>
           <strong>{direction < 0 ? 'فقد إلكترون' : 'اكتساب إلكترون'}</strong>
-          <small>{moved} من {Math.abs(example.transfer)}</small>
+          <RtlRun as="small">
+            {moved} من {Math.abs(example.transfer)}
+          </RtlRun>
         </div>
 
         <div className="ion-process__state ion-process__state--result">

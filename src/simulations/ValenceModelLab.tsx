@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChemicalFormula } from '@/scientific'
+import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -247,7 +248,9 @@ export default function ValenceModelLab({ reducedMotion }: InteractiveProps) {
       <div className="lab__measurements">
         <div>
           <span>الروابط المشتركة المُتكوّنة</span>
-          <strong>{formed} من {molecule.bonds}</strong>
+          <RtlRun as="strong">
+            {formed} من {molecule.bonds}
+          </RtlRun>
         </div>
         <div>
           <span>الإلكترونات المشتركة</span>

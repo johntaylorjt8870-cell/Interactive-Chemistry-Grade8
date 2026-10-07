@@ -62,7 +62,7 @@ export function SolutionCard({ solution, question, number }: SolutionCardProps) 
 
       <div className="ta-solution__answer">
         <span className="ta-solution__answer-label">الإجابة الصحيحة</span>
-        <span className="ta-solution__answer-value" dir="ltr" lang="en">
+        <span className="ta-solution__answer-value" dir="auto">
           <ScientificNotationText>{solution.answer}</ScientificNotationText>
         </span>
       </div>
@@ -86,7 +86,7 @@ export function SolutionCard({ solution, question, number }: SolutionCardProps) 
               <MathFormula tex={solution.rule.tex} display="block" />
             </div>
           ) : (
-            <p className="ta-solution__rule" dir="ltr" lang="en">
+            <p className="ta-solution__rule" dir="auto">
               <ScientificNotationText>{solution.rule.label}</ScientificNotationText>
             </p>
           )}

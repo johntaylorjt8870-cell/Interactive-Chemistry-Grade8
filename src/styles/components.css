@@ -3542,3 +3542,18 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
 .lab--still .formula-builder-lab__tile { animation: none; }
 
 .lab--still .ion-equation-lab__particle { animation: none; }
+
+/* --- مقاطع الاتجاه الثنائي (BIDI) ----------------------------------------- */
+/* واجهة عربية RTL، لكن أي مقطع يخلط العربية بأرقام أو لاتينية أو ترميز علمي
+   يُعزل صريحاً بدل الاعتماد على وراثة الاتجاه من الأب، فلا يعيد ترتيبه
+   خوارزم الاتجاه الثنائي (راجع <RtlRun /> و<LtrRun /> و<Sci />). */
+
+.rtl-run {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+.ltr-run {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

@@ -7,6 +7,7 @@ import { OUTCOME_LABELS } from '@/testArea/grading'
 import { canonicalAnswerOf } from '@/testArea/answers'
 import { responseText } from '@/testArea/responseText'
 import { ScientificNotationText } from '@/scientific'
+import { RtlRun } from '@/components/BidiText'
 
 /* ============================================================================
    TestResultView — what submit produces
@@ -78,7 +79,7 @@ function ReviewRow({
         {showKey ? (
           <div>
             <dt>الإجابة الصحيحة</dt>
-            <dd dir="ltr" lang="en">
+            <dd dir="auto">
               <ScientificNotationText>{canonicalAnswerOf(question)}</ScientificNotationText>
             </dd>
           </div>
@@ -104,9 +105,9 @@ export function TestResultView({ bank, result, responses, onRestart }: TestResul
       <div className="ta-result__score">
         <div className="ta-result__percent">
           <span className="ta-result__percent-value">{result.percentage}%</span>
-          <span className="ta-result__percent-label">
+          <RtlRun className="ta-result__percent-label">
             {result.score} من {result.maxScore}
-          </span>
+          </RtlRun>
         </div>
         <div className="ta-result__stats">
           <Stat label="إجابات صحيحة" value={result.correct} tone="correct" />

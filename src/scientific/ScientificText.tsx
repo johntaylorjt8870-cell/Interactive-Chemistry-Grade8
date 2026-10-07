@@ -1,6 +1,7 @@
 import type { CSSProperties, ElementType, ReactNode } from 'react'
-import { splitScientificRuns } from '@/utils/scientificText'
+import { splitScientificRuns, type ScientificNotation } from '@/utils/scientificText'
 import { ElectronConfiguration } from './ElectronConfiguration'
+import { ChargeNotation } from './ChargeNotation'
 
 /* ============================================================================
    ScientificText — the bidi boundary of the whole platform.
@@ -24,6 +25,12 @@ type SciOwnProps<T extends ElementType> = {
   style?: CSSProperties
   /** Optional accessible label, e.g. when the visual form is symbolic. */
   label?: string
+  /**
+   * Which structured notation this run carries, when the splitter recognised
+   * one (`range`, `expression`, `charge`, `electron-configuration`). Emitted as
+   * `data-notation` so the guarantee is inspectable in tests and in the DOM.
+   */
+  notation?: ScientificNotation
 }
 
 export type SciProps<T extends ElementType = 'span'> = SciOwnProps<T>
@@ -40,6 +47,7 @@ export function Sci<T extends ElementType = 'span'>({
   className,
   style,
   label,
+  notation,
 }: SciProps<T>) {
   const Component = (as ?? 'span') as ElementType
   const classes = ['sci', variant !== 'mono' && variant !== 'plain' ? `sci--${variant}` : null, className]
@@ -52,6 +60,7 @@ export function Sci<T extends ElementType = 'span'>({
       className={classes}
       style={style}
       data-sci="isolated"
+      {...(notation ? { 'data-notation': notation } : {})}
       {...(label ? { 'aria-label': label } : {})}
     >
       {children}
@@ -117,13 +126,20 @@ export function ScientificText<T extends ElementType = 'span'>({
     <Component className={className}>
       {runs.map((run, index) => {
         if (run.kind !== 'science') return <span key={index}>{run.value}</span>
+        // A charge-bearing species gets real superscript markup instead of the
+        // Unicode superscript glyphs it was authored with.
+        if (run.notation === 'charge') {
+          return <ChargeNotation key={index} source={run.value} size="sm" />
+        }
         // Electron configurations get one structured isolate instead of a
         // chain of separate runs the RTL paragraph could reorder.
         if (run.notation === 'electron-configuration') {
           return <ElectronConfiguration key={index} value={run.value} />
         }
+        // Equations and ranges are already single spans; `data-notation` records
+        // which guarantee applies so it can be asserted directly.
         return (
-          <Sci key={index} variant={scienceVariant}>
+          <Sci key={index} variant={scienceVariant} notation={run.notation}>
             {run.value}
           </Sci>
         )

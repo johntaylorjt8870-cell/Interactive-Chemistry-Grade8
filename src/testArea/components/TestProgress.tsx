@@ -5,6 +5,8 @@
    correctness signal here, because none of those exist before submit.
    ========================================================================= */
 
+import { RtlRun } from '@/components/BidiText'
+
 export type TestProgressProps = {
   answered: number
   total: number
@@ -19,9 +21,9 @@ export function TestProgress({ answered, total, ratio, label = 'تقدّم ال�
     <div className="ta-progress">
       <div className="ta-progress__meta">
         <span className="ta-progress__label">{label}</span>
-        <span className="ta-progress__count">
+        <RtlRun className="ta-progress__count">
           أجبت عن {answered} من {total}
-        </span>
+        </RtlRun>
       </div>
       <div
         className="ta-progress__track"

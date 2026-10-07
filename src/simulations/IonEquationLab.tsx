@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChemicalEquation, IonNotation } from '@/scientific'
+import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -186,7 +187,11 @@ export default function IonEquationLab({ reducedMotion }: InteractiveProps) {
         <button type="button" className="button button--quiet" onClick={() => setMoved(0)} disabled={moved === 0}>
           إعادة الذرّة المتعادلة
         </button>
-        {remain > 0 && moved > 0 ? <span className="ion-equation-lab__remain">تبقّى {remain} من {equation.transfer}</span> : null}
+        {remain > 0 && moved > 0 ? (
+          <RtlRun className="ion-equation-lab__remain">
+            تبقّى {remain} من {equation.transfer}
+          </RtlRun>
+        ) : null}
       </div>
 
       <div className="ion-equation-lab__equation" dir="ltr">
@@ -200,7 +205,9 @@ export default function IonEquationLab({ reducedMotion }: InteractiveProps) {
       <div className="lab__measurements">
         <div>
           <span>إلكترونات فقدَتها أو اكتسبَتها الذرّة</span>
-          <strong>{moved} من {equation.transfer}</strong>
+          <RtlRun as="strong">
+            {moved} من {equation.transfer}
+          </RtlRun>
         </div>
         <div>
           <span>تكافؤ العنصر في المركّبات الأيونية</span>

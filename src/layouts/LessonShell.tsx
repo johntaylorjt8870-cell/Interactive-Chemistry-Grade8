@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { RtlRun } from '@/components/BidiText'
 
 export type LessonShellProps = {
   /** Breadcrumb trail, rendered at the top of the lesson rail. */
@@ -91,13 +92,13 @@ export function LessonShell({
               </div>
             </div>
             <p className="lesson-rail__progress-label">
-              <span className="lesson-rail__steps">
+              <RtlRun className="lesson-rail__steps">
                 الخطوة {progress.current} من {progress.total}
-              </span>
+              </RtlRun>
               {progress.visited !== undefined ? (
-                <span className="lesson-rail__visited">
+                <RtlRun className="lesson-rail__visited">
                   زُرت {progress.visited} من {progress.total}
-                </span>
+                </RtlRun>
               ) : null}
             </p>
           </div>
