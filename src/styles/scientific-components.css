@@ -56,8 +56,49 @@
 .ion-notation__magnitude,
 .ion-notation__sign,
 .charge-value__magnitude,
-.charge-value__sign {
+.charge-value__sign,
+.charge-notation__magnitude,
+.charge-notation__sign {
   font-variant-numeric: tabular-nums;
+}
+
+/* --- Charge-bearing tokens ------------------------------------------------ */
+/* `e⁻`, `2e⁻`, `Cl⁻`, `Na⁺`, `Ca²⁺`, `O²⁻`, `Al³⁺`, `SO₄²⁻`.
+   One LTR isolate for the whole species; the charge itself is real <sup> markup
+   (see ChargeNotation), so no Unicode superscript glyph is ever left loose in
+   the surrounding RTL prose. */
+
+.charge-notation {
+  display: inline-flex;
+  align-items: baseline;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--font-latin);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+.charge-notation--sm {
+  font-size: var(--fs-sm);
+}
+
+.charge-notation--md {
+  font-size: var(--fs-xl);
+}
+
+.charge-notation--lg {
+  font-size: var(--fs-2xl);
+}
+
+.charge-notation__coefficient,
+.charge-notation__body {
+  font-style: normal;
+}
+
+.charge-notation__charge {
+  font-size: 0.62em;
+  margin-inline-start: 0.06em;
 }
 
 /* --- Equations ------------------------------------------------------------ */
