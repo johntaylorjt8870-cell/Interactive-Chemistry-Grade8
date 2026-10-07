@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { SciSup } from './ScientificText'
 
 export type BohrAtomProps = {
   /** Latin element symbol, e.g. `Na`, `Cl`. */
@@ -87,6 +88,8 @@ export function BohrAtom({
           }),
         )}
         {charge ? (
+          // Diagram geometry, not text notation: SVG text has no baseline-relative
+          // superscript, so this sign is placed by coordinates inside the figure.
           <text className="bohr__charge" x={104} y={20} textAnchor="middle">
             {chargeMagnitude(charge)}
             {chargeSign(charge)}
@@ -96,10 +99,12 @@ export function BohrAtom({
       <span className="bohr__label" dir="ltr">
         {label ?? symbol}
         {charge ? (
-          <sup className="bohr__label-charge">
+          // Same superscript contract as the rest of the platform (SciSup, i.e.
+          // `.sci-sup`) instead of a bare sup element with UA `super` metrics.
+          <SciSup className="bohr__label-charge">
             {chargeMagnitude(charge)}
             {chargeSign(charge)}
-          </sup>
+          </SciSup>
         ) : null}
       </span>
     </span>

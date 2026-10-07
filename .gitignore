@@ -16,6 +16,9 @@ coverage/
 .eslintcache
 *.tsbuildinfo
 
+# Verification artifacts (screenshots from `npm run verify:badges`)
+artifacts/
+
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json
