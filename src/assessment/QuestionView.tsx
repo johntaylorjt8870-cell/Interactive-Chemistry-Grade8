@@ -132,7 +132,7 @@ export function QuestionView({
         return (
           <fieldset className="choice-set choice-set--inline">
             <legend className="visually-hidden">اختر صح أو خطأ</legend>
-            {question.statement ? <p className="question__statement">{question.statement}</p> : null}
+            {question.statement ? <p className="question__statement"><ScientificNotationText>{question.statement}</ScientificNotationText></p> : null}
             {[
               { label: 'صح', bool: true },
               { label: 'خطأ', bool: false },
@@ -250,7 +250,7 @@ export function QuestionView({
                 {question.rubric ? (
                   <ul className="rubric">
                     {question.rubric.map((item, rubricIndex) => (
-                      <li key={rubricIndex}>{item}</li>
+                      <li key={rubricIndex}><ScientificNotationText>{item}</ScientificNotationText></li>
                     ))}
                   </ul>
                 ) : null}
@@ -471,7 +471,7 @@ function CompositeControl({
           {renderDiagram ? (
             renderDiagram(question.diagramId, question.diagramDescription)
           ) : (
-            <p className="composite-question__description">{question.diagramDescription}</p>
+            <p className="composite-question__description"><ScientificNotationText>{question.diagramDescription}</ScientificNotationText></p>
           )}
         </div>
       )}

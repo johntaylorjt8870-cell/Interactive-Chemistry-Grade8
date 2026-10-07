@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BohrAtom, IonNotation, NaClCluster } from '@/scientific'
+import { BohrAtom, IonNotation, NaClCluster, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 type Stage = 0 | 1 | 2 | 3
@@ -57,7 +57,7 @@ export default function IonicBondingLab({ reducedMotion }: InteractiveProps) {
               <span className="ionic-bond-lab__stage-index" aria-hidden="true">
                 {index + 1}
               </span>
-              {label}
+              <ScientificNotationText>{label}</ScientificNotationText>
             </li>
           ))}
         </ol>
@@ -135,14 +135,17 @@ export default function IonicBondingLab({ reducedMotion }: InteractiveProps) {
       </div>
 
       <p className="lab__conclusion" aria-live="polite">
-        <strong>الملاحظة:</strong> {STAGE_LABELS[stage]}{' '}
-        {stage === 0
-          ? 'كم إلكتروناً تحتاج كل ذرّة لتحقّق قاعدة الثمانية؟ اضغط النقل وراقب العدّادات.'
-          : stage === 1
-            ? 'الإلكترون المنتقل هو إلكترون Na السطحي نفسه؛ عدد البروتونات لم يتغيّر في الذرّتين.'
-            : stage === 2
-              ? 'فقد Na شحنة سالبة واحدة فصار +1، واكتسب Cl شحنة سالبة واحدة فصار −1، وتحقّقت الثمانية لكليهما.'
-              : 'المجموع الجبري لشحنات البلورة صفر؛ لذلك يكون NaCl متعادلاً كهربائياً.'}
+        <strong>الملاحظة:</strong>{' '}
+        <ScientificNotationText>{STAGE_LABELS[stage]}</ScientificNotationText>{' '}
+        <ScientificNotationText>
+          {stage === 0
+            ? 'كم إلكتروناً تحتاج كل ذرّة لتحقّق قاعدة الثمانية؟ اضغط النقل وراقب العدّادات.'
+            : stage === 1
+              ? 'الإلكترون المنتقل هو إلكترون Na السطحي نفسه؛ عدد البروتونات لم يتغيّر في الذرّتين.'
+              : stage === 2
+                ? 'فقد Na شحنة سالبة واحدة فصار +1، واكتسب Cl شحنة سالبة واحدة فصار −1، وتحقّقت الثمانية لكليهما.'
+                : 'المجموع الجبري لشحنات البلورة صفر؛ لذلك يكون NaCl متعادلاً كهربائياً.'}
+        </ScientificNotationText>
       </p>
     </section>
   )
