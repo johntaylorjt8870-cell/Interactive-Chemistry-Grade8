@@ -18,14 +18,14 @@
  *     must never be a sibling of the body inside a grid container.
  *  2. Source — no simulation may hand-write a scientific charge outside the
  *     shared notation layer.
- *  3. Layout — the shared `.sci-sup` raise must not be cancelled by a component
- *     rule. `.ion-notation__charge` used to reset `position` to `static` and
- *     `inset` to `auto`, which silently discarded
- *     `top: calc(-1 * var(--sci-sup-raise))` and left the charge lifted by the
- *     grid row alignment instead (~0.54em) — off the platform contract.
+ *  3. Layout — the notation unit must not be a flex/grid container, and no
+ *     component may re-state or cancel the charge's position. The raise has a
+ *     single owner (`.sci-sup`), and it is a baseline offset expressed in em of
+ *     the SYMBOL's font — not a paint offset (`position`/`top`) and not a
+ *     function of whatever font-size a component happens to give the `<sup>`.
  *
  * Part 3's pixel-level half needs a layout engine and is verified by
- * `scripts/verify-badge-rendering.mjs` (real Chromium, see its header), because
+ * `scripts/verify-charge-notation.mjs` (real Chromium, see its header), because
  * jsdom computes no layout at all.
  */
 
@@ -195,6 +195,12 @@ describe('the shared superscript contract survives every component rule', () => 
   const componentsCss = readProjectFile('src/styles/scientific-components.css')
   const appComponentsCss = readProjectFile('src/styles/components.css')
 
+  /** Every declaration block whose selector list mentions `selector`. */
+  function blocksOf(css: string, selector: string): string[] {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    return [...css.matchAll(new RegExp(`${escaped}[^{}]*\\{([^}]*)\\}`, 'g'))].map((m) => m[1]!)
+  }
+
   /**
    * The declaration block of the first rule whose selector starts with
    * `selector`. A rule may follow another rule or a comment, so no fixed
@@ -207,33 +213,118 @@ describe('the shared superscript contract survives every component rule', () => 
     return css.match(new RegExp(`${escaped}\\s*(?:,[^{}]*)?\\{([^}]*)\\}`, 's'))?.[1] ?? ''
   }
 
-  it('still raises every shared sup from the design token', () => {
-    const scriptBlock = scientificCss.match(/\.sci-sup,\s*\.sci-sub\s*\{[^}]*\}/s)?.[0] ?? ''
-    expect(scriptBlock).toContain('position: relative')
+  it('raises the charge with a baseline offset owned by the symbol, not a paint offset', () => {
+    const raiseBlocks = blocksOf(scientificCss, '.sci-sup').filter((block) =>
+      /vertical-align/.test(block),
+    )
+    expect(raiseBlocks.length, 'exactly one rule raises the charge').toBe(1)
+    expect(raiseBlocks[0]!, 'the raise must be a baseline offset').toMatch(
+      /vertical-align:\s*calc\(/,
+    )
+    expect(raiseBlocks[0]!, 'the raise must reference the single raise token').toContain(
+      'var(--sci-sup-raise)',
+    )
 
-    const supBlock = scientificCss.match(/\.sci-sup\s*\{[^}]*top:[^}]*\}/s)?.[0] ?? ''
-    expect(supBlock).toContain('vertical-align: baseline')
-    expect(supBlock).toContain('top: calc(-1 * var(--sci-sup-raise))')
+    // `position: relative` + `top` painted the glyph outside its own box, so
+    // the box stopped describing the ink and any measurement taken from it was
+    // describing the wrong rectangle.
+    const scriptBlocks = [...blocksOf(scientificCss, '.sci-sup'), ...blocksOf(scientificCss, '.sci-sub')]
+    for (const block of scriptBlocks) {
+      expect(block, 'a script may only be un-positioned, never offset').not.toMatch(
+        /position:\s*(?:relative|absolute|fixed|sticky)/,
+      )
+      expect(block, 'a script may not carry a box offset').not.toMatch(
+        /(?:^|[;{\s])(?:top|bottom|inset):/,
+      )
+      expect(block, 'a script may not be transformed').not.toMatch(/transform:/)
+    }
+
+    // `line-height: 0` keeps the script's inline box zero-height: a raised
+    // script can then never add a line box, so it cannot become a second line
+    // in any container.
+    const declared = scriptBlocks
+      .map((block) => block.match(/line-height:\s*([\d.]+)/)?.[1])
+      .filter(Boolean)
+    expect(declared.length, 'the zero-height script box must be declared').toBeGreaterThan(0)
+    expect(declared.every((value) => Number(value) === 0)).toBe(true)
   })
 
-  it('does not let .ion-notation__charge cancel the raise', () => {
+  it('expresses the raise in em of the symbol so a scale override cannot move it', () => {
+    // `em` in `vertical-align` resolves against the element's OWN font-size.
+    // Dividing the token by the scale is what keeps `--sci-sup-raise` meaning
+    // "0.36em of the letter" instead of "0.36em of an already-scaled <sup>`.
+    const raiseBlocks = blocksOf(scientificCss, '.sci-sup').filter((block) =>
+      /vertical-align/.test(block),
+    )
+    expect(raiseBlocks[0]!).toMatch(
+      /vertical-align:\s*calc\(var\(--sci-sup-raise\)\s*\/\s*var\(--sci-sup-scale\)\)/,
+    )
+    const tokensCss = readProjectFile('src/styles/tokens.css')
+    // The scale is unitless for exactly that division to be possible.
+    expect(tokensCss).toMatch(/--sci-sup-scale:\s*[\d.]+;/)
+    // And the raise is a length in em, i.e. it is stated against a font.
+    expect(tokensCss).toMatch(/--sci-sup-raise:\s*[\d.]+em;/)
+  })
+
+  it('keeps the notation unit inline, so no parent layout can place the charge', () => {
+    // A flex or grid container is what allowed a badge to split the symbol from
+    // its charge, and `vertical-align` is ignored on flex/grid items — which is
+    // why the notation itself must be a plain inline box.
+    for (const selector of ['.charge-notation', '.ion-notation', '.chem-formula']) {
+      const block = blockOf(componentsCss, selector)
+      expect(block, `${selector} must exist`).not.toBe('')
+      expect(block, `${selector} must lay its symbol and charge out inline`).toMatch(
+        /display:\s*inline;?/,
+      )
+      expect(block, `${selector} must not be a grid`).not.toMatch(/grid-(?:template|column|row|area)/)
+      expect(block, `${selector} must not use flex alignment to raise the charge`).not.toMatch(
+        /align-items:/,
+      )
+    }
+  })
+
+  it('does not let .ion-notation__charge cancel or re-state the raise', () => {
     const block = blockOf(componentsCss, '.ion-notation__charge')
-
-    // Resetting either of these discards `top: calc(-1 * var(--sci-sup-raise))`
-    // (a static box ignores `top`; `inset: auto` overwrites the offset).
-    expect(block, '.ion-notation__charge must not reset position').not.toMatch(/position:\s*static/)
-    expect(block, '.ion-notation__charge must not reset inset').not.toMatch(/inset:\s*auto/)
-    expect(block, '.ion-notation__charge must not reset top').not.toMatch(/(?:^|[;\s])top:\s*auto/)
+    expect(block, '.ion-notation__charge must not re-state the raise').not.toMatch(/vertical-align/)
+    expect(block, '.ion-notation__charge must not reset position').not.toMatch(/position:/)
+    expect(block, '.ion-notation__charge must not reset inset').not.toMatch(/inset:/)
+    expect(block, '.ion-notation__charge must not reset top').not.toMatch(/(?:^|[;\s])top:/)
+    expect(block, '.ion-notation__charge must not hard-code a font-size').not.toMatch(/font-size:/)
   })
 
-  it('aligns ion notation on the baseline, so only the token lifts the charge', () => {
-    const block = blockOf(componentsCss, '.ion-notation')
+  it('lets a component change only the scale of a script, never its raise', () => {
+    // Every class that is put on a `<sup>`/`<sub>` by the notation layer. A
+    // component may state how big the script is (`--script-scale`); it may not
+    // state a `font-size` (which would silently re-scale the raise) and it may
+    // not state the raise itself.
+    const SCRIPT_CLASSES = [
+      '.charge-notation__charge',
+      '.ion-notation__charge',
+      '.chem-formula__charge',
+      '.charge-value__raised',
+      '.nuclear-notation__charge',
+      '.sci-value__exponent',
+      '.bohr__label-charge',
+    ]
+    for (const selector of SCRIPT_CLASSES) {
+      for (const block of blocksOf(componentsCss, selector)) {
+        expect(block, `${selector} must not hard-code the script size`).not.toMatch(/font-size:/)
+        expect(block, `${selector} must not re-state the raise`).not.toMatch(/vertical-align:/)
+        expect(block, `${selector} must not offset the script`).not.toMatch(
+          /(?:^|[;{\s])(?:top|bottom|inset|position|transform):/,
+        )
+      }
+    }
 
-    // `align-items: start` also lifted the charge, by the row alignment of its
-    // shorter line box (~0.54em) — a second, silent raise that made the token
-    // ineffectual.
-    expect(block).toMatch(/align-items:\s*baseline/)
-    expect(block).not.toMatch(/align-items:\s*start/)
+    // Nuclear notation and the Bohr label genuinely need a smaller script, and
+    // they say so with the scale — the one knob that cannot move the raise.
+    for (const selector of ['.nuclear-notation__charge', '.bohr__label-charge']) {
+      const scales = blocksOf(componentsCss, selector)
+        .map((block) => block.match(/--script-scale:\s*([\d.]+)/)?.[1])
+        .filter(Boolean)
+      expect(scales.length, `${selector} must declare a scale`).toBeGreaterThan(0)
+      expect(scales.every((value) => Number(value) > 0 && Number(value) < 1)).toBe(true)
+    }
   })
 
   it('keeps the badge context rule that preserves colour and weight', () => {

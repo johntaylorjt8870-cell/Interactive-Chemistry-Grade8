@@ -1,16 +1,34 @@
 /* ============================================================================
    Scientific notation components
-   Each block owns one notation, so subscripts, charges and dots can be styled
-   and tested independently.
+
+   NOTATION UNIT CONTRACT (read this before adding a rule)
+   ----------------------------------------------------
+   A notation unit — `e⁻`, `Na⁺`, `Cl⁻`, `Ca²⁺`, `SO₄²⁻`, `H₂O` — is ONE inline
+   box. It is never a flex or grid container, and it never places the symbol
+   and the charge with `align-items`, grid tracks or an absolute offset.
+
+     · `display: inline` puts the symbol and the charge in the same inline
+       formatting context, so the charge's `vertical-align` is honoured and the
+       symbol stays on the baseline whatever the parent container is.
+     · The charge's vertical position comes from ONE place only,
+       `.sci-sup` in scientific.css. Nothing below re-states it.
+     · A notation unit may be dropped into a flex, grid, inline-grid or plain
+       text parent without changing a single pixel of its notation. That is the
+       property the interactive particle badges depend on: their containers are
+       `display: grid`, and a notation made of two sibling boxes would be
+       placed in two implicit rows.
+
+   `unicode-bidi: isolate` + `dir="ltr"` (set in the markup) keep the Arabic
+   bidi algorithm from reordering the symbol and its charge.
    ========================================================================= */
 
 /* --- Chemical formula ----------------------------------------------------- */
 
 .chem-formula {
-  display: inline-flex;
-  align-items: baseline;
+  display: inline;
   direction: ltr;
   unicode-bidi: isolate;
+  isolation: isolate;
   font-family: var(--font-latin);
   font-weight: var(--fw-medium);
   color: var(--text-strong);
@@ -18,9 +36,8 @@
 }
 
 .chem-formula--block {
-  display: flex;
-  inline-size: 100%;
-  justify-content: center;
+  display: block;
+  text-align: center;
 }
 
 .chem-formula--sm {
@@ -42,37 +59,45 @@
 }
 
 .chem-formula__group {
-  display: inline-flex;
-  align-items: baseline;
+  display: inline;
 }
 
-.chem-formula__charge {
-  font-size: 0.62em;
-  margin-inline-start: 0.06em;
-}
-
+.chem-formula__charge,
+.chem-formula__charge-run,
 .chem-formula__charge-magnitude,
+.chem-formula__charge-sign {
+  display: inline;
+}
+
+/* The only thing a charge component may set is how large the script is. It is
+   a unitless scale, so `--sci-sup-raise` still lands at the same distance
+   from the symbol's baseline. */
+.chem-formula__charge {
+  margin-inline-start: 0.03em;
+}
+
 .chem-formula__charge-sign,
 .ion-notation__magnitude,
 .ion-notation__sign,
 .charge-value__magnitude,
 .charge-value__sign,
 .charge-notation__magnitude,
-.charge-notation__sign {
+.charge-notation__sign,
+.chem-formula__charge-magnitude {
   font-variant-numeric: tabular-nums;
 }
 
 /* --- Charge-bearing tokens ------------------------------------------------ */
 /* `e⁻`, `2e⁻`, `Cl⁻`, `Na⁺`, `Ca²⁺`, `O²⁻`, `Al³⁺`, `SO₄²⁻`.
-   One LTR isolate for the whole species; the charge itself is real <sup> markup
-   (see ChargeNotation), so no Unicode superscript glyph is ever left loose in
-   the surrounding RTL prose. */
+   One LTR isolate for the whole species; the charge itself is real <sup>
+   markup (see ChargeNotation), so no Unicode superscript glyph is ever left
+   loose in the surrounding RTL prose. */
 
 .charge-notation {
-  display: inline-flex;
-  align-items: baseline;
+  display: inline;
   direction: ltr;
   unicode-bidi: isolate;
+  isolation: isolate;
   font-family: var(--font-latin);
   font-weight: var(--fw-medium);
   color: var(--text-strong);
@@ -93,21 +118,27 @@
 
 .charge-notation__coefficient,
 .charge-notation__body {
+  display: inline;
   font-style: normal;
 }
 
+.charge-notation__charge,
+.charge-notation__charge-run,
+.charge-notation__magnitude,
+.charge-notation__sign {
+  display: inline;
+}
+
 .charge-notation__charge {
-  font-size: 0.62em;
-  margin-inline-start: 0.06em;
+  margin-inline-start: 0.03em;
 }
 
 /* Badge context: the interactive particle badges (BohrEnergyTransition,
    IonicBondingLab, IonFormationLab, IonEquationLab) render their `e⁻` through
-   this component on an accent-coloured disc, as the single inline child of a
-   grid container. There the notation must inherit the badge's own colour and
-   weight instead of the document defaults above, and must never be built from
-   sibling nodes — grid containers would place `e` and the `<sup>` charge in
-   separate implicit rows, dropping the charge onto a second line. */
+   this component on an accent-coloured disc that is itself a `display: grid`
+   box. The notation inherits the badge's colour and weight instead of the
+   document defaults above, and — because it is a single inline box — the
+   badge's layout can never split the symbol from its charge. */
 .particle-notation {
   color: inherit;
   font-weight: inherit;
@@ -157,79 +188,43 @@
 
 /* --- Ions ----------------------------------------------------------------- */
 
+/* Textbook inline form: `SO₄²⁻`, `Ca²⁺`. Inline like every other notation
+   unit, so the charge's raise comes from `.sci-sup` and nothing else. */
 .ion-notation {
-  display: inline-grid;
-  grid-template-columns: max-content max-content;
-  grid-template-rows: 1fr;
-  /* Baseline alignment so the charge is raised by the shared `.sci-sup`
-     contract and by nothing else. With `start` the charge was *also* lifted by
-     the row alignment (its line box is shorter than the body's), which shifted
-     the charge by an extra ~0.54em and made the shared token ineffectual —
-     see the regression test for the measured offsets. */
-  align-items: baseline;
+  display: inline;
   direction: ltr;
   unicode-bidi: isolate;
   isolation: isolate;
   color: var(--text-strong);
   white-space: nowrap;
-  vertical-align: middle;
 }
 
 .ion-notation__body {
-  grid-column: 1;
-  grid-row: 1;
-  display: inline-flex;
-  align-items: baseline;
+  display: inline;
   direction: ltr;
   unicode-bidi: isolate;
   font-family: var(--font-latin);
-  line-height: 1;
 }
 
-/* No `position`/`inset` override here: the charge is a `SciSup` and must keep
-   the shared `.sci-sup` raise (`top: calc(-1 * var(--sci-sup-raise))`), exactly
-   like `.chem-formula__charge`. Resetting `position` to `static` and `inset` to
-   `auto` used to cancel that contract silently. */
 .ion-notation__charge {
-  grid-column: 2;
-  grid-row: 1;
-  display: inline-block;
+  display: inline;
   direction: ltr;
   unicode-bidi: isolate;
-  margin-inline-start: 0.025em;
   font-family: var(--font-latin);
-  font-size: 0.62em;
-  line-height: 1;
+  margin-inline-start: 0.03em;
 }
 
 .ion-notation__charge-run,
-.chem-formula__charge-run {
-  display: inline-grid;
-  grid-template-columns: max-content max-content;
-  grid-template-rows: 1fr;
-  column-gap: 0.015em;
-  direction: ltr;
-  unicode-bidi: isolate;
-  isolation: isolate;
-  white-space: nowrap;
-}
-
 .ion-notation__magnitude,
-.chem-formula__charge-magnitude {
-  grid-column: 1;
-  grid-row: 1;
+.ion-notation__sign {
+  display: inline;
   direction: ltr;
   unicode-bidi: isolate;
 }
 
-.ion-notation__sign,
-.chem-formula__charge-sign {
-  grid-column: 2;
-  grid-row: 1;
-  direction: ltr;
-  unicode-bidi: isolate;
-}
-
+/* Structural form: the charge is set on its own line above the body. This is
+   a genuinely two-dimensional arrangement, so a grid is the right tool here —
+   it places the charge against the body, not the charge against the baseline. */
 .ion-stacked {
   display: inline-flex;
   align-items: baseline;
@@ -288,8 +283,7 @@
 /* --- Charge values (sign first: −2, +2) ---------------------------------- */
 
 .charge-value {
-  display: inline-flex;
-  align-items: baseline;
+  display: inline;
   direction: ltr;
   unicode-bidi: isolate;
   font-family: var(--font-latin);
@@ -299,9 +293,7 @@
 }
 
 .charge-value__inline {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.06em;
+  display: inline;
   direction: ltr;
   unicode-bidi: isolate;
   font-family: inherit;
@@ -374,8 +366,7 @@
 }
 
 .nuclear-notation__symbol {
-  display: inline-flex;
-  align-items: center;
+  display: inline;
   align-self: center;
   font-size: 1.38em;
   font-weight: var(--fw-semibold);
@@ -384,7 +375,10 @@
 }
 
 .nuclear-notation__charge {
-  font-size: 0.5em;
+  /* The symbol is 1.38em, so the charge is scaled down twice as far; the
+     raise stays `--sci-sup-raise` of the symbol because `--sci-sup-raise` is
+     divided by whatever scale is in force. */
+  --script-scale: 0.36;
   margin-inline-start: 0.04em;
 }
 
@@ -547,9 +541,8 @@
 }
 
 .sci-value__exponent {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.12ch;
+  display: inline;
+  margin-inline-start: 0.12ch;
 }
 
 .sci-value__times,
@@ -1013,7 +1006,7 @@
 
 .bohr__label { font: 700 var(--fs-md)/1.1 var(--font-latin); color: var(--text-strong); }
 
-.bohr__label-charge { font-size: 0.72em; }
+.bohr__label-charge { --script-scale: 0.66; }
 
 /* ==========================================================================
    Diatomic Lewis row — Lewis column + ball-and-stick model column
