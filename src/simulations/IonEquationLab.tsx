@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChemicalEquation, IonNotation } from '@/scientific'
+import { ChemicalEquation, ChargeNotation, IonNotation } from '@/scientific'
 import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
@@ -153,7 +153,8 @@ export default function IonEquationLab({ reducedMotion }: InteractiveProps) {
             <span
               className={`ion-equation-lab__particle ion-equation-lab__particle--${equation.direction === 1 ? 'out' : 'in'} ${reducedMotion ? 'ion-equation-lab__particle--still' : ''}`}
             >
-              e<sup>−</sup>
+              {/* One inline notation child — see BohrEnergyTransition. */}
+              <ChargeNotation source="e⁻" className="particle-notation" />
             </span>
           ) : null}
           <span className="ion-equation-lab__arrow">{equation.direction === 1 ? '⟵' : '⟶'}</span>

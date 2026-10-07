@@ -101,6 +101,18 @@
   margin-inline-start: 0.06em;
 }
 
+/* Badge context: the interactive particle badges (BohrEnergyTransition,
+   IonicBondingLab, IonFormationLab, IonEquationLab) render their `e⁻` through
+   this component on an accent-coloured disc, as the single inline child of a
+   grid container. There the notation must inherit the badge's own colour and
+   weight instead of the document defaults above, and must never be built from
+   sibling nodes — grid containers would place `e` and the `<sup>` charge in
+   separate implicit rows, dropping the charge onto a second line. */
+.particle-notation {
+  color: inherit;
+  font-weight: inherit;
+}
+
 /* --- Equations ------------------------------------------------------------ */
 
 .chem-equation {
@@ -149,7 +161,12 @@
   display: inline-grid;
   grid-template-columns: max-content max-content;
   grid-template-rows: 1fr;
-  align-items: start;
+  /* Baseline alignment so the charge is raised by the shared `.sci-sup`
+     contract and by nothing else. With `start` the charge was *also* lifted by
+     the row alignment (its line box is shorter than the body's), which shifted
+     the charge by an extra ~0.54em and made the shared token ineffectual —
+     see the regression test for the measured offsets. */
+  align-items: baseline;
   direction: ltr;
   unicode-bidi: isolate;
   isolation: isolate;
@@ -169,14 +186,16 @@
   line-height: 1;
 }
 
+/* No `position`/`inset` override here: the charge is a `SciSup` and must keep
+   the shared `.sci-sup` raise (`top: calc(-1 * var(--sci-sup-raise))`), exactly
+   like `.chem-formula__charge`. Resetting `position` to `static` and `inset` to
+   `auto` used to cancel that contract silently. */
 .ion-notation__charge {
   grid-column: 2;
   grid-row: 1;
   display: inline-block;
   direction: ltr;
   unicode-bidi: isolate;
-  position: static;
-  inset: auto;
   margin-inline-start: 0.025em;
   font-family: var(--font-latin);
   font-size: 0.62em;

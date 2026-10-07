@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BohrAtom, IonNotation, NaClCluster, ScientificNotationText } from '@/scientific'
+import { BohrAtom, ChargeNotation, IonNotation, NaClCluster, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 type Stage = 0 | 1 | 2 | 3
@@ -81,7 +81,9 @@ export default function IonicBondingLab({ reducedMotion }: InteractiveProps) {
 
         <span className="ionic-bond-lab__flight" aria-hidden="true">
           <span className={`ionic-bond-lab__particle ${stage >= 1 ? 'is-moving' : ''} ${stage >= 2 ? 'is-arrived' : ''}`}>
-            e<sup>−</sup>
+            {/* One inline notation child — see BohrEnergyTransition: separate
+                grid items would put the charge on its own row. */}
+            <ChargeNotation source="e⁻" className="particle-notation" />
           </span>
           <span className="ionic-bond-lab__flight-line" />
         </span>

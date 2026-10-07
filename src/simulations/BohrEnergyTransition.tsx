@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { ChargeNotation } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 const LEVELS = [
@@ -49,7 +50,12 @@ export default function BohrEnergyTransition({ reducedMotion }: InteractiveProps
             </span>
           ))}
           <span className="bohr-nucleus">نواة<br />موجبة</span>
-          <span className={`bohr-electron ${reducedMotion ? 'bohr-electron--still' : ''}`} style={{ '--level': levelIndex + 1 } as React.CSSProperties}>e<sup>−</sup></span>
+          <span className={`bohr-electron ${reducedMotion ? 'bohr-electron--still' : ''}`} style={{ '--level': levelIndex + 1 } as React.CSSProperties}>
+            {/* One inline notation child — never a bare `e` next to a raw sup
+                element: the badge is a grid container, so two children become
+                two grid items and the charge drops onto a second line. */}
+            <ChargeNotation source="e⁻" className="particle-notation" />
+          </span>
           {transition === 'emitted' ? <span className={`bohr-photon ${reducedMotion ? 'bohr-photon--still' : ''}`}>ضوء</span> : null}
         </div>
         <div className="bohr-stage__transition" aria-live="polite">
