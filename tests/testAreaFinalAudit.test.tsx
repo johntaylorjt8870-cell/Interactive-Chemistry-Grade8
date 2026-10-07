@@ -40,6 +40,7 @@ describe('Final Test Area route audit', () => {
     expect(routeCases.map((route) => route.id)).toEqual([
       'chem-u1-l1',
       'chem-u1-l2',
+      'chem-u1-l3',
       'chem-u1',
     ])
     expect(listComprehensiveTests()).toEqual([])
@@ -49,6 +50,7 @@ describe('Final Test Area route audit', () => {
     for (const [id, expected] of [
       ['chem-u1-l1', false],
       ['chem-u1-l2', false],
+      ['chem-u1-l3', false],
       ['chem-u1', true],
     ] as const) {
       const definition = getTestDefinition(id)

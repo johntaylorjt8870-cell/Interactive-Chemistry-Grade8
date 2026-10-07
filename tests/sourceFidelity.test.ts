@@ -46,19 +46,20 @@ describe('curriculum registry — first verified chemistry lesson', () => {
     expect(listSubjects().map((subject) => subject.id)).toEqual([...SUBJECT_IDS])
   })
 
-  it('publishes the verified Chemistry unit and its two source-verified lessons', () => {
+  it('publishes the verified Chemistry unit and its three source-verified lessons', () => {
     expect([...SUBJECT_IDS]).toEqual(['chemistry'])
     expect(listUnits('chemistry')).toHaveLength(1)
     expect(isSubjectPopulated('chemistry')).toBe(true)
     expect(getSubjectDefinition('chemistry').status).toBe('source-verified')
     expect(getLesson('chemistry', 'structural-chemistry', 'atom-and-element')?.title).toContain('الذرّة والعنصر')
     expect(getLesson('chemistry', 'structural-chemistry', 'chemical-bonds')?.title).toContain('الروابط الكيميائية')
+    expect(getLesson('chemistry', 'structural-chemistry', 'chemical-formulas')?.title).toContain('صيغةُ المركّباتِ الكيميائيَّةِ')
     expect(isCurriculumEmpty()).toBe(false)
 
     const lessons = curriculum.chemistry.units.flatMap((unit) => unit.lessons)
     expect(curriculumStats()).toEqual({
       units: 1,
-      lessons: 2,
+      lessons: 3,
       steps: lessons.reduce((count, lesson) => count + lesson.steps.length, 0),
     })
   })

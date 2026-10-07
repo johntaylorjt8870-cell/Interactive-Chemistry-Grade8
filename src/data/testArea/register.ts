@@ -56,6 +56,28 @@ const L2_TYPES: Record<QuestionType, number> = {
   'error-correction': 2,
 }
 
+/** Lesson 3 leans into formula construction: reading subscripts and
+ * parentheses, charge balance, radical identification and diagnosed
+ * error-correction of broken formulas. */
+const L3_DIFFICULTY: Record<Difficulty, number> = {
+  basic: 6,
+  medium: 7,
+  advanced: 4,
+  thinking: 3,
+}
+
+const L3_TYPES: Record<QuestionType, number> = {
+  'single-choice': 4,
+  'true-false': 2,
+  'multi-select': 2,
+  numeric: 3,
+  exact: 2,
+  ordering: 1,
+  matching: 2,
+  'error-analysis': 2,
+  'error-correction': 2,
+}
+
 export const chemUnit1Lesson1Test = defineTest({
   meta: {
     id: 'chem-u1-l1',
@@ -94,6 +116,25 @@ export const chemUnit1Lesson2Test = defineTest({
   loadSolutions: () => import('./solutions/chem-u1-l2'),
 })
 
+export const chemUnit1Lesson3Test = defineTest({
+  meta: {
+    id: 'chem-u1-l3',
+    scope: 'lesson',
+    title: 'اختبار الدرس الثالث — صيغةُ المركّباتِ الكيميائيَّةِ',
+    summary:
+      'قراءة الصيغة والأرقام الفهرسية والأقواس، التكافؤ من النماذج والمعادلات، الجذور وتكافؤاتها، بناء الصيغة بالتعادل الكهربائي والتحقق منها.',
+    unitId: 'chem-u1',
+    lessonIds: ['chem-u1-l3'],
+    questionCount: 20,
+    difficulty: L3_DIFFICULTY,
+    types: L3_TYPES,
+    solutionChunkSize: 5,
+    pageRange: '18–23',
+  },
+  load: () => import('./banks/chem-u1-l3'),
+  loadSolutions: () => import('./solutions/chem-u1-l3'),
+})
+
 const U1_DIFFICULTY: Record<Difficulty, number> = {
   basic: 15,
   medium: 20,
@@ -119,7 +160,7 @@ export const chemUnit1Test = defineTest({
     scope: 'unit',
     title: 'اختبار الوحدة الأولى — الكيمياء البنيوية',
     summary:
-      'اختبار مستقل يربط بنية الذرة بالسويات والترميز والأيونات والنظائر والروابط وتمثيل لويس وخواص المركبات.',
+      'اختبار مرحلي للمحتوى المنشور حتى الآن (الدرس الأول والدرس الثاني): يربط بنية الذرة بالسويات والترميز والأيونات والنظائر والروابط وتمثيل لويس وخواص المركبات. الوحدة الأولى ما زالت مفتوحة لدروس لاحقة، فيُعاد تدقيق هذا الاختبار وبناؤه نهائياً بعد إعلان اكتمال محتوى الوحدة فقط.',
     unitId: 'chem-u1',
     lessonIds: ['chem-u1-l1', 'chem-u1-l2'],
     questionCount: 60,

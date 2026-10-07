@@ -8,18 +8,26 @@ const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
 const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
 const COMPACT_NUCLEAR_SOURCE = '[⁰¹²³⁴⁵⁶⁷⁸⁹]*[₀₁₂₃₄₅₆₇₈₉]+[A-Z][a-z]?'
 const COMPACT_ION_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+[⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻]'
-// A formula token consumes the whole Latin run (`Cl₂`, `H₂O`, `CH₄`, `AlCl₃`)
-// and may not be embedded in a longer word: the optional leading-character
-// capture plus the trailing lookahead reject mid-word matches such as the `H`
-// in `pH` or the initial letters of `Avogadro`. Only tokens carrying a real subscript are
-// promoted; plain runs like `NaCl` fall back to ScientificText, which already
-// isolates them correctly.
-const COMPACT_FORMULA_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+(?![A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹])'
+// A formula core consumes the whole Latin run (`Cl₂`, `H₂O`, `CH₄`, `AlCl₃`)
+// and may not be embedded in a longer word: the trailing lookahead rejects
+// mid-word matches such as the `H` in `pH` or the initial letters of
+// `Avogadro`. Only tokens carrying a real subscript are promoted; plain runs
+// like `NaCl` fall back to ScientificText, which already isolates them.
+const COMPACT_FORMULA_CORE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+'
+// Book formulas group radicals in parentheses — `Ca(OH)₂`, `Al₂(SO₄)₃`,
+// `Al(NO₃)₃` — so the formula token optionally continues with one or more
+// parenthesised cores, each optionally followed by its repetition count.
+// Without this the trailing count after `)` is stranded in the RTL flow and
+// the bidi algorithm scrambles it.
+const COMPACT_FORMULA_SOURCE = `(?:${COMPACT_FORMULA_CORE}(?:\\(${COMPACT_FORMULA_CORE}\\)[₀₁₂₃₄₅₆₇₈₉]*)*|\\(${COMPACT_FORMULA_CORE}\\)[₀₁₂₃₄₅₆₇₈₉]+)(?![A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹])`
 const COMPACT_NOTATION_RUN = new RegExp(
   `${COMPACT_NUCLEAR_SOURCE}|${COMPACT_ION_SOURCE}|${COMPACT_FORMULA_SOURCE}`,
   'gu',
 )
-const EXACT_COMPACT_FORMULA = /^(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+$/u
+const EXACT_COMPACT_FORMULA = new RegExp(
+  `^(?:${COMPACT_FORMULA_CORE}(?:\\(${COMPACT_FORMULA_CORE}\\)[₀₁₂₃₄₅₆₇₈₉]*)*|\\(${COMPACT_FORMULA_CORE}\\)[₀₁₂₃₄₅₆₇₈₉]+)$`,
+  'u',
+)
 const WORD_CHAR = /[A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹]/u
 
 function plainDigits(value: string, alphabet: string): string {

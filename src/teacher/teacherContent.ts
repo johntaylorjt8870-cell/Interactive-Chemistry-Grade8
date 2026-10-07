@@ -9,6 +9,11 @@ import {
   bookQuestions as lesson2Questions,
   finalTest as lesson2FinalTest,
 } from '@/data/curriculum/chemistryLesson2'
+import {
+  bookActivitySolutions as lesson3Activities,
+  bookQuestions as lesson3Questions,
+  finalTest as lesson3FinalTest,
+} from '@/data/curriculum/chemistryLesson3'
 
 /**
  * Teacher-area content registry.
@@ -45,6 +50,14 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     bookNote: 'تتضمن أسئلة أختبر نفسي الخمسة وحلول نشاطات الصفحات 13 و15 و16 وقضيّة البحث.',
     bookQuestions: [...lesson2Activities, ...lesson2Questions],
     finalTest: lesson2FinalTest,
+  },
+  {
+    lessonId: 'chem-u1-l3',
+    label: 'الدرس الثالث — كيمياء: صيغةُ المركّباتِ الكيميائيَّةِ',
+    pages: 'الصفحات 18–23',
+    bookNote: 'تتضمن حلول السؤال التمهيدي ونشاط النماذج وجدول الأيونات ونشاط التفكك (ص19–20)، وحلول «أخبر نفسي» الخمسة كاملة بترتيبها القرائي (ص23).',
+    bookQuestions: [...lesson3Activities, ...lesson3Questions],
+    finalTest: lesson3FinalTest,
   },
 ]
 
