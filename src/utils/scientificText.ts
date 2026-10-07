@@ -507,6 +507,47 @@ export type FormulaNode =
 
 const DIGIT = /\d/
 const SIGN_CHAR = /[+\-−⁺⁻]/
+/** Unicode script alphabets, so authored glyphs become real DOM scripts. */
+const SUBSCRIPT_DIGIT_GLYPHS = '₀₁₂₃₄₅₆₇₈₉'
+const SUPERSCRIPT_DIGIT_GLYPHS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
+
+/** True for the Unicode subscript digits used in authored formulas (`NH₄⁺`). */
+function isSubscriptDigit(char: string): boolean {
+  return SUBSCRIPT_DIGIT_GLYPHS.includes(char)
+}
+
+/** True for the Unicode superscript digits used in authored charges (`Ca²⁺`). */
+function isSuperscriptDigit(char: string): boolean {
+  return SUPERSCRIPT_DIGIT_GLYPHS.includes(char)
+}
+
+/** ASCII value of any digit glyph; non-digit input is returned unchanged. */
+function digitValue(char: string): string {
+  if (char >= '0' && char <= '9') return char
+  if (isSubscriptDigit(char)) return String(SUBSCRIPT_DIGIT_GLYPHS.indexOf(char))
+  if (isSuperscriptDigit(char)) return String(SUPERSCRIPT_DIGIT_GLYPHS.indexOf(char))
+  return char
+}
+
+/** Canonical sign of any authored sign glyph. */
+function signOf(char: string): '+' | '-' {
+  return char === '+' || char === '⁺' ? '+' : '-'
+}
+
+/**
+ * A digit run written in any of the three alphabets, normalised to ASCII.
+ * The alphabet it was authored in is preserved, because it carries meaning:
+ * `NH₄⁺` has a *subscript* four, while `Ca²⁺` has a *superscript* two that
+ * belongs to the charge.
+ */
+type DigitRun = {
+  /** ASCII digits, e.g. `4`. */
+  value: string
+  /** The run used Unicode subscript glyphs. */
+  sub: boolean
+  /** The run used Unicode superscript glyphs. */
+  sup: boolean
+}
 
 /**
  * Parses a chemical formula into a structured tree so that subscripts and
@@ -523,35 +564,116 @@ export function parseFormula(formula: string): FormulaNode[] {
 function parseNodes(formula: string): FormulaNode[] {
   const nodes: FormulaNode[] = []
   let index = 0
+  /**
+   * Element symbols pushed since the current species began. It is what tells a
+   * monatomic ion from a polyatomic one: `Ca2+` is Ca²⁺ (one element, so the
+   * trailing count is the charge), while `NO3-` is NO₃⁻ and `NH4+` is NH₄⁺
+   * (several elements, so the trailing count is a subscript and the sign is
+   * the bare charge). Reset by any operator, coefficient or completed charge.
+   */
+  let speciesElements = 0
 
-  const digitsAt = (): string => {
-    let digits = ''
-    while (index < formula.length && DIGIT.test(formula[index]!)) {
-      digits += formula[index]
+  /** Reads ASCII digits and Unicode subscript glyphs — the index position. */
+  const readIndexDigits = (): DigitRun => {
+    let value = ''
+    let sub = false
+    while (index < formula.length) {
+      const char = formula[index]!
+      if (DIGIT.test(char)) value += char
+      else if (isSubscriptDigit(char)) {
+        value += digitValue(char)
+        sub = true
+      } else break
       index += 1
     }
-    return digits
+    return { value, sub, sup: false }
+  }
+
+  /** Reads Unicode superscript glyphs — an authored charge magnitude. */
+  const readSuperscriptDigits = (): string => {
+    let value = ''
+    while (index < formula.length && isSuperscriptDigit(formula[index]!)) {
+      value += digitValue(formula[index]!)
+      index += 1
+    }
+    return value
+  }
+
+  /** Reads a digit run in any alphabet, merged to ASCII (carets, coefficients). */
+  const readAnyDigits = (): string => {
+    let value = ''
+    while (index < formula.length) {
+      const char = formula[index]!
+      if (DIGIT.test(char) || isSubscriptDigit(char) || isSuperscriptDigit(char)) {
+        value += digitValue(char)
+        index += 1
+      } else break
+    }
+    return value
+  }
+
+  /** Consumes the remaining sign glyphs of one charge (`+`, `2+`, `²⁺`). */
+  const consumeSign = (): '+' | '-' => {
+    const sign = signOf(formula[index]!)
+    index += 1
+    while (index < formula.length && SIGN_CHAR.test(formula[index]!)) index += 1
+    return sign
   }
 
   /**
-   * A digit run immediately before a sign is ambiguous in compact notation:
-   * `SO42-` means SO₄²⁻ (subscript 4, charge 2) while `Ca2+` means Ca²⁺
-   * (no subscript, charge 2). Chemical convention resolves it: the last digit
-   * belongs to the charge, any preceding digits are the subscript. When no
-   * sign follows, the whole run is a subscript.
+   * Reads what follows an element or group: its subscript and, when present,
+   * its charge.
+   *
+   * The source is read in three phases — index digits, then superscript digits,
+   * then the sign — which removes the ambiguity the old single-run rule had:
+   *
+   *  - `Ca²⁺`, `SO₄²⁻`, `PO₄³⁻` — a Unicode superscript run before the sign is
+   *    the charge magnitude, so the charge reads `2+`, `2−`, `3−`, and any
+   *    subscript that preceded it stays a subscript.
+   *  - `NH₄⁺`, `NO₃⁻` — a Unicode *subscript* glyph is an index, never a charge
+   *    magnitude, so the sign is the bare charge.
+   *  - `Ca2+`, `NO3-`, `NH4+`, `SO42-` — ASCII digits are genuinely ambiguous,
+   *    and chemistry resolves it: a species built from ONE element symbol is a
+   *    monatomic ion, so its single trailing count is the magnitude (`O2-` is
+   *    O²⁻); a species built from TWO or more element symbols writes the charge
+   *    after a subscript (`NO3-` is NO₃⁻, `NH4+` is NH₄⁺) or after two digits
+   *    (`SO42-` is SO₄²⁻).
    */
-  const readDigitsAndCharge = (digits: string): { subscript?: string; charge: FormulaCharge | null } => {
+  const readElementTail = (elementsBefore: number): { subscript?: string; charge: FormulaCharge | null } => {
+    const indexDigits = readIndexDigits()
+    const superscriptDigits = readSuperscriptDigits()
     const next = formula[index]
-    if (next === undefined || !SIGN_CHAR.test(next)) {
-      return { subscript: digits === '' ? undefined : digits, charge: null }
+    const followedBySign = next !== undefined && SIGN_CHAR.test(next)
+
+    if (!followedBySign) {
+      const subscript = `${indexDigits.value}${superscriptDigits}`
+      return { subscript: subscript === '' ? undefined : subscript, charge: null }
     }
-    const magnitude = digits === '' ? '' : digits.slice(-1)
-    const subscript = digits.length > 1 ? digits.slice(0, -1) : ''
-    index += 1
-    while (index < formula.length && SIGN_CHAR.test(formula[index]!)) index += 1
+
+    const sign = consumeSign()
+
+    // An authored superscript run is the charge magnitude.
+    if (superscriptDigits !== '') {
+      return {
+        ...(indexDigits.value === '' ? {} : { subscript: indexDigits.value }),
+        charge: { type: 'charge', sign, magnitude: superscriptDigits },
+      }
+    }
+
+    // An authored subscript glyph is an index: `NH₄⁺` is NH₄ with a bare charge.
+    const singleTrailingAsciiDigit = !indexDigits.sub && indexDigits.value.length === 1
+    if (indexDigits.sub || (singleTrailingAsciiDigit && elementsBefore >= 2)) {
+      return {
+        ...(indexDigits.value === '' ? {} : { subscript: indexDigits.value }),
+        charge: { type: 'charge', sign, magnitude: '' },
+      }
+    }
+
+    const magnitude = indexDigits.value === '' ? '' : indexDigits.value.slice(-1)
+    const subscript = indexDigits.value.length > 1 ? indexDigits.value.slice(0, -1) : ''
     return {
       subscript: subscript === '' ? undefined : subscript,
-      charge: { type: 'charge', sign: next === '+' || next === '⁺' ? '+' : '-', magnitude },
+      charge: { type: 'charge', sign, magnitude },
     }
   }
 
@@ -576,7 +698,10 @@ function parseNodes(formula: string): FormulaNode[] {
       }
       const source = formula.slice(innerStart, index)
       if (index < formula.length) index += 1 // consume closer
-      const split = readDigitsAndCharge(digitsAt())
+      // A group is already one unit, so a count written after its bracket is
+      // its repetition and a count written against the sign is the charge
+      // (`[Cu(NH3)4]2+`). It therefore counts as a single species member.
+      const split = readElementTail(1)
       nodes.push({
         type: 'group',
         source,
@@ -584,6 +709,8 @@ function parseNodes(formula: string): FormulaNode[] {
         ...(split.subscript ? { subscript: split.subscript } : {}),
         ...(split.charge ? { charge: { sign: split.charge.sign, magnitude: split.charge.magnitude } } : {}),
       })
+      speciesElements += 1
+      if (split.charge) speciesElements = 0
       continue
     }
 
@@ -595,36 +722,41 @@ function parseNodes(formula: string): FormulaNode[] {
         symbol += formula[index]
         index += 1
       }
-      const split = readDigitsAndCharge(digitsAt())
+      const split = readElementTail(speciesElements + 1)
       nodes.push({ type: 'element', symbol, ...(split.subscript ? { subscript: split.subscript } : {}) })
-      if (split.charge) nodes.push(split.charge)
+      speciesElements += 1
+      if (split.charge) {
+        nodes.push(split.charge)
+        speciesElements = 0
+      }
       continue
     }
 
     // --- Bare digits: coefficient (2H2O) or trailing charge (SO4 2-) -----
     if (DIGIT.test(char)) {
-      const digits = digitsAt()
+      const digits = readAnyDigits()
       const next = formula[index]
-      if (next !== undefined && SIGN_CHAR.test(next)) {
-        const split = readDigitsAndCharge(digits)
-        if (split.charge) {
-          nodes.push(split.charge)
-          continue
-        }
+      // A digit run against a sign with no species before it is a charge
+      // written after a space (`SO4 2-`); otherwise it is a coefficient.
+      if (next !== undefined && SIGN_CHAR.test(next) && speciesElements === 0) {
+        const sign = consumeSign()
+        nodes.push({ type: 'charge', sign, magnitude: digits })
+        continue
       }
       nodes.push({ type: 'literal', value: digits })
+      speciesElements = 0
       continue
     }
 
     // --- Explicit caret superscript: SO4^2- ------------------------------
     if (char === '^') {
       index += 1
-      const digits = digitsAt()
+      const digits = readAnyDigits()
       const sign = formula[index]
       if (sign !== undefined && SIGN_CHAR.test(sign)) {
-        index += 1
-        while (index < formula.length && SIGN_CHAR.test(formula[index]!)) index += 1
-        nodes.push({ type: 'charge', sign: sign === '+' || sign === '⁺' ? '+' : '-', magnitude: digits })
+        const chargeSign = consumeSign()
+        nodes.push({ type: 'charge', sign: chargeSign, magnitude: digits })
+        speciesElements = 0
       } else if (digits !== '') {
         nodes.push({ type: 'literal', value: `^${digits}` })
       }
@@ -634,11 +766,13 @@ function parseNodes(formula: string): FormulaNode[] {
     // --- Bare sign character: a charge when it belongs to a species ------
     if (SIGN_CHAR.test(char)) {
       const next = formula[index + 1]
-      const sign = char === '+' || char === '⁺' ? '+' : '-'
-      if (next !== undefined && DIGIT.test(next)) {
+      const sign = signOf(char)
+      // Sign first, magnitude second: `+2`, `⁻¹`-style spellings.
+      if (next !== undefined && (DIGIT.test(next) || isSubscriptDigit(next) || isSuperscriptDigit(next))) {
         index += 1
-        const digits = digitsAt()
+        const digits = readAnyDigits()
         nodes.push({ type: 'charge', sign, magnitude: digits })
+        speciesElements = 0
         continue
       }
       // A sign attached to the preceding species closes it: `Na+`, `Cl-`.
@@ -648,10 +782,12 @@ function parseNodes(formula: string): FormulaNode[] {
       if (attached) {
         nodes.push({ type: 'charge', sign, magnitude: '' })
         index += 1
+        speciesElements = 0
         continue
       }
       nodes.push({ type: 'literal', value: char === '−' ? MINUS_SIGN : char })
       index += 1
+      speciesElements = 0
       continue
     }
 
@@ -659,7 +795,9 @@ function parseNodes(formula: string): FormulaNode[] {
     let literal = ''
     while (
       index < formula.length &&
-      !/[A-Z\d([^+\-−⁺⁻]/.test(formula[index]!)
+      !/[A-Z\d([^+\-−⁺⁻]/.test(formula[index]!) &&
+      !isSubscriptDigit(formula[index]!) &&
+      !isSuperscriptDigit(formula[index]!)
     ) {
       literal += formula[index]
       index += 1
@@ -670,6 +808,8 @@ function parseNodes(formula: string): FormulaNode[] {
       index = start + 1
     }
     nodes.push({ type: 'literal', value: literal })
+    // Operators, spaces and state symbols end the species being counted.
+    if (/[\s]|->|→|\+|·/.test(literal)) speciesElements = 0
   }
 
   return nodes

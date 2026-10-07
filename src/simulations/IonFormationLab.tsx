@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ElectronConfiguration, IonNotation } from '@/scientific'
+import { ElectronConfiguration, IonNotation, ScientificNotationText } from '@/scientific'
 import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
@@ -56,14 +56,16 @@ export default function IonFormationLab({ reducedMotion }: InteractiveProps) {
         </div>
 
         <div className="ion-atom" aria-label={`${electrons} إلكتروناً حول نواة فيها ${example.protons} بروتوناً`}>
-          <span className="ion-atom__nucleus"><b>{example.protons}</b><small>p⁺</small></span>
+          <span className="ion-atom__nucleus"><b>{example.protons}</b><small><ScientificNotationText>p⁺</ScientificNotationText></small></span>
           {dots.map((dot) => <span key={`${selectedSymbol}-${dot}`} className="ion-electron" style={{ '--electron': dot } as React.CSSProperties}>−</span>)}
           {direction > 0 && !completed ? Array.from({ length: Math.abs(example.transfer) - moved }, (_, index) => <span key={`incoming-${index}`} className={`ion-electron ion-electron--incoming ${reducedMotion ? 'ion-electron--still' : ''}`} style={{ '--incoming': index } as React.CSSProperties}>−</span>) : null}
           {moved > 0 ? <span key={`${selectedSymbol}-${moved}`} className={`ion-transfer-particle ion-transfer-particle--${direction < 0 ? 'out' : 'in'} ${reducedMotion ? 'ion-transfer-particle--still' : ''}`} aria-hidden="true">e<sup>−</sup></span> : null}
         </div>
 
         <div className="ion-process__arrow" aria-live="polite">
-          <span aria-hidden="true">{direction < 0 ? '⟶ e⁻' : 'e⁻ ⟶'}</span>
+          <span aria-hidden="true">
+            <ScientificNotationText>{direction < 0 ? '⟶ e⁻' : 'e⁻ ⟶'}</ScientificNotationText>
+          </span>
           <strong>{direction < 0 ? 'فقد إلكترون' : 'اكتساب إلكترون'}</strong>
           <RtlRun as="small">
             {moved} من {Math.abs(example.transfer)}

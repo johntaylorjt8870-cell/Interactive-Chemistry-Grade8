@@ -102,7 +102,7 @@ function QuestionSolution({ question, showSolution }: { question: Question; show
     <>
       <div className="teacher-answer__result"><strong>الإجابة:</strong> <ScientificNotationText>{answerOf(question)}</ScientificNotationText></div>
       {question.explanation ? <p className="teacher-answer__explanation"><strong>التفسير وخطوات الحل:</strong> <ScientificNotationText>{question.explanation}</ScientificNotationText></p> : null}
-      {question.type === 'short-answer' && question.rubric ? <div><p><strong>عناصر الإجابة المكتملة:</strong></p><ul>{question.rubric.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
+      {question.type === 'short-answer' && question.rubric ? <div><p><strong>عناصر الإجابة المكتملة:</strong></p><ul>{question.rubric.map((item) => <li key={item}><ScientificNotationText>{item}</ScientificNotationText></li>)}</ul></div> : null}
     </>
   )
 }
@@ -139,9 +139,9 @@ function QuestionMaterial({ question }: { question: Question }) {
     case 'multiple-choice': return <ol type="a">{question.options.map((option) => <li key={option.id}><ScientificNotationText>{option.label}</ScientificNotationText></li>)}</ol>
     case 'true-false': return <p>اختر: صح / غلط.</p>
     case 'fill-blank': return <p dir="rtl">{question.template.replace(/\{[^}]+\}/g, '________')}</p>
-    case 'ordering': return <ul>{question.items.map((item) => <li key={item.id}>{item.label}</li>)}</ul>
-    case 'matching': return <div className="cluster"><ul>{question.left.map((item) => <li key={item.id}>{item.label}</li>)}</ul><ul>{question.right.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul></div>
-    case 'table-interpretation': return <p>{question.table.caption}</p>
+    case 'ordering': return <ul>{question.items.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul>
+    case 'matching': return <div className="cluster"><ul>{question.left.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul><ul>{question.right.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul></div>
+    case 'table-interpretation': return <p><ScientificNotationText>{question.table.caption}</ScientificNotationText></p>
     // Same architecture as the student page: the registered diagram id mounts
     // its real figure, with the authored description as caption. An
     // unregistered id keeps the description instead of inventing a drawing.
