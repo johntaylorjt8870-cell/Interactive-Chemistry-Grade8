@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { SiteHeader } from './SiteHeader'
 import { SiteFooter } from './SiteFooter'
+import { SiteContactBar } from './SiteContactBar'
 import { subjectFromPath } from '@/app/navigation'
 
 /**
@@ -24,6 +25,9 @@ export function SiteLayout() {
       <a className="skip-link" href="#main-content">
         تخطَّ إلى المحتوى
       </a>
+      {/* Single platform contact chip: top of the shell, centred, above the
+          sticky header so no fixed chrome is added to any page. */}
+      <SiteContactBar />
       <SiteHeader />
       <main id="main-content" className="site__main" tabIndex={-1}>
         <Outlet />

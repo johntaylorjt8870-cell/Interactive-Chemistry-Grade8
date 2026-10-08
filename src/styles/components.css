@@ -154,6 +154,62 @@
   padding-block-end: var(--space-20);
 }
 
+/* Platform contact chip — one WhatsApp entry point, centred at the very top of
+   the shell and above the sticky header, so it never overlaps the brand, the
+   navigation or the theme control and adds no permanently pinned chrome. */
+.site-contact {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--space-2);
+  padding-inline: var(--layout-gutter);
+  border-block-end: 1px solid var(--border-hairline);
+}
+
+.site-contact__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-inline-size: 100%;
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--contact-border);
+  border-radius: var(--radius-pill);
+  background: var(--contact-bg);
+  color: var(--text-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+.site-contact__chip:hover {
+  background: var(--contact-bg-hover);
+  border-color: var(--contact-border-strong);
+  color: var(--text-strong);
+}
+
+.site-contact__icon {
+  flex: none;
+  color: var(--contact-accent);
+}
+
+.site-contact__text {
+  min-inline-size: 0;
+  white-space: nowrap;
+}
+
+/* The digits stay LTR, isolated and tabular: RTL flow can never reorder them. */
+.site-contact__phone {
+  color: var(--contact-accent);
+  font-family: var(--font-latin);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ls-wide);
+}
+
 .site-header {
   position: sticky;
   top: 0;
