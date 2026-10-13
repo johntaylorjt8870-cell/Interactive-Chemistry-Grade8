@@ -20,7 +20,7 @@ export function InlineQuestion({ question, index = 1 }: InlineQuestionProps) {
   return (
     <QuestionView
       question={question}
-      index={index}
+      index={question.sourceIndex ?? index}
       value={value}
       mode="attempt"
       onChange={(next) => setValue(next)}

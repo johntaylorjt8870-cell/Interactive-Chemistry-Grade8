@@ -37,6 +37,8 @@ export { MathFormula, EquationRow } from './MathFormula'
 export type { MathFormulaProps, EquationRowProps } from './MathFormula'
 
 export { ChemicalFormula, ChemicalEquation } from './ChemicalFormula'
+export { WordEquation } from './WordEquation'
+export type { WordEquationProps } from './WordEquation'
 export type { ChemicalFormulaProps, ChemicalEquationProps, ChemicalFormulaSize } from './ChemicalFormula'
 
 export { IonNotation, ChargeValue, SubscriptedIon } from './IonNotation'

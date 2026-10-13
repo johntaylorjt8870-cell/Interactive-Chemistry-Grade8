@@ -67,10 +67,11 @@ function Runner({ bank }: { bank: TestBank }) {
           <RtlRun as="p" className="ta-banner__text">
             لم تُجب عن {attempt.unansweredIndices.length} من {attempt.total} سؤالاً.
           </RtlRun>
+          {bank.requireComplete ? <p className="ta-banner__text">أكمل جميع أجزاء الأسئلة، بما فيها كل مطابقة وترتيب، قبل إرسال الإجابات. لا تظهر نتائج أو حلول أثناء المحاولة.</p> : null}
           <div className="ta-banner__actions">
-            <button type="button" className="ta-button ta-button--danger" onClick={attempt.submitAnyway}>
+            {!bank.requireComplete ? <button type="button" className="ta-button ta-button--danger" onClick={attempt.submitAnyway}>
               أرسل على أي حال
-            </button>
+            </button> : null}
             <button type="button" className="ta-button ta-button--quiet" onClick={attempt.dismissWarning}>
               راجع أسئلتي أولاً
             </button>

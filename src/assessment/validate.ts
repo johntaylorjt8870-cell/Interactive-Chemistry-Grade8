@@ -4,8 +4,8 @@ import type { FinalTest, Question } from './types'
 /**
  * Structural validation for assessment content.
  *
- * These checks protect the quality rules of the platform: a published test has
- * 10–20 questions, ids are unique, every "correct" reference points at
+ * These checks protect the quality rules of the platform: count matches the
+ * declared target (source-question lookup containers may be larger), ids are unique, every "correct" reference points at
  * something that exists, and any question that claims to come from the
  * textbook carries a page reference.
  */

@@ -3,7 +3,8 @@ import { BookGlyph, ClipboardCheckGlyph, KeyGlyph } from '@/components/Icons'
 import { InteractiveHost } from '@/components/InteractiveHost'
 import { routes } from '@/app/navigation'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { ScientificNotationText } from '@/scientific'
+import { ScientificNotationText, PlatformAddition } from '@/scientific'
+import { ContentBlocks } from '@/lessons/ContentBlocks'
 import { isInteractiveRegistered } from '@/simulations/registry'
 import { TEACHER_LESSONS, getTeacherLesson } from './teacherContent'
 import type { Question } from '@/assessment/types'
@@ -33,7 +34,7 @@ export function TeacherSection({ kind }: { kind: TeacherSectionKind }) {
   useDocumentTitle(`${content.title} — مساحة المعلم`)
 
   return (
-    <div className="container teacher-section-page">
+    <div className="container teacher-section-page" data-lesson-id={lesson.lessonId}>
       <nav className="breadcrumb" aria-label="مسار التنقل">
         <Link to={routes.teacher}>مساحة المعلم</Link><span aria-hidden="true">/</span><span aria-current="page">{content.title}</span>
       </nav>
@@ -59,10 +60,25 @@ export function TeacherSection({ kind }: { kind: TeacherSectionKind }) {
       <section aria-labelledby="teacher-lesson-title">
         <h2 id="teacher-lesson-title">{lesson.label}</h2>
         <p className="panel__body">
-          {kind === 'book-solutions'
+          <ScientificNotationText>{kind === 'book-solutions'
             ? `${lesson.pages} · ${lesson.bookNote}`
-            : `اختبار من ${lesson.finalTest.questions.length} سؤالاً جديداً ومتنوّعاً · إضافة من المنصة.`}
+            : `اختبار من ${lesson.finalTest.questions.length} سؤالاً جديداً ومتنوّعاً · إضافة من المنصة.`}</ScientificNotationText>
         </p>
+        {lesson.testAreaId ? (
+          <p className="panel__body">
+            اختبار منطقة الاختبارات مستقل عن اختبار الدرس، وكلاهما إضافة من المنصة:
+            {' '}<Link to={routes.testAreaTest(lesson.testAreaId)}>البنك المستقل — 20 سؤالاً</Link>
+            {' · '}<Link to={routes.testAreaSolutions(lesson.testAreaId)}>الحلول المفصلة لأسئلة البنك العشرين</Link>.
+          </p>
+        ) : null}
+        {kind === 'book-solutions' && lesson.conceptBlocks ? (
+          <details className="panel teacher-concept-guide" open>
+            <summary>شرح مفاهيم الدرس ودليل التجارب — إضافة من المنصة</summary>
+            <PlatformAddition variant="block" title="دليل المعلم المفصّل">
+              <ContentBlocks blocks={lesson.conceptBlocks} />
+            </PlatformAddition>
+          </details>
+        ) : null}
         <ol className="teacher-answer-list">
           {questions.map((question, index) => <TeacherQuestion key={question.id} question={question} index={index + 1} showSolution={showSolutions} />)}
         </ol>
@@ -76,6 +92,7 @@ function TeacherQuestion({ question, index, showSolution }: { question: Question
     <li className="teacher-answer">
       <QuestionMeta label={`السؤال ${index}`} question={question} />
       <p className="teacher-answer__prompt"><ScientificNotationText>{question.prompt}</ScientificNotationText></p>
+      {question.material ? <ContentBlocks blocks={question.material} /> : null}
       <QuestionMaterial question={question} />
       <SubQuestions question={question} showSolution={showSolution} />
       <QuestionSolution question={question} showSolution={showSolution} />
@@ -101,6 +118,7 @@ function QuestionSolution({ question, showSolution }: { question: Question; show
   return (
     <>
       <div className="teacher-answer__result"><strong>الإجابة:</strong> <ScientificNotationText>{answerOf(question)}</ScientificNotationText></div>
+      {question.solutionBlocks ? <PlatformAddition variant="block" title="الحل خطوة بخطوة"><ContentBlocks blocks={question.solutionBlocks} /></PlatformAddition> : null}
       {question.explanation ? <p className="teacher-answer__explanation"><strong>التفسير وخطوات الحل:</strong> <ScientificNotationText>{question.explanation}</ScientificNotationText></p> : null}
       {question.type === 'short-answer' && question.rubric ? <div><p><strong>عناصر الإجابة المكتملة:</strong></p><ul>{question.rubric.map((item) => <li key={item}><ScientificNotationText>{item}</ScientificNotationText></li>)}</ul></div> : null}
     </>

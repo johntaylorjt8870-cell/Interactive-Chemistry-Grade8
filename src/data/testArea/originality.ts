@@ -14,6 +14,11 @@ import {
   bookQuestions as l3Book,
   finalTest as l3Final,
 } from '@/data/curriculum/chemistryLesson3'
+import {
+  bookActivitySolutions as l4Activity,
+  bookQuestions as l4Book,
+  finalTest as l4Final,
+} from '@/data/curriculum/chemistryLesson4'
 import type { TestBank, TestQuestion } from './types'
 
 /* ============================================================================
@@ -102,6 +107,9 @@ export function existingPromptEntries(): OriginalityCandidate[] {
     ...curriculumEntries(l3Book, 'textbook-question', 'l3-book'),
     ...curriculumEntries(l3Activity, 'lesson-assessment', 'l3-activity'),
     ...curriculumEntries(l3Final.questions, 'final-test', 'l3-final'),
+    ...curriculumEntries(l4Book, 'textbook-question', 'l4-book'),
+    ...curriculumEntries(l4Activity, 'lesson-assessment', 'l4-activity'),
+    ...curriculumEntries(l4Final.questions, 'final-test', 'l4-final'),
   ]
 }
 

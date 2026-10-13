@@ -17,8 +17,10 @@ import {
   ScientificTable,
   ScientificValue,
   TextbookSource,
+  WordEquation,
 } from '@/scientific'
 import { InteractiveHost } from '@/components/InteractiveHost'
+import { isInteractiveRegistered } from '@/simulations/registry'
 import { parseCompactNuclearNotation } from '@/scientific/NuclearNotation'
 import { isElectronConfiguration } from '@/utils/scientificText'
 import type { ContentBlock } from '@/data/curriculum/schema'
@@ -147,6 +149,14 @@ function Block({
         </span>
       )
 
+    case 'word-equation':
+      return (
+        <div className="content-word-equation">
+          <WordEquation {...block} />
+          {block.caption ? <ScientificNotationText as="p" className="content-inline-notation__caption">{block.caption}</ScientificNotationText> : null}
+        </div>
+      )
+
     case 'value':
       return (
         <span className="content-value">
@@ -223,6 +233,23 @@ function Block({
       )
 
     case 'diagram':
+      // Source photographs with no retained scan must keep a precise, visible
+      // reference instead of an empty SVG or an invented replacement image.
+      if (block.sourceRef && !isInteractiveRegistered(block.diagramId)) {
+        return (
+          <figure className="diagram diagram--reference" data-source-figure={block.diagramId}>
+            <header className="diagram__header">
+              <h4 className="diagram__title">{block.title ?? 'مرجع شكل الكتاب'}</h4>
+              <span className="diagram__source">{block.sourceRef}</span>
+            </header>
+            <figcaption className="diagram__caption">
+              <ScientificNotationText as="p">{block.description}</ScientificNotationText>
+              {block.caption ? <ScientificNotationText as="p">{block.caption}</ScientificNotationText> : null}
+              <p>مرجع وصفي إلى شكل الكتاب؛ ليس صورة الكتاب الأصلية ولا إعادة رسم لها. الرسوم التفاعلية الإضافية موسومة بإضافة من المنصة.</p>
+            </figcaption>
+          </figure>
+        )
+      }
       return renderDiagram ? (
         renderDiagram(block.diagramId, block.description)
       ) : (
@@ -246,7 +273,7 @@ function Block({
     case 'callout':
       return (
         <div className={`alert alert--${block.tone === 'warning' ? 'warning' : block.tone === 'method' ? 'info' : 'neutral'}`}>
-          {block.title ? <p className="alert__title">{block.title}</p> : null}
+          {block.title ? <p className="alert__title"><ScientificNotationText>{block.title}</ScientificNotationText></p> : null}
           <p className="alert__body">
             <ScientificNotationText as="span">{block.text}</ScientificNotationText>
           </p>
@@ -256,7 +283,7 @@ function Block({
     case 'procedure':
       return (
         <div className="procedure">
-          {block.title ? <h4 className="procedure__title">{block.title}</h4> : null}
+          {block.title ? <h4 className="procedure__title"><ScientificNotationText>{block.title}</ScientificNotationText></h4> : null}
           <ol className="procedure__steps">
             {block.items.map((item, index) => (
               <li key={index}>

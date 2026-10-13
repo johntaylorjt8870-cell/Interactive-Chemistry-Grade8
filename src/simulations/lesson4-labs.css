@@ -1,0 +1,69 @@
+/* Lesson 4 only. Existing lesson layouts, notation and contact chip untouched. */
+.reaction-lab { min-inline-size: 0; grid-template-columns: minmax(0, 1fr); }
+.reaction-lab .lab__header { flex-wrap: wrap; gap: var(--space-3); }
+.reaction-lab__choices { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block: var(--space-3) var(--space-5); }
+.reaction-lab__choices [aria-pressed='true'] { background: var(--accent-tint); border-color: var(--accent-strong); color: var(--accent-strong); box-shadow: var(--shadow-xs); }
+.reaction-lab__fieldset { border: 0; padding: 0; margin-block: var(--space-4); min-inline-size: 0; }
+.reaction-lab__fieldset legend { color: var(--text-secondary); font-size: var(--fs-sm); }
+.reaction-lab .diagram { background: var(--surface-base); margin-block: var(--space-5); border: 1px solid var(--border-soft); }
+.reaction-lab .diagram__surface { max-block-size: 340px; overflow: hidden; background: radial-gradient(ellipse at center, var(--accent-tint), var(--surface-base) 72%); }
+.reaction-lab .diagram__svg { max-block-size: 320px; }
+.reaction-lab .diagram__caption { color: var(--text-secondary); }
+.reaction-lab__readouts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-block: var(--space-4); }
+.reaction-lab__readouts > div { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--surface-base); }
+.reaction-lab__readouts small { color: var(--text-secondary); font-size: var(--fs-xs); }
+.reaction-lab__readouts strong { font-size: var(--fs-sm); font-weight: var(--fw-semibold); line-height: var(--lh-relaxed); }
+.reaction-lab__note { color: var(--text-secondary); font-size: var(--fs-xs); line-height: var(--lh-relaxed); margin-block-start: var(--space-5); border-inline-start: 2px solid var(--border-strong); padding-inline-start: var(--space-3); }
+.reaction-lab__result { border: 1px solid var(--accent-border); background: var(--accent-tint); padding: var(--space-5); border-radius: var(--radius-md); margin-block: var(--space-5); }
+.reaction-lab__result p { font-size: var(--fs-sm); line-height: var(--lh-relaxed); }
+.reaction-lab__result-label { display: block; margin-block-end: var(--space-3); color: var(--accent-strong); font-weight: var(--fw-semibold); }
+.reaction-lab__timeline { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); padding: 0; margin-block: var(--space-4); }
+.reaction-lab__timeline li { text-align: center; padding: var(--space-3); font-size: var(--fs-xs); line-height: var(--lh-normal); color: var(--text-secondary); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); }
+.reaction-lab__timeline [aria-current='step'] { color: var(--accent-strong); border-color: var(--accent-strong); background: var(--accent-tint); font-weight: var(--fw-semibold); }
+.reaction-lab__safety { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4); background: var(--status-warning-bg); border: 1px solid var(--status-warning-border); color: var(--status-warning-text); border-radius: var(--radius-sm); font-size: var(--fs-sm); line-height: var(--lh-relaxed); }
+.reaction-lab__safety input { flex-shrink: 0; margin-block-start: var(--space-2); inline-size: 18px; block-size: 18px; accent-color: var(--accent-strong); }
+.reaction-lab__fields { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-block: var(--space-5); }
+.reaction-lab__fields select { max-inline-size: 100%; inline-size: 100%; font-family: var(--font-arabic); }
+.reaction-lab__equation { background: var(--surface-base); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: var(--space-4); margin-block: var(--space-4); }
+.reaction-lab__metal { fill: var(--border-strong); stroke: var(--text-secondary); stroke-width: 2; }
+.reaction-lab__air-hole { fill: var(--status-info-text); stroke: var(--surface-base); stroke-width: 2; }
+.reaction-lab__air-hole--closed { fill: var(--accent-strong); }
+.reaction-lab__flame-core { fill: var(--status-info-border); }
+.reaction-lab__flame-core--yellow { fill: var(--palette-chem-glow); }
+.reaction-lab__ceramic { fill: var(--palette-paper); stroke: var(--border-strong); stroke-width: 2; }
+.reaction-lab__soot { fill: var(--palette-ink-800); transition: opacity var(--dur-slow) var(--ease-standard); }
+.reaction-lab__handle, .reaction-lab__tube { fill: none; stroke: var(--text-secondary); stroke-width: 6; stroke-linecap: round; }
+.reaction-lab__tongs { fill: var(--border-strong); stroke: var(--text-secondary); stroke-width: 2; }
+.reaction-lab__ribbon { fill: none; stroke: var(--text-muted); stroke-width: 8; stroke-linecap: round; }
+.reaction-lab__ribbon--burning { stroke: var(--palette-paper); }
+.reaction-lab__mg-glow { fill: var(--palette-paper); stroke: var(--palette-chem-glow); stroke-width: 5; opacity: 0.85; }
+.reaction-lab__light-rays { stroke: var(--accent-strong); stroke-width: 3; stroke-linecap: round; }
+.reaction-lab__sand { fill: var(--palette-chem-100); stroke: var(--border-strong); stroke-width: 2; }
+.reaction-lab__oxide { fill: var(--palette-paper); stroke: var(--border-strong); stroke-width: 2; }
+.reaction-lab__oxide-lines { fill: none; stroke: var(--border-soft); stroke-width: 2; }
+.reaction-lab__cloth { fill: var(--palette-ink-700); stroke: var(--border-strong); stroke-width: 2; }
+.reaction-lab__cloth-patch { fill: var(--palette-chem-300); transition: opacity var(--dur-slow) var(--ease-standard); }
+.reaction-lab__drop { fill: var(--status-info-text); }
+.reaction-lab__glass { fill: none; stroke: var(--text-muted); stroke-width: 3; }
+.reaction-lab__glass-rim { fill: none; stroke: var(--text-muted); stroke-width: 3; }
+.reaction-lab__liquid { fill: var(--status-info-border); opacity: 0.7; }
+.reaction-lab__cloudy { fill: var(--palette-paper); stroke: var(--border-strong); stroke-width: 1; }
+.reaction-lab__lemon-slice { fill: var(--palette-chem-glow); stroke: var(--accent-strong); stroke-width: 2; }
+.reaction-lab__bubble { fill: var(--surface-base); stroke: var(--accent-strong); stroke-width: 2; animation: reaction-bubble-rise 900ms var(--ease-standard) both; }
+.reaction-lab__foam { fill: var(--surface-base); stroke: var(--accent-border-strong); stroke-width: 2; }
+.reaction-lab__precipitate { fill: none; stroke: var(--border-strong); stroke-width: 7; stroke-linecap: round; }
+.reaction-lab__plate { animation: reaction-plate-place var(--dur-slow) var(--ease-standard) both; }
+.reaction-lab__powder { animation: reaction-powder-appear var(--dur-slow) var(--ease-standard) both; }
+@keyframes reaction-bubble-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes reaction-plate-place { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes reaction-powder-appear { from { opacity: 0; } to { opacity: 1; } }
+.reaction-lab--still *, .reaction-lab--still *::before, .reaction-lab--still *::after { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) { .reaction-lab *, .reaction-lab *::before, .reaction-lab *::after { animation: none !important; transition: none !important; } }
+@media (max-width: 600px) {
+  .reaction-lab__readouts, .reaction-lab__fields { grid-template-columns: 1fr; }
+  .reaction-lab__choices .button { flex: 1 1 130px; font-size: var(--fs-xs); }
+  .reaction-lab__timeline li { padding: var(--space-2); }
+  .reaction-lab .lab__actions { gap: var(--space-2); }
+  .reaction-lab .lab__actions .button { flex: 1 1 160px; }
+  .reaction-lab__result { padding: var(--space-3); }
+}

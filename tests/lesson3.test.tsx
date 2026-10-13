@@ -332,7 +332,7 @@ describe('test area — lesson 3 registration', () => {
     expect(definition?.meta.difficulty).toEqual({ basic: 6, medium: 7, advanced: 4, thinking: 3 })
     expect(definition?.meta.pageRange).toBe('18–23')
     expect(listTestDefinitions().map((entry) => entry.meta.id)).toEqual([
-      'chem-u1-l1', 'chem-u1-l2', 'chem-u1-l3', 'chem-u1',
+      'chem-u1-l1', 'chem-u1-l2', 'chem-u1-l3', 'chem-u1-l4', 'chem-u1',
     ])
   })
 

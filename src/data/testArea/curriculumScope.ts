@@ -24,19 +24,21 @@ export const CURRICULUM_UNIT_ID = 'chem-u1'
 /** Pages of the published unit, exactly as declared in the curriculum registry. */
 export const UNIT_PAGES: readonly string[] = [
   '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17',
-  '18', '19', '20', '21', '22', '23',
+  '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29',
 ]
 
 export const LESSON_PAGES: Record<string, readonly string[]> = {
   'chem-u1-l1': ['3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
   'chem-u1-l2': ['13', '14', '15', '16', '17'],
   'chem-u1-l3': ['18', '19', '20', '21', '22', '23'],
+  'chem-u1-l4': ['24', '25', '26', '27', '28', '29'],
 }
 
 export const LESSON_TITLES: Record<string, string> = {
   'chem-u1-l1': 'الدرس الأول — الذرّة والعنصر',
   'chem-u1-l2': 'الدرس الثاني — الروابط الكيميائية',
   'chem-u1-l3': 'الدرس الثالث — صيغةُ المركّباتِ الكيميائيَّةِ',
+  'chem-u1-l4': 'الدرس الرابع — التفاعلات الكيميائية',
 }
 
 export const UNIT_TITLE = 'الوحدة الأولى — الكيمياء البنيوية'

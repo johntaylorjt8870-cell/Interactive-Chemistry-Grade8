@@ -1,6 +1,7 @@
 import { useId, useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { ScientificNotationText, ScientificTable } from '@/scientific'
+import { ContentBlocks } from '@/lessons/ContentBlocks'
 import type {
   Choice,
   MatchingQuestion,
@@ -20,6 +21,8 @@ export type QuestionViewProps = {
    * `solution` is only used by the teacher area and lesson review.
    */
   mode?: 'attempt' | 'solution'
+  /** Opt-in immutable submitted review; legacy defaults stay unchanged. */
+  readOnly?: boolean
   /** Resolves a registered diagram/interactive id for diagram questions. */
   renderDiagram?: (diagramId: string, description: string) => ReactNode
 }
@@ -38,6 +41,7 @@ export function QuestionView({
   value,
   onChange,
   mode = 'attempt',
+  readOnly = false,
   renderDiagram,
 }: QuestionViewProps) {
   const groupId = useId()
@@ -51,9 +55,9 @@ export function QuestionView({
       aria-labelledby={`${groupId}-prompt`}
     >
       <header className="question__header">
-        <span className="question__index" aria-hidden="true">
+        {index > 0 ? <span className="question__index" aria-hidden="true">
           {index}
-        </span>
+        </span> : null}
         <div className="question__heading">
           <p className="question__prompt" id={`${groupId}-prompt`}>
             <ScientificNotationText>{question.prompt}</ScientificNotationText>
@@ -73,10 +77,12 @@ export function QuestionView({
         </div>
       </header>
 
+      {question.material ? <ContentBlocks blocks={question.material} renderDiagram={renderDiagram} /> : null}
       <div className="question__body">{renderControl()}</div>
 
       {question.hint ? <p className="question__hint">تلميح: <ScientificNotationText>{question.hint}</ScientificNotationText></p> : null}
 
+      {mode === 'solution' && question.solutionBlocks ? <ContentBlocks blocks={question.solutionBlocks} /> : null}
       {mode === 'solution' && question.explanation ? (
         <p className="question__explanation"><ScientificNotationText>{question.explanation}</ScientificNotationText></p>
       ) : null}
@@ -103,6 +109,7 @@ export function QuestionView({
                   data-correct={isCorrect ? 'true' : undefined}
                 >
                   <input
+                    disabled={readOnly}
                     type={inputType}
                     name={groupId}
                     value={option.id}
@@ -118,7 +125,7 @@ export function QuestionView({
                       }
                     }}
                   />
-                  <ScientificNotationText as="span" className="choice__label">{option.label}</ScientificNotationText>
+                  <ScientificNotationText as="span" className="choice__label">{question.showOptionIds ? `${option.id}. ${option.label}` : option.label}</ScientificNotationText>
                   {isCorrect ? <span className="badge badge--success">الإجابة الصحيحة</span> : null}
                 </label>
               )
@@ -140,6 +147,7 @@ export function QuestionView({
               <label key={String(option.bool)} className="choice" data-checked={current === option.bool ? 'true' : undefined}>
                 <input
                   type="radio"
+                  disabled={readOnly}
                   name={groupId}
                   checked={current === option.bool}
                   onChange={() => onChange({ type: 'boolean', value: option.bool })}
@@ -170,6 +178,7 @@ export function QuestionView({
                   blankId={segment.value}
                   blank={question.blanks.find((blank) => blank.id === segment.value)}
                   value={values[segment.value] ?? ''}
+                  readOnly={readOnly}
                   index={index}
                   onChange={(next) => onChange({ type: 'blanks', values: { ...values, [segment.value]: next } })}
                   solution={
@@ -198,6 +207,7 @@ export function QuestionView({
               <span className="field__label">القيمة</span>
               <input
                 type="text"
+                disabled={readOnly}
                 inputMode="decimal"
                 className="field__input field__input--numeric"
                 dir="ltr"
@@ -214,6 +224,7 @@ export function QuestionView({
                   type="text"
                   className="field__input"
                   dir="ltr"
+                  disabled={readOnly}
                   value={current.unit ?? question.unit}
                   onChange={(event) =>
                     onChange({ type: 'number', value: current.value, unit: event.target.value })
@@ -239,6 +250,7 @@ export function QuestionView({
               <span className="field__label">إجابتك</span>
               <textarea
                 className="field__input field__input--area"
+                disabled={readOnly}
                 rows={4}
                 value={text}
                 onChange={(event) => onChange({ type: 'text', value: event.target.value })}
@@ -261,10 +273,10 @@ export function QuestionView({
       }
 
       case 'table-interpretation':
-        return <CompositeControl question={question} value={value} onChange={onChange} mode={mode} renderDiagram={renderDiagram} />
+        return <CompositeControl question={question} value={value} onChange={onChange} mode={mode} readOnly={readOnly} renderDiagram={renderDiagram} />
 
       case 'diagram-interpretation':
-        return <CompositeControl question={question} value={value} onChange={onChange} mode={mode} renderDiagram={renderDiagram} />
+        return <CompositeControl question={question} value={value} onChange={onChange} mode={mode} readOnly={readOnly} renderDiagram={renderDiagram} />
     }
   }
 }
@@ -280,7 +292,9 @@ function FillBlankInput({
   index,
   onChange,
   solution,
+  readOnly,
 }: {
+  readOnly: boolean
   blankId: string
   blank: { kind?: 'text' | 'number' | 'unit' } | undefined
   value: string
@@ -294,6 +308,7 @@ function FillBlankInput({
         الفراغ {blankId}
       </label>
       <input
+        disabled={readOnly}
         id={`blank-${index}-${blankId}`}
         className="field__input field__input--blank"
         dir={blank?.kind === 'text' ? undefined : 'ltr'}
@@ -437,8 +452,10 @@ function CompositeControl({
   value,
   onChange,
   mode,
+  readOnly,
   renderDiagram,
 }: {
+  readOnly: boolean
   question: TableInterpretationQuestion | Extract<Question, { type: 'diagram-interpretation' }>
   value: ResponseValue | null
   onChange: (value: ResponseValue) => void
@@ -485,6 +502,7 @@ function CompositeControl({
             value={children[child.id] ?? null}
             onChange={(next) => updateChild(child.id, next)}
             mode={mode}
+          readOnly={readOnly}
             renderDiagram={renderDiagram}
           />
         ))}

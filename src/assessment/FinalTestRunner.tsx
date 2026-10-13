@@ -36,10 +36,14 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
   const [warnIncomplete, setWarnIncomplete] = useState(false)
 
   const questions = test.questions
-  const answeredCount = questions.filter((question) => responses[question.id]?.value != null).length
+  const answeredCount = questions.filter((question) => test.requireComplete
+    ? isAttemptComplete([question], responses, true)
+    : responses[question.id]?.value != null).length
   const unanswered = questions
     .map((question, index) => ({ question, index: index + 1 }))
-    .filter(({ question }) => responses[question.id]?.value == null)
+    .filter(({ question }) => test.requireComplete
+      ? !isAttemptComplete([question], responses, true)
+      : responses[question.id]?.value == null)
 
   if (questions.length === 0) {
     return (
@@ -68,7 +72,7 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
   }
 
   const handleSubmitClick = () => {
-    if (isAttemptComplete(questions, responses)) {
+    if (isAttemptComplete(questions, responses, test.requireComplete)) {
       submit()
       return
     }
@@ -110,9 +114,10 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
               index={index + 1}
               value={responses[question.id]?.value ?? null}
               mode={submitted ? 'solution' : 'attempt'}
+              readOnly={Boolean(test.requireComplete && submitted)}
               renderDiagram={renderDiagram}
               onChange={(value: ResponseValue) =>
-                setResponses((current) => ({ ...current, [question.id]: { questionId: question.id, value } }))
+                !(test.requireComplete && submitted) && setResponses((current) => ({ ...current, [question.id]: { questionId: question.id, value } }))
               }
             />
           </li>
@@ -124,6 +129,7 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
           {warnIncomplete && unanswered.length > 0 ? (
             <div className="alert alert--warning" role="alert">
               <p className="alert__title">ما زالت هناك أسئلة دون إجابة</p>
+              {test.requireComplete ? <p className="alert__body">أكمل جميع أجزاء الأسئلة، بما فيها كل فراغ ومطابقة وترتيب، ثم سلّم الاختبار. لن تظهر نتيجة قبل اكتمال الإجابات.</p> : null}
               <p className="alert__body">
                 الأسئلة:{' '}
                 {unanswered
@@ -136,7 +142,7 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
             <button type="button" className="button button--primary" onClick={handleSubmitClick}>
               إنهاء الاختبار وعرض النتيجة
             </button>
-            {warnIncomplete && unanswered.length > 0 ? (
+            {!test.requireComplete && warnIncomplete && unanswered.length > 0 ? (
               <button type="button" className="button button--quiet" onClick={submit}>
                 إرسال على أي حال
               </button>
@@ -151,6 +157,7 @@ export function FinalTestRunner({ test, renderDiagram, onSubmitted }: FinalTestR
             <RtlRun>اكتمل الاختبار. أُجيب عن {summary.answered} من {summary.total} سؤالاً.</RtlRun>
           </p>
           <h3 className="attempt-summary__title">نتيجة المحاولة</h3>
+          {test.requireComplete ? <p className="attempt-summary__score"><RtlRun>الدرجة: {summary.results.filter((result) => result.outcome === 'correct').reduce((sum, result) => sum + (result.points ?? 1), 0)} من {summary.results.reduce((sum, result) => sum + (result.points ?? 1), 0)} · نقطة السؤال بعد صحة جميع أجزائه.</RtlRun></p> : null}
           <ul className="attempt-summary__list">
             {summary.results.map((result, index) => (
               <li key={result.questionId} data-outcome={result.outcome}>

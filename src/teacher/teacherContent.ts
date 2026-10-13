@@ -1,4 +1,5 @@
 import type { FinalTest, Question } from '@/assessment/types'
+import type { ContentBlock } from '@/data/curriculum/schema'
 import {
   bookActivitySolutions as lesson1Activities,
   bookQuestions as lesson1Questions,
@@ -14,6 +15,13 @@ import {
   bookQuestions as lesson3Questions,
   finalTest as lesson3FinalTest,
 } from '@/data/curriculum/chemistryLesson3'
+
+import {
+  bookActivitySolutions as lesson4Activities,
+  bookQuestions as lesson4Questions,
+  finalTest as lesson4FinalTest,
+  lesson4TeacherGuide,
+} from '@/data/curriculum/chemistryLesson4'
 
 /**
  * Teacher-area content registry.
@@ -32,6 +40,10 @@ export type TeacherLessonContent = {
   /** Textbook questions and in-lesson activities with full solutions. */
   bookQuestions: Question[]
   finalTest: FinalTest
+  /** Optional detailed teacher guide for the selected lesson only. */
+  conceptBlocks?: ContentBlock[]
+  /** Optional navigation to the separate lesson bank and its full solutions. */
+  testAreaId?: string
 }
 
 export const TEACHER_LESSONS: TeacherLessonContent[] = [
@@ -58,6 +70,16 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     bookNote: 'تتضمن حلول السؤال التمهيدي ونشاط النماذج وجدول الأيونات ونشاط التفكك (ص19–20)، وحلول «أختبر نفسي» الخمسة كاملة بترتيبها القرائي (ص23).',
     bookQuestions: [...lesson3Activities, ...lesson3Questions],
     finalTest: lesson3FinalTest,
+  },
+  {
+    lessonId: 'chem-u1-l4',
+    label: 'الدرس الرابع — كيمياء: التفاعلات الكيميائية',
+    pages: 'الصفحات 24–29',
+    bookNote: 'شرح مفصل للمفاهيم، وجميع مشاهد الملاحظة وأسئلة التجربتين والأنشطة وقضية البحث (20 بنداً)، وحلول أسئلة أختبر نفسي الستة بكل فروعها (13 بنداً)، مع مراجع الصفحات وفصل حلول المنصة عن نص الكتاب.',
+    bookQuestions: [...lesson4Activities, ...lesson4Questions],
+    finalTest: lesson4FinalTest,
+    conceptBlocks: lesson4TeacherGuide,
+    testAreaId: 'chem-u1-l4',
   },
 ]
 

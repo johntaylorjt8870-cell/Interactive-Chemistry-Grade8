@@ -184,8 +184,8 @@ function ExactInput({ question, response, onChange, readOnly }: InputProps) {
         className="ta-input"
         type="text"
         autoComplete="off"
-        dir="ltr"
-        lang="en"
+        dir={spec.kind === 'text' ? 'rtl' : 'ltr'}
+        lang={spec.kind === 'text' ? 'ar' : 'en'}
         value={value}
         disabled={readOnly}
         onChange={(event) => onChange({ type: 'text', value: event.target.value })}
