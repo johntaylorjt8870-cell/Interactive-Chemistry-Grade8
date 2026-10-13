@@ -5,10 +5,11 @@ import { finalTest } from './chemistryLesson4Test'
 
 export { bookActivitySolutions, bookQuestions, finalTest }
 
-/** Source-first: intake was completed and C1/C2 resolved BEFORE implementation.
- * The original files are unavailable: each photograph has a precise, visibly
- * labelled printed-page reference. No platform schematic is a claimed scan.
- * See docs/source-reports/lesson4-chemical-reactions-intake.md. */
+/** Source-first implementation with an independent final audit.
+ * The prior intake report said C1/C2 were resolved from close-ups, but this
+ * audit could not re-read the tiny p24 caption from the six full-page images.
+ * Figures remain descriptive references, not scans or exact reproductions.
+ * See docs/source-reports/lesson4-final-source-fidelity-audit.md. */
 const ref = (page: string, item?: string) => ({ page, item })
 const source = (page: string, item: string) => ({ pages: [ref(page, item)], verified: true })
 const quote = (page: string, text: string, item?: string): ContentBlock => ({ kind: 'textbook-verbatim', text, source: ref(page, item) })
@@ -48,7 +49,7 @@ const steps: LessonStep[] = [
   {
     id: 'observe-reactions', kind: 'source', title: 'التفاعل الكيميائي: ألاحظ وأجيب', attribution: 'textbook', source: source('24', 'التفاعل الكيميائي — ألاحظ وأجيب'),
     blocks: [quote('24', 'التفاعل الكيميائي:'), quote('24', 'ألاحظ وأجيب:'), lesson4Figures.observations,
-      quote('24', 'إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)', 'تعليق الصورة اليمنى — مؤكد بالقصّة'),
+      quote('24', 'إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)', 'تعليق الصورة اليمنى — نص سابق غير متحقق'),
       ...q('l4-observe-lemon', 'l4-observe-javel', 'l4-observe-limewater', 'l4-observe-name'),
     ],
   },
@@ -112,7 +113,7 @@ const steps: LessonStep[] = [
   },
   {
     id: 'household-gas', kind: 'source', title: 'هل تعلم؟! الغاز المنزلي', attribution: 'textbook', source: source('27', 'هل تعلم؟!'),
-    blocks: [quote('27', 'هل تعلم؟!'), quote('27', 'الغاز المنزلي مكوّن من خليط غازي (البوتان والبروبان) لا رائحة له ولا لون يضاف له مادة عضوية (المركبتان) له رائحة قوية لاكتشاف أي تسرب للغاز. وعند تركيب أسطوانة الغاز استخدم رغوة الماء والصابون للتأكد من وجود تسرب.')],
+    blocks: [quote('27', 'هل تعلم؟!'), quote('27', 'الغاز المنزلي مكوّن من خليط غازي (البوتان والبروبان) لا رائحة له ولا لون يضاف له مادة عضوية (المركبتان) لها رائحة قوية لاكتشاف أي تسرب للغاز. وعند تركيب أسطوانة الغاز استخدم رغوة الماء والصابون للتأكد من وجود تسرب.')],
   },
   {
     id: 'carbon-monoxide', kind: 'source', title: 'إضاءة: أحادي أكسيد الكربون', attribution: 'textbook', source: source('27', 'إضاءة'),
@@ -171,7 +172,7 @@ export const chemistryLesson4: LessonDefinition = {
   id: 'chem-u1-l4', slug: 'chemical-reactions', title: 'الدرس الرابع — التفاعلات الكيميائية', order: 4, status: 'source-verified',
   source: {
     pages: ['24', '25', '26', '27', '28', '29'].map((page) => ref(page)), verified: true,
-    readability: { arabicText: 'clear', latinText: 'clear', equations: 'clear', numbers: 'clear', units: 'clear', tables: 'clear', diagrams: 'clear', experiments: 'clear', questions: 'clear', notes: 'Source text read in the supplied six images; C1/C2 confirmed by user close-ups and caption transcription before coding. No measured quantities or tables are printed. Original scan files are unavailable: figures retain exact meaning through labelled page references, not guessed redraws. Platform schematics are separate.' },
+    readability: { arabicText: 'clear', latinText: 'clear', equations: 'clear', numbers: 'clear', units: 'clear', tables: 'clear', diagrams: 'partial', experiments: 'clear', questions: 'clear', notes: 'Two source-wording mismatches (p26 procedure; p27 gas-note pronoun) were corrected from the attached pages. The exact small red caption in the p24 right-hand photo is not legible in the full-page attachment and was not available as a local close-up; its earlier transcription is not independently re-certified here. Original image files are unavailable locally; all figure blocks are descriptive references, not reproduced scans. No measured quantities or tables are printed.' },
   },
   summary: 'التفاعل الكيميائي ومواده، المعادلات اللفظية، احتراق المغنزيوم، أثر الأكسجين في الاحتراق التام وغير التام، الغاز المنزلي وخطر أحادي أكسيد الكربون، والكشف عن ثنائي أكسيد الكربون.',
   steps, tests: [bookAssessment, finalTest],

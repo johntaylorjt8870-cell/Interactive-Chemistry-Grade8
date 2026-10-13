@@ -227,6 +227,18 @@ try {
       if (['opening', 'magnesium-word-activity', 'book-question-2', 'book-question-6'].includes(item.id)) await shot(page, item.id, '.lesson-shell__main')
     }
     check('all 33 source activity/self-test units reached', reached.size === 33, [...reached])
+    await step(page, 'word-equation-activities')
+    const sourceII = await page.$eval('.question[data-question="l4-word-iron"] .sci[dir="ltr"]', (node) => ({
+      text: node.textContent, direction: getComputedStyle(node).direction,
+    }))
+    check('p26 source Roman II stays an isolated LTR name suffix', sourceII.text === 'II' && sourceII.direction === 'ltr', sourceII)
+    await step(page, 'carbon-monoxide')
+    const sourceCO = await page.$eval('.textbook-source__text .sci[dir="ltr"]', (node) => ({
+      text: node.textContent, direction: getComputedStyle(node).direction,
+      subscript: Boolean(node.querySelector('sub')), superscript: Boolean(node.querySelector('sup')),
+    }))
+    check('p27 textbook CO stays one plain LTR formula with no script or charge', sourceCO.text.replace(/[()]/g, '') === 'CO' && sourceCO.direction === 'ltr' && !sourceCO.subscript && !sourceCO.superscript, sourceCO)
+    await shot(page, 'carbon-monoxide-source', '.lesson-shell__main')
     await step(page, 'opening')
     await accessibility(page, 'lesson opening')
 

@@ -184,6 +184,13 @@ describe('Lesson 4 registration, sequence and source audit', () => {
     expect(sourceMaterial('combustion-conclusions').texts.join(' ')).not.toMatch(/\d+(?:°|mol|g|mL)/)
   })
 
+  it('uses the p26 execution wording and p27 pronoun checked against the attached pages', () => {
+    expect(sourceById.get('l4-burner-observe1')?.prompt).toBe('أشعل الموقد كما في الحالة (1) وأضع فوق اللهب صحن الخزف، ماذا ألاحظ؟')
+    const gasNote = sourceMaterial('household-gas').texts.join(' ')
+    expect(gasNote).toContain('(المركبتان) لها رائحة قوية')
+    expect(gasNote).not.toContain('(المركبتان) له رائحة قوية')
+  })
+
   it('registers four lazy purposeful interactives, each labelled as platform-authored', async () => {
     const blocks = chemistryLesson4.steps.flatMap((step) => step.blocks).filter((block) => block.kind === 'interactive')
     const ids = blocks.map((block) => block.kind === 'interactive' ? block.interactiveId : '')
