@@ -375,7 +375,7 @@ describe('source fidelity — the printed heading and the questions', () => {
   })
 
   it('did not touch Lessons 1 and 2', () => {
-    expect(chemistryLesson1.steps).toHaveLength(22)
+    expect(chemistryLesson1.steps).toHaveLength(23)
     expect(chemistryLesson2.steps).toHaveLength(18)
     expect(lesson1BookQuestions).toHaveLength(15)
     expect(lesson2BookQuestions).toHaveLength(7)

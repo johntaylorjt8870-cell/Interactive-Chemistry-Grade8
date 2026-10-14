@@ -52,7 +52,11 @@ export function ContentBlocks({ blocks, renderQuestion, renderDiagram }: Content
         if (group.kind === 'textbook-group') {
           const firstBlock = group.blocks[0]
           const page = firstBlock?.source.page
-          const item = firstBlock?.source.item
+          // Collect all unique item references from the group
+          const items = group.blocks
+            .map((b) => b.source.item)
+            .filter((item): item is string => !!item)
+          const item = items.length > 0 ? items.join('، ') : undefined
           return (
             <TextbookSource key={index} page={page} item={item}>
               {group.blocks.map((block, blockIndex) => (
@@ -75,29 +79,43 @@ type GroupedBlock =
   | ContentBlock 
   | { kind: 'textbook-group'; blocks: Array<Extract<ContentBlock, { kind: 'textbook-verbatim' }>> }
 
+/**
+ * Groups consecutive textbook-verbatim blocks that share the same source page
+ * into a single TextbookSource wrapper. When the page reference changes, a
+ * new group starts — so blocks from different pages are never merged under
+ * a single attribution footer.
+ */
 function groupTextbookBlocks(blocks: ContentBlock[]): GroupedBlock[] {
   const result: GroupedBlock[] = []
   let currentGroup: Array<Extract<ContentBlock, { kind: 'textbook-verbatim' }>> | null = null
-  
+  let currentPage: string | null = null
+
+  function flushGroup() {
+    if (currentGroup && currentGroup.length > 0) {
+      result.push({ kind: 'textbook-group', blocks: currentGroup })
+    }
+    currentGroup = null
+    currentPage = null
+  }
+
   for (const block of blocks) {
     if (block.kind === 'textbook-verbatim') {
+      const page = block.source.page
+      if (currentGroup && page !== currentPage) {
+        flushGroup()
+      }
       if (!currentGroup) {
         currentGroup = []
+        currentPage = page
       }
       currentGroup.push(block)
     } else {
-      if (currentGroup && currentGroup.length > 0) {
-        result.push({ kind: 'textbook-group', blocks: currentGroup })
-        currentGroup = null
-      }
+      flushGroup()
       result.push(block)
     }
   }
-  
-  if (currentGroup && currentGroup.length > 0) {
-    result.push({ kind: 'textbook-group', blocks: currentGroup })
-  }
-  
+
+  flushGroup()
   return result
 }
 
