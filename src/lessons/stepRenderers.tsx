@@ -127,13 +127,49 @@ function FinalTestStep(props: StepRendererProps) {
   )
 }
 
+function DiscoveryStep(props: StepRendererProps) {
+  const { step, renderQuestion, renderDiagram } = props
+  return (
+    <StepFrame {...props}>
+      <div className="discovery-panel">
+        <ContentBlocks blocks={step.blocks} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
+      </div>
+    </StepFrame>
+  )
+}
+
+function DeepExplanationStep(props: StepRendererProps) {
+  const { step, renderQuestion, renderDiagram } = props
+  return (
+    <StepFrame {...props}>
+      <PlatformAddition variant="badge" className="step__attribution" />
+      <div className="deep-explanation">
+        <ContentBlocks blocks={step.blocks} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
+      </div>
+    </StepFrame>
+  )
+}
+
+function ComparisonStep(props: StepRendererProps) {
+  const { step, renderQuestion, renderDiagram } = props
+  return (
+    <StepFrame {...props}>
+      <div className="comparison-panel">
+        <ContentBlocks blocks={step.blocks} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
+      </div>
+    </StepFrame>
+  )
+}
+
 /* ---------------------------------------------------------------------------
    Registry — the extension point for new step kinds
    ------------------------------------------------------------------------ */
 
 export const STEP_RENDERERS: Record<StepKind, ComponentType<StepRendererProps>> = {
+  discovery: DiscoveryStep,
   source: SourceStep,
   explanation: StandardStep,
+  'deep-explanation': DeepExplanationStep,
   example: StandardStep,
   experiment: StandardStep,
   simulation: StandardStep,
@@ -142,6 +178,7 @@ export const STEP_RENDERERS: Record<StepKind, ComponentType<StepRendererProps>> 
   apply: StandardStep,
   note: NoteStep,
   'common-error': CommonErrorStep,
+  comparison: ComparisonStep,
   summary: SummaryStep,
   'final-test': FinalTestStep,
 }

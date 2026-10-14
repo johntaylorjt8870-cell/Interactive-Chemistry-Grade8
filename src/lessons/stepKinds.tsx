@@ -5,10 +5,13 @@ import {
   BookGlyph,
   CheckGlyph,
   ClipboardCheckGlyph,
+  CompareGlyph,
   FlaskGlyph,
   InfoGlyph,
+  LightbulbGlyph,
   ListGlyph,
   PlayGlyph,
+  SearchGlyph,
 } from '@/components/Icons'
 
 /**
@@ -27,6 +30,12 @@ export type StepKindMeta = {
 }
 
 export const STEP_KIND_META: Record<StepKind, StepKindMeta> = {
+  discovery: {
+    label: 'استكشاف',
+    intention: 'ظاهرة أو سؤال يثير الفضول ويبدأ رحلة التعلّم',
+    tone: 'interact',
+    icon: SearchGlyph,
+  },
   source: {
     label: 'المصدر',
     intention: 'نص الكتاب المدرسي كما هو، مع رقم الصفحة',
@@ -38,6 +47,12 @@ export const STEP_KIND_META: Record<StepKind, StepKindMeta> = {
     intention: 'تفكيك المفهوم خطوة بخطوة',
     tone: 'explain',
     icon: ListGlyph,
+  },
+  'deep-explanation': {
+    label: 'شرح معمّق',
+    intention: 'تفسير السبب والآلية والعلاقة بالمفاهيم الأخرى',
+    tone: 'explain',
+    icon: LightbulbGlyph,
   },
   example: {
     label: 'مثال',
@@ -86,6 +101,12 @@ export const STEP_KIND_META: Record<StepKind, StepKindMeta> = {
     intention: 'خطأ متكرر وطريقة تجنّبه',
     tone: 'reflect',
     icon: AlertGlyph,
+  },
+  comparison: {
+    label: 'مقارنة',
+    intention: 'توضيح الفروق بين المفاهيم المتشابهة',
+    tone: 'explain',
+    icon: CompareGlyph,
   },
   summary: {
     label: 'خلاصة',

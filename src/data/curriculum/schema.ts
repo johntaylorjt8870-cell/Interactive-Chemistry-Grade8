@@ -18,8 +18,10 @@ export function isSubjectId(value: string): value is SubjectId {
  * each step is one meaningful unit of work, never a wall of text.
  */
 export type StepKind =
+  | 'discovery'
   | 'source'
   | 'explanation'
+  | 'deep-explanation'
   | 'example'
   | 'experiment'
   | 'simulation'
@@ -28,12 +30,15 @@ export type StepKind =
   | 'apply'
   | 'note'
   | 'common-error'
+  | 'comparison'
   | 'summary'
   | 'final-test'
 
 export const STEP_KINDS: readonly StepKind[] = [
+  'discovery',
   'source',
   'explanation',
+  'deep-explanation',
   'example',
   'experiment',
   'simulation',
@@ -42,6 +47,7 @@ export const STEP_KINDS: readonly StepKind[] = [
   'apply',
   'note',
   'common-error',
+  'comparison',
   'summary',
   'final-test',
 ]

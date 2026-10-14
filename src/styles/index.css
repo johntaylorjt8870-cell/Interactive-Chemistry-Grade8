@@ -4,7 +4,8 @@
    3. components shell, navigation, surfaces, lessons, assessment, teacher
    4. scientific bidi isolation primitives and scientific typography
    5. scientific-components notation components (formulae, ions, tables…)
-   6. test-area     منطقة الاختبارات وحلول الاختبارات */
+   6. test-area     منطقة الاختبارات وحلول الاختبارات
+   7. enhanced-lesson improved visual hierarchy for discovery and deep explanations */
 @import './tokens.css';
 @import './base.css';
 @import './components.css';
@@ -14,3 +15,6 @@
 
 /* New lesson-only browser-readability fixes. */
 @import './lesson4.css';
+
+/* Enhanced lesson design system for discovery, deep explanations, and comparisons. */
+@import './enhanced-lesson.css';

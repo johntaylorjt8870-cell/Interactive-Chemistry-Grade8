@@ -69,18 +69,22 @@ export type TextbookSourceProps = {
  * Marks material reproduced verbatim from the textbook, with its page
  * reference. Quoted text is rendered exactly as printed — never summarised,
  * reworded or shortened.
+ * 
+ * The source marker is now a subtle inline reference rather than a prominent
+ * header on every block. Multiple consecutive textbook quotes are grouped
+ * together and share a single marker to reduce visual noise.
  */
 export function TextbookSource({ children, page, item, className }: TextbookSourceProps) {
   return (
     <aside className={['textbook-source', className].filter(Boolean).join(' ')} data-origin="textbook">
-      <header className="textbook-source__header">
-        <span className="textbook-source__label">من الكتاب المدرسي</span>
-        {page ? <span className="textbook-source__ref">{page}</span> : null}
-        {item ? <span className="textbook-source__ref">{item}</span> : null}
-      </header>
       <div className="textbook-source__body" lang="ar" dir="rtl">
         {children}
       </div>
+      <footer className="textbook-source__footer">
+        <span className="textbook-source__label">من الكتاب المدرسي</span>
+        {page ? <span className="textbook-source__ref">ص {page}</span> : null}
+        {item ? <span className="textbook-source__ref">{item}</span> : null}
+      </footer>
     </aside>
   )
 }

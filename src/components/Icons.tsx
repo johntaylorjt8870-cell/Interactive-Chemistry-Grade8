@@ -237,3 +237,28 @@ export function ResetGlyph({ size = 18, ...rest }: IconProps) {
     </Icon>
   )
 }
+
+export function SearchGlyph({ size = 18, ...rest }: IconProps) {
+  return (
+    <Icon size={size} {...rest}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.35-4.35" />
+    </Icon>
+  )
+}
+
+export function LightbulbGlyph({ size = 18, ...rest }: IconProps) {
+  return (
+    <Icon size={size} {...rest}>
+      <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z" />
+    </Icon>
+  )
+}
+
+export function CompareGlyph({ size = 18, ...rest }: IconProps) {
+  return (
+    <Icon size={size} {...rest}>
+      <path d="M8 3v18M16 3v18M3 8h5M3 16h5M16 8h5M16 16h5" />
+    </Icon>
+  )
+}

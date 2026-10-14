@@ -152,6 +152,11 @@ const bookAssessment: FinalTest = {
 }
 
 const steps: LessonStep[] = [
+  { id: 'discovery-opening', kind: 'discovery', title: 'ماذا لو كان كل شيء من حولك فارغاً؟', summary: 'سؤال يبدأ رحلة فهم بنية المادة.', attribution: 'platform', minutes: 3, blocks: [
+    { kind: 'callout', tone: 'note', title: 'فكّر قبل أن تتابع', text: 'انظر إلى يدك، إلى الكتاب أمامك، إلى الشاشة. كل ما تراه يبدو صلباً وممتلئاً. لكن ماذا لو أخبرتك أن أكثر من 99% من حجم كل ذرة في هذه المواد هو فراغ؟', attribution: 'platform' },
+    { kind: 'paragraph', text: 'كيف يمكن لشيء «فارغ» أن يكون صلباً؟ ولماذا لا تسقط الإلكترونات في النواة؟ ومن أين جاءت شحنة الأيون في ملح الطعام؟ هذه الأسئلة هي ما ستكتشف إجاباتها في هذا الدرس.', attribution: 'platform' },
+    { kind: 'paragraph', text: 'سنبدأ من سؤال بسيط: ما الذي يجعل الذهب ذهباً ولا يتحول إلى حديد؟ وسننتهي بفهم كيف تتحول الذرة المتعادلة إلى أيون مشحون، وكيف نمثّل إلكتروناتها بنقاط بسيطة حول الرمز.', attribution: 'platform' },
+  ] },
   { id: 'goals', kind: 'source', title: 'مدخل الدرس ومفاهيمه', summary: 'النواة والإلكترونات والنظائر والسويات والأيونات.', attribution: 'textbook', source: { pages: [source('3')], verified: true }, minutes: 4, blocks: [
     { kind: 'key-terms', attribution: 'textbook', terms: [{ term: 'النواة', meaning: 'جزء الذرة المركزي الذي تتركز فيه معظم كتلتها.' }, { term: 'الإلكترونات', meaning: 'جسيمات سالبة الشحنة توجد حول النواة.' }, { term: 'النظائر', meaning: 'ذرات العنصر الواحد المتفقة في العدد الذري والمختلفة في العدد الكتلي.' }, { term: 'السويات الرئيسية', meaning: 'سويات طاقة محددة توجد فيها الإلكترونات حول النواة.' }, { term: 'قاعدة الثمانية', meaning: 'ارتباط الاستقرار بوجود ثمانية إلكترونات في السوية الأخيرة.' }, { term: 'النشاط الكيميائي', meaning: 'قابلية الذرة للدخول في تغير كيميائي.' }, { term: 'الأيون', meaning: 'ذرة فقدت أو اكتسبت إلكتروناً أو أكثر فأصبحت مشحونة.' }] },
   ] },
@@ -169,6 +174,12 @@ const steps: LessonStep[] = [
     { kind: 'list', items: ['معظم جسيمات ألفا تنفذ من صفيحة الذهب دون أن تنحرف.', 'جزء صغير من جسيمات ألفا ارتدّ وبعضها انحرف بزوايا مختلفة.'], attribution: 'textbook' },
     { kind: 'interactive', interactiveId: 'rutherford-scattering', caption: 'حرّك عدد الجسيمات ثم أطلق الحزمة، وراقب قياسات النفاذ والانحراف والارتداد.' },
     { kind: 'list', ordered: true, items: ['معظم حجم الذرة فراغ، بدليل نفاذ معظم جسيمات ألفا دون أن تنحرف.', 'تحتوي الذرة بداخلها جزء موجب سمّاه النواة، تتركز فيه معظم كتلة الذرة.'], attribution: 'textbook' },
+  ] },
+  { id: 'rutherford-deep', kind: 'deep-explanation', title: 'لماذا نستنتج الفراغ من النفاذ؟', summary: 'الربط بين الملاحظة والاستنتاج خطوة بخطوة.', attribution: 'platform', minutes: 5, blocks: [
+    { kind: 'paragraph', text: 'الملاحظة تقول: معظم الجسيمات مرت دون انحراف. لكن الاستنتاج «معظم الذرة فراغ» يحتاج فهماً أعمق. لماذا هذا الربط صحيح؟', attribution: 'platform' },
+    { kind: 'paragraph', text: 'جسيم ألفا ثقيل نسبياً (نواة هيليوم) ومشحون بشحنة موجبة. لو كانت كتلة الذرة موزعة بالتساوي (كما افترض طومسون)، لتوزع الانحراف على كل الجسيمات بنسبة صغيرة. لكن الواقع: معظمها مرّ تماماً كأن لا شيء يعترضه، وقليل جداً انحرف بشدة.', attribution: 'platform' },
+    { kind: 'paragraph', text: 'التفسير الوحيد المتسق: الكتلة والشحنة الموجبة ليستا موزعتين؛ بل مركّزتان في نقطة صغيرة جداً (النواة). معظم حجم الذرة لا يحوي شيئاً يعترض جسيم ألفا، فينفذ. أما الجسيم الذي يمر قريباً من النواة فيشعر بقوة تنافر كبيرة فينحرف، والذي يصطدم بها تقريباً يرتد.', attribution: 'platform' },
+    { kind: 'callout', tone: 'note', title: 'فرق بين الملاحظة والتفسير', text: '«مرت معظم الجسيمات دون انحراف» ملاحظة. «معظم الذرة فراغ» تفسير علمي للملاحظة. الملاحظة صحيحة دائماً، أما التفسير فيبقى مقبولاً ما دام يتفق مع كل الملاحظات ولا يتناقض معها.', attribution: 'platform' },
   ] },
   { id: 'bohr', kind: 'source', title: 'نموذج بور للذرّة', summary: 'سويات محددة وانتقال الإلكترون بينها.', attribution: 'textbook', source: { pages: [source('5')], verified: true }, minutes: 6, blocks: [
     { kind: 'list', ordered: true, items: ['تتكوّن الذرّة من نواة موجبة وتدور حولها الإلكترونات في سويّات لها طاقة محدّدة.', 'تمتص الذرّة طاقة عندما ينتقل الإلكترون من سويّة طاقة أدنى إلى سويّة طاقة أعلى، ومقدار الطاقة الممتصة يساوي فرق الطاقة بين السويتين.', 'تُصدر الذرّة طاقة محددة على شكل ضوء عندما يقفز الإلكترون من سويّة طاقة أعلى إلى سويّة طاقة أدنى.'], attribution: 'textbook' },
@@ -196,6 +207,11 @@ const steps: LessonStep[] = [
     { kind: 'table', caption: 'توزيع إلكترونات الصوديوم', columns: [{ key: 'level', header: 'السوية', rowHeader: true }, { key: 'electrons', header: 'عدد الإلكترونات', numeric: true }, { key: 'reason', header: 'التفسير' }], rows: [{ id: 'k', cells: { level: 'K', electrons: '2', reason: 'تمتلئ أولاً' } }, { id: 'l', cells: { level: 'L', electrons: '8', reason: 'تمتلئ بعدها' } }, { id: 'm', cells: { level: 'M', electrons: '1', reason: 'الإلكترون المتبقي' } }], footnote: 'K(2), L(8), M(1) — المجموع 11.', attribution: 'textbook' },
     { kind: 'interactive', interactiveId: 'electron-shell-builder', caption: 'ابنِ توزيعاً إلكترونياً بنفسك؛ كل إضافة تغيّر العدادات والسوية الأخيرة فعلياً.' },
   ] },
+  { id: 'distribution-deep', kind: 'deep-explanation', title: 'لماذا نملأ السويات من الداخل إلى الخارج؟', summary: 'فهم السبب وراء ترتيب التوزيع الإلكتروني.', attribution: 'platform', minutes: 4, blocks: [
+    { kind: 'paragraph', text: 'الإلكترونات في الذرة ليست حرّة في اختيار مكانها. السوية الأقرب إلى النواة (K) هي الأقل طاقة، والإلكترون يبحث دائماً عن الحالة الأقل طاقة لأنّها الأكثر استقراراً. لذلك يملأ الإلكترونات السوية الأدنى أولاً.', attribution: 'platform' },
+    { kind: 'paragraph', text: 'تخيّل سلّماً: لا تستطيع وضع قدمك على الدرجة الثالثة قبل الأولى. وكذلك الإلكترونات: لا تدخل السوية L قبل أن تمتلئ K (بإلكترونين)، ولا تدخل M قبل أن تمتلئ L (بثمانية). لكن انتبه: قاعدة «السوية الأخيرة لا تحوي أكثر من 8» قيد إضافي يخص الذرات الحقيقية وليس مجرد قانون رياضي.', attribution: 'platform' },
+    { kind: 'callout', tone: 'note', title: 'السعة العظمى ليست دائماً العدد الفعلي', text: 'العلاقة y = 2(n)² تعطي السعة القصوى للسوية، لا عدد الإلكترونات الفعلي. ذرة الصوديوم مثلاً لها 11 إلكتروناً فقط موزعة K(2), L(8), M(1)، رغم أن سعة M هي 18. الذرة تضع فقط ما لديها من إلكترونات.', attribution: 'platform' },
+  ] },
   { id: 'atomic-numbers', kind: 'source', title: 'العدد الذري والعدد الكتلي', summary: 'قراءة الترميز النووي واستخراج الجسيمات.', attribution: 'mixed', source: { pages: [source('7'), source('8')], verified: true }, minutes: 8, blocks: [
     { kind: 'nuclear', symbol: 'Ne', massNumber: 20, atomicNumber: 10, caption: 'النيون كما ورد في الصفحة 7', attribution: 'textbook' },
     { kind: 'paragraph', text: 'يوضع العدد الكتلي أعلى يسار الرمز، والعدد الذري أسفل يساره. تُبنى العلامات هنا بعناصر مستقلة، لا بمسافات أو محارف مرتفعة جاهزة.', attribution: 'platform' },
@@ -212,6 +228,12 @@ const steps: LessonStep[] = [
     { kind: 'callout', tone: 'method', title: 'تحقق من شحنة الأيون', text: 'اكتب عدد البروتونات الموجبة، ثم عدد الإلكترونات السالبة، واحسب الفرق الجبري. إذا زادت البروتونات كان الأيون موجباً، وإذا زادت الإلكترونات كان الأيون سالباً، وإذا تساويا بقيت الذرة متعادلة.', attribution: 'platform' },
     { kind: 'interactive', interactiveId: 'ion-formation-lab', caption: 'اختر K أو F أو Ca أو O، ثم حرّك الإلكترون خطوة خطوة وراقب تغيّر عدد الإلكترونات والشحنة الكلية.' },
     { kind: 'callout', tone: 'warning', title: 'لا تعكس الإشارة', text: 'فقد الإلكترونات السالبة يعطي أيوناً موجباً، واكتساب الإلكترونات السالبة يعطي أيوناً سالباً. البروتونات لا تتغير عند تشكل هذه الأيونات.', attribution: 'platform' },
+  ] },
+  { id: 'lewis-deep', kind: 'deep-explanation', title: 'لماذا إلكترونات السطح وحدها؟', summary: 'السبب الذي يجعل تمثيل لويس يهمل إلكترونات الداخل.', attribution: 'platform', minutes: 4, blocks: [
+    { kind: 'paragraph', text: 'عندما تتفاعل ذرتان، ما الذي يحدث؟ الإلكترونات القريبة من النواة (في السويات الداخلية) محمية ومحاصرة بقوة جذب النواة؛ لا تستطيع الخروج أو المشاركة في التفاعل. أما إلكترونات السوية الأخيرة — إلكترونات السطح — فهي الأبعد عن النواة والأقل ارتباطاً بها، وهي وحدها القادرة على التفاعل مع ذرات أخرى.', attribution: 'platform' },
+    { kind: 'paragraph', text: 'لذلك اخترع لويس طريقة ذكية: بدل رسم كل الإلكترونات، نكتب رمز العنصر ونضع حوله نقاطاً تمثل إلكترونات السطح فقط. كل نقطة = إلكترون واحد في السوية الأخيرة. وبهذا نرى بسرعة: هل الذرة قريبة من الاستقرار (ثمانية) أم بعيدة؟', attribution: 'platform' },
+    { kind: 'paragraph', text: 'الخطوات بسيطة: (1) حدد العدد الذري، (2) وزّع الإلكترونات على السويات، (3) عدّ إلكترونات السوية الأخيرة، (4) ضع نقاطاً حول الرمز — فرادى أولاً في الجهات الأربع (فوق، يمين، تحت، يسار)، ثم ازوجها إن لزم.', attribution: 'platform' },
+    { kind: 'callout', tone: 'warning', title: 'لا تبدأ بالازدواج', text: 'الخطأ الأكثر شيوعاً في تمثيل لويس هو وضع زوجين في جهة واحدة قبل توزيع النقاط فرادى في كل الجهات. القاعدة: فرادى أولاً، ثم أزواج. كربون (4 إلكترونات سطحية) = 4 نقاط في 4 جهات، لا زوجان في جهتين.', attribution: 'platform' },
   ] },
   { id: 'lewis', kind: 'source', title: 'تمثيل لويس', summary: 'الإلكترونات السطحية كنقاط مستقلة حول الرمز.', attribution: 'mixed', source: { pages: [source('9')], verified: true }, minutes: 8, blocks: [
     { kind: 'paragraph', text: 'يمثل لويس إلكترونات السوية الأخيرة فقط، لا جميع إلكترونات الذرة. نضع الإلكترونات فرادى حول الجهات الأربع قبل أن نبدأ بتكوين الأزواج.', attribution: 'platform' },
@@ -235,6 +257,18 @@ const steps: LessonStep[] = [
     { kind: 'table', caption: 'مقارنة نظائر الأكسجين', columns: [{ key: 'isotope', header: 'النظير', rowHeader: true }, { key: 'mass', header: 'العدد الكتلي', numeric: true }, { key: 'atomic', header: 'العدد الذري', numeric: true }, { key: 'neutrons', header: 'عدد النيوترونات', numeric: true }], rows: [{ id: 'o16', cells: { isotope: '¹⁶₈O', mass: '16', atomic: '8', neutrons: '8' } }, { id: 'o17', cells: { isotope: '¹⁷₈O', mass: '17', atomic: '8', neutrons: '9' } }, { id: 'o18', cells: { isotope: '¹⁸₈O', mass: '18', atomic: '8', neutrons: '10' } }], attribution: 'textbook' },
     { kind: 'interactive', interactiveId: 'isotope-lab', caption: 'ثبّت عدد البروتونات وغيّر النيوترونات، ثم راقب العدد الكتلي واسم النظير.' },
     { kind: 'callout', tone: 'note', title: 'تعلّمُ', text: 'هوية العنصر تبقى مرتبطة بعدد البروتونات؛ تغيير النيوترونات يغيّر النظير والعدد الكتلي، لا رمز العنصر.', attribution: 'mixed' },
+  ] },
+  { id: 'isotopes-vs-ions', kind: 'comparison', title: 'الفرق بين النظير والأيون: لا تخلط بينهما', summary: 'مقارنة تبين ما يتغير وما يثبت في كل حالة.', attribution: 'platform', minutes: 4, blocks: [
+    { kind: 'paragraph', text: 'كثيراً ما يخلط الطلاب بين النظير والأيون لأن كلا المفهومين يتعلقان بذرة العنصر نفسه. لكن الفرق جوهري: النظير يتعلق بالنواة (النيوترونات)، والأيون يتعلق بالإلكترونات المحيطة بها.', attribution: 'platform' },
+    { kind: 'table', caption: 'مقارنة النظير والأيون', columns: [{ key: 'aspect', header: 'الجانب', rowHeader: true }, { key: 'isotope', header: 'النظير' }, { key: 'ion', header: 'الأيون' }], rows: [
+      { id: 'changes', cells: { aspect: 'ما الذي يتغير؟', isotope: 'عدد النيوترونات', ion: 'عدد الإلكترونات' } },
+      { id: 'stays', cells: { aspect: 'ما الذي يثبت؟', isotope: 'البروتونات والإلكترونات', ion: 'البروتونات والنيوترونات' } },
+      { id: 'charge', cells: { aspect: 'هل يتغير الشحن؟', isotope: 'لا — الذرة تبقى متعادلة', ion: 'نعم — تصبح مشحونة' } },
+      { id: 'identity', cells: { aspect: 'هل يتغير العنصر؟', isotope: 'لا — يبقى العنصر نفسه', ion: 'لا — يبقى العنصر نفسه' } },
+      { id: 'mass', cells: { aspect: 'هل تتغير الكتلة؟', isotope: 'نعم — يتغير العدد الكتلي', ion: 'تقريباً لا — كتلة الإلكترون ضئيلة' } },
+      { id: 'example', cells: { aspect: 'مثال', isotope: '¹⁶O و ¹⁸O كلاهما أكسجين', ion: 'Na و Na⁺ كلاهما صوديوم' } },
+    ], attribution: 'platform' },
+    { kind: 'callout', tone: 'warning', title: 'خطأ شائع', text: 'لا تقل «الأيون نظير مشحون». النظير لا يكون مشحوناً بالضرورة، والأيون لا يختلف في عدد النيوترونات. هما مفهومان مستقلان: الأول يصف تنوع النواة، والثاني يصف فقد أو اكتساب الإلكترونات.', attribution: 'platform' },
   ] },
   { id: 'book-check-1', kind: 'question', title: 'أختبر نفسي: صح أم غلط', summary: 'العبارات الست كما في الكتاب.', attribution: 'textbook', source: { pages: [source('12', 'أختبر نفسي — السؤال الأول')], verified: true }, minutes: 8, blocks: bookQuestions.slice(0, 6).map((question) => ({ kind: 'question' as const, questionId: question.id })) },
   { id: 'book-check-2', kind: 'question', title: 'أختبر نفسي: اختر الإجابة', summary: 'الأسئلة الخمسة وخياراتها.', attribution: 'textbook', source: { pages: [source('12', 'أختبر نفسي — السؤال الثاني')], verified: true }, minutes: 8, blocks: bookQuestions.slice(6, 11).map((question) => ({ kind: 'question' as const, questionId: question.id })) },
