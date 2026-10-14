@@ -1,5 +1,6 @@
 import {
   hasResponse,
+  hasCompleteResponse,
   type ResponseMap,
   type ResponseValue,
   type TestBank,
@@ -56,7 +57,7 @@ export function createAttemptState(bank: TestBank): AttemptState {
 }
 
 export function answeredCountOf(bank: TestBank, state: AttemptState): number {
-  return bank.questions.filter((question) => hasResponse(state.responses[question.id])).length
+  return bank.questions.filter((question) => (bank.requireComplete ? hasCompleteResponse(question, state.responses[question.id]) : hasResponse(state.responses[question.id]))).length
 }
 
 export function progressRatioOf(bank: TestBank, state: AttemptState): number {
@@ -67,7 +68,7 @@ export function progressRatioOf(bank: TestBank, state: AttemptState): number {
 /** Zero-based indices of the questions with no answer yet. */
 export function unansweredIndicesOf(bank: TestBank, state: AttemptState): number[] {
   return bank.questions
-    .map((question, index) => (hasResponse(state.responses[question.id]) ? -1 : index))
+    .map((question, index) => ((bank.requireComplete ? hasCompleteResponse(question, state.responses[question.id]) : hasResponse(state.responses[question.id])) ? -1 : index))
     .filter((index) => index >= 0)
 }
 
@@ -125,6 +126,7 @@ export function attemptReducer(
 
     case 'submit-anyway': {
       if (state.status !== 'in-progress') return state
+      if (bank.requireComplete && !isAttemptComplete(bank, state)) return { ...state, unansweredWarning: true }
       return {
         ...state,
         status: 'submitted',

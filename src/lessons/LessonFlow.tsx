@@ -147,6 +147,7 @@ export function LessonFlow({
   return (
     <>
       <LessonShell
+        lessonId={lesson.id}
         breadcrumb={breadcrumb}
         title={lesson.title}
         description={lesson.summary}

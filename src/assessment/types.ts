@@ -1,5 +1,5 @@
 import type { ContentStatus, PageReference } from '@/data/source'
-import type { TableColumnSpec, TableRowSpec } from '@/data/curriculum/schema'
+import type { ContentBlock, TableColumnSpec, TableRowSpec } from '@/data/curriculum/schema'
 
 /**
  * Assessment types.
@@ -44,6 +44,12 @@ type QuestionCommon = {
   /** Explanation shown in the solutions view (not during the test). */
   explanation?: string
   points?: number
+  /** Printed source subpart number; 0 denotes an unnumbered prompt. */
+  sourceIndex?: number
+  /** Source figures / word reactions, using the established content blocks. */
+  material?: ContentBlock[]
+  /** Structured platform solutions; never rendered during an attempt. */
+  solutionBlocks?: ContentBlock[]
 }
 
 export type MultipleChoiceQuestion = QuestionCommon & {
@@ -55,6 +61,8 @@ export type MultipleChoiceQuestion = QuestionCommon & {
   selection: 'single' | 'multiple'
   options: Choice[]
   correctOptionIds: ChoiceId[]
+  /** Opt-in preservation of printed a/b/c/d labels. */
+  showOptionIds?: boolean
 }
 
 export type TrueFalseQuestion = QuestionCommon & {
@@ -170,6 +178,8 @@ export type FinalTest = {
   status: ContentStatus
   /** Platform policy: 10–20 questions depending on lesson size. */
   targetQuestionCount: { min: number; max: number }
+  /** Opt-in for new tests; previous lessons keep their existing submission UI. */
+  requireComplete?: boolean
   questions: Question[]
 }
 

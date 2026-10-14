@@ -135,6 +135,24 @@ export const chemUnit1Lesson3Test = defineTest({
   loadSolutions: () => import('./solutions/chem-u1-l3'),
 })
 
+/** Qualitative Lesson 4 content needs no invented numeric measurements. */
+const L4_TYPES: Record<QuestionType, number> = {
+  'single-choice': 6, 'true-false': 2, 'multi-select': 2, numeric: 0, exact: 2,
+  ordering: 1, matching: 2, 'error-analysis': 3, 'error-correction': 2,
+}
+
+export const chemUnit1Lesson4Test = defineTest({
+  meta: {
+    id: 'chem-u1-l4', scope: 'lesson', title: 'اختبار الدرس الرابع — التفاعلات الكيميائية',
+    summary: 'تغير المواد وأدوار المعادلة اللفظية، قراءة التجربتين، أثر الأكسجين ونواتج الاحتراق، الغاز المنزلي والكشف والسلامة. اختبار مستقل من إضافة المنصة.',
+    unitId: 'chem-u1', lessonIds: ['chem-u1-l4'], questionCount: 20,
+    difficulty: { basic: 6, medium: 7, advanced: 4, thinking: 3 }, types: L4_TYPES,
+    solutionChunkSize: 5, pageRange: '24–29',
+  },
+  load: () => import('./banks/chem-u1-l4'),
+  loadSolutions: () => import('./solutions/chem-u1-l4'),
+})
+
 const U1_DIFFICULTY: Record<Difficulty, number> = {
   basic: 15,
   medium: 20,

@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { RtlRun } from '@/components/BidiText'
 
 export type LessonShellProps = {
+  /** Optional identity for lesson-scoped styling/inspection. */
+  lessonId?: string
   /** Breadcrumb trail, rendered at the top of the lesson rail. */
   breadcrumb?: ReactNode
   title: string
@@ -48,6 +50,7 @@ export type LessonShellProps = {
  * `dialog` semantics (see `Drawer` and `LessonFlow`).
  */
 export function LessonShell({
+  lessonId,
   breadcrumb,
   title,
   description,
@@ -62,7 +65,7 @@ export function LessonShell({
   const progressValue = progress.visited ?? progress.current
 
   return (
-    <div className="lesson-shell">
+    <div className="lesson-shell" data-lesson-id={lessonId}>
       <div className="container container--lesson lesson-shell__body">
         <aside className="lesson-shell__rail" aria-label="مخطط الدرس">
           <div className="lesson-rail__identity">

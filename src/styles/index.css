@@ -11,3 +11,6 @@
 @import './scientific.css';
 @import './scientific-components.css';
 @import './test-area.css';
+
+/* New lesson-only browser-readability fixes. */
+@import './lesson4.css';

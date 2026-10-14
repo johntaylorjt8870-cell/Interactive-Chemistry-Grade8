@@ -325,6 +325,22 @@ export function hasResponse(value: ResponseValue | undefined | null): boolean {
 
 /* --- Blueprint ----------------------------------------------------------- */
 
+/** Completion checks presence/shape, NEVER whether an answer is correct. */
+export function hasCompleteResponse(question: TestQuestion, value: ResponseValue | undefined): boolean {
+  if (!hasResponse(value) || !value) return false
+  switch (question.type) {
+    case 'single-choice':
+    case 'multi-select':
+    case 'error-analysis': return value.type === 'choice' && value.optionIds.every((id) => question.options.some((option) => option.id === id))
+    case 'true-false': return value.type === 'boolean' && value.value !== null
+    case 'numeric': return value.type === 'number'
+    case 'exact': return value.type === 'text'
+    case 'error-correction': return value.type === (question.correction.kind === 'numeric' ? 'number' : 'text')
+    case 'ordering': return value.type === 'order' && value.itemIds.length === question.items.length && new Set(value.itemIds).size === question.items.length && question.items.every((item) => value.itemIds.includes(item.id))
+    case 'matching': return value.type === 'matching' && question.left.every((left) => value.pairs.some((pair) => pair.leftId === left.id && question.right.some((right) => right.id === pair.rightId)))
+  }
+}
+
 export type BlueprintConcept = {
   id: string
   label: string
@@ -368,6 +384,8 @@ export type TestBank = {
   id: string
   /** Bumped whenever questions change; invalidates persisted drafts. */
   version: number
+  /** Opt-in: no incomplete submit/override; all fields must have responses. */
+  requireComplete?: boolean
   scope: Scope
   title: string
   summary: string

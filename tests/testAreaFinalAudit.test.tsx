@@ -41,6 +41,7 @@ describe('Final Test Area route audit', () => {
       'chem-u1-l1',
       'chem-u1-l2',
       'chem-u1-l3',
+      'chem-u1-l4',
       'chem-u1',
     ])
     expect(listComprehensiveTests()).toEqual([])

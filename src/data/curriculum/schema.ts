@@ -91,6 +91,17 @@ export type ContentBlock =
       attribution: Attribution
     }
   | {
+      /** Printed Arabic names within one isolated LTR reaction chain. */
+      kind: 'word-equation'
+      reactants: string[]
+      products: string[]
+      condition?: string
+      reactantRoles?: string[]
+      productRoles?: string[]
+      caption?: string
+      attribution: Attribution
+    }
+  | {
       kind: 'value'
       value: string | number
       unit?: string

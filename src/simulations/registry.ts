@@ -8,7 +8,7 @@ import type { ComponentType } from 'react'
  * simulation in the book into the initial bundle.
  *
  * `BUILT_IN_INTERACTIVES` lists the labs and simulations used by the
- * source-verified Chemistry lessons 1–2. An interactive is only built and
+ * source-verified Chemistry lessons 1–4. An interactive is only built and
  * registered after its textbook pages are supplied and read, and every entry
  * stays a platform addition rather than a reproduction of a textbook figure.
  * Further Chemistry modules are added here (or registered at runtime through
@@ -36,6 +36,26 @@ export type InteractiveDefinition = {
 }
 
 const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
+  {
+    id: 'reaction-observation-lab', title: 'مختبر ملاحظة التحولات الكيميائية', kind: 'simulation',
+    description: 'تنفيذ مشاهد الليمون والبيكربونات والصباغ ورائق الكلس افتراضياً، ثم فصل الملاحظة عن الاستنتاج.',
+    load: () => import('./ReactionObservationLab'),
+  },
+  {
+    id: 'magnesium-combustion-lab', title: 'احتراق المغنزيوم: قبل وأثناء وبعد', kind: 'simulation',
+    description: 'مراجعة تجهيز المخبر ثم ملاحظة احتراق الشريط وتكون أكسيد المغنزيوم الأبيض دون قياسات مفترضة.',
+    load: () => import('./MagnesiumCombustionLab'),
+  },
+  {
+    id: 'word-equation-lab', title: 'باني المعادلات اللفظية', kind: 'activity',
+    description: 'اختيار مواد البداية والناتج والتحقق من معادلة بالأسماء مع بقاء السهم العلمي من اليسار إلى اليمين.',
+    load: () => import('./WordEquationLab'),
+  },
+  {
+    id: 'combustion-air-lab', title: 'الهواء والاحتراق التام وغير التام', kind: 'simulation',
+    description: 'اختيار الحالتين المصدريتين لفتحة الهواء وملاحظة اللهب وصحن الخزف وتفسير السخام ونواتج احتراق الوقود.',
+    load: () => import('./CombustionAirLab'),
+  },
   {
     id: 'bohr-energy-transition',
     title: 'انتقالات الطاقة في نموذج بور',

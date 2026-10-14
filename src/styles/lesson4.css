@@ -1,0 +1,46 @@
+/* Real-browser QA found inherited low-contrast microcopy/active indices.
+ * Scope every correction to the new lesson, including direct hash links.
+ * No earlier lesson, global palette, notation renderer or contact bar changes. */
+.lesson-shell[data-lesson-id='chem-u1-l4'] .lesson-outline__button[data-current='true'] .lesson-outline__index {
+  background: var(--palette-chem-700);
+  color: var(--palette-paper);
+}
+.lesson-shell[data-lesson-id='chem-u1-l4'] .lesson-rail__visited {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+.lesson-shell[data-lesson-id='chem-u1-l4'] .final-test__meta {
+  color: var(--text-secondary);
+}
+
+/* Grid items must be allowed to shrink around an isolated, scrolling chain.
+ * Teacher layouts elsewhere remain unchanged; all four lesson links are visible
+ * on the new tab rather than hiding the active fourth link off-screen. */
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-answer-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-answer {
+  min-inline-size: 0;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-lesson-tabs {
+  flex-wrap: wrap;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-lesson-tab {
+  flex: 1 1 140px;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  text-align: center;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-lesson-tab[aria-current='page'] {
+  background: var(--palette-chem-700);
+  color: var(--palette-paper);
+}
+
+/* The inherited tiny English badge uses opacity, which fails contrast against
+ * the new teacher-solution panels. Restore the existing strong badge color. */
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .platform-addition-badge__en {
+  opacity: 1;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .eyebrow {
+  color: var(--text-secondary);
+}

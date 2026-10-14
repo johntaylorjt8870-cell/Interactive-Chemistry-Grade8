@@ -183,10 +183,24 @@ export function summariseAttempt(
 export function isAttemptComplete(
   questions: Question[],
   responses: Record<string, QuestionResponse | undefined>,
+  requireAllFields = false,
 ): boolean {
   return questions.every((question) => {
     const value: ResponseValue | null = responses[question.id]?.value ?? null
     if (value === null) return false
+    if (requireAllFields) {
+      switch (question.type) {
+        case 'multiple-choice': return value.type === 'choice' && value.optionIds.length > 0
+        case 'true-false': return value.type === 'boolean' && value.value !== null
+        case 'fill-blank': return value.type === 'blanks' && question.blanks.every((blank) => normaliseText(value.values[blank.id] ?? '') !== '')
+        case 'numerical': return value.type === 'number' && normaliseText(value.value) !== ''
+        case 'short-answer': return value.type === 'text' && normaliseText(value.value) !== ''
+        case 'ordering': return value.type === 'order' && value.itemIds.length === question.items.length && new Set(value.itemIds).size === question.items.length && question.items.every((item) => value.itemIds.includes(item.id))
+        case 'matching': return value.type === 'matching' && question.left.every((item) => value.pairs.some((pair) => pair.leftId === item.id && question.right.some((right) => right.id === pair.rightId)))
+        case 'table-interpretation':
+        case 'diagram-interpretation': return value.type === 'composite' && isAttemptComplete(question.questions, Object.fromEntries(question.questions.map((child) => [child.id, { questionId: child.id, value: value.children[child.id] ?? null }])), true)
+      }
+    }
     if (value.type === 'text') return normaliseText(value.value) !== ''
     return true
   })

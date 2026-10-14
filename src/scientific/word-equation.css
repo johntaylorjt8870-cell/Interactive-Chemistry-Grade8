@@ -1,0 +1,64 @@
+/* Word equations are a new source form, not a patch to chemical notation. */
+.word-equation-scroll {
+  display: block;
+  max-inline-size: 100%;
+  overflow-x: auto;
+  padding-block: var(--space-4);
+  direction: ltr;
+  overscroll-behavior-inline: contain;
+}
+.word-equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(var(--space-2), 2vw, var(--space-5));
+  inline-size: max-content;
+  min-inline-size: 100%;
+  font-family: var(--font-arabic);
+  font-size: var(--fs-base);
+  color: var(--text-strong);
+}
+.word-equation__term {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+.word-equation__name {
+  font-weight: var(--fw-semibold);
+  font-family: var(--font-arabic);
+  white-space: nowrap;
+}
+.word-equation__role {
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+}
+.word-equation__arrow {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-inline-size: 2.8rem;
+}
+.word-equation__arrow-glyph {
+  color: var(--accent-strong);
+  font-size: var(--fs-2xl);
+  line-height: 1.4;
+}
+.word-equation__condition {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+.word-equation__operator {
+  font-size: var(--fs-xl);
+  color: var(--text-secondary);
+}
+.word-equation-hint { display: none; }
+@media (max-width: 480px) {
+  .word-equation { font-size: var(--fs-sm); }
+  .word-equation-hint {
+    display: block;
+    margin-block-end: var(--space-3);
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+  }
+}
