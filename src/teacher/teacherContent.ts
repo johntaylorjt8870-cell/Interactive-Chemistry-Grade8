@@ -4,6 +4,7 @@ import {
   bookActivitySolutions as lesson1Activities,
   bookQuestions as lesson1Questions,
   finalTest as lesson1FinalTest,
+  lesson1TeacherGuide,
 } from '@/data/curriculum/chemistryLesson1'
 import {
   bookActivitySolutions as lesson2Activities,
@@ -51,9 +52,10 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     lessonId: 'chem-u1-l1',
     label: 'الدرس الأول — كيمياء: الذرّة والعنصر',
     pages: 'الصفحات 3–12',
-    bookNote: 'تتضمن أسئلة أختبر نفسي كاملة وحلول النشاطات الواردة في سياق الدرس.',
+    bookNote: 'تتضمن أسئلة أختبر نفسي كاملة وحلول النشاطات الواردة في سياق الدرس، ودليلاً تعليمياً مفصلاً يغطي النماذج الذرية والتوزيع الإلكتروني والأيونات والنظائر وتمثيل لويس.',
     bookQuestions: [...lesson1Activities, ...lesson1Questions],
     finalTest: lesson1FinalTest,
+    conceptBlocks: lesson1TeacherGuide,
   },
   {
     lessonId: 'chem-u1-l2',

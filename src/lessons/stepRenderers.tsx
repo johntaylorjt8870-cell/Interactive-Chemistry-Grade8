@@ -2,7 +2,7 @@ import type { ComponentType, ReactNode } from 'react'
 import { ContentBlocks } from './ContentBlocks'
 import { STEP_KIND_META, type StepKindMeta } from './stepKinds'
 import { STEP_KINDS, type LessonStep, type StepKind } from '@/data/curriculum/schema'
-import { PlatformAddition, TextbookSource } from '@/scientific'
+import { PlatformAddition } from '@/scientific'
 
 export type StepRendererProps = {
   step: LessonStep
@@ -55,17 +55,31 @@ function StandardStep(props: StepRendererProps) {
 /**
  * A source step reproduces the textbook page content verbatim. Nothing in this
  * renderer may reformat, summarise or reorder the quoted material.
+ *
+ * Attribution is handled by block-level TextbookSource groups inside
+ * ContentBlocks — not by a step-level wrapper — to avoid double-wrapping
+ * when consecutive textbook-verbatim blocks are grouped together.
+ * A step-level page reference is shown as a quiet marker at the top.
  */
 function SourceStep(props: StepRendererProps) {
   const { step, renderQuestion, renderDiagram } = props
+  const pages = step.source?.pages.map((page) => page.page).filter(Boolean)
+  const items = step.source?.pages.map((page) => page.item).filter(Boolean)
+
   return (
     <StepFrame {...props}>
-      <TextbookSource
-        page={step.source?.pages.map((page) => page.page).join('، ')}
-        item={step.source?.pages.map((page) => page.item).filter(Boolean).join('، ') || undefined}
-      >
-        <ContentBlocks blocks={step.blocks} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
-      </TextbookSource>
+      {(pages?.length || items?.length) ? (
+        <p className="step__source-ref" aria-label={`مصدر الكتاب المدرسي: صفحات ${pages?.join('، ') || ''}`}>
+          <span className="step__source-ref-label">من الكتاب المدرسي</span>
+          {pages?.map((page, i) => (
+            <span key={i} className="step__source-ref-page">ص {page}</span>
+          ))}
+          {items?.map((item, i) => (
+            <span key={`item-${i}`} className="step__source-ref-item">{item}</span>
+          ))}
+        </p>
+      ) : null}
+      <ContentBlocks blocks={step.blocks} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
     </StepFrame>
   )
 }
@@ -127,13 +141,49 @@ function FinalTestStep(props: StepRendererProps) {
   )
 }
 
+function DiscoveryStep(props: StepRendererProps) {
+  const { step, renderQuestion, renderDiagram } = props
+  return (
+    <StepFrame {...props}>
+      <div className="discovery-panel">
+        <ContentBlocks blocks={step.blocks} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
+      </div>
+    </StepFrame>
+  )
+}
+
+function DeepExplanationStep(props: StepRendererProps) {
+  const { step, renderQuestion, renderDiagram } = props
+  return (
+    <StepFrame {...props}>
+      <PlatformAddition variant="badge" className="step__attribution" />
+      <div className="deep-explanation">
+        <ContentBlocks blocks={step.blocks} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
+      </div>
+    </StepFrame>
+  )
+}
+
+function ComparisonStep(props: StepRendererProps) {
+  const { step, renderQuestion, renderDiagram } = props
+  return (
+    <StepFrame {...props}>
+      <div className="comparison-panel">
+        <ContentBlocks blocks={step.blocks} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
+      </div>
+    </StepFrame>
+  )
+}
+
 /* ---------------------------------------------------------------------------
    Registry — the extension point for new step kinds
    ------------------------------------------------------------------------ */
 
 export const STEP_RENDERERS: Record<StepKind, ComponentType<StepRendererProps>> = {
+  discovery: DiscoveryStep,
   source: SourceStep,
   explanation: StandardStep,
+  'deep-explanation': DeepExplanationStep,
   example: StandardStep,
   experiment: StandardStep,
   simulation: StandardStep,
@@ -142,6 +192,7 @@ export const STEP_RENDERERS: Record<StepKind, ComponentType<StepRendererProps>> 
   apply: StandardStep,
   note: NoteStep,
   'common-error': CommonErrorStep,
+  comparison: ComparisonStep,
   summary: SummaryStep,
   'final-test': FinalTestStep,
 }

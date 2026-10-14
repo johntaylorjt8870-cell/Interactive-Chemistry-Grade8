@@ -39,15 +39,84 @@ export type ContentBlocksProps = {
  * Lesson files stay pure data: no JSX is stored in content, so textbook
  * material can be reviewed (and diffed against the source pages) without
  * reading rendering code.
+ * 
+ * Groups consecutive textbook-verbatim blocks with the same source into a
+ * single TextbookSource wrapper to avoid repetitive "من الكتاب المدرسي" badges.
  */
 export function ContentBlocks({ blocks, renderQuestion, renderDiagram }: ContentBlocksProps) {
+  const groupedBlocks = groupTextbookBlocks(blocks)
+  
   return (
     <div className="content-blocks">
-      {blocks.map((block, index) => (
-        <Block key={index} block={block} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
-      ))}
+      {groupedBlocks.map((group, index) => {
+        if (group.kind === 'textbook-group') {
+          const firstBlock = group.blocks[0]
+          const page = firstBlock?.source.page
+          // Collect all unique item references from the group
+          const items = group.blocks
+            .map((b) => b.source.item)
+            .filter((item): item is string => !!item)
+          const item = items.length > 0 ? items.join('، ') : undefined
+          return (
+            <TextbookSource key={index} page={page} item={item}>
+              {group.blocks.map((block, blockIndex) => (
+                <p key={blockIndex} className="textbook-source__text">
+                  <ScientificNotationText as="span" scienceVariant="textual">
+                    {block.text}
+                  </ScientificNotationText>
+                </p>
+              ))}
+            </TextbookSource>
+          )
+        }
+        return <Block key={index} block={group} renderQuestion={renderQuestion} renderDiagram={renderDiagram} />
+      })}
     </div>
   )
+}
+
+type GroupedBlock = 
+  | ContentBlock 
+  | { kind: 'textbook-group'; blocks: Array<Extract<ContentBlock, { kind: 'textbook-verbatim' }>> }
+
+/**
+ * Groups consecutive textbook-verbatim blocks that share the same source page
+ * into a single TextbookSource wrapper. When the page reference changes, a
+ * new group starts — so blocks from different pages are never merged under
+ * a single attribution footer.
+ */
+function groupTextbookBlocks(blocks: ContentBlock[]): GroupedBlock[] {
+  const result: GroupedBlock[] = []
+  let currentGroup: Array<Extract<ContentBlock, { kind: 'textbook-verbatim' }>> | null = null
+  let currentPage: string | null = null
+
+  function flushGroup() {
+    if (currentGroup && currentGroup.length > 0) {
+      result.push({ kind: 'textbook-group', blocks: currentGroup })
+    }
+    currentGroup = null
+    currentPage = null
+  }
+
+  for (const block of blocks) {
+    if (block.kind === 'textbook-verbatim') {
+      const page = block.source.page
+      if (currentGroup && page !== currentPage) {
+        flushGroup()
+      }
+      if (!currentGroup) {
+        currentGroup = []
+        currentPage = page
+      }
+      currentGroup.push(block)
+    } else {
+      flushGroup()
+      result.push(block)
+    }
+  }
+
+  flushGroup()
+  return result
 }
 
 function Block({
@@ -64,17 +133,6 @@ function Block({
       const content = block.attribution === 'platform' ? <PlatformAdditionBlock text={block.text} /> : <Prose text={block.text} />
       return content
     }
-
-    case 'textbook-verbatim':
-      return (
-        <TextbookSource page={block.source.page} item={block.source.item}>
-          <p className="textbook-source__text">
-            <ScientificNotationText as="span" scienceVariant="textual">
-              {block.text}
-            </ScientificNotationText>
-          </p>
-        </TextbookSource>
-      )
 
     case 'list':
       return block.ordered ? (

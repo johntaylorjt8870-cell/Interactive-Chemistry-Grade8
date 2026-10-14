@@ -1,0 +1,357 @@
+/* ============================================================================
+   Enhanced Lesson Design System
+   Visual hierarchy for discovery, deep explanations, and comparisons
+   ========================================================================= */
+
+/* --- Discovery Panel ------------------------------------------------------ */
+
+.discovery-panel {
+  margin-block: var(--space-6);
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 8%, var(--surface-base)),
+    color-mix(in srgb, var(--subject-support) 4%, var(--surface-base))
+  );
+  border: 2px solid var(--accent-border);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.discovery-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 12%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+[data-theme='dark'] .discovery-panel {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 12%, var(--surface-raised)),
+    color-mix(in srgb, var(--subject-support) 6%, var(--surface-raised))
+  );
+  border-color: var(--accent-border);
+}
+
+.discovery-panel .content-blocks > * {
+  position: relative;
+  z-index: 1;
+}
+
+.discovery-panel h3,
+.discovery-panel h4 {
+  font-size: var(--fs-2xl);
+  color: var(--accent-strong);
+  margin-block-end: var(--space-4);
+  font-weight: var(--fw-bold);
+}
+
+[data-theme='dark'] .discovery-panel h3,
+[data-theme='dark'] .discovery-panel h4 {
+  color: var(--accent);
+}
+
+.discovery-panel p {
+  font-size: var(--fs-lg);
+  line-height: var(--lh-relaxed);
+  color: var(--text-primary);
+}
+
+.discovery-panel .callout {
+  background: var(--surface-base);
+  border-color: var(--accent-border-strong);
+}
+
+/* --- Deep Explanation Panel ----------------------------------------------- */
+
+.deep-explanation {
+  margin-block: var(--space-6);
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  border-right: 4px solid var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme='dark'] .deep-explanation {
+  background: var(--surface-raised);
+  border-right-color: var(--accent);
+}
+
+.deep-explanation > * + * {
+  margin-block-start: var(--space-5);
+}
+
+.deep-explanation h3,
+.deep-explanation h4 {
+  font-size: var(--fs-xl);
+  color: var(--accent-strong);
+  margin-block-end: var(--space-3);
+  font-weight: var(--fw-bold);
+}
+
+[data-theme='dark'] .deep-explanation h3,
+[data-theme='dark'] .deep-explanation h4 {
+  color: var(--accent);
+}
+
+.deep-explanation p {
+  font-size: var(--fs-base);
+  line-height: var(--lh-relaxed);
+  color: var(--text-primary);
+}
+
+.deep-explanation .callout {
+  margin-block: var(--space-5);
+}
+
+/* --- Comparison Panel ----------------------------------------------------- */
+
+.comparison-panel {
+  margin-block: var(--space-6);
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme='dark'] .comparison-panel {
+  background: var(--surface-raised);
+  border-color: var(--border-soft);
+}
+
+.comparison-panel h3,
+.comparison-panel h4 {
+  font-size: var(--fs-xl);
+  color: var(--text-strong);
+  margin-block-end: var(--space-4);
+  font-weight: var(--fw-bold);
+}
+
+.comparison-panel .scientific-table {
+  margin-block: var(--space-5);
+}
+
+/* --- Step Source Reference (quiet inline marker for source steps) ---------- */
+
+.step__source-ref {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
+  padding-block-end: var(--space-2);
+  border-block-end: 1px solid var(--border-hairline);
+}
+
+.step__source-ref-label {
+  font-size: var(--fs-3xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  letter-spacing: var(--ls-wide);
+}
+
+.step__source-ref-page,
+.step__source-ref-item {
+  font-size: var(--fs-3xs);
+  color: var(--text-muted);
+  padding: 0 var(--space-2);
+}
+
+/* --- Enhanced Step Header ------------------------------------------------- */
+
+.step[data-step-kind='discovery'] .step__header {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 6%, transparent),
+    transparent
+  );
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  margin-block-end: var(--space-4);
+}
+
+.step[data-step-kind='deep-explanation'] .step__header {
+  border-right: 3px solid var(--accent);
+  padding-right: var(--space-4);
+}
+
+.step[data-step-kind='comparison'] .step__header {
+  border-bottom: 2px solid var(--border-soft);
+  padding-bottom: var(--space-3);
+}
+
+/* --- Step Kind Badges with Enhanced Styling ------------------------------- */
+
+.step__kind[data-tone='interact'] {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-sunken));
+  color: var(--accent-strong);
+  border-color: var(--accent-border);
+}
+
+[data-theme='dark'] .step__kind[data-tone='interact'] {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface-sunken));
+  color: var(--accent);
+}
+
+.step__kind[data-tone='explain'] {
+  background: color-mix(in srgb, var(--subject-support) 10%, var(--surface-sunken));
+  color: var(--subject-support);
+  border-color: color-mix(in srgb, var(--subject-support) 30%, transparent);
+}
+
+.step__kind[data-tone='source'] {
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+}
+
+/* --- Enhanced Content Blocks ---------------------------------------------- */
+
+.content-blocks > * + * {
+  margin-block-start: var(--space-4);
+}
+
+.content-blocks > h3 {
+  font-size: var(--fs-xl);
+  color: var(--text-strong);
+  margin-block-start: var(--space-6);
+  margin-block-end: var(--space-3);
+  font-weight: var(--fw-bold);
+}
+
+.content-blocks > h4 {
+  font-size: var(--fs-lg);
+  color: var(--text-strong);
+  margin-block-start: var(--space-5);
+  margin-block-end: var(--space-2);
+  font-weight: var(--fw-semibold);
+}
+
+/* --- Enhanced Callouts ---------------------------------------------------- */
+
+.callout {
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-base);
+}
+
+.callout--note {
+  background: color-mix(in srgb, var(--status-info-bg) 40%, var(--surface-base));
+  border-color: var(--status-info-border);
+}
+
+.callout--warning {
+  background: color-mix(in srgb, var(--status-warning-bg) 40%, var(--surface-base));
+  border-color: var(--status-warning-border);
+}
+
+.callout--method {
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface-base));
+  border-color: var(--accent-border);
+}
+
+[data-theme='dark'] .callout--method {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-raised));
+}
+
+.callout__title {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  margin-block-end: var(--space-2);
+}
+
+.callout__body {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+}
+
+/* --- Enhanced Summary Panel ----------------------------------------------- */
+
+.summary-panel {
+  margin-block: var(--space-8);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--subject-support) 8%, var(--surface-base)),
+    color-mix(in srgb, var(--accent) 4%, var(--surface-base))
+  );
+  border: 2px solid color-mix(in srgb, var(--subject-support) 30%, transparent);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme='dark'] .summary-panel {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--subject-support) 12%, var(--surface-raised)),
+    color-mix(in srgb, var(--accent) 8%, var(--surface-raised))
+  );
+  border-color: color-mix(in srgb, var(--subject-support) 40%, transparent);
+}
+
+.summary-panel h2,
+.summary-panel h3 {
+  font-size: var(--fs-2xl);
+  color: var(--text-strong);
+  margin-block-end: var(--space-4);
+  font-weight: var(--fw-bold);
+}
+
+.summary-panel ul,
+.summary-panel ol {
+  font-size: var(--fs-base);
+  line-height: var(--lh-relaxed);
+}
+
+.summary-panel li {
+  margin-block-end: var(--space-2);
+}
+
+/* --- Responsive Adjustments ----------------------------------------------- */
+
+@media (max-width: 768px) {
+  .discovery-panel,
+  .deep-explanation,
+  .comparison-panel,
+  .summary-panel {
+    padding: var(--space-4);
+  }
+
+  .discovery-panel h3,
+  .discovery-panel h4 {
+    font-size: var(--fs-xl);
+  }
+
+  .deep-explanation h3,
+  .deep-explanation h4,
+  .comparison-panel h3,
+  .comparison-panel h4 {
+    font-size: var(--fs-lg);
+  }
+}
+
+/* --- Print Adjustments ---------------------------------------------------- */
+
+@media print {
+  .discovery-panel,
+  .deep-explanation,
+  .comparison-panel,
+  .summary-panel {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}
