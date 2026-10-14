@@ -1,9 +1,9 @@
 import type { Question } from '@/assessment/types'
 import type { ContentBlock } from './schema'
 
-/** Source pages 24–29; intake and exact close-up resolutions are documented in
- * docs/source-reports/lesson4-chemical-reactions-intake.md. Solutions below are
- * authored by the platform, NOT answers printed in the supplied pages. */
+/** Source pages 24–29; the prior intake and the independent audit are recorded in
+ * docs/source-reports/lesson4-final-source-fidelity-audit.md. Solutions below
+ * are authored by the platform, NOT answers printed in the supplied pages. */
 const p = (page: string, item: string) => ({ page, item })
 const word = (reactants: string[], products: string[], condition?: string): ContentBlock => ({
   kind: 'word-equation', reactants, products, condition, attribution: 'platform',
@@ -105,7 +105,7 @@ export const bookActivitySolutions: Question[] = [
     ['أحدد أن الهيدروجين والأكسجين مادتان منفصلتان قبل التفاعل.', 'أحدد الماء بوصفه المادة الجديدة الناتجة.', 'أكتب معادلة لفظية بالأسماء، لا معادلة صيغ رمزية ولا وصفاً لامتزاج غازين دون تفاعل.'],
     [word(['الهيدروجين', 'الأكسجين'], ['الماء'])]),
 
-  short('l4-burner-observe1', '26', 'خطوات التنفيذ — الحالة (1)', 'أشعل الموقد في الحالة (1)، وأضع فوق اللهب صحن الخزف، ماذا ألاحظ؟',
+  short('l4-burner-observe1', '26', 'خطوات التنفيذ — الحالة (1)', 'أشعل الموقد كما في الحالة (1) وأضع فوق اللهب صحن الخزف، ماذا ألاحظ؟',
     'في الحالة (1) يكون اللهب أزرق ولا تظهر طبقة سوداء على صحن الخزف في النموذج المدرسي؛ دخول الهواء يسمح باحتراق تام.',
     ['أقرأ الحالة (1) في العمود الأيمن من الشكل.', 'أسجل اللهب الأزرق وعدم تشكل طبقة سوداء، ولا أتخيل قياس حرارة غير موجود.', 'أربط دخول الهواء بتوافر أكسجين كافٍ لاحتراق الوقود في ظروف هذا الموقد.']),
   short('l4-burner-observe2', '26', 'خطوات التنفيذ — الحالة (2)', 'ثم أغلق الثقب جزئياً في الحالة (2)، ماذا ألاحظ؟',
