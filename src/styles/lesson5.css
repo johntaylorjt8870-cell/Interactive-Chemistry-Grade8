@@ -1,0 +1,36 @@
+/* Lesson 5 only. Keep the long source table and the teacher's five lesson tabs within the page. */
+.lesson-shell[data-lesson-id='chem-u1-l5'] .lesson-outline__button[data-current='true'] .lesson-outline__index {
+  background: var(--palette-chem-700);
+  color: var(--palette-paper);
+}
+.lesson-shell[data-lesson-id='chem-u1-l5'] .lesson-rail__visited,
+.lesson-shell[data-lesson-id='chem-u1-l5'] .final-test__meta,
+.lesson-shell[data-lesson-id='chem-u1-l5'] .platform-addition-badge__en,
+.lesson-shell[data-lesson-id='chem-u1-l5'] .interactive-host__caption {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l5'] .teacher-answer-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+.teacher-section-page[data-lesson-id='chem-u1-l5'] .teacher-answer {
+  min-inline-size: 0;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l5'] .teacher-lesson-tabs {
+  flex-wrap: wrap;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l5'] .teacher-lesson-tab {
+  flex: 1 1 140px;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  text-align: center;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l5'] .teacher-lesson-tab[aria-current='page'] {
+  background: var(--palette-chem-700);
+  color: var(--palette-paper);
+}
+.teacher-section-page[data-lesson-id='chem-u1-l5'] .platform-addition-badge__en,
+.teacher-section-page[data-lesson-id='chem-u1-l5'] .eyebrow {
+  opacity: 1;
+  color: var(--text-secondary);
+}

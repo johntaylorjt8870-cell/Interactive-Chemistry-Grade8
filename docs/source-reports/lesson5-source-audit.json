@@ -1,0 +1,103 @@
+{
+  "lessonId": "chem-u1-l5",
+  "pages": ["30", "31", "32", "33", "34", "35"],
+  "sourceImageAvailability": "The original user-supplied page images are not present as files in this checkout. The working transcript and numerical data retained from the task are implemented; a second pixel-level review of small print and figure details is blocked.",
+  "items": [
+    {
+      "id": "L5-30-01",
+      "page": "30",
+      "stepId": "atom-count-source",
+      "kind": "activity-and-reaction-data",
+      "questionIds": ["l5-observe-atoms"],
+      "coverage": "The acetic-acid / sodium-hydrogen-carbonate atom-count activity is retained. Formula-derived totals are C=3, H=5, O=5, Na=1 on each side. The platform redraw labels itself as a count schematic, not the original book image or a molecular-geometry model."
+    },
+    {
+      "id": "L5-31-01",
+      "page": "31",
+      "stepId": "atom-count-explanation",
+      "kind": "law-explanation",
+      "questionIds": [],
+      "coverage": "Platform explanation covers conservation of atom type and count while particles are rearranged. The exact paragraph wording and small-print heading are not in the retained transcript; no verbatim prose is claimed for this row."
+    },
+    {
+      "id": "L5-31-02",
+      "page": "31",
+      "stepId": "mass-conservation-explanation",
+      "kind": "law-explanation",
+      "questionIds": [],
+      "coverage": "Platform explanation distinguishes total mass from a balance reading and records the open/closed boundary condition. The exact original wording is not quoted where it cannot be rechecked."
+    },
+    {
+      "id": "L5-32-01",
+      "page": "32",
+      "stepId": "mass-source-experiment",
+      "kind": "experiment-and-observation",
+      "questionIds": ["l5-calcium-observation", "l5-calcium-compare"],
+      "coverage": "The CaO / hydrochloric-acid prompt, reported products CaCl2 and H2O, and the two printed balance readings 125.100 are retained. No unit is visible in the retained record. No gas, colour, amount, or instrument detail is invented."
+    },
+    {
+      "id": "L5-32-02",
+      "page": "32",
+      "stepId": "lead-sulfur-source",
+      "kind": "table-data-reference",
+      "questionIds": [],
+      "coverage": "The lead/sulfur table data continue into the next printed page and are reproduced as an accessible platform table from the recorded values. The source prompt and answer table distinguish starting mass, reacted mass, product, and excess."
+    },
+    {
+      "id": "L5-33-01",
+      "page": "33",
+      "stepId": "lead-sulfur-source",
+      "kind": "table-question-and-branches",
+      "questionIds": ["l5-proust-table", "l5-trial1-mass-ratio", "l5-trial2-excess-sulfur", "l5-trial2-mass-ratio", "l5-trial3-mass-ratio", "l5-trial3-excess-lead"],
+      "coverage": "All recorded trial prompts/branches are included. Trial 2 uses 3-1.56=1.44 g excess sulfur; trial 3 uses 18-10=8 g excess lead. The ratio uses only masses that reacted."
+    },
+    {
+      "id": "L5-34-01",
+      "page": "34",
+      "stepId": "fixed-ratio-source-iron-sulfur",
+      "kind": "table-question",
+      "questionIds": ["l5-iron-sulfur-ratio-table"],
+      "coverage": "Iron/sulfur source values 56:32, 28:16, and 7:4 are presented in a platform-organized table with the ratio row left blank for the learner; the completed values are in the teacher solution."
+    },
+    {
+      "id": "L5-34-02",
+      "page": "34",
+      "stepId": "fixed-ratio-source-iron-sulfur",
+      "kind": "worked-source-application",
+      "questionIds": ["l5-iron-sulfur-60-30"],
+      "coverage": "The 60 g iron / 30 g sulfur question is solved proportionally: 52.5 g iron reacts, 7.5 g iron remains, and 82.5 g compound is calculated. These are derived values, not additional source measurements."
+    },
+    {
+      "id": "L5-34-03",
+      "page": "34",
+      "stepId": "fixed-proportions-explanation",
+      "kind": "law-explanation",
+      "questionIds": [],
+      "coverage": "Platform explanation differentiates the fixed mass ratio in one compound from the total sample mass and separates composition ratios from total-system mass."
+    },
+    {
+      "id": "L5-35-01",
+      "page": "35",
+      "stepId": "law-summary-source",
+      "kind": "self-test-question",
+      "questionIds": ["l5-selftest-water-ratio"],
+      "coverage": "The oxygen-to-hydrogen mass ratio prompt for water is retained and solved as 16/2=8:1."
+    },
+    {
+      "id": "L5-35-02",
+      "page": "35",
+      "stepId": "law-summary-source",
+      "kind": "self-test-question",
+      "questionIds": ["l5-selftest-atom-count", "l5-selftest-mass"],
+      "coverage": "Both recorded multiple-choice branches, atom count and total reactant mass, are retained with their printed option order."
+    },
+    {
+      "id": "L5-35-03",
+      "page": "35",
+      "stepId": "law-summary-source",
+      "kind": "self-test-table-and-branches",
+      "questionIds": ["l5-selftest-carbon-table", "l5-selftest-co-table", "l5-selftest-co-law", "l5-selftest-co-carbon-mass", "l5-selftest-co-oxygen-mass"],
+      "coverage": "The CO2 table and every recorded branch are included. The source's 32/12=2.66 is preserved verbatim in the source-table data and explicitly distinguished from 32/12=2.666… and conventional rounding to 2.67."
+    }
+  ]
+}

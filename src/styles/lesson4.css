@@ -36,6 +36,13 @@
   color: var(--palette-paper);
 }
 
+/* Keep small source references readable against the pale lesson surfaces. */
+.lesson-shell[data-lesson-id='chem-u1-l4'] .step__source-ref-page,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .step__source-ref-item,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .textbook-source__ref {
+  color: var(--text-secondary);
+}
+
 /* The inherited tiny English badge uses opacity, which fails contrast against
  * the new teacher-solution panels. Restore the existing strong badge color. */
 .teacher-section-page[data-lesson-id='chem-u1-l4'] .platform-addition-badge__en {

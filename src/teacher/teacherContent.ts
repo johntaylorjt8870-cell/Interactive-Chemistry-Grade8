@@ -23,6 +23,12 @@ import {
   finalTest as lesson4FinalTest,
   lesson4TeacherGuide,
 } from '@/data/curriculum/chemistryLesson4'
+import {
+  bookActivitySolutions as lesson5Activities,
+  bookQuestions as lesson5Questions,
+  finalTest as lesson5FinalTest,
+  lesson5TeacherGuide,
+} from '@/data/curriculum/chemistryLesson5'
 
 /**
  * Teacher-area content registry.
@@ -82,6 +88,15 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     finalTest: lesson4FinalTest,
     conceptBlocks: lesson4TeacherGuide,
     testAreaId: 'chem-u1-l4',
+  },
+  {
+    lessonId: 'chem-u1-l5',
+    label: 'الدرس الخامس — كيمياء: انحفاظ الكتلة والنسب الثابتة',
+    pages: 'الصفحات 30–35',
+    bookNote: 'حلول مشاهد عدّ الذرات، وقراءة تجربة الميزان، وجميع فروع جدولي الرصاص والكبريت والحديد والكبريت، وأسئلة «أختبر نفسي» بكل فروعها، مع شرح معلمي مفصل. اختبار هذا الدرس مستقل من 16 سؤالاً؛ لا يوجد بنك منفصل له.',
+    bookQuestions: [...lesson5Activities, ...lesson5Questions],
+    finalTest: lesson5FinalTest,
+    conceptBlocks: lesson5TeacherGuide,
   },
 ]
 

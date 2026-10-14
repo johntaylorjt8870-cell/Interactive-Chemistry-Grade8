@@ -8,12 +8,11 @@ import type { ComponentType } from 'react'
  * simulation in the book into the initial bundle.
  *
  * `BUILT_IN_INTERACTIVES` lists the labs and simulations used by the
- * source-verified Chemistry lessons 1–4. An interactive is only built and
- * registered after its textbook pages are supplied and read, and every entry
- * stays a platform addition rather than a reproduction of a textbook figure.
- * Further Chemistry modules are added here (or registered at runtime through
- * `defineInteractive`), and the host renders an explicit, honest state for
- * anything unregistered.
+ * source-verified Chemistry lessons. New lesson modules are platform additions,
+ * not reproductions of textbook figures; source values and model outputs stay
+ * explicitly distinguished. Further Chemistry modules are added here (or
+ * registered at runtime through `defineInteractive`), and the host renders an
+ * explicit, honest state for anything unregistered.
  */
 
 export type InteractiveKind = 'experiment' | 'simulation' | 'activity' | 'diagram'
@@ -55,6 +54,21 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     id: 'combustion-air-lab', title: 'الهواء والاحتراق التام وغير التام', kind: 'simulation',
     description: 'اختيار الحالتين المصدريتين لفتحة الهواء وملاحظة اللهب وصحن الخزف وتفسير السخام ونواتج احتراق الوقود.',
     load: () => import('./CombustionAirLab'),
+  },
+  {
+    id: 'lesson5-atom-count-lab', title: 'مختبر عدّ الذرات قبل التفاعل وبعده', kind: 'simulation',
+    description: 'حساب أعداد ذرات كل عنصر آلياً من صيغ تفاعل حمض الخل وبيكربونات الصوديوم، مع تحقق تفاعلي من إجابة الطالب.',
+    load: () => import('./AtomCountLab'),
+  },
+  {
+    id: 'lesson5-mass-boundary-lab', title: 'مختبر النظام المفتوح والمغلق', kind: 'simulation',
+    description: 'يفصل قراءة 125.100 المنقولة من الكتاب عن نموذج حسابي يوضح انتقال كتلة مادة عبر حدود النظام.',
+    load: () => import('./MassConservationLab'),
+  },
+  {
+    id: 'lesson5-fixed-ratio-lab', title: 'مختبر النسب الكتلية الثابتة', kind: 'simulation',
+    description: 'تطبيق نسب الحديد والكبريت أو الرصاص والكبريت على مدخلات الطالب وحساب الكتلة المتفاعلة والفائض كنموذج رياضي.',
+    load: () => import('./FixedRatioLab'),
   },
   {
     id: 'bohr-energy-transition',

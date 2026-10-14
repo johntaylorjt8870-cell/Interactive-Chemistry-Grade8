@@ -15,6 +15,7 @@
 
 /* New lesson-only browser-readability fixes. */
 @import './lesson4.css';
+@import './lesson5.css';
 
 /* Enhanced lesson design system for discovery, deep explanations, and comparisons. */
 @import './enhanced-lesson.css';
