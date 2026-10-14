@@ -71,7 +71,7 @@ export function ScientificTable({
   const hasHeaderUnits = columns.some((column) => column.unit !== undefined && column.unit !== null)
 
   return (
-    <div className={['sci-table-wrapper', className].filter(Boolean).join(' ')}>
+    <div className={['sci-table-wrapper', className].filter(Boolean).join(' ')} tabIndex={0}>
       <table
         className={['sci-table', `sci-table--${density}`, stickyHeader ? 'sci-table--sticky' : null]
           .filter(Boolean)
