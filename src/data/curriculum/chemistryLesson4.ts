@@ -5,11 +5,10 @@ import { finalTest } from './chemistryLesson4Test'
 
 export { bookActivitySolutions, bookQuestions, finalTest }
 
-/** Source-first implementation with an independent final audit.
- * The prior intake report said C1/C2 were resolved from close-ups, but this
- * audit could not re-read the tiny p24 caption from the six full-page images.
- * Figures remain descriptive references, not scans or exact reproductions.
- * See docs/source-reports/lesson4-final-source-fidelity-audit.md. */
+/** Source-first implementation with an independent final audit and caption follow-up.
+ * The first audit could not re-read the tiny p24 caption at full-page scale; the
+ * user-provided crop now verifies it. Figures remain descriptive references,
+ * not scans or exact reproductions. See the final source-fidelity audit. */
 const ref = (page: string, item?: string) => ({ page, item })
 const source = (page: string, item: string) => ({ pages: [ref(page, item)], verified: true })
 const quote = (page: string, text: string, item?: string): ContentBlock => ({ kind: 'textbook-verbatim', text, source: ref(page, item) })
@@ -49,7 +48,7 @@ const steps: LessonStep[] = [
   {
     id: 'observe-reactions', kind: 'source', title: 'التفاعل الكيميائي: ألاحظ وأجيب', attribution: 'textbook', source: source('24', 'التفاعل الكيميائي — ألاحظ وأجيب'),
     blocks: [quote('24', 'التفاعل الكيميائي:'), quote('24', 'ألاحظ وأجيب:'), lesson4Figures.observations,
-      quote('24', 'إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)', 'تعليق الصورة اليمنى — نص سابق غير متحقق'),
+      quote('24', 'إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)', 'تعليق الصورة اليمنى'),
       ...q('l4-observe-lemon', 'l4-observe-javel', 'l4-observe-limewater', 'l4-observe-name'),
     ],
   },
@@ -172,7 +171,7 @@ export const chemistryLesson4: LessonDefinition = {
   id: 'chem-u1-l4', slug: 'chemical-reactions', title: 'الدرس الرابع — التفاعلات الكيميائية', order: 4, status: 'source-verified',
   source: {
     pages: ['24', '25', '26', '27', '28', '29'].map((page) => ref(page)), verified: true,
-    readability: { arabicText: 'clear', latinText: 'clear', equations: 'clear', numbers: 'clear', units: 'clear', tables: 'clear', diagrams: 'partial', experiments: 'clear', questions: 'clear', notes: 'Two source-wording mismatches (p26 procedure; p27 gas-note pronoun) were corrected from the attached pages. The exact small red caption in the p24 right-hand photo is not legible in the full-page attachment and was not available as a local close-up; its earlier transcription is not independently re-certified here. Original image files are unavailable locally; all figure blocks are descriptive references, not reproduced scans. No measured quantities or tables are printed.' },
+    readability: { arabicText: 'clear', latinText: 'clear', equations: 'clear', numbers: 'clear', units: 'clear', tables: 'clear', diagrams: 'partial', experiments: 'clear', questions: 'clear', notes: 'Two source-wording mismatches (p26 procedure; p27 gas-note pronoun) were corrected from the attached pages. A user-provided p24 crop confirms that the red right-photo caption reads exactly «إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)»; the existing lesson quotation matched it and was retained. The original photograph is not embedded: figure blocks remain descriptive references, not reproduced scans. No measured quantities or tables are printed.' },
   },
   summary: 'التفاعل الكيميائي ومواده، المعادلات اللفظية، احتراق المغنزيوم، أثر الأكسجين في الاحتراق التام وغير التام، الغاز المنزلي وخطر أحادي أكسيد الكربون، والكشف عن ثنائي أكسيد الكربون.',
   steps, tests: [bookAssessment, finalTest],

@@ -3,11 +3,15 @@
 **Lesson:** «التفاعلات الكيميائية» (printed lesson number **4**).
 **Source:** the six textbook page images displayed in the Arena task, printed pages **24–29**.
 **Intake date:** 2026-10-13.
-**Historical implementation-intake status:** the prior report recorded that two close-ups and a caption transcription had cleared the source text for implementation. The independent final audit below rechecks those claims against the six full-page images attached in this task; the p24 red caption remains unreadable at this resolution.
+**Historical implementation-intake status:** the prior report recorded that two close-ups and a caption transcription had cleared the source text for implementation. The first independent final audit could not read the p24 red caption at full-page scale; a user-supplied crop on 2026-10-14 closed that remaining text check (see follow-up below).
 
-The initial intake below was completed before coding. The clarification history is preserved; the implementation audit in sections 8–9 records actual coverage and verification separately.
+The initial intake below was completed before coding. The clarification history is preserved; the implementation audit in sections 8–9 records actual coverage and verification separately. A dated follow-up below supersedes earlier statements that C1 remained unresolved.
 
 This report was written before implementation. Arabic quotations below are an intake transcription of the visible images, not a replacement source. The images and any subsequent source close-ups remain authoritative. Uncertain text is explicitly flagged; it must not be promoted to `source-verified` or silently completed.
+
+### Follow-up: p24 caption verified (2026-10-14)
+
+The supplied close crop reads «إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)» across two lines. I compared it with the existing source quotation; it matches exactly. The text was already correct, so only the stale unverified source locator was removed. The original photo is still not present in the app or workspace; no figure-reproduction claim is made.
 
 ## 1. Repository intake
 
@@ -37,26 +41,26 @@ No application code, existing lesson content, renderer styles, contact chip, tes
 
 ## 2. Attachment manifest and readability
 
-The task advertises `/home/user/uploads/image-1.png` through `image-6.png`. Attempts to read each file failed with `File not found`; `/home/user/uploads` does not exist in this checkout. The six images **are visible in the task message**, and were inspected there. Consequently, lossless crops, enlarged pixel inspection, and source-image assets cannot yet be produced from local originals.
+The six full-page images were visible inline, but their advertised `/home/user/uploads/image-1.png` through `image-6.png` files were not mounted in this checkout. A sharper p24 caption crop was later supplied inline on 2026-10-14 and is legible enough to verify the text. The crop is not accessible as a local file, so it cannot be retained or used for pixel comparison of the original artwork; no original PDF or full-resolution page asset is available locally.
 
 | Advertised attachment | Printed page | Visible extent | Readability / issue |
 | --- | --- | --- | --- |
-| `image-1.png` | **24**, bottom right | Full lesson-opening page | Main Arabic text, lesson number, goals and questions readable. Three photos visible. The tiny red, two-line embedded caption in the right-hand photograph is only partially readable; clarification **C1** is blocking. |
+| `image-1.png` | **24**, bottom right | Full lesson-opening page | Main Arabic text, lesson number, goals and questions readable. Three photos visible. The tiny red, two-line caption was confirmed from the follow-up crop supplied 2026-10-14; C1 is closed. |
 | `image-2.png` | **25**, bottom left | Full page | Magnesium experiment, definition, indicators and three-part activity readable. Word-equation blanks, `+`, forward arrow, and heating condition visible. No measured values or units. |
-| `image-3.png` | **26**, bottom right | Full page | Two word-equation activities, Bunsen-burner experiment, flame/plate figure and combustion conclusions visible. Close-up requested for exact small-word transcription in the final comparison prompt (**C2**, not a guessed correction). |
+| `image-3.png` | **26**, bottom right | Full page | Two word-equation activities, Bunsen-burner experiment, flame/plate figure and combustion conclusions visible. The final comparison prompt (**C2**) was independently checked and confirmed readable. |
 | `image-4.png` | **27**, bottom left | Full page | Domestic gas note, `(CO)`, research task and summary visible. Book wording about checking for a leak must be retained, not silently edited to its opposite. |
 | `image-5.png` | **28**, bottom right | Full page | Self-test questions 1–3, all four-option MC items, three incomplete word equations, and three equation-writing prompts visible. |
 | `image-6.png` | **29**, bottom left | Full page | Self-test questions 4–6 visible; right blue-flame photograph labelled `(1)` and left yellow-flame/plate illustration labelled `(2)`. Large blank lower area contains no additional visible teaching content. |
 
 The sequence has no missing page number: **24, 25, 26, 27, 28, 29**. No heading or exercise is visibly cut off at the page boundary. The supplied sequence appears to cover the complete lesson through the final exercise; that does not establish that any unseen material exists or does not exist elsewhere in the book.
 
-### Clarification history (closed before implementation)
+### Clarification history and current follow-up status
 
-- **C1 — page 24, right-hand photograph:** provide a sharp close-up or the exact red caption printed over the lower edge of the foaming-glass photograph. The visible beginning reads «إضافة قطرات ليمون إلى …»; the remaining words and parentheses cannot be confidently transcribed. No guessed completion is recorded here.
-- **C2 — page 26, Bunsen experiment, numbered prompt 4:** provide a close-up of the final line so its exact phrasing around «بين … (1) … (2)» can be preserved. The scientific task is plainly comparison of combustion products in the two pictured conditions, but the small connecting words must not be reconstructed from expectation.
-- **C3 — source file availability:** preferably reattach the six originals, or provide a PDF of pages 24–29. The advertised local files are unavailable, so reference/cropped images cannot yet be retained. If originals remain unavailable, simple, clearly labelled platform schematics and explicit printed-page references can preserve the meaning of figures; no invented photograph may be described as the textbook figure. C1 and C2 still require resolution.
+- **C1 — page 24, right-hand photograph — closed 2026-10-14:** the user supplied a sharp crop. The red caption reads «إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)», matching the existing lesson quotation exactly. No wording change was needed.
+- **C2 — page 26, Bunsen experiment, numbered prompt 4 — closed in the independent audit:** the full-page attachment is legible enough to confirm «أقارن نواتج الاحتراق بين الحالة (1) والحالة (2).»; no close-up or inferred wording was used.
+- **C3 — source file availability:** the original PDF/full-resolution pages are still not present locally, so the supplied crop cannot be retained as a repository asset and the original figures cannot be pixel-compared. Descriptive references remain appropriate; no invented photograph is described as the textbook figure. C1 is closed; C2 was independently checked against page 26.
 
-**Prior intake resolution (recorded before this independent audit):** the implementation report says that two close-ups and an exact caption transcription had been supplied. In this audit, the attachment manifest contains only the six full-page images, and `/home/user/uploads` is absent. The exact red caption over the page-24 right-hand photo is too small to independently confirm from the attached full-page image; the earlier transcription («إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)») is retained as a prior claim, not re-certified here. The page-26 comparison prompt C2 is legible in the attached page and was checked independently. Original scan files are not locally available, so figure pixels cannot be compared; descriptive page references remain honest fallbacks. See `lesson4-final-source-fidelity-audit.md` for the row-by-row decision.
+**Prior intake / independent-audit history:** the first independent audit could not re-read the caption from the full-page raster, so it left the earlier transcription provisional. On 2026-10-14, the user supplied a legible close crop; it confirms «إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)» exactly. The p26 comparison prompt C2 was independently verified from the page. Original scan files remain unavailable locally, so figure pixels cannot be compared; descriptive page references are not exact reproductions. See `lesson4-final-source-fidelity-audit.md` for current row statuses.
 
 ## 3. Complete page-by-page intake
 
@@ -85,7 +89,7 @@ Quotation punctuation is transcribed to the extent legible; line wrapping is not
 
 A horizontal group of three photographs appears before the questions. Reading in Arabic order:
 
-1. **Right:** a glass with overflowing foam, liquid being added, and lemon visible at the work surface. The prior intake transcribed the red caption as **«إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)»**; that exact wording is too small to re-read in the full-page image supplied for the independent audit and remains unverified here.
+1. **Right:** a glass with overflowing foam, liquid being added, and lemon visible at the work surface. The red caption, verified against the 2026-10-14 user crop, reads **«إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)»**. The app preserves this wording and the educational observation in a descriptive reference, not by reproducing the photograph.
 2. **Centre:** a gas-delivery arrangement with heated material, funnel/tube, and a receiving bottle with cloudy white liquid. It illustrates the carbon-dioxide/limewater observation. No apparatus dimensions, amounts, concentration, timing, or numerical labels are provided.
 3. **Left:** light liquid applied to a dark coloured textile, with lighter/pinkish patches. It illustrates the eau-de-Javel/coloured-clothes observation. No chemical concentration or amount is given.
 
@@ -363,7 +367,7 @@ This register distinguishes **printed source notation** from scientifically appr
 | L4-24-02 | 24 | «الأهداف» and all six goals | `opening`: complete source list | Explain how goals map to activities, clearly platform-authored. |
 | L4-24-03 | 24 | «الكلمات المفتاحية» and all six terms in order | `opening`: exact source term run; optional separate platform glossary | Preserve all terms without substituting definitions for the printed list. |
 | L4-24-04 | 24 | «التفاعل الكيميائي» and «ألاحظ وأجيب» | `observe-reactions` source headings | Observation concept explanation. |
-| L4-24-05 | 24 | Right photo + embedded red caption | `observe-reactions`: descriptive reference; no source photo asset | Prior caption transcript is retained but not independently verified from the attached full-page image; see final audit. |
+| L4-24-05 | 24 | Right photo + embedded red caption | `observe-reactions`: exact caption quote plus descriptive reference; no source photo asset | Caption verified from the user crop; the original photo itself is not reproduced. |
 | L4-24-06 | 24 | Central gas/limewater apparatus photo | `observe-reactions`: figure and page reference | Explain gas passed through limewater; no invented apparatus dimensions. |
 | L4-24-07 | 24 | Left fabric/Javel photo | `observe-reactions`: figure and page reference | Explain visible decolouration. Never suggest mixing bleach with acid. |
 | L4-24-08a | 24 | Lemon acid / bicarbonate observation question | `observe-reactions`: full source prompt with response field | Complete observation-and-inference solution, distinct from quotation. |
@@ -418,7 +422,7 @@ This register distinguishes **printed source notation** from scientifically appr
 - All source word-equation blanks, material-role labels, `+` operators, forward arrows and the single heating condition accounted for.
 - `CO`, Roman `II`, all figure labels and MC option labels accounted for.
 - No textbook tables, measured values, numeric laws or calculations were found. None should be invented.
-- **All 48 implementation-coverage assertions pass.** They show that the lesson data matches its repo-authored JSON inventory, not that the inventory is faithful to image pixels. The independent final audit below supersedes the intake report's earlier C1/C2 closure claim and assigns source-to-implementation statuses.
+- **All 48 implementation-coverage assertions pass.** They show that lesson data matches its repo-authored JSON inventory, not that the inventory is faithful to image pixels. The first independent audit rechecked C2 and left C1 provisional; the 2026-10-14 crop follow-up now closes C1. The final audit records current source-to-implementation statuses.
 
 ## 6. Supplementary learning design (not textbook content)
 
@@ -468,7 +472,7 @@ The latest main already contains an older **interim** Unit 1 bank scoped to Less
 - [x] Inspect existing source policy and latest successfully implemented lesson.
 - [x] Inspect all six displayed images and map every source element.
 - [x] Document unreadable content and missing file availability rather than guess.
-- [x] Prior intake report recorded C1/C2 as resolved from close-ups; the independent final audit could re-verify C2 from the attached page but not C1's tiny caption (see the final-audit addendum).
+- [x] Follow-up source evidence: the 2026-10-14 user crop resolves C1 and matches the existing p24 caption; C2 was independently verified from the attached p26 page.
 - [x] Document C3: files unavailable; precise descriptive textbook references, with separately labelled platform schematics, will preserve figures.
 - [x] Inspect actual shared scientific rendering before use: baseline `npm run build` passed; `npm test` passed (713 tests / 30 files); `npm run verify:badges` passed (33 checks / 0 failures). Actual showcase and electron-badge screenshots were viewed; charges are raised to the right, and the sulfate subscript is correctly lowered. No shared charge defect was found.
 
@@ -489,7 +493,7 @@ The latest main already contains an older **interim** Unit 1 bank scoped to Less
 - [x] Final diff audit: no previous-lesson content or unrelated styles changed; no new unit final test.
 - [ ] Delivery gate: open the one dedicated Lesson 4 PR from the fixed branch as the final operation. Its URL will be returned in the Arena completion message; do not merge or start Lesson 5.
 
-**Prior implementation source gate (historical):** the original intake report declared C1 and C2 resolved and proceeded with descriptive figure references. The independent final audit supersedes that declaration for current source-fidelity claims: C2 is reverified, while the exact p24 caption remains unresolved.
+**Prior implementation source gate (historical):** the original intake report declared C1 and C2 resolved. The first independent audit could re-verify C2 but not C1 at full-page scale; the user-provided crop on 2026-10-14 now verifies C1. Descriptive figure references still do not claim exact artwork reproduction.
 
 
 
@@ -500,7 +504,7 @@ The latest main already contains an older **interim** Unit 1 bank scoped to Less
 - All **six pages 24–29** are present in original topic/page order, through all six «أختبر نفسي» groups. There are **27 student steps**, **20 in-context source question units + 13 self-test units = 33**, all reached once in the source flow.
 - The **48-row coverage inventory** above is paired with `lesson4-source-audit.json`. Its automated assertions prove that the implementation matches the repository-authored inventory; by themselves they do **not** prove that either transcription matches the textbook images. The independent image comparison and per-row statuses are in `lesson4-final-source-fidelity-audit.md`.
 - Six goals, six ordered key terms, apparatus/procedures/qualitative amounts, repeated definitions/summaries, four MC stems and all **16 options**, all other questions/subparts, `CO`, `II`, source numbering and reaction signs are represented. Two source-wording errors were found and corrected: «كما في الحالة (1)» on p26 and «لها رائحة قوية» on p27.
-- The earlier caption transcript **«إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)»** remains in the implementation but could not be independently verified from the current full-page image; do not treat it as source-confirmed. C2 **«أقارن نواتج الاحتراق بين الحالة (1) والحالة (2).»** is independently legible and verified.
+- The p24 caption **«إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)»** was confirmed word-for-word against the 2026-10-14 user crop and already matched the lesson quote. C2 **«أقارن نواتج الاحتراق بين الحالة (1) والحالة (2).»** is independently legible and verified.
 - Four visibly descriptive reference groups cover the three p24 photographs, p25 magnesium photo, four p26 panels, and two p29 figures. Right **1 = blue/clean**; left **2 = yellow/black** is explicit. **C3 remains a source-file limitation**: no scan/crop was retained, and no invented illustration is passed off as an original. These references preserve meaning and locators, not pixel fidelity.
 - Source blanks remain empty in the textbook material. Mg heating stays above its arrow; both reactant roles and the product role remain below. The p28 equations retain their original LTR reactant order (oxygen/magnesium; zinc/sulfur; sulfur/iron). Filled equations/formulas are separately platform-labelled solutions.
 - No quantitative law, measurements, balanced symbolic source equation, numeric oxygen ratio, duration or temperature was invented. The two numerical final items count **named substances** in a platform question; they are not invented physical measurements.
@@ -605,6 +609,20 @@ Shared changes are narrowly necessary integrations: optional source materials/in
 Evidence is locally reproducible under ignored `artifacts/lesson4/`: full/targeted/badge logs, browser `report.json`, geometry records, and **33 viewport screenshots**. It is deliberately not committed as a generated dataset. Actual desktop/mobile screenshots were opened and inspected, including source/reference panels, Mg burning/product, the lemon observation, burner states, iron/sulfur builder, both assessments and Teacher guide/solutions. All three observation scenarios were also exercised with exact state/output assertions. The initially observed sticky-header screenshot/click artifacts were corrected in the harness (instant centered pointer scrolling and actual viewport captures), not by moving the unchanged contact bar.
 
 Real-browser findings were **fixed, not suppressed**: inherited low-contrast new-lesson microcopy/current index and teacher English badges; auto-minimum grid overflow in the new teacher cards; hidden intrinsic lab overflow; and keyboard access to narrow word-equation scrollers. Styles are Lesson 4 scoped; the new renderer also exposes a clearly platform-labelled narrow-screen scroll hint. Long reaction chains intentionally scroll horizontally inside their focusable component, never reverse or force page-level overflow. Keyboard Enter/arrow scrolling, true lower `CO₂` subscript geometry, isolated Roman `II`, heating above its arrow, reset behavior and reduced-motion states were actually exercised. Existing charges remain raised to the right, as confirmed by the 33-check browser regression.
+
+### 2026-10-14 caption-follow-up verification
+
+After updating the source locator, audit text, and regression checks:
+
+| Check | Follow-up result |
+| --- | --- |
+| `npm run verify` | **Passed** TypeScript, production build, postbuild/deep-link and distribution checks; **829 passed, 2 skipped across 31 test files**. |
+| `npm test -- tests/lesson4.test.tsx` | **116 passed / 0 failed**. |
+| `npm run verify:lesson4` | Production Chromium: **429 passed / 0 failed** at desktop, mobile and 320px stress; the p24 caption matched the crop verbatim and remained RTL on desktop and mobile. |
+| `npm run verify:badges` | **33 passed / 0 failed**. |
+| `git diff --check`; `node --check scripts/verify-lesson4-rendering.mjs` | Both passed. |
+
+The p24 quote already matched the crop, so no textbook wording was changed. The existing right-photo reference remains descriptive, not a scan or reconstruction.
 
 ### Reproduction and limits
 

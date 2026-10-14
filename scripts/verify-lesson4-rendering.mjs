@@ -227,6 +227,13 @@ try {
       if (['opening', 'magnesium-word-activity', 'book-question-2', 'book-question-6'].includes(item.id)) await shot(page, item.id, '.lesson-shell__main')
     }
     check('all 33 source activity/self-test units reached', reached.size === 33, [...reached])
+    await step(page, 'observe-reactions')
+    const p24Caption = await page.$$eval('.textbook-source', (nodes) => nodes.map((node) => ({
+      text: node.querySelector('.textbook-source__text')?.textContent.trim(),
+      item: [...node.querySelectorAll('.textbook-source__ref')].map((ref) => ref.textContent.trim()),
+      direction: getComputedStyle(node.querySelector('.textbook-source__body')).direction,
+    })).find((block) => block.text === 'إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)'))
+    check('p24 red caption matches the supplied crop verbatim in RTL source text', Boolean(p24Caption) && p24Caption.item.includes('تعليق الصورة اليمنى') && p24Caption.direction === 'rtl', p24Caption)
     await step(page, 'word-equation-activities')
     const sourceII = await page.$eval('.question[data-question="l4-word-iron"] .sci[dir="ltr"]', (node) => ({
       text: node.textContent, direction: getComputedStyle(node).direction,

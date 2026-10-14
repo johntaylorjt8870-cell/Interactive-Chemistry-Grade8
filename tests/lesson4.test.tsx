@@ -191,6 +191,18 @@ describe('Lesson 4 registration, sequence and source audit', () => {
     expect(gasNote).not.toContain('(المركبتان) له رائحة قوية')
   })
 
+  it('matches the p24 red caption to the user-supplied crop without altering its wording', () => {
+    const captionText = 'إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)'
+    const caption = chemistryLesson4.steps.find((step) => step.id === 'observe-reactions')?.blocks.find(
+      (block) => block.kind === 'textbook-verbatim' && block.text === captionText,
+    )
+    expect(caption).toMatchObject({
+      kind: 'textbook-verbatim', text: captionText,
+      source: { page: '24', item: 'تعليق الصورة اليمنى' },
+    })
+    expect(inventory.items.find((item) => item.id === 'L4-24-05')?.texts).toContain(captionText)
+  })
+
   it('registers four lazy purposeful interactives, each labelled as platform-authored', async () => {
     const blocks = chemistryLesson4.steps.flatMap((step) => step.blocks).filter((block) => block.kind === 'interactive')
     const ids = blocks.map((block) => block.kind === 'interactive' ? block.interactiveId : '')

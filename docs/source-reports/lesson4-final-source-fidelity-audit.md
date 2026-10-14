@@ -4,7 +4,8 @@
 **Source pages:** 24–29 (six attached page images)
 **Implementation audited:** PR #18, head `10f9fed13c60fe4265b2e8b90407ac147673507a`
 **Audit/correction base:** PR #18 head; PR #18 itself is unchanged
-**Audit date:** 2026-10-13
+**Initial audit date:** 2026-10-13
+**Caption follow-up:** 2026-10-14 (user-supplied crop)
 
 ## Finding summary
 
@@ -15,15 +16,15 @@ The image-to-implementation comparison found and corrected two demonstrable word
 1. **Page 26, Bunsen procedure:** the implementation had «أشعل الموقد في الحالة (1)»; the attached page reads «أشعل الموقد كما في الحالة (1)». The source prompt and audit inventory now use the latter wording.
 2. **Page 27, household-gas note:** the implementation had «(المركبتان) له رائحة قوية»; the attached page reads «(المركبتان) لها رائحة قوية». The source quote and audit inventory now use «لها».
 
-The exact tiny red caption over the **right-hand p24 photograph** remains unresolved. The implementation's previous intake transcribed it as «إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)», but that text is too small to verify from the six full-page images attached in this task. That prior transcription is retained but explicitly **not independently re-certified**. No wording has been guessed or substituted.
+A user-provided close crop on **2026-10-14** resolves the p24 text uncertainty. Its two lines read «إضافة قطرات ليمون إلى» / «بيكربونات الصوديوم (الكربونة)», matching the lesson quotation and inventory text exactly. No wording change was needed; the source locator no longer labels the quote unverified. The photograph itself remains a descriptive reference, not a reproduction.
 
 ### Evidence boundary
 
-The six pages are visible in the task message, but `/home/user/uploads` does not exist in this checkout and no image binaries/crops were accessible locally. I inspected the attached pages visually and compared them with PR #18 source data, report and rendered UI. I could not make lossless crops or pixel-compare original figure assets. The application uses labelled descriptive references for the textbook figures; they are **not exact figure reproductions**.
+At the initial audit, the six page images were visible in the task message but no local image files were available. The user supplied a sharper p24 caption crop inline on 2026-10-14; I visually read it word-for-word and compared it with the implementation. The attachment was not mounted as a local file, so I could not retain it or make a pixel comparison of original artwork. The application uses labelled descriptive references for textbook figures; they are **not exact figure reproductions**.
 
 ### Status meanings
 
-- **Verified against the attached textbook** — readable wording/structure matches; where noted, it includes the two corrections above.
+- **Verified against the attached textbook** — readable wording/structure and educationally important content match. For a figure row, this verifies its text/observation, not pixel-level artwork reproduction.
 - **Partially verified** — the source subject, location and major visible details match, but the original artwork is absent and represented only by a descriptive reference.
 - **Missing** — the source item has no corresponding student/teacher implementation.
 - **Incorrect or inconsistent** — the implementation still contradicts a readable source item after correction.
@@ -31,7 +32,7 @@ The six pages are visible in the task message, but `/home/user/uploads` does not
 
 ## Audit of all 48 original inventory rows
 
-Status reflects the corrected implementation. The original figure rows are partial because the source images themselves are not embedded/reconstructed in the lesson; descriptions preserve their locators and visible meaning only.
+Status reflects the current post-crop audit. Five visual rows remain partial because their original artwork is absent and the references preserve educationally relevant details without reproducing pixels. L4-24-05 is verified for its exact caption and teaching observation; the photograph itself remains a descriptive reference, not a reproduction.
 
 | Audit ID | Page and source element compared | Implementation location / result | Status |
 |---|---|---|---|
@@ -39,7 +40,7 @@ Status reflects the corrected implementation. The original figure rows are parti
 | L4-24-02 | «الأهداف» and six ordered goals | `opening`; all six appear in source order. | Verified against the attached textbook |
 | L4-24-03 | «الكلمات المفتاحية» and six terms | `opening`; all six terms and order are retained. | Verified against the attached textbook |
 | L4-24-04 | «التفاعل الكيميائي» / «ألاحظ وأجيب» headings | `observe-reactions`; both headings appear. | Verified against the attached textbook |
-| L4-24-05 | Right-hand foam photograph and embedded red caption | `observe-reactions`; a description/reference is shown, not the photo. Prior caption transcript remains unconfirmed at this image size. | Unreadable in the source |
+| L4-24-05 | Right-hand foam photograph and embedded red caption | `observe-reactions`; the caption matches the follow-up crop verbatim, and the descriptive reference preserves lemon/bicarbonate and foam; the original photo is not reproduced. | Verified against the attached textbook |
 | L4-24-06 | Central gas-delivery / limewater photograph | `observe-reactions`; descriptive reference preserves the apparatus and cloudy-liquid observation; no original photo. | Partially verified |
 | L4-24-07 | Left photo of drops on coloured fabric | `observe-reactions`; descriptive reference matches fabric/decolourisation context; no original photo. | Partially verified |
 | L4-24-08a | Lemon-acid / bicarbonate observation question | `observe-reactions`; full prompt is present and has a separate teacher solution. | Verified against the attached textbook |
@@ -86,19 +87,19 @@ Status reflects the corrected implementation. The original figure rows are parti
 
 ### Per-row status totals
 
-- **Verified against the attached textbook:** 42
-- **Partially verified:** 5 (the original figure artwork is absent)
-- **Unreadable in the source:** 1 (exact p24 embedded red caption)
+- **Verified against the attached textbook:** 43
+- **Partially verified:** 5 (the original artwork for these figure rows is absent)
+- **Unreadable in the source:** 0
 - **Missing:** 0 source-content rows
-- **Incorrect or inconsistent after the two corrections:** 0
+- **Incorrect or inconsistent after the two wording corrections:** 0
 
-The lack of original image assets is still a limitation even though the relevant figure rows have descriptive references. The partial status is not a claim of exact image reproduction.
+The five partial rows remain image-centered references without original artwork. The p24 right-photo caption and its teaching observation are now verified, but the photo is still not reproduced. No status claims exact figure reproduction.
 
 ## Exercise, solution and assessment audit
 
 ### Textbook exercises
 
-The implementation contains all **33** source question/activity units in the source flow and Teacher Area: 20 in-lesson prompts/activities and 13 self-test units. The latter include all four MC questions × four choices, three blank word equations, three word-equation writing prompts, and all three p29 exercises. Teacher solutions are present for each unit; they include reasoning for observations and products, completed word equations, all p26 subparts, MC answer reasoning, the p29 comparison and detection procedure, and the three required p29 figure-6 subparts. The exact p24 photo caption is the one exception to independent source verification, as listed above; it does not remove the printed p24 observation question, which is readable and implemented.
+The implementation contains all **33** source question/activity units in the source flow and Teacher Area: 20 in-lesson prompts/activities and 13 self-test units. The latter include all four MC questions × four choices, three blank word equations, three word-equation writing prompts, and all three p29 exercises. Teacher solutions are present for each unit; they include reasoning for observations and products, completed word equations, all p26 subparts, MC answer reasoning, the p29 comparison and detection procedure, and the three required p29 figure-6 subparts. The p24 red caption has now been independently verified from the follow-up crop; its photo remains a descriptive reference rather than reproduced artwork.
 
 ### Teacher Area
 
@@ -112,7 +113,7 @@ A separate **20-question Test Area bank** is also implemented with full solution
 
 ## Formula, symbol and browser audit
 
-Actual production Chromium was run after the wording corrections. It exercised the lesson, Teacher Area, lesson test and Test Area at desktop, mobile and 320-pixel stress widths.
+Actual production Chromium was rerun after the caption follow-up. It exercised the lesson, Teacher Area, lesson test and Test Area at desktop, mobile and 320-pixel stress widths, including exact p24 caption text and RTL direction at desktop and mobile.
 
 - All printed word-equation arrows render rightward in a single LTR chain; Arabic substance names retain RTL shaping and the source reactant order. Page-25 «تسخين» stays above the arrow; `II` remains an isolated Roman numeral in the iron(II) product name.
 - Page 27 prints `CO`, with no subscript, superscript or charge. No textbook page 24–29 contains an ionic charge or superscript. The rendered platform CO₂ explanation uses a true lower `<sub>2</sub>`; MgO is un-subscripted. This is platform/answer content, not a source formula.
@@ -123,15 +124,15 @@ Actual production Chromium was run after the wording corrections. It exercised t
 
 1. **p26** — corrected the first Bunsen execution prompt to include «كما» and match the attached page. Updated lesson data, the expected-source JSON inventory, the historical transcription, and an assertion in `tests/lesson4.test.tsx`.
 2. **p27** — corrected «له رائحة قوية» to «لها رائحة قوية» in the household-gas textbook quotation and inventory. Updated the historical transcription and added an assertion.
-3. **p24 caption** — no wording correction was made because the exact caption cannot be verified from the supplied image. The prior transcription remains explicitly provisional; source readability now records diagrams as partial, and this report lists the unresolved item.
+3. **p24 caption** — compared the user-supplied crop word-for-word; it reads «إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)», exactly matching the existing lesson quotation. No source wording was changed; the stale unverified locator label was removed. The photo itself remains a descriptive reference, not an exact reproduction.
 4. **Figures** — no scans were fabricated or described as exact redraws; existing descriptive source references were retained.
 
 ## Verification results
 
-After the source corrections:
+After the source corrections and p24 caption follow-up:
 
-- `npm run verify`: passed TypeScript, production build, postbuild/deep-link and distribution checks; **830 tests passed, 0 skipped across 31 files**.
-- `npm run verify:lesson4`: actual production Chromium, **427 passed / 0 failed**, covering desktop 1280×900, mobile 390×844, and 320px stress; includes actual interaction, teacher solutions, assessment, source `II` and `CO` direction/script checks, RTL/LTR equation geometry, CO₂ subscript, reduced motion and no-overflow checks.
+- `npm run verify`: passed TypeScript, production build, postbuild/deep-link and distribution checks; **829 tests passed, 2 skipped across 31 files**.
+- `npm run verify:lesson4`: actual production Chromium, **429 passed / 0 failed**, covering desktop 1280×900, mobile 390×844, and 320px stress; includes the exact p24 caption check in RTL on both widths, actual interaction, teacher solutions, assessment, source `II` and `CO` direction/script checks, RTL/LTR equation geometry, CO₂ subscript, reduced motion and no-overflow checks.
 - `npm run verify:badges`: actual Chromium scientific-notation regression, **33 passed / 0 failed**, including raised ionic charges positioned on the right. The lesson source itself contains no ionic charge to render.
 - `git diff --check`: passed.
 
@@ -139,7 +140,6 @@ The full unit suite emits existing KaTeX warnings for Arabic prose, jsdom/axe ca
 
 ## Remaining limitations
 
-- Exact wording of the small red p24 photo caption is not independently verified from the attached full-page raster. Needed to close it: a sharp crop of the right-hand p24 photograph/caption or the source PDF page.
-- The original textbook photographs/illustrations are not present as local files or reproduced in the app. Their descriptive references preserve page, order and visible meaning only; no pixel-fidelity claim is made.
+- The p24 caption wording is now verified from the user-provided crop. The original p24 photograph and other textbook illustrations are not available as local assets or reproduced in the app; descriptive references preserve page, order and teaching-relevant meaning only. No pixel-fidelity claim is made.
 - The status table is an image-based human comparison documented here; the existing 48 automated assertions remain coverage checks, not a machine-verified transcription system.
 - Browser testing is Chromium only; it does not certify Firefox, Safari, physical-device display, or scientific instrumentation accuracy.
