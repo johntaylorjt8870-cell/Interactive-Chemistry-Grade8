@@ -1,0 +1,60 @@
+name: CI
+
+# Validation gate for pull requests.
+#
+# deploy-pages.yml is the only publishing mechanism in this repository and it
+# runs only on `push` to main (plus workflow_dispatch). As a result a pull
+# request was never compiled, tested or dist-verified: GitHub reported it as
+# "mergeable / clean" with zero checks, so an unvalidated lesson PR — and, worse,
+# an *unmerged* one — produced no signal at all.
+# See docs/DEPLOYMENT_INCIDENT-LESSON4.md for the incident this closes.
+#
+# This workflow never publishes anything:
+#   * it requests `contents: read` only — no `pages` and no `id-token` write;
+#   * it does not configure Pages, upload a Pages artifact, or deploy;
+#   * deploy-pages.yml is untouched and remains the single deployment path.
+#
+# The step order mirrors deploy-pages.yml exactly, so a green check here means
+# the same pipeline the deployment runs has already passed on the PR head.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, build, verify and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Verify production output (base path and deep links)
+        run: npm run verify:dist
+
+      # Tests run after the build so the production-build assertions (base path,
+      # 404.html fallback, emitted assets) are actually exercised, matching the
+      # order enforced by tests/deployment.test.ts for the Pages workflow.
+      - name: Run tests
+        run: npm test
