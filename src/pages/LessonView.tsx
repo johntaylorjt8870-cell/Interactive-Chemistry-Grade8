@@ -71,7 +71,7 @@ function LessonContent({
   )
 
   const renderQuestion = useCallback(
-    (questionId: string): ReactNode => {
+    (questionId: string, options?: { reveal?: boolean }): ReactNode => {
       const question = findQuestion(questionId)
       if (!question) {
         return (
@@ -82,7 +82,7 @@ function LessonContent({
           </div>
         )
       }
-      return <InlineQuestion question={question} />
+      return <InlineQuestion question={question} reveal={options?.reveal} />
     },
     [findQuestion],
   )

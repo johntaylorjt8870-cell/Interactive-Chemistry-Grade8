@@ -1,0 +1,386 @@
+/* Lesson 1 labs — platform additions (pages 5–10).
+   Reuses the shared lab shell (.lab, .lab__*) and only adds the layout that is
+   specific to the capacity, particle-inventory and Lewis labs. */
+
+/* ---------------------------------------------------------------- capacity */
+
+.capacity-lab__reading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 8rem;
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-base);
+  text-align: center;
+}
+
+.capacity-lab__reading span {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.capacity-lab__reading strong {
+  color: var(--accent-strong);
+  font-family: var(--font-latin);
+  font-size: var(--fs-lg);
+}
+
+.capacity-lab__controls {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.capacity-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.capacity-table caption {
+  padding-block-end: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  text-align: start;
+}
+
+.capacity-table th,
+.capacity-table td {
+  padding: var(--space-2) var(--space-3);
+  border-block-end: 1px solid var(--border-hairline);
+  text-align: center;
+}
+
+.capacity-table thead th {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.capacity-table tr[data-current='true'] {
+  background: var(--accent-tint);
+}
+
+.capacity-note {
+  padding: var(--space-3);
+  border-inline-start: 3px solid var(--warning-500, var(--accent-strong));
+  border-radius: var(--radius-sm);
+  background: var(--surface-base);
+}
+
+.capacity-check {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+.capacity-check__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.capacity-check__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 6.5rem;
+  font-size: var(--fs-sm);
+}
+
+.capacity-check__field input {
+  inline-size: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xs);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.capacity-check__field[data-state='correct'] input {
+  border-color: var(--success-600, #15803d);
+}
+
+.capacity-check__field[data-state='wrong'] input {
+  border-color: var(--danger-600, #b91c1c);
+}
+
+.capacity-check__feedback {
+  font-size: var(--fs-xs);
+}
+
+.capacity-check__field[data-state='wrong'] .capacity-check__feedback {
+  color: var(--danger-700, #991b1b);
+}
+
+/* ---------------------------------------------------------------- particles */
+
+.atom-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-base);
+}
+
+.atom-badge__name {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.particle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-3);
+}
+
+.particle-stepper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-base);
+}
+
+.particle-stepper__label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-align: center;
+}
+
+.particle-stepper__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.particle-stepper__value {
+  min-inline-size: 2.5ch;
+  font-family: var(--font-latin);
+  font-size: var(--fs-lg);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.particle-stepper__hint {
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+.atom-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.atom-readout {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-base);
+}
+
+.atom-readout__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+}
+
+.prediction-panel,
+.challenge-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.challenge-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.prediction-panel__title {
+  font-weight: var(--fw-semibold);
+}
+
+.prediction-panel__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.prediction-panel__options .button[aria-pressed='true'] {
+  border-color: var(--accent-strong);
+  background: var(--accent-tint);
+  color: var(--accent-strong);
+}
+
+.prediction-panel__result {
+  padding: var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-base);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+}
+
+.prediction-panel__result[data-state='correct'] {
+  border-inline-start: 3px solid var(--success-600, #15803d);
+}
+
+.prediction-panel__result[data-state='wrong'] {
+  border-inline-start: 3px solid var(--danger-600, #b91c1c);
+}
+
+/* ---------------------------------------------------------------- Lewis lab */
+
+.lewis-lab__grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.lewis-lab__sides {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(7rem, 1fr));
+  gap: var(--space-2);
+}
+
+.lewis-lab__side {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xs);
+  background: var(--surface-base);
+  font-size: var(--fs-sm);
+}
+
+.lewis-lab__side output {
+  min-inline-size: 1.5ch;
+  font-family: var(--font-latin);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.lewis-lab__preview {
+  min-inline-size: 12rem;
+}
+
+.lewis-lab__feedback {
+  padding: var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-base);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+}
+
+.lewis-lab__feedback[data-state='correct'] {
+  border-inline-start: 3px solid var(--success-600, #15803d);
+}
+
+.lewis-lab__feedback[data-state='wrong'] {
+  border-inline-start: 3px solid var(--danger-600, #b91c1c);
+}
+
+@media (max-width: 30rem) {
+  .capacity-check__field,
+  .particle-stepper {
+    min-inline-size: 100%;
+  }
+
+  .lewis-lab__sides {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------ levels figure */
+
+.levels-diagram {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+.levels-diagram__svg {
+  inline-size: min(100%, 22rem);
+  block-size: auto;
+  overflow: visible;
+}
+
+.levels-diagram__orbit {
+  fill: none;
+  stroke: var(--border-strong);
+  stroke-width: 1.2;
+}
+
+.levels-diagram__nucleus {
+  fill: var(--accent);
+}
+
+.levels-diagram__nucleus-label {
+  fill: var(--text-inverse);
+  font: 700 14px var(--font-latin);
+}
+
+.levels-diagram__label-plate {
+  fill: var(--surface-base);
+}
+
+.levels-diagram__number {
+  fill: var(--text-secondary);
+  font: 600 9px var(--font-latin);
+}
+
+.levels-diagram__letter {
+  fill: var(--accent-strong);
+  font: 700 11px var(--font-latin);
+}
+
+.levels-diagram__label {
+  fill: var(--text-primary);
+}
+
+.levels-diagram__caption {
+  max-inline-size: 42rem;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  text-align: center;
+}
+
+.levels-diagram__caption strong {
+  color: var(--text-primary);
+}

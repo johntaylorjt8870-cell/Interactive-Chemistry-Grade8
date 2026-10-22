@@ -2159,6 +2159,43 @@
   color: var(--text-muted);
 }
 
+/* Self-check reveal on formative questions: collapsed until the student has
+   committed an answer, then shows the authored reasoning on request. */
+.question__self-check {
+  margin-block-start: var(--space-2);
+}
+
+.question__self-check-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.question__reveal {
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.question__reveal > summary {
+  cursor: pointer;
+  font-weight: 650;
+  color: var(--accent-strong);
+}
+
+.question__reveal-body {
+  display: grid;
+  gap: var(--space-3);
+  margin-block-start: var(--space-3);
+  font-size: var(--fs-sm);
+}
+
+.question__reveal-body p,
+.question__reveal-body ul {
+  margin: 0;
+}
+
 .question__hint,
 .question__explanation,
 .question__solution {

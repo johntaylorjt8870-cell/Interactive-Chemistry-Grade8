@@ -46,6 +46,11 @@ type QuestionCommon = {
   points?: number
   /** Printed source subpart number; 0 denotes an unnumbered prompt. */
   sourceIndex?: number
+  /**
+   * Learning objective this question measures (Lesson 1 uses the objective ids
+   * declared in `lesson1SourceLedger`). Optional so existing content stays valid.
+   */
+  objectiveId?: string
   /** Source figures / word reactions, using the established content blocks. */
   material?: ContentBlock[]
   /** Structured platform solutions; never rendered during an attempt. */

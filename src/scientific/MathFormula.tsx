@@ -51,7 +51,12 @@ export function MathFormula({ tex, display = 'inline', className, label }: MathF
 
   if (rendered.failed) {
     return (
-      <span className={`${classes} math-formula--invalid`} data-math-error="true" title={label ?? tex}>
+      <span
+        className={`${classes} math-formula--invalid`}
+        data-math-error="true"
+        title={label ?? tex}
+        tabIndex={display === 'block' ? 0 : undefined}
+      >
         <Sci variant="textual">{tex}</Sci>
       </span>
     )
@@ -62,6 +67,10 @@ export function MathFormula({ tex, display = 'inline', className, label }: MathF
       className={classes}
       dir="ltr"
       data-math={display}
+      // A block equation that is wider than a phone screen scrolls
+      // horizontally, so it must be reachable by keyboard (axe:
+      // `scrollable-region-focusable`). Inline formulas never scroll.
+      tabIndex={display === 'block' ? 0 : undefined}
       {...(label ? { role: 'math', 'aria-label': label } : {})}
       dangerouslySetInnerHTML={{ __html: rendered.html }}
     />

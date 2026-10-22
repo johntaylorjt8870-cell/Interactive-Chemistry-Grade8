@@ -374,8 +374,11 @@ describe('source fidelity — the printed heading and the questions', () => {
     ])
   })
 
-  it('did not touch Lessons 1 and 2', () => {
-    expect(chemistryLesson1.steps).toHaveLength(23)
+  it('keeps Lessons 1 and 2 at their documented sizes', () => {
+    // Lesson 1 was rebuilt on purpose (30 steps, same 15-question textbook
+    // container and same 15-question final test); Lesson 2 is untouched by
+    // that rebuild, so its numbers stay exactly as they were.
+    expect(chemistryLesson1.steps).toHaveLength(30)
     expect(chemistryLesson2.steps).toHaveLength(18)
     expect(lesson1BookQuestions).toHaveLength(15)
     expect(lesson2BookQuestions).toHaveLength(7)

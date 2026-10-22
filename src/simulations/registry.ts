@@ -36,6 +36,13 @@ export type InteractiveDefinition = {
 
 const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
   {
+    id: 'source-figure-p5-levels',
+    title: 'إعادة رسم: السويات الرئيسية السبع',
+    kind: 'diagram',
+    description: 'الشكل المطبوع في صفحة 5: نواة في المركز وسبع سويات حولها، مرقمة n = 1…7 وبأسماء K…Q.',
+    load: () => import('./LevelsDiagram'),
+  },
+  {
     id: 'reaction-observation-lab', title: 'مختبر ملاحظة التحولات الكيميائية', kind: 'simulation',
     description: 'تنفيذ مشاهد الليمون والبيكربونات والصباغ ورائق الكلس افتراضياً، ثم فصل الملاحظة عن الاستنتاج.',
     load: () => import('./ReactionObservationLab'),
@@ -104,6 +111,27 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     kind: 'simulation',
     description: 'تغيير عدد النيوترونات مع تثبيت البروتونات ومراقبة العدد الكتلي.',
     load: () => import('./IsotopeLab'),
+  },
+  {
+    id: 'shell-capacity-lab',
+    title: 'سعة السويات الرئيسية y = 2(n)²',
+    kind: 'activity',
+    description: 'تعويض قانون السعة لكل سوية من K إلى Q ثم إكمال جدول الكتاب والتحقق من M وN وO.',
+    load: () => import('./ShellCapacityLab'),
+  },
+  {
+    id: 'atom-inventory-lab',
+    title: 'مخزون الجسيمات: هوية الجسيم وشحنته',
+    kind: 'simulation',
+    description: 'ضبط البروتونات والنيوترونات والإلكترونات وحساب العدد الذري والكتلي والتوزع والشحنة ونوع الجسيم.',
+    load: () => import('./AtomInventoryLab'),
+  },
+  {
+    id: 'lewis-dot-lab',
+    title: 'مختبر تمثيل لويس',
+    kind: 'activity',
+    description: 'بناء نقاط لويس لعناصر الدرس من التوزيع الإلكتروني والتحقق من العدد وقاعدة الازدواج.',
+    load: () => import('./LewisDotLab'),
   },
   {
     id: 'ionic-bonding-lab',

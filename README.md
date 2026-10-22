@@ -55,6 +55,10 @@
 | `rutherford-scattering` | الكيمياء 1 |
 | `electron-shell-builder` | الكيمياء 1 |
 | `isotope-lab` | الكيمياء 1 |
+| `source-figure-p5-levels` | الكيمياء 1 |
+| `shell-capacity-lab` | الكيمياء 1 |
+| `atom-inventory-lab` | الكيمياء 1 |
+| `lewis-dot-lab` | الكيمياء 1 |
 | `ionic-bonding-lab` | الكيمياء 2 |
 | `covalent-bond-lab` | الكيمياء 2 |
 | `valence-model-lab` | الكيمياء 3 |
@@ -83,6 +87,7 @@ npm run typecheck   # فحص الأنواع
 npm test            # تشغيل الاختبارات
 npm run verify:dist # التحقّق من مخرجات الإنتاج (المسار الأساسي وروابط العمق)
 npm run verify      # الأنواع + الاختبارات + البناء + التحقّق
+npm run verify:lesson1 # فحص Chromium متجاوب للدرس الأول (يلزم تثبيت أدوات المتصفح الاختيارية)
 npm run verify:lesson4 # فحص Chromium للإنتاج للدرس الرابع (يلزم تثبيت أدوات المتصفح الاختيارية)
 npm run verify:lesson5 # فحص Chromium متجاوب للدرس الخامس (يلزم تثبيت أدوات المتصفح الاختيارية)
 ```
