@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { ScientificNotationText } from '@/scientific'
 import { STEP_KIND_META } from './stepKinds'
 import type { LessonDefinition } from '@/data/curriculum/schema'
 
@@ -68,7 +69,9 @@ export function LessonOutline({
                   {index + 1}
                 </span>
                 <span className="lesson-outline__text">
-                  <span className="lesson-outline__title">{step.title}</span>
+                  <span className="lesson-outline__title">
+                    <ScientificNotationText as="span">{step.title}</ScientificNotationText>
+                  </span>
                   <span className="lesson-outline__meta">
                     <span className="lesson-outline__kind">{meta.label}</span>
                     <span className="lesson-outline__status">{status}</span>

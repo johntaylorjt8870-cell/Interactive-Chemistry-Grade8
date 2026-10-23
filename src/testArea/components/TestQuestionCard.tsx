@@ -261,7 +261,9 @@ function MatchingInput({ question, response, onChange, readOnly }: InputProps) {
             <ScientificNotationText>{left.label}</ScientificNotationText>
           </span>
           <label className="ta-matching__select">
-            <span className="ta-visually-hidden">مطابقة {left.label}</span>
+            <span className="ta-visually-hidden">
+              مطابقة <ScientificNotationText as="span">{left.label}</ScientificNotationText>
+            </span>
             <select
               className="ta-input"
               id={`${fieldId}-${left.id}`}

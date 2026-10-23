@@ -2,7 +2,7 @@ import type { ComponentType, ReactNode } from 'react'
 import { ContentBlocks } from './ContentBlocks'
 import { STEP_KIND_META, type StepKindMeta } from './stepKinds'
 import { STEP_KINDS, type LessonStep, type StepKind } from '@/data/curriculum/schema'
-import { PlatformAddition } from '@/scientific'
+import { PlatformAddition, ScientificNotationText } from '@/scientific'
 
 export type StepRendererProps = {
   step: LessonStep
@@ -26,9 +26,15 @@ function StepFrame({ step, meta, children }: StepRendererProps & { children: Rea
           <span>{meta.label}</span>
         </span>
         <h2 className="step__title" id={`step-title-${step.id}`}>
-          {step.title}
+          {/* Step titles may name species (`H₂O`, `MgCl₂`); they get the same
+              structured notation as every other prose surface. */}
+          <ScientificNotationText as="span">{step.title}</ScientificNotationText>
         </h2>
-        {step.summary ? <p className="step__summary">{step.summary}</p> : null}
+        {step.summary ? (
+          <p className="step__summary">
+            <ScientificNotationText as="span">{step.summary}</ScientificNotationText>
+          </p>
+        ) : null}
       </header>
       <div className="step__body">{children}</div>
     </article>

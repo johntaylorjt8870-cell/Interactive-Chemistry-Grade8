@@ -1,0 +1,44 @@
+/* Lesson 2 — «الروابط الكيميائية» (الصفحات 13–17).
+   Scoped to this lesson only, following the existing per-lesson convention
+   (lesson4.css / lesson5.css). Nothing here changes another lesson's look.
+
+   Purpose: the shared badge/index/footnote colours inherit a muted tone that
+   measures below the 4.5:1 contrast ratio against their own backgrounds once
+   they sit inside this lesson's dense notation blocks (checked with axe in a
+   real browser via `npm run verify:lesson2`). We restore the stronger token
+   instead of disabling the contrast rule. */
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .platform-addition-badge__en,
+.teacher-section-page[data-lesson-id='chem-u1-l2'] .platform-addition-badge__en {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-outline__button[data-current='true'] .lesson-outline__index {
+  background: var(--palette-chem-700);
+  border-color: var(--palette-chem-700);
+  color: var(--palette-paper);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .sci--textual[data-sci='isolated'],
+.teacher-section-page[data-lesson-id='chem-u1-l2'] .sci--textual[data-sci='isolated'] {
+  color: var(--text-secondary);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .nuclear-notation__atomic,
+.teacher-section-page[data-lesson-id='chem-u1-l2'] .nuclear-notation__atomic {
+  color: var(--text-secondary);
+}
+
+/* The Lewis figure is wide by nature (a dot diagram beside its name). On a
+   phone it scrolls inside its own frame rather than widening the page. */
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lewis-mol,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lewis-mol__row {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lewis-mol__row {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}

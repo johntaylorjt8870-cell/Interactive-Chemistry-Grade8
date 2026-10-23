@@ -10,6 +10,7 @@ import {
   bookActivitySolutions as lesson2Activities,
   bookQuestions as lesson2Questions,
   finalTest as lesson2FinalTest,
+  lesson2TeacherGuide,
 } from '@/data/curriculum/chemistryLesson2'
 import {
   bookActivitySolutions as lesson3Activities,
@@ -67,9 +68,10 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     lessonId: 'chem-u1-l2',
     label: 'الدرس الثاني — كيمياء: الروابط الكيميائية',
     pages: 'الصفحات 13–17',
-    bookNote: 'تتضمن أسئلة أختبر نفسي الخمسة وحلول نشاطات الصفحات 13 و15 و16 وقضيّة البحث.',
+    bookNote: 'تتضمن أسئلة أختبر نفسي الخمسة وحلول نشاطات الصفحات 13 و15 و16 وقضيّة البحث، ودليلاً تعليمياً مفصلاً يغطي آليتي الانتقال والاشتراك وقراءة لويس والتصنيف وخريطة التقويم.',
     bookQuestions: [...lesson2Activities, ...lesson2Questions],
     finalTest: lesson2FinalTest,
+    conceptBlocks: lesson2TeacherGuide,
   },
   {
     lessonId: 'chem-u1-l3',

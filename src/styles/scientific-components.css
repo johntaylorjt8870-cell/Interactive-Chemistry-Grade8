@@ -706,11 +706,13 @@
   white-space: nowrap;
 }
 
+/* Footnote text is small and dense: use the secondary tone so it clears the
+   4.5:1 contrast threshold on the table's alternate background. */
 .sci-table__footnote {
   padding: var(--space-3) var(--space-4);
   border-block-start: 1px solid var(--table-border);
   background: var(--table-body-alt-bg);
-  color: var(--table-caption-text);
+  color: var(--text-secondary);
   font-size: var(--fs-xs);
 }
 

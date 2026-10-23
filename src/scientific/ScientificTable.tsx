@@ -131,6 +131,15 @@ export function ScientificTable({
                   .join(' ')
 
                 const content = row.cells[column.key] ?? null
+                // Plain-string cells may name species (`H₂O`, `Mg²⁺`); route
+                // them through the shared notation renderer so every table on
+                // the platform isolates and structures those runs identically.
+                const rendered: ReactNode =
+                  typeof content === 'string' ? (
+                    <ScientificNotationText as="span">{content}</ScientificNotationText>
+                  ) : (
+                    content
+                  )
 
                 return column.rowHeader ? (
                   <th
@@ -140,7 +149,7 @@ export function ScientificTable({
                     data-column={column.key}
                     data-row={row.id}
                   >
-                    {content}
+                    {rendered}
                   </th>
                 ) : (
                   <td
@@ -150,7 +159,7 @@ export function ScientificTable({
                     data-row={row.id}
                     {...(column.numeric ? { 'data-numeric': 'true' } : {})}
                   >
-                    {content}
+                    {rendered}
                   </td>
                 )
               })}
