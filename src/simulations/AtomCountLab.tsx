@@ -110,6 +110,7 @@ export default function AtomCountLab({ reducedMotion }: InteractiveProps) {
             />
           </label>
           <button type="button" className="button button--primary" disabled={answer.trim() === ''} onClick={() => setChecked(true)}>تحقق من العد</button>
+          <button type="button" className="button button--quiet" onClick={() => { setElement('C'); setSide('reactants'); setAnswer(''); setChecked(false) }}>إعادة تعيين المختبر</button>
         </div>
         <p id={`${id}-count-help`} className="l5-lab__note">فكّ الصيغة إلى رموز عناصرها، واجمع أعداد العنصر المختار في جميع المواد على الطرف نفسه.</p>
       </fieldset>

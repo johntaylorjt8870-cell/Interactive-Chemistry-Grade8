@@ -10,22 +10,23 @@ const formula = (tex: string, caption?: string): ContentBlock => ({
 })
 
 /**
- * Blueprint for the lesson-specific 16-item test. No textbook prompt is copied.
- * The four objectives are tested across conservation, fixed proportions,
- * calculation, reasoning about open systems, and error analysis.
+ * Blueprint for the lesson-specific 20-item test. No textbook prompt is copied.
+ * The four printed objectives (pp. 30–35) are tested across atom conservation,
+ * mass conservation, fixed proportions, calculation, open-system reasoning,
+ * and error analysis (including the printed 2.66 value).
  */
 export const lesson5TestBlueprint = {
-  targetCount: 16,
+  targetCount: 20,
   objectives: [
-    { id: 'objective-1', label: 'التعرّف إلى قانون انحفاظ الكتلة', questionIds: ['l5-final-01', 'l5-final-02', 'l5-final-03', 'l5-final-04', 'l5-final-05', 'l5-final-15'] },
-    { id: 'objective-2', label: 'التعرّف إلى قانون النسب الثابتة', questionIds: ['l5-final-06', 'l5-final-08', 'l5-final-09', 'l5-final-11', 'l5-final-14', 'l5-final-16'] },
-    { id: 'objective-3', label: 'تطبيق قانون انحفاظ الكتلة', questionIds: ['l5-final-03', 'l5-final-04', 'l5-final-05', 'l5-final-15'] },
-    { id: 'objective-4', label: 'تطبيق قانون النسب الثابتة', questionIds: ['l5-final-07', 'l5-final-08', 'l5-final-10', 'l5-final-12', 'l5-final-13', 'l5-final-14'] },
+    { id: 'O1', label: 'التعرّف إلى قانون انحفاظ الكتلة (لافوازييه)', questionIds: ['l5-final-01', 'l5-final-05', 'l5-final-17'] },
+    { id: 'O2', label: 'التعرّف إلى قانون النسب الثابتة (بروست)', questionIds: ['l5-final-06', 'l5-final-11', 'l5-final-14'] },
+    { id: 'O3', label: 'تطبيق قانون انحفاظ الكتلة', questionIds: ['l5-final-02', 'l5-final-03', 'l5-final-04', 'l5-final-15', 'l5-final-18'] },
+    { id: 'O4', label: 'تطبيق قانون النسب الثابتة', questionIds: ['l5-final-07', 'l5-final-08', 'l5-final-09', 'l5-final-10', 'l5-final-12', 'l5-final-13', 'l5-final-16', 'l5-final-19', 'l5-final-20'] },
   ],
   difficulty: {
-    foundational: ['l5-final-01', 'l5-final-02', 'l5-final-05', 'l5-final-06'],
-    application: ['l5-final-03', 'l5-final-07', 'l5-final-08', 'l5-final-10', 'l5-final-11', 'l5-final-13'],
-    reasoning: ['l5-final-04', 'l5-final-09', 'l5-final-12', 'l5-final-14', 'l5-final-15', 'l5-final-16'],
+    foundational: ['l5-final-01', 'l5-final-02', 'l5-final-05', 'l5-final-06', 'l5-final-17'],
+    application: ['l5-final-03', 'l5-final-07', 'l5-final-08', 'l5-final-10', 'l5-final-11', 'l5-final-13', 'l5-final-18', 'l5-final-19'],
+    reasoning: ['l5-final-04', 'l5-final-09', 'l5-final-12', 'l5-final-14', 'l5-final-15', 'l5-final-16', 'l5-final-20'],
   },
 } as const
 
@@ -220,6 +221,41 @@ const questions: Question[] = [
     explanation: 'يختبر قانون بروست نسبة كتل العناصر التي تكوّن المركب. عندما توجد مادة زائدة يجب فصلها عن الجزء الذي دخل في المركب، ثم حساب النسبة بين الكتل المتفاعلة. مجموع كتل البداية يتأثر بالكمية الزائدة ولا يصف تركيب المركب وحده.',
     solutionBlocks: [procedure(['أحدد أن المطلوب اختبار تركيب مركب واحد.', 'أستبعد المادة الزائدة لأنها لم تدخل في المركب.', 'أقارن كتل العناصر التي تفاعلت فعلًا، ثم أختار (ب).'])],
   },
+  {
+    id: 'l5-final-17', type: 'fill-blank', origin: 'platform', source: p('32', 'تسمية قانون الكتلة'), points: 1,
+    prompt: 'أكمل اسم العالم: مجموع كتل المواد المتفاعلة يساوي مجموع كتل المواد الناتجة؛ وهو قانون ______.',
+    template: 'وهو قانون {scientist}.',
+    blanks: [{ id: 'scientist', acceptedAnswers: ['لافوازييه', 'انحفاظ الكتلة', 'مصونية الكتلة'], kind: 'text' }],
+    explanation: 'النص هو تعريف قانون انحفاظ الكتلة كما ورد في ص32 وخلاصة ص34، ويُعرف بقانون لافوازييه (1743–1794). يقارن القانون مجموعَي الكتلة قبل التفاعل وبعده عند حساب النظام كله، وهو غير قانون بروست الخاص بنسب عناصر المركب.',
+    solutionBlocks: [procedure(['أطابق الصياغة مع نص «أستنتجُ» في ص32.', 'أستحضر اسم العالم من بطاقة الصفحة نفسها ومن خلاصة «تعلّمتُ».', 'أكتب: لافوازييه (قانون انحفاظ الكتلة).'])],
+  },
+  {
+    id: 'l5-final-18', type: 'numerical', origin: 'platform', source: p('30', 'عد ذرات الأكسجين'), points: 1,
+    prompt: 'في تفاعل حمض الخل وبيكربونات الصوديوم (ص30)، كم ذرة أكسجين توجد في طرف المتفاعلات؟ أدخل العدد فقط.',
+    acceptedAnswers: [5], tolerance: 0,
+    explanation: 'المتفاعلات CH3COOH وNaHCO3. في الأولى ذرتا أكسجين (O2 في نهاية الصيغة عند التفكيك: C2H4O2)، وفي الثانية ثلاث ذرات (O3). المجموع 2 + 3 = 5 ذرات أكسجين، وهو ما يطابق العد المطبوع في شكل الميزان ويطابق طرف النواتج.',
+    solutionBlocks: [procedure(['أفكك CH3COOH إلى C2H4O2 فأجد ذرتَي أكسجين.', 'أفكك NaHCO3 فأجد ثلاث ذرات أكسجين.', 'أجمع: 2 + 3 = 5 ذرات أكسجين في المتفاعلات.', 'أتحقق من النواتج: 2 في CH3COONa وواحدة في H2O واثنتان في CO2؛ المجموع 5 أيضاً.']), formula('2 + 3 = 5')],
+  },
+  {
+    id: 'l5-final-19', type: 'numerical', origin: 'platform', source: p('34', 'تطبيق نسبة الحديد مع فائض'), points: 1,
+    prompt: 'خلطت 28 g حديداً مع 20 g كبريت (النسبة 56:32). كم غراماً من كبريت سيبقى دون تفاعل؟ أدخل العدد فقط.',
+    acceptedAnswers: [4], tolerance: 0.01, unit: 'g',
+    explanation: 'بنسبة 56:32 = 7:4، يحتاج 28 g حديد إلى 28 × 4/7 = 16 g كبريت. الموجود 20 g، فيبقى 20 − 16 = 4 g كبريت فائضاً. المركب المتكون 44 g، وبإضافة الفائض يبقى مجموع الكتلة 48 g كما في البداية.',
+    solutionBlocks: [procedure(['أبسّط النسبة: Fe:S = 7:4.', 'أحسب حاجة 28 g حديد: 28 × 4/7 = 16 g كبريت.', 'أطرح من الموجود: 20 − 16 = 4 g كبريت متبقٍ.', 'أتحقق كتلياً: مركب 44 g + فائض 4 g = بدء 48 g.']), formula('28\\times\\frac{32}{56}=16\\;\\text{g},\\qquad 20-16=4\\;\\text{g}')],
+  },
+  {
+    id: 'l5-final-20', type: 'multiple-choice', selection: 'single', origin: 'platform', source: p('35', 'تحليل خطأ في استعمال 2.66'), points: 1,
+    prompt: 'حسب طالب كتلة الأكسجين اللازمة لـ 10 g كربون فكتب: 10 × 2.66 = 26.6 g مستخدماً قيمة الجدول المطبوعة. ما الحكم الأدق على عمله؟',
+    options: [
+      { id: 'a', label: 'صحيح تماماً؛ 2.66 هي القيمة الدقيقة للنسبة.' },
+      { id: 'b', label: 'قريب عددياً لكنه بني على قيمة مقطوعة؛ الحساب بالكسر الدقيق 32/12 يعطي 26.666… g (≈ 26.67 g).' },
+      { id: 'c', label: 'خطأ كلياً لأن الجدول لا علاقة له بالسؤال.' },
+      { id: 'd', label: 'صحيح، ولا يجوز استعمال كسور في الحساب الكيميائي.' },
+    ],
+    correctOptionIds: ['b'],
+    explanation: 'قيمة 2.66 في جدول ص35 منقولة كما طُبعت، لكن القسمة الدقيقة 32/12 = 2.666… وتقريبها المعتاد لمنزلتين 2.67. استعمال المقطوعة يعطي 26.6 g، بينما الكسر الدقيق يعطي 26.666… g. نميّز دائماً بين نقل المطبوع والحساب الدقيق.',
+    solutionBlocks: [procedure(['أحسب النسبة بدقة: 32/12 = 8/3 = 2.666…', 'أضرب في 10 g كربون: 26.666… g أكسجين.', 'أقارن بناتج الطالب 26.6 g فأجده من استعمال القيمة المقطوعة 2.66.', 'أختار (b).']), formula('10\\times\\frac{32}{12}=26.666\\ldots\\;\\text{g}')],
+  },
 ]
 
 export const finalTest: FinalTest = {
@@ -227,7 +263,7 @@ export const finalTest: FinalTest = {
   lessonId: 'chem-u1-l5',
   origin: 'platform',
   status: 'source-verified',
-  targetQuestionCount: { min: 16, max: 16 },
+  targetQuestionCount: { min: 20, max: 20 },
   requireComplete: true,
   questions,
 }

@@ -45,6 +45,7 @@ export default function MassConservationLab({ reducedMotion }: InteractiveProps)
         <button type="button" className="button button--quiet" aria-pressed={mode === 'book-data'} onClick={() => setMode('book-data')}>قراءة بيانات الكتاب</button>
         <button type="button" className="button button--quiet" aria-pressed={mode === 'closed'} onClick={() => setMode('closed')}>نموذج نظام مغلق</button>
         <button type="button" className="button button--quiet" aria-pressed={mode === 'open'} onClick={() => setMode('open')}>نموذج نظام مفتوح</button>
+        <button type="button" className="button button--quiet" onClick={() => { setMode('book-data'); setInitial(''); setEscaped(''); setUnit('g') }}>إعادة تعيين المختبر</button>
       </div>
 
       {mode === 'book-data' ? (

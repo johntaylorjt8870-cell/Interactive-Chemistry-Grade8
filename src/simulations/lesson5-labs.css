@@ -66,3 +66,38 @@
   .l5-lab .diagram__header { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
   .l5-lab .diagram__surface { overflow-x: auto; }
 }
+
+/* --- Lesson 5 source-figure reconstructions (pp. 30–32) --- */
+.l5-source-figure { margin: 0; min-inline-size: 0; padding: var(--space-3); border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--surface-base); }
+.l5-source-figure__svg { display: block; inline-size: 100%; max-inline-size: 760px; block-size: auto; margin-inline: auto; }
+.l5-source-figure__caption { margin-block-start: var(--space-2); color: var(--text-secondary); font-size: var(--fs-xs); line-height: var(--lh-relaxed); text-align: center; }
+.l5-fig__card { fill: var(--surface-raised); stroke: var(--border-strong); stroke-width: 1.5; }
+.l5-fig__panel-title { fill: var(--text-strong); font: 700 19px var(--font-arabic); }
+.l5-fig__count { fill: var(--text-strong); font: 700 17px var(--font-latin); }
+.l5-fig__note { fill: var(--text-secondary); font: 500 14px var(--font-arabic); }
+.l5-fig__beam { stroke: var(--status-warning-text); stroke-width: 6; stroke-linecap: round; }
+.l5-fig__pillar { stroke: var(--status-warning-text); stroke-width: 8; stroke-linecap: round; }
+.l5-fig__pivot { fill: var(--status-warning-bg); stroke: var(--status-warning-text); stroke-width: 2; }
+.l5-fig__base { fill: var(--status-warning-bg); stroke: var(--status-warning-text); stroke-width: 1.5; }
+.l5-fig__hanger { fill: none; stroke: var(--text-secondary); stroke-width: 1.6; }
+.l5-fig__pan { fill: var(--status-warning-bg); stroke: var(--status-warning-text); stroke-width: 2; }
+.l5-fig__flask { fill: var(--status-info-bg); fill-opacity: .45; stroke: var(--accent-strong); stroke-width: 2; }
+.l5-fig__flask-lip { fill: var(--status-warning-bg); stroke: var(--border-strong); stroke-width: 1.2; }
+.l5-fig__liquid { fill: var(--status-info-bg); stroke: none; }
+.l5-fig__bubble { fill: var(--surface-raised); stroke: var(--accent-strong); stroke-width: 1; }
+.l5-fig__strip { fill: var(--surface-raised); stroke: var(--border-strong); stroke-width: 1.5; }
+.l5-fig__strip-formula { fill: var(--text-strong); font: 700 15px var(--font-latin); }
+.l5-fig__strip-label { fill: var(--text-secondary); font: 500 13px var(--font-arabic); }
+.l5-fig__divider { stroke: var(--border-strong); stroke-width: 3; }
+.l5-fig__leader { fill: none; stroke: var(--text-secondary); stroke-width: 1.4; }
+.l5-fig__scale-top { fill: var(--border-strong); }
+.l5-fig__scale-body { fill: #d64541; stroke: #8f2320; stroke-width: 2; }
+.l5-fig__scale-screen { fill: #ffffff; stroke: #8f2320; stroke-width: 1.4; }
+.l5-fig__scale-reading { fill: #111111; font: 700 19px var(--font-latin); }
+.l5-fig__pile-dark { fill: #3a3a42; stroke: #17171c; stroke-width: 1.6; }
+.l5-fig__pile-yellow { fill: #f2d13c; stroke: #9a7b12; stroke-width: 1.6; }
+.l5-fig__pile-label { fill: var(--text-strong); font: 600 14px var(--font-arabic); }
+.l5-fig__operator { fill: var(--text-strong); font: 700 24px var(--font-latin); }
+.l5-fig__arrow { stroke: var(--text-strong); stroke-width: 3; stroke-linecap: round; }
+.l5-fig__arrow-head { fill: var(--text-strong); }
+.l5-source-figure--still *, .l5-source-figure--still *::before, .l5-source-figure--still *::after { animation: none !important; transition: none !important; }

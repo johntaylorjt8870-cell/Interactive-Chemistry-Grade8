@@ -91,6 +91,27 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     load: () => import('./CombustionAirLab'),
   },
   {
+    id: 'source-figure-p30-balance',
+    title: 'إعادة بناء: ميزان كفتي عدّ الذرات (ص30)',
+    kind: 'diagram',
+    description: 'كفتا المتفاعلات والنواتج المتوازنتان مع العد المطبوع 3C و5H و5O و1Na وشريطي الصيغ والأسماء العربية.',
+    load: () => import('./Lesson5BalanceDiagram'),
+  },
+  {
+    id: 'source-figure-p31-scale',
+    title: 'إعادة بناء: ميزانا تجربة أكسيد الكالسيوم الإلكترونيان (ص31)',
+    kind: 'diagram',
+    description: 'لوحتا قبل التفاعل وبعده بقراءة 125.100 ووسوم HCl وCaO وCaCl2 + H2O دون وحدة مطبوعة.',
+    load: () => import('./Lesson5ScaleDiagram'),
+  },
+  {
+    id: 'source-figure-p32-trials',
+    title: 'إعادة بناء: تجارب الرصاص والكبريت الثلاث (ص32)',
+    kind: 'diagram',
+    description: 'صفوف التجارب (1) و(2) و(3) بأكوام الرصاص والكبريت وكبريتيد الرصاص والقيم المطبوعة والمتبقي في كل تجربة.',
+    load: () => import('./Lesson5TrialsDiagram'),
+  },
+  {
     id: 'lesson5-atom-count-lab', title: 'مختبر عدّ الذرات قبل التفاعل وبعده', kind: 'simulation',
     description: 'حساب أعداد ذرات كل عنصر آلياً من صيغ تفاعل حمض الخل وبيكربونات الصوديوم، مع تحقق تفاعلي من إجابة الطالب.',
     load: () => import('./AtomCountLab'),

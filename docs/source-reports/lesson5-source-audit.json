@@ -1,103 +1,129 @@
 {
   "lessonId": "chem-u1-l5",
+  "title": "قانونا التَّفاعل الكِيميائِيّ",
   "pages": ["30", "31", "32", "33", "34", "35"],
-  "sourceImageAvailability": "The original user-supplied page images are not present as files in this checkout. The working transcript and numerical data retained from the task are implemented; a second pixel-level review of small print and figure details is blocked.",
+  "sourceImageAvailability": "Six textbook page images (pp. 30–35) were supplied with the rebuild task and audited directly on 2026-10-24. The scans themselves are not stored in the repository (project convention); every printed element is traced in src/data/curriculum/lesson5SourceLedger.ts.",
+  "ledger": "src/data/curriculum/lesson5SourceLedger.ts — 42 entries: 38 implemented, 3 reconstructed, 1 decorative, 0 unresolved.",
   "items": [
     {
       "id": "L5-30-01",
       "page": "30",
+      "stepId": "opening",
+      "kind": "title-objectives-keywords",
+      "questionIds": [],
+      "coverage": "Printed title «قانونا التَّفاعل الكِيميائِيّ», the four objectives (know/apply Lavoisier and Proust laws), and the keyword line are reproduced verbatim in the opening step."
+    },
+    {
+      "id": "L5-30-02",
+      "page": "30",
       "stepId": "atom-count-source",
-      "kind": "activity-and-reaction-data",
+      "kind": "activity-and-balance-figure",
       "questionIds": ["l5-observe-atoms"],
-      "coverage": "The acetic-acid / sodium-hydrogen-carbonate atom-count activity is retained. Formula-derived totals are C=3, H=5, O=5, Na=1 on each side. The platform redraw labels itself as a count schematic, not the original book image or a molecular-geometry model."
+      "coverage": "The «أُلاحِظُ وأستنتجُ» prompt is verbatim; the balance figure is reconstructed as SVG (source-figure-p30-balance) with the printed counts C=3, H=5, O=5, Na=1 per pan and both formula/name strips. Atom totals are computed from the formulas by the lab model."
     },
     {
       "id": "L5-31-01",
       "page": "31",
-      "stepId": "atom-count-explanation",
-      "kind": "law-explanation",
+      "stepId": "atom-conclusion-source",
+      "kind": "conclusion",
       "questionIds": [],
-      "coverage": "Platform explanation covers conservation of atom type and count while particles are rearranged. The exact paragraph wording and small-print heading are not in the retained transcript; no verbatim prose is claimed for this row."
+      "coverage": "Both «أستنتجُ» bullets are verbatim: per-element atom counts are equal on both sides, and a chemical reaction conserves element type and atom count."
     },
     {
       "id": "L5-31-02",
       "page": "31",
-      "stepId": "mass-conservation-explanation",
-      "kind": "law-explanation",
+      "stepId": "enrichment-bicarbonate",
+      "kind": "enrichment",
       "questionIds": [],
-      "coverage": "Platform explanation distinguishes total mass from a balance reading and records the open/closed boundary condition. The exact original wording is not quoted where it cannot be rechecked."
+      "coverage": "The «إثراء» text on sodium hydrogen carbonate in sweets/pastries is verbatim; the two photographs are documented in a reference card (decorative in the ledger, caption «بيكربونات الصوديوم» preserved)."
+    },
+    {
+      "id": "L5-31-03",
+      "page": "31",
+      "stepId": "mass-experiment-source",
+      "kind": "experiment-apparatus-and-scale-figure",
+      "questionIds": [],
+      "coverage": "The apparatus list (electronic balance, CaO pieces, glass vessel, dilute HCl, tongs) is verbatim; the two-balance figure is reconstructed (source-figure-p31-scale) with 125.100 twice and no added unit."
     },
     {
       "id": "L5-32-01",
       "page": "32",
-      "stepId": "mass-source-experiment",
-      "kind": "experiment-and-observation",
+      "stepId": "mass-experiment-source",
+      "kind": "experiment-procedure",
       "questionIds": ["l5-calcium-observation", "l5-calcium-compare"],
-      "coverage": "The CaO / hydrochloric-acid prompt, reported products CaCl2 and H2O, and the two printed balance readings 125.100 are retained. No unit is visible in the retained record. No gas, colour, amount, or instrument detail is invented."
+      "coverage": "All four printed procedure steps are reproduced; step 2 (ماذا أُلاحظُ؟) and step 4 (أقارنُ النَّتائج) carry full platform solutions restricted to source-supported observations (CaCl2 + H2O; equal readings)."
     },
     {
       "id": "L5-32-02",
       "page": "32",
-      "stepId": "lead-sulfur-source",
-      "kind": "table-data-reference",
+      "stepId": "mass-law-source",
+      "kind": "law-statement-and-portrait-card",
       "questionIds": [],
-      "coverage": "The lead/sulfur table data continue into the next printed page and are reproduced as an accessible platform table from the recorded values. The source prompt and answer table distinguish starting mass, reacted mass, product, and excess."
+      "coverage": "Lavoisier's law statement is verbatim including «قانون مصونيّة الكتلة»; the portrait caption (Antoine Lavoisier, born 1743, died 1794) is preserved in a reference card."
+    },
+    {
+      "id": "L5-32-03",
+      "page": "32",
+      "stepId": "proust-trials-source",
+      "kind": "proust-intro-and-trials-figure",
+      "questionIds": [],
+      "coverage": "The Proust heading and intro sentence are verbatim; the three-trial pile figure (10/1.56→11.56; 10/3→11.56+1.44 S; 18/1.56→11.56+8 Pb) is reconstructed as SVG (source-figure-p32-trials) and tagged as data analysis only (lead toxicity)."
     },
     {
       "id": "L5-33-01",
       "page": "33",
-      "stepId": "lead-sulfur-source",
-      "kind": "table-question-and-branches",
-      "questionIds": ["l5-proust-table", "l5-trial1-mass-ratio", "l5-trial2-excess-sulfur", "l5-trial2-mass-ratio", "l5-trial3-mass-ratio", "l5-trial3-excess-lead"],
-      "coverage": "All recorded trial prompts/branches are included. Trial 2 uses 3-1.56=1.44 g excess sulfur; trial 3 uses 18-10=8 g excess lead. The ratio uses only masses that reacted."
+      "stepId": "proust-table-source",
+      "kind": "table-and-five-questions",
+      "questionIds": ["l5-proust-table", "l5-trial1-mass-ratio", "l5-trial2-mass-ratio", "l5-trial2-excess-sulfur", "l5-trial3-mass-ratio", "l5-trial3-excess-lead"],
+      "coverage": "The before/after table (printed row 1 with 10/1.56 = 6.41, blanks elsewhere) and all five questions appear in printed order with full solutions. The final question's printed word «الكبريت» for the 8 g leftover contradicts the p.32 figure («رصاص متبقّي»); the prompt is kept verbatim with an explicit platform misprint note and is solved for lead."
+    },
+    {
+      "id": "L5-33-02",
+      "page": "33",
+      "stepId": "proust-conclusion-source",
+      "kind": "law-statement-and-portrait-card",
+      "questionIds": [],
+      "coverage": "Proust's law statement is verbatim; the portrait caption (Joseph Louis Proust, born in France 1754, died 1826) is preserved in a reference card."
     },
     {
       "id": "L5-34-01",
       "page": "34",
-      "stepId": "fixed-ratio-source-iron-sulfur",
-      "kind": "table-question",
-      "questionIds": ["l5-iron-sulfur-ratio-table"],
-      "coverage": "Iron/sulfur source values 56:32, 28:16, and 7:4 are presented in a platform-organized table with the ratio row left blank for the learner; the completed values are in the teacher solution."
+      "stepId": "iron-sulfur-source",
+      "kind": "home-activities",
+      "questionIds": ["l5-iron-sulfur-ratio-table", "l5-iron-sulfur-60-30"],
+      "coverage": "Both «نشاط» items are kept: the Fe/S ratio table (56:32, 28:16, 7:4 = 1.75 with the ratio row left to the learner) and the 60 g Fe + 30 g S problem (52.5 g Fe reacts, 7.5 g excess, 82.5 g compound)."
     },
     {
       "id": "L5-34-02",
       "page": "34",
-      "stepId": "fixed-ratio-source-iron-sulfur",
-      "kind": "worked-source-application",
-      "questionIds": ["l5-iron-sulfur-60-30"],
-      "coverage": "The 60 g iron / 30 g sulfur question is solved proportionally: 52.5 g iron reacts, 7.5 g iron remains, and 82.5 g compound is calculated. These are derived values, not additional source measurements."
-    },
-    {
-      "id": "L5-34-03",
-      "page": "34",
-      "stepId": "fixed-proportions-explanation",
-      "kind": "law-explanation",
+      "stepId": "learned-summary",
+      "kind": "printed-summary",
       "questionIds": [],
-      "coverage": "Platform explanation differentiates the fixed mass ratio in one compound from the total sample mass and separates composition ratios from total-system mass."
+      "coverage": "Both «تعلَّمتُ» bullets (Lavoisier, Proust) are reproduced verbatim as the lesson's official summary step."
     },
     {
       "id": "L5-35-01",
       "page": "35",
-      "stepId": "law-summary-source",
+      "stepId": "book-question-1",
       "kind": "self-test-question",
       "questionIds": ["l5-selftest-water-ratio"],
-      "coverage": "The oxygen-to-hydrogen mass ratio prompt for water is retained and solved as 16/2=8:1."
+      "coverage": "Question 1 (oxygen/hydrogen masses in 18 g of water) is verbatim and solved as 16/2 = 8:1 (auto-graded numerical)."
     },
     {
       "id": "L5-35-02",
       "page": "35",
-      "stepId": "law-summary-source",
-      "kind": "self-test-question",
+      "stepId": "book-question-2",
+      "kind": "self-test-mc-questions",
       "questionIds": ["l5-selftest-atom-count", "l5-selftest-mass"],
-      "coverage": "Both recorded multiple-choice branches, atom count and total reactant mass, are retained with their printed option order."
+      "coverage": "Both question-2 items keep their printed stems, options, and a–d order (correct: b for atom counts, d for total mass)."
     },
     {
       "id": "L5-35-03",
       "page": "35",
-      "stepId": "law-summary-source",
+      "stepId": "book-question-3",
       "kind": "self-test-table-and-branches",
       "questionIds": ["l5-selftest-carbon-table", "l5-selftest-co-table", "l5-selftest-co-law", "l5-selftest-co-carbon-mass", "l5-selftest-co-oxygen-mass"],
-      "coverage": "The CO2 table and every recorded branch are included. The source's 32/12=2.66 is preserved verbatim in the source-table data and explicitly distinguished from 32/12=2.666… and conventional rounding to 2.67."
+      "coverage": "The CO2 table keeps the printed column order (32/12, 64/24, 128/48, 16/6) and the printed value 32/12 = 2.66; solutions distinguish it from the exact 2.666… (2.67 rounded) and solve branches 1–4 (1.5 g C; 26.666… g O)."
     }
   ]
 }
