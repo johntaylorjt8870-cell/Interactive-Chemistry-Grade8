@@ -389,6 +389,40 @@ describe('lesson 2 assessment', () => {
     ).not.toBe('correct')
   })
 
+  it('awards partial credit for a partly correct matching and composite answer', () => {
+    // Matching: two of four pairs right must land on `partial`, not `correct`.
+    const matching = finalTest.questions.find((question) => question.id === 'l2-final-9')!
+    expect(matching.type).toBe('matching')
+    if (matching.type === 'matching') {
+      const half = matching.pairs.slice(0, 2).map((pair) => ({ ...pair }))
+      const wrong = matching.pairs.slice(2).map((pair) => ({ leftId: pair.leftId, rightId: 'single' }))
+      const result = evaluateQuestion(matching, {
+        questionId: matching.id,
+        value: { type: 'matching', pairs: [...half, ...wrong] },
+      })
+      expect(result.outcome).toBe('partial')
+    }
+
+    // Composite (table interpretation): one sub-question correct, one blank.
+    const composite = finalTest.questions.find((question) => question.id === 'l2-final-18')!
+    expect(composite.type).toBe('table-interpretation')
+    if (composite.type === 'table-interpretation') {
+      const [first, second] = composite.questions
+      expect(first && second).toBeTruthy()
+      const firstAnswer =
+        first!.type === 'multiple-choice'
+          ? { type: 'choice' as const, optionIds: [first!.correctOptionIds[0]!] }
+          : null
+      if (firstAnswer) {
+        const result = evaluateQuestion(composite, {
+          questionId: composite.id,
+          value: { type: 'composite', children: { [first!.id]: firstAnswer } },
+        })
+        expect(result.outcome).toBe('partial')
+      }
+    }
+  })
+
   it('distributes the correct options across the key instead of one position', () => {
     const singleChoices = finalTest.questions.filter(
       (question): question is Extract<typeof question, { type: 'multiple-choice' }> =>

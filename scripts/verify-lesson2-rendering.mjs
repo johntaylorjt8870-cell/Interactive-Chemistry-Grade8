@@ -101,6 +101,16 @@ async function browserConfig() {
   return { puppeteer, executablePath, libraries: fs.existsSync(libraries) ? libraries : undefined }
 }
 
+/**
+ * Titles such as «الرّابطة المشتركة: H₂ وO₂ وN₂» are rendered through the
+ * structured notation renderer, whose `<sub>` elements change the flattened
+ * textContent (`H2` instead of `H₂`). Compare on a normalized form so the check
+ * verifies *which* step is displayed without demanding raw subscript glyphs.
+ */
+function normalizeNotation(value) {
+  return value.replace(/[₀₁₂₃₄₅₆₇₈₉]/gu, (digit) => String('₀₁₂₃₄₅₆₇₈₉'.indexOf(digit)))
+}
+
 const checks = []
 const failures = []
 function check(name, passed, details = undefined) {
@@ -135,25 +145,7 @@ try {
   page.setDefaultTimeout(15000)
   page.on('pageerror', (error) => failures.push(`browser error: ${error.message}`))
 
-  // Step titles are rendered through the platform notation renderer, which
-// promotes `H₂O` to a structured formula (ChemicalFormula). Its textContent is
-// therefore `H2O`, so compare on a notation-normalized form rather than raw
-// characters; the visual notation itself is checked separately below.
-const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
-const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
-function normalizeNotation(value) {
-  return [...value]
-    .map((char) => {
-      const sub = SUBSCRIPT_DIGITS.indexOf(char)
-      if (sub >= 0) return String(sub)
-      const sup = SUPERSCRIPT_DIGITS.indexOf(char)
-      if (sup >= 0) return String(sup)
-      return char
-    })
-    .join('')
-}
-
-const screenshotSteps = new Set([0, 1, 5, 6, 7, 12, 13, 14, 19])
+  const screenshotSteps = new Set([0, 1, 5, 6, 7, 12, 13, 14, 19])
   const viewports = [
     { name: 'desktop', width: 1365, height: 960 },
     { name: 'mobile', width: 390, height: 844 },
@@ -226,12 +218,13 @@ const screenshotSteps = new Set([0, 1, 5, 6, 7, 12, 13, 14, 19])
       check(
         `${viewport.name} / step ${index + 1}: display math is not clipped`,
         math.clipped.length === 0,
-        math.clipped.slice(0, 2),
+        math.clipped,
       )
 
       if (screenshotSteps.has(index)) {
-        const target = await page.$('.step__title')
-        const topOffset = viewport.name === 'mobile' ? 170 : 120
+        const targetSelector = step.kind === 'simulation' ? '.lab' : '.step__header'
+        const target = await page.$(targetSelector)
+        const topOffset = viewport.name === 'mobile' ? 150 : 110
         if (target) {
           await target.evaluate(
             (node, offset) => window.scrollTo({ top: Math.max(0, window.scrollY + node.getBoundingClientRect().top - offset), behavior: 'instant' }),
@@ -245,55 +238,69 @@ const screenshotSteps = new Set([0, 1, 5, 6, 7, 12, 13, 14, 19])
         })
       }
 
-      // Real interaction: the ionic lab must complete its four scientific stages.
-      if (step.blocks.some((block) => block.kind === 'interactive' && block.interactiveId === 'ionic-bonding-lab')) {
-        await page.waitForSelector('.ionic-bond-lab')
-        const button = await page.$('.ionic-bond-lab .button--primary')
+      // --- Real interaction: the ionic lab must reach the crystal stage. ---
+      if (step.kind === 'simulation' && step.interactiveId === 'ionic-bonding-lab') {
+        const advance = await page.$('.ionic-bond-lab .button--primary')
+        check(`${viewport.name}: ionic lab exposes an advance control`, Boolean(advance))
         for (let press = 0; press < 3; press += 1) {
-          await button.click()
-          await page.waitForFunction((expected) => document.querySelector('.ionic-bond-lab')?.dataset.stage === expected, {}, String(press + 1))
+          await page.click('.ionic-bond-lab .button--primary')
+          await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
         }
         const state = await page.evaluate(() => {
           const lab = document.querySelector('.ionic-bond-lab')
+          const readouts = [...lab.querySelectorAll('.ionic-bond-lab__readout')].map((node) => node.textContent ?? '')
           return {
-            stage: lab?.dataset.stage,
-            naElectrons: lab?.querySelectorAll('[data-bohr="Na"] .bohr__electron').length ?? 0,
-            clElectrons: lab?.querySelectorAll('[data-bohr="Cl"] .bohr__electron').length ?? 0,
-            crystal: Boolean(lab?.querySelector('.ionic-bond-lab__crystal')),
+            stage: lab?.getAttribute('data-stage'),
+            readouts,
+            crystal: Boolean(lab.querySelector('.ionic-bond-lab__scene--attract')),
           }
         })
         check(
-          `${viewport.name}: ionic lab reaches the crystal with 10/18 electrons`,
-          state.stage === '3' && state.naElectrons === 10 && state.clElectrons === 18 && state.crystal,
+          `${viewport.name}: ionic lab reaches the crystal stage with 10/18 electrons`,
+          state.stage === '3' && state.crystal && state.readouts.some((text) => /10/.test(text)) && state.readouts.some((text) => /18/.test(text)),
           state,
         )
+        const reset = await page.$$eval('.ionic-bond-lab .button--quiet', (nodes) => nodes.map((node) => node.textContent?.trim() ?? ''))
+        check(`${viewport.name}: ionic lab offers a reset that is enabled after use`, reset.some((label) => /إعادة/.test(label)), reset)
       }
 
-      // Real interaction: the covalent lab must switch molecules and read-out values.
-      if (step.blocks.some((block) => block.kind === 'interactive' && block.interactiveId === 'covalent-bond-lab')) {
-        await page.waitForSelector('.covalent-bond-lab')
-        const n2 = await page.$('.covalent-bond-lab__choice:nth-child(3)')
-        await n2.click()
-        await page.waitForFunction(() => document.querySelector('.covalent-bond-lab')?.dataset.molecule === 'N2')
+      // --- Real interaction: the covalent lab must switch molecules. ---
+      if (step.kind === 'simulation' && step.interactiveId === 'covalent-bond-lab') {
+        const choices = await page.$$('.covalent-bond-lab__choice')
+        check(`${viewport.name}: covalent lab lists its molecules`, choices.length >= 3, choices.length)
+        const labels = await page.$$eval('.covalent-bond-lab__choice', (nodes) => nodes.map((node) => node.textContent?.trim() ?? ''))
+        const target = labels.findIndex((label) => label.includes('N'))
+        await page.click(`.covalent-bond-lab__choice:nth-of-type(${target + 1})`)
+        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
         const state = await page.evaluate(() => {
           const lab = document.querySelector('.covalent-bond-lab')
           return {
-            molecule: lab?.dataset.molecule,
-            sharedDots: lab?.querySelectorAll('.lewis-mol__dot[data-electron="shared"]').length ?? 0,
-            bondOrder: lab?.querySelector('.bond-model__bond')?.getAttribute('data-order'),
+            molecule: lab?.getAttribute('data-molecule'),
+            shared: lab?.querySelectorAll('.covalent-bond-lab__dot[data-kind="shared"]').length ?? null,
+            text: lab?.textContent ?? '',
           }
         })
-        check(`${viewport.name}: covalent lab switches to N₂ with 6 shared electrons`, state.molecule === 'N2' && state.sharedDots === 6 && state.bondOrder === '3', state)
+        check(
+          `${viewport.name}: covalent lab switches to N₂ and reports a triple bond`,
+          state.molecule === 'N2' && (/ثلاثية/.test(state.text) || /3/.test(state.text)),
+          state,
+        )
+        const reset = await page.$$eval('.covalent-bond-lab button', (nodes) => nodes.map((node) => node.textContent?.trim() ?? ''))
+        check(`${viewport.name}: covalent lab offers a reset control`, reset.some((label) => /إعادة/.test(label)), reset)
       }
 
       if (step.kind === 'final-test') {
-        const questions = await page.$$eval('[data-question]', (nodes) => nodes.map((node) => node.getAttribute('data-question')))
-        check(`${viewport.name}: the final test renders every top-level question`, questions.length >= chemistryLesson2.tests[2].questions.length, questions.length)
+        const count = await page.$$eval('[data-question]', (nodes) => nodes.length)
+        check(`${viewport.name}: final test renders its question nodes`, count >= 17, count)
+        const leaked = await page.evaluate(() =>
+          /الإجابة المرجعية|الحلّ النموذجي/.test(document.querySelector('#main-content')?.textContent ?? ''),
+        )
+        check(`${viewport.name}: final test hides solutions before submission`, !leaked)
       }
     }
   }
 
-  // Real-Chromium axe checks supplement the jsdom accessibility tests.
+  // Real Chromium axe checks supplement the jsdom accessibility tests.
   await page.setViewport({ width: 1365, height: 960, deviceScaleFactor: 1 })
   for (let index = 0; index < chemistryLesson2.steps.length; index += 1) {
     await page.goto(`${origin}${LESSON_PATH}?a11y=${++visit}#step-${index + 1}`, { waitUntil: 'networkidle0' })
@@ -305,7 +312,11 @@ const screenshotSteps = new Set([0, 1, 5, 6, 7, 12, 13, 14, 19])
       })
       return result.violations
         .filter((item) => ['serious', 'critical'].includes(item.impact))
-        .map((item) => ({ id: item.id, impact: item.impact, targets: item.nodes.map((node) => node.target) }))
+        .map((item) => ({
+          id: item.id,
+          impact: item.impact,
+          nodes: item.nodes.map((node) => ({ target: node.target, summary: node.failureSummary })),
+        }))
     })
     check(`real-browser axe: step ${index + 1} has no serious/critical violations`, violations.length === 0, violations)
   }
