@@ -10,6 +10,8 @@ import RutherfordScattering from '@/simulations/RutherfordScattering'
 import IsotopeLab from '@/simulations/IsotopeLab'
 import ElectronShellBuilder from '@/simulations/ElectronShellBuilder'
 import LevelsDiagram from '@/simulations/LevelsDiagram'
+import BohrEnergyTransition from '@/simulations/BohrEnergyTransition'
+import IonFormationLab from '@/simulations/IonFormationLab'
 
 /**
  * Lesson 1 interactive labs.
@@ -27,6 +29,8 @@ const LABS = [
   ['rutherford-scattering', RutherfordScattering],
   ['isotope-lab', IsotopeLab],
   ['electron-shell-builder', ElectronShellBuilder],
+  ['bohr-energy-transition', BohrEnergyTransition],
+  ['ion-formation-lab', IonFormationLab],
   ['source-figure-p5-levels', LevelsDiagram],
 ] as const
 
@@ -191,6 +195,24 @@ describe('Rutherford model', () => {
     // the qualitative claim without pinning an unreproducible number.
     expect(straight).toBeGreaterThan(90)
     expect(deflected + rebounded).toBeLessThan(30)
+  })
+})
+
+describe('bohr transition lab', () => {
+  it('reports the energy gap of the actual transition, not zero', async () => {
+    const user = userEvent.setup()
+    renderLab(BohrEnergyTransition, 'bohr-energy-transition')
+
+    await user.click(screen.getByRole('button', { name: /امتصاص طاقة/ }))
+    // K → L for hydrogen: ΔE = 13.6 × (1 − 1/4) = 10.20 eV.
+    expect(screen.getByText('10.20 eV')).toBeInTheDocument()
+    expect(screen.getByText('n = 1 و n = 2')).toBeInTheDocument()
+    expect(screen.queryByText('0.00 eV')).toBeNull()
+
+    await user.click(screen.getByRole('button', { name: /إصدار طاقة/ }))
+    // L → K emits the same gap: λ = 1240 / 10.20 ≈ 122 nm.
+    expect(screen.getByText('10.20 eV')).toBeInTheDocument()
+    expect(screen.getByText('122 nm')).toBeInTheDocument()
   })
 })
 

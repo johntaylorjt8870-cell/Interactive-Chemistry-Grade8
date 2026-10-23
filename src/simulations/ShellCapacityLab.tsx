@@ -35,7 +35,7 @@ const EXPECTED: Record<(typeof TEXTBOOK_TABLE)[number], number> = {
   O: capacityOf(5),
 }
 
-export default function ShellCapacityLab({ reducedMotion }: InteractiveProps) {
+export default function ShellCapacityLab(_props: InteractiveProps) {
   const [levelIndex, setLevelIndex] = useState(2)
   const [answers, setAnswers] = useState<Record<string, string>>({ M: '', N: '', O: '' })
   const [checked, setChecked] = useState(false)
@@ -97,10 +97,10 @@ export default function ShellCapacityLab({ reducedMotion }: InteractiveProps) {
       </div>
 
       <table className="capacity-table">
-        <caption>السيّات الرئيسية السبع وسعتها العظمى (محسوبة من القانون)</caption>
+        <caption>السويات الرئيسية السبع وسعتها العظمى (محسوبة من القانون)</caption>
         <thead>
           <tr>
-            <th scope="col">السيّة</th>
+            <th scope="col">السوية</th>
             <th scope="col">n</th>
             <th scope="col">التعويض</th>
             <th scope="col">y</th>
@@ -191,12 +191,12 @@ export default function ShellCapacityLab({ reducedMotion }: InteractiveProps) {
         M = 18، N = 32، O = 50. وهذه سعة نظرية، لا عدد الإلكترونات الفعلي في كل ذرة.
       </p>
 
-      {!reducedMotion ? (
-        <p className="lab__note">
-          النموذج يطبّق القانون المطبوع حتى n = 7. أما التوزيع الفعلي للذرات في هذا الدرس فيتوقف عند قاعدة «السوية
-          الأخيرة لا تزيد على ثمانية»، والأمثلة المطبوعة لا تتجاوز العدد الذري 20.
-        </p>
-      ) : null}
+      {/* A model limitation is content, not motion: it is shown to every
+          student, including those who ask for reduced motion. */}
+      <p className="lab__note">
+        النموذج يطبّق القانون المطبوع حتى n = 7. أما التوزيع الفعلي للذرات في هذا الدرس فيتوقف عند قاعدة «السوية
+        الأخيرة لا تزيد على ثمانية»، والأمثلة المطبوعة لا تتجاوز العدد الذري 20.
+      </p>
     </section>
   )
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { ChargeNotation, MathFormula } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
@@ -33,20 +33,25 @@ type Transition = 'idle' | 'absorbed' | 'emitted'
 
 export default function BohrEnergyTransition({ reducedMotion }: InteractiveProps) {
   const [levelIndex, setLevelIndex] = useState(0)
+  // The level the electron came *from* is part of the displayed result, so it is
+  // state updated together with the destination. (A ref written in an effect
+  // would already hold the new index by the time the gap is rendered, which made
+  // every gap read 0.00 eV.)
+  const [previousIndex, setPreviousIndex] = useState(0)
   const [transition, setTransition] = useState<Transition>('idle')
-  const previousIndex = useRef(0)
   const level = LEVELS[levelIndex]!
 
-  useEffect(() => {
-    if (levelIndex > previousIndex.current) setTransition('absorbed')
-    else if (levelIndex < previousIndex.current) setTransition('emitted')
-    previousIndex.current = levelIndex
-  }, [levelIndex])
+  function goTo(next: number) {
+    if (next === levelIndex) return
+    setPreviousIndex(levelIndex)
+    setLevelIndex(next)
+    setTransition(next > levelIndex ? 'absorbed' : 'emitted')
+  }
 
-  const moveOut = () => setLevelIndex((index) => Math.min(LEVELS.length - 1, index + 1))
-  const moveIn = () => setLevelIndex((index) => Math.max(0, index - 1))
+  const moveOut = () => goTo(Math.min(LEVELS.length - 1, levelIndex + 1))
+  const moveIn = () => goTo(Math.max(0, levelIndex - 1))
 
-  const previousLevel = LEVELS[previousIndex.current]!.n
+  const previousLevel = LEVELS[previousIndex]!.n
   const currentLevel = level.n
   const gap = Math.abs(energyEv(currentLevel) - energyEv(previousLevel))
   const transferred = transition === 'idle' ? 0 : gap
@@ -150,8 +155,8 @@ export default function BohrEnergyTransition({ reducedMotion }: InteractiveProps
           className="button button--quiet"
           onClick={() => {
             setLevelIndex(0)
+            setPreviousIndex(0)
             setTransition('idle')
-            previousIndex.current = 0
           }}
         >
           إعادة

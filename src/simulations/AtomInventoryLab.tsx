@@ -85,7 +85,7 @@ const PREDICTION_LABEL: Record<Prediction, string> = {
   neutral: 'ذرّة متعادلة',
 }
 
-export default function AtomInventoryLab({ reducedMotion }: InteractiveProps) {
+export default function AtomInventoryLab(_props: InteractiveProps) {
   const [particle, setParticle] = useState<Particle>({ protons: 11, neutrons: 12, electrons: 11 })
   const [prediction, setPrediction] = useState<Prediction | null>(null)
   const [predictionResult, setPredictionResult] = useState<'none' | 'correct' | 'wrong'>('none')
@@ -333,11 +333,10 @@ export default function AtomInventoryLab({ reducedMotion }: InteractiveProps) {
         البروتونات فيغير العنصر نفسه.
       </p>
 
-      {!reducedMotion ? (
-        <RtlRun as="p" className="lab__note">
-          هذا نموذج حسابي للأعداد المطبوعة في الدرس (حتى العدد الذري 20)، وليس صورة فيزيائية كاملة للذرة.
-        </RtlRun>
-      ) : null}
+      {/* The scope of the model is content, not motion: every student sees it. */}
+      <RtlRun as="p" className="lab__note">
+        هذا نموذج حسابي للأعداد المطبوعة في الدرس (حتى العدد الذري 20)، وليس صورة فيزيائية كاملة للذرة.
+      </RtlRun>
     </section>
   )
 }

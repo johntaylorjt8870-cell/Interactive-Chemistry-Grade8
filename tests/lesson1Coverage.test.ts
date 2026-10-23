@@ -3,6 +3,8 @@ import { chemistryLesson1, bookQuestions, bookActivitySolutions, finalTest } fro
 import { LESSON1_LEDGER, LESSON1_OBJECTIVES, computeLedgerCoverage } from '@/data/curriculum/lesson1SourceLedger'
 import { getLesson } from '@/data/curriculum/registry'
 import { countQuestions, validateFinalTest } from '@/assessment/validate'
+import { evaluateQuestion } from '@/assessment/evaluate'
+import type { QuestionResponse, ResponseValue } from '@/assessment/types'
 import { getInteractive, isInteractiveRegistered } from '@/simulations/registry'
 import { getTeacherLesson } from '@/teacher/teacherContent'
 import type { Question } from '@/assessment/types'
@@ -223,6 +225,66 @@ describe('Lesson 1 lesson structure and interactions', () => {
     expect(text).not.toContain('\u202a')
     expect(text).not.toContain('\u202b')
     expect(text).not.toContain('\u202c')
+  })
+})
+
+/**
+ * Builds the response an ideal student would give, straight from the authored
+ * key. If a key is malformed (a wrong option id, an ordering that cannot be
+ * satisfied, a blank with no accepted answer), this builder or the evaluation
+ * below fails instead of the page quietly showing a wrong "correct" answer.
+ */
+function modelResponse(question: Question): ResponseValue {
+  switch (question.type) {
+    case 'multiple-choice':
+      return { type: 'choice', optionIds: [...question.correctOptionIds] }
+    case 'true-false':
+      return { type: 'boolean', value: question.correctAnswer }
+    case 'fill-blank':
+      return {
+        type: 'blanks',
+        values: Object.fromEntries(question.blanks.map((blank) => [blank.id, blank.acceptedAnswers[0]!])),
+      }
+    case 'numerical':
+      return { type: 'number', value: String(question.acceptedAnswers[0]) }
+    case 'ordering':
+      return { type: 'order', itemIds: [...question.correctOrder] }
+    case 'matching':
+      return { type: 'matching', pairs: question.pairs.map((pair) => ({ ...pair })) }
+    case 'short-answer':
+      return { type: 'text', value: question.referenceAnswer }
+    case 'table-interpretation':
+    case 'diagram-interpretation':
+      return {
+        type: 'composite',
+        children: Object.fromEntries(question.questions.map((child) => [child.id, modelResponse(child)])),
+      }
+  }
+}
+
+describe('Lesson 1 final assessment scoring', () => {
+  it('marks the authored key as fully correct through the real evaluator', () => {
+    const outcomes = finalTest.questions.map((question) => {
+      const response: QuestionResponse = { questionId: question.id, value: modelResponse(question) }
+      return { id: question.id, outcome: evaluateQuestion(question, response).outcome }
+    })
+
+    // Free-text answers are flagged for human review by design, never auto-marked.
+    const autoMarked = outcomes.filter((entry) => entry.outcome !== 'needs-review')
+    expect(autoMarked.every((entry) => entry.outcome === 'correct'), JSON.stringify(outcomes)).toBe(true)
+    expect(autoMarked.length).toBeGreaterThanOrEqual(12)
+
+    // And a wrong choice on a keyed question is actually marked wrong.
+    const single = finalTest.questions.find(
+      (question): question is Extract<Question, { type: 'multiple-choice' }> =>
+        question.type === 'multiple-choice' && question.options.length > 1,
+    )!
+    const wrongOption = single.options.find((option) => !single.correctOptionIds.includes(option.id))!
+    const wrong = evaluateQuestion(single, {
+      questionId: single.id,
+      value: { type: 'choice', optionIds: [wrongOption.id] },
+    })
+    expect(wrong.outcome).toBe('incorrect')
   })
 })
 
