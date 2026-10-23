@@ -4,7 +4,9 @@
  * Uses the same optional browser packages as verify:badges; no new dependency.
  * npm run build && npm run verify:lesson4
  * Screenshots + geometric/interaction/a11y evidence: artifacts/lesson4/browser/.
- * The page scans are unavailable; this checks honest references, NOT scan pixels.
+ * Audits all 34 rebuilt Lesson 4 steps, 33 textbook items, 24 inline practice
+ * items, 4 schematic SVG reconstructions, 4 interactive labs, 20-item final
+ * test, 20-item Test Area bank, and Teacher Area across 1440×900, 390×844, and 320×740.
  */
 import http from 'node:http'
 import fs from 'node:fs'
@@ -211,7 +213,7 @@ async function answerBank(page, question) {
 }
 
 try {
-  for (const device of [{ name: 'desktop', width: 1280, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
+  for (const device of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844 }]) {
     profile = device.name
     const page = await browser.newPage()
     await page.setViewport({ width: device.width, height: device.height, deviceScaleFactor: 1 })
@@ -219,14 +221,23 @@ try {
     const requests = new Set()
     page.on('request', (request) => requests.add(request.url()))
     const reached = new Set()
+    const reachedPractice = new Set()
+    const reachedSchematics = new Set()
     for (const item of lesson.steps.filter((step) => step.kind !== 'final-test')) {
       await step(page, item.id)
       check(`${item.id}: original step/order reached`, (await page.$eval('.step__title', (node) => node.textContent.trim())) === item.title)
       await layout(page, item.id)
       for (const id of await page.$$eval('.question[data-origin="textbook"]', (nodes) => nodes.map((node) => node.dataset.question))) reached.add(id)
-      if (['opening', 'magnesium-word-activity', 'book-question-2', 'book-question-6'].includes(item.id)) await shot(page, item.id, '.lesson-shell__main')
+      for (const id of await page.$$eval('.question[data-origin="platform"]', (nodes) => nodes.map((node) => node.dataset.question))) reachedPractice.add(id)
+      for (const id of await page.$$eval('[data-interactive^="source-figure-"]', (nodes) => nodes.map((node) => node.dataset.interactive))) reachedSchematics.add(id)
+      if (['opening', 'magnesium-word-activity', 'worked-example-magnesium', 'book-question-2', 'book-question-6'].includes(item.id)) await shot(page, item.id, '.lesson-shell__main')
     }
     check('all 33 source activity/self-test units reached', reached.size === 33, [...reached])
+    check('all 24 inline platform practice questions reached', reachedPractice.size === 24, [...reachedPractice])
+    check('all 4 schematic SVG figure reconstructions mounted', reachedSchematics.size === 4, [...reachedSchematics])
+    await step(page, 'worked-example-magnesium')
+    check('worked-example-magnesium renders KaTeX cleanly without raw TeX or .katex-error', Boolean(await page.$('.katex')) && !(await page.$('.katex-error')))
+    await accessibility(page, 'worked-example-magnesium')
     await step(page, 'observe-reactions')
     const p24Caption = await page.$$eval('.textbook-source', (nodes) => nodes.map((node) => ({
       text: node.querySelector('.textbook-source__text')?.textContent.trim(),
@@ -297,7 +308,7 @@ try {
     await iron[0].select('الكبريت'); await iron[1].select('كبريتيد الحديد II')
     await clickText(page, 'تحقق من المعادلة')
     check('builder verifies the iron reaction before its II notation', (await page.$eval('.lab__conclusion', (node) => node.textContent)).includes('اتسقت البطاقة'))
-    check('builder keeps printed II isolated LTR', await page.$eval('.word-equation__term:last-child .sci', (node) => node.textContent === 'II' && getComputedStyle(node).direction === 'ltr'))
+    check('builder keeps printed II isolated LTR', await page.$eval('.word-lab .word-equation__term:last-child .sci', (node) => node.textContent === 'II' && getComputedStyle(node).direction === 'ltr'))
     await layout(page, 'iron word reaction')
     await shot(page, 'word-builder', '.reaction-lab')
     if (profile === 'mobile') {
@@ -419,7 +430,7 @@ try {
   check('browser harness completes', false, String(error))
 } finally {
   const passed = checks.filter((item) => item.passed).length
-  const report = { browser: await browser.version(), pages: '24–29', profiles: ['1280×900', '390×844', '320×740 stress'], passed, failed: checks.length - passed, checks, geometries, errors }
+  const report = { browser: await browser.version(), pages: '24–29', profiles: ['1440×900', '390×844', '320×740 stress'], passed, failed: checks.length - passed, checks, geometries, errors }
   fs.writeFileSync(path.join(OUT, 'report.json'), `${JSON.stringify(report, null, 2)}\n`)
   console.log(`Lesson 4 Chromium: ${report.passed} passed / ${report.failed} failed; evidence ${path.relative(ROOT, OUT)}`)
   await browser.close()
