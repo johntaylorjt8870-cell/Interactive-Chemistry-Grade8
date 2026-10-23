@@ -28,7 +28,7 @@ import type { ContentBlock } from '@/data/curriculum/schema'
 export type ContentBlocksProps = {
   blocks: ContentBlock[]
   /** Renders a question by id (assessment layer). */
-  renderQuestion?: (questionId: string) => ReactNode
+  renderQuestion?: (questionId: string, options?: { reveal?: boolean }) => ReactNode
   /** Renders a registered diagram by id. */
   renderDiagram?: (diagramId: string, description: string) => ReactNode
 }
@@ -125,7 +125,7 @@ function Block({
   renderDiagram,
 }: {
   block: ContentBlock
-  renderQuestion?: (questionId: string) => ReactNode
+  renderQuestion?: (questionId: string, options?: { reveal?: boolean }) => ReactNode
   renderDiagram?: (diagramId: string, description: string) => ReactNode
 }) {
   switch (block.kind) {
@@ -369,7 +369,7 @@ function Block({
     case 'question':
       return renderQuestion ? (
         <div className="step-question" data-question-id={block.questionId}>
-          {renderQuestion(block.questionId)}
+          {renderQuestion(block.questionId, { reveal: block.reveal })}
         </div>
       ) : null
 

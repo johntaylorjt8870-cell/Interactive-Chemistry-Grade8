@@ -14,6 +14,7 @@
     "verify:dist": "node scripts/verify-dist.mjs",
     "verify:badges": "node scripts/verify-badge-rendering.mjs",
     "verify": "npm run typecheck && npm run test && npm run build && npm run verify:dist",
+    "verify:lesson1": "node scripts/verify-lesson1-rendering.mjs",
     "verify:lesson4": "node scripts/verify-lesson4-rendering.mjs",
     "verify:lesson5": "node scripts/verify-lesson5-rendering.mjs"
   },

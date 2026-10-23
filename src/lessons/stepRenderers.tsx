@@ -7,7 +7,7 @@ import { PlatformAddition } from '@/scientific'
 export type StepRendererProps = {
   step: LessonStep
   meta: StepKindMeta
-  renderQuestion?: (questionId: string) => ReactNode
+  renderQuestion?: (questionId: string, options?: { reveal?: boolean }) => ReactNode
   renderDiagram?: (diagramId: string, description: string) => ReactNode
   /** Rendered for `final-test` steps once a test definition exists. */
   renderTest?: (testId: string) => ReactNode

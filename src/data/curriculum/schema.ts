@@ -179,8 +179,13 @@ export type ContentBlock =
   /** Ordered procedure, e.g. experiment steps. */
   | { kind: 'procedure'; title?: string; items: string[]; attribution: Attribution }
   | { kind: 'key-terms'; terms: Array<{ term: string; meaning: string }>; attribution: Attribution }
-  /** Reference to a question authored in the assessment layer. */
-  | { kind: 'question'; questionId: string }
+  /**
+   * Reference to a question authored in the assessment layer.
+   *
+   * `reveal` opts into a self-check (explanation shown only after the student
+   * answers). It is off by default so existing lessons keep their behaviour.
+   */
+  | { kind: 'question'; questionId: string; reveal?: boolean }
   /** Reference to a lazily-loaded interactive component (experiment/simulation). */
   | { kind: 'interactive'; interactiveId: string; caption?: string }
 

@@ -359,6 +359,23 @@ describe('MathFormula — KaTeX', () => {
     expect(formula.getAttribute('data-math')).toBe('block')
   })
 
+  it('makes a scrollable display equation keyboard-focusable but leaves inline math alone', () => {
+    const { container: block } = render(<MathFormula tex="x = 1" display="block" />)
+    // `.math-formula--block` scrolls horizontally on narrow screens, so it must
+    // be focusable; see axe rule `scrollable-region-focusable`.
+    expect(block.querySelector('.math-formula')!.getAttribute('tabindex')).toBe('0')
+
+    const { container: inline } = render(<MathFormula tex="x = 1" />)
+    expect(inline.querySelector('.math-formula')!.hasAttribute('tabindex')).toBe(false)
+  })
+
+  it('keeps the invalid-TeX fallback consistent with the display mode', () => {
+    const { container } = render(<MathFormula tex="\frac{1}{" display="block" />)
+    const formula = container.querySelector('.math-formula')!
+    expect(formula.getAttribute('data-math-error')).toBe('true')
+    expect(formula.getAttribute('tabindex')).toBe('0')
+  })
+
   it('falls back visibly instead of crashing on invalid TeX', () => {
     const { container } = render(<MathFormula tex="\frac{1}{" />)
     const formula = container.querySelector('.math-formula')!

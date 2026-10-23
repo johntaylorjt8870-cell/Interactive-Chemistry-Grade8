@@ -1,5 +1,29 @@
-import type { FinalTest, Question } from '@/assessment/types'
+import type { FinalTest } from '@/assessment/types'
 import type { ContentBlock, LessonDefinition, LessonStep } from './schema'
+import { bookActivitySolutions, bookQuestions } from './chemistryLesson1Book'
+import { lesson1PracticeQuestions } from './chemistryLesson1Practice'
+import { lesson1FinalTest } from './chemistryLesson1Test'
+import { lesson1TeacherGuide } from './chemistryLesson1TeacherGuide'
+
+/* ============================================================================
+   Lesson 1 — «الذرّة والعنصر» — pages 3–12
+   ----------------------------------------------------------------------------
+   The lesson is built as a learning journey, not as a page-by-page copy:
+
+     * a curiosity-opening question;
+     * the printed objectives and keywords (p3);
+     * concept units that each preserve the textbook text/data and add a
+       platform explanation, a visual model, an interaction where it teaches,
+       a worked example, a misconception, formative checks and transfer items;
+     * every textbook activity/table/question (p5–p12) with a self-check that
+       reveals the reasoning only after the student answers;
+     * a connected summary and a 15-question platform assessment.
+
+   Attribution is explicit everywhere: `textbook` blocks are reproduced from
+   the printed pages, `platform` blocks are additions, and `mixed` steps wrap
+   both. The source ledger (`lesson1SourceLedger.ts`) maps every printed item
+   to the step and question ids below.
+   ========================================================================= */
 
 const source = (page: string, item?: string) => ({ page, item })
 const pages = Array.from({ length: 10 }, (_, index) => ({ page: String(index + 3) }))
@@ -16,303 +40,1279 @@ const verifiedSource = {
     diagrams: 'clear' as const,
     experiments: 'clear' as const,
     questions: 'clear' as const,
-    notes: 'Final Source Readability Confirmation — الصفحات 3–12.',
+    notes:
+      'قُرئت صور الصفحات 3–12 المرفقة بالدرس. الصور الفوتوغرافية في ص4 و7 غير محفوظة كملفات في المستودع، والوسوم الصغيرة في بعض الأشكال نُقلت كما هي مقروءة دون إضافة تفاصيل. إشارة Br⁻ في نشاط ص9 صغيرة جداً وقُرئت من السياق.',
   },
 }
 
-export const bookQuestions: Question[] = [
-  {
-    id: 'book-tf-1', type: 'true-false', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الأول (1)'),
-    prompt: 'الذرّة التي تخسر إلكتروناً تصبح أيوناً موجباً.', correctAnswer: true,
-    explanation: 'صح. خسارة إلكترون سالب تُنقص مقدار الشحنة السالبة بينما يبقى عدد البروتونات الموجبة ثابتاً، فيصبح المجموع الجبري للشحنات موجباً.',
-  },
-  {
-    id: 'book-tf-2', type: 'true-false', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الأول (2)'),
-    prompt: 'الأيونات معتدلة كهربائياً.', correctAnswer: false,
-    explanation: 'غلط. الأيون جسيم مشحون لأن عدد إلكتروناته لا يساوي عدد بروتوناته؛ يكون موجباً عند فقد الإلكترونات وسالباً عند اكتسابها.',
-  },
-  {
-    id: 'book-tf-3', type: 'true-false', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الأول (3)'),
-    prompt: 'الذرّة التي تكتسب إلكتروناً تصبح أيوناً سالباً.', correctAnswer: true,
-    explanation: 'صح. الإلكترون المكتسب يحمل شحنة سالبة؛ لذلك يصبح عدد الشحنات السالبة أكبر من عدد الشحنات الموجبة.',
-  },
-  {
-    id: 'book-tf-4', type: 'true-false', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الأول (4)'),
-    prompt: 'النظائر هي ذرّات متماثلة بالعدد الكتلي ومختلفة بالعدد الذري.', correctAnswer: false,
-    explanation: 'غلط. نظائر العنصر الواحد متماثلة في العدد الذري، أي في عدد البروتونات، ومختلفة في عدد النيوترونات ولذلك تختلف في العدد الكتلي.',
-  },
-  {
-    id: 'book-tf-5', type: 'true-false', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الأول (5)'),
-    prompt: 'العدد الأعظمي للإلكترونات في السويّة الرئيسية الثالثة 18.', correctAnswer: true,
-    explanation: 'صح. نعوّض n = 3 في العلاقة y = 2(n)² فنحصل على y = 2 × 3² = 2 × 9 = 18 إلكتروناً.',
-  },
-  {
-    id: 'book-tf-6', type: 'true-false', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الأول (6)'),
-    prompt: 'تمتلىء السويّة الطاقية الرئيسية الأولى K بثلاثة إلكترونات.', correctAnswer: false,
-    explanation: 'غلط. للسوية K الرقم n = 1، ومن العلاقة y = 2(n)² يكون عددها الأعظمي 2 × 1² = 2 إلكترون فقط.',
-  },
-  {
-    id: 'book-mc-1', type: 'multiple-choice', selection: 'single', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الثاني (1)'),
-    prompt: 'النظائر هي ذرّات متماثلة بالعدد:',
-    options: [{ id: 'a', label: 'الكتلي.' }, { id: 'b', label: 'الذرّي.' }, { id: 'c', label: 'الكتلي والذرّي معاً.' }, { id: 'd', label: 'النيوترونات.' }], correctOptionIds: ['b'],
-    explanation: 'الإجابة b: الذرّي. ثبات عدد البروتونات يحافظ على هوية العنصر، أما اختلاف عدد النيوترونات فيغيّر العدد الكتلي ويُنتج نظائر مختلفة.',
-  },
-  {
-    id: 'book-mc-2', type: 'multiple-choice', selection: 'single', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الثاني (2)'),
-    prompt: 'إذا فقدت الذرّة إلكتروناً أو أكثر أصبحت:',
-    options: [{ id: 'a', label: 'أيون موجب.' }, { id: 'b', label: 'أيون سالب.' }, { id: 'c', label: 'معتدلة.' }, { id: 'd', label: 'نظيراً.' }], correctOptionIds: ['a'],
-    explanation: 'الإجابة a: أيون موجب؛ لأن فقد الشحنة السالبة يجعل عدد البروتونات الموجبة أكبر من عدد الإلكترونات.',
-  },
-  {
-    id: 'book-mc-3', type: 'multiple-choice', selection: 'single', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الثاني (3)'),
-    prompt: 'في تمثيل لويس تُكتب حول رمز الذرة نقاط عددها يساوي:',
-    options: [{ id: 'a', label: 'جميع الإلكترونات.' }, { id: 'b', label: 'الإلكترونات السطحية فقط.' }, { id: 'c', label: 'البروتونات.' }, { id: 'd', label: 'النيوترونات.' }], correctOptionIds: ['b'],
-    explanation: 'الإجابة b: الإلكترونات السطحية فقط، أي إلكترونات السوية الأخيرة التي ترتبط بالسلوك الكيميائي للذرة.',
-  },
-  {
-    id: 'book-mc-4', type: 'multiple-choice', selection: 'single', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الثاني (4)'),
-    prompt: 'الذرّة ذات التوزيع الإلكتروني وفق نظرية بور (2-8-6) هي:',
-    options: [{ id: 'a', label: '₆C' }, { id: 'b', label: '₁₆S' }, { id: 'c', label: '₁₀Ne' }, { id: 'd', label: '₈O' }], correctOptionIds: ['b'],
-    explanation: 'الإجابة b: ₁₆S. مجموع الإلكترونات = 2 + 8 + 6 = 16، وفي الذرة المعتدلة يساوي عدد الإلكترونات العدد الذري.',
-  },
-  {
-    id: 'book-mc-5', type: 'multiple-choice', selection: 'single', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الثاني (5)'),
-    prompt: 'إذا كان العدد الذرّي للفوسفور 15 فيكون عدد الإلكترونات في السويّة الرئيسيّة الثالثة M هو:',
-    options: [{ id: 'a', label: '2' }, { id: 'b', label: '5' }, { id: 'c', label: '6' }, { id: 'd', label: '7' }], correctOptionIds: ['b'],
-    explanation: 'الإجابة b: 5. نوزّع 15 إلكتروناً من الداخل إلى الخارج: K(2)، ثم L(8)، ويبقى 15 − 10 = 5 إلكترونات في M.',
-  },
-  ...[
-    { id: 'c', atom: '₆C', distribution: '2-4', lewis: 'أربع نقاط منفردة، نقطة في كل جهة حول C.' },
-    { id: 'he', atom: '₂He', distribution: '2', lewis: 'نقطتان حول He.' },
-    { id: 'ar', atom: '₁₈Ar', distribution: '2-8-8', lewis: 'ثماني نقاط حول Ar، زوج في كل جهة.' },
-    { id: 'o', atom: '₈O', distribution: '2-6', lewis: 'ست نقاط حول O: زوجان ونقطتان منفردتان.' },
-  ].map(({ id, atom, distribution, lewis }): Question => ({
-    id: `book-lewis-${id}`, type: 'short-answer', origin: 'textbook', source: source('12', 'أختبر نفسي — السؤال الثالث'),
-    prompt: `اكتب التوزع الإلكتروني ثم تمثيل لويس للذرّة ${atom}.`,
-    referenceAnswer: `التوزع الإلكتروني: ${distribution}. تمثيل لويس: ${lewis}`,
-    rubric: ['توزيع العدد الكامل للإلكترونات بدءاً من السوية الداخلية', 'تمثيل إلكترونات السوية الأخيرة فقط بنقاط لويس', 'وضع النقاط منفردة قبل بدء الازدواج'],
-    explanation: `نقرأ العدد الذري بوصفه عدد الإلكترونات في الذرة المعتدلة، فنملأ السويات بالتتابع. النتيجة ${distribution}؛ لذلك ${lewis}`,
-  })),
-]
+/* ---------------------------------------------------------------------------
+ * Block helpers — every helper states its attribution explicitly.
+ * ------------------------------------------------------------------------ */
 
-export const bookActivitySolutions: Question[] = [
-  {
-    id: 'activity-sodium', type: 'short-answer', origin: 'textbook', source: source('6', 'تطبيق الصوديوم'),
-    prompt: 'وزّع إلكترونات ذرّة الصوديوم Na وعددها 11 إلكتروناً على السويات الرئيسية.',
-    referenceAnswer: 'K(2), L(8), M(1).',
-    rubric: ['ملء K بإلكترونين', 'ملء L بثمانية إلكترونات', 'وضع الإلكترون المتبقي في M'],
-    explanation: 'نبدأ من السوية الأدنى K فنعطيها 2، ويتبقى 9. نملأ L بـ8، فيتبقى إلكترون واحد يوضع في M. التحقق: 2 + 8 + 1 = 11.',
-  },
-  {
-    id: 'activity-neon', type: 'short-answer', origin: 'textbook', source: source('7', 'تطبيق النيون'),
-    prompt: 'اقرأ الترميز ²⁰₁₀Ne وحدد العدد الكتلي والعدد الذري وعدد البروتونات والإلكترونات والنيوترونات والتوزع الإلكتروني.',
-    referenceAnswer: 'العدد الكتلي 20، والعدد الذري 10، والبروتونات 10، والإلكترونات 10، والنيوترونات 10، والتوزع 2-8.',
-    rubric: ['قراءة العددين من موضعيهما', 'استخدام تعادل الذرة', 'طرح العدد الذري من الكتلي', 'توزيع الإلكترونات'],
-    explanation: 'العلوي هو العدد الكتلي 20 والسفلي هو العدد الذري 10. إذن البروتونات 10، ولأن الذرة متعادلة فالإلكترونات 10. النيوترونات = 20 − 10 = 10، وتوزع الإلكترونات 2-8.',
-  },
-  {
-    id: 'activity-ion-table', type: 'short-answer', origin: 'textbook', source: source('8', 'جدول الذرات والأيونات'),
-    prompt: 'قارن المجموع الجبري للشحنات في ذرّتي ²³₁₁Na و³⁵₁₇Cl وفي أيوني الصوديوم والكلور الناتجين عنهما.',
-    referenceAnswer: 'ذرة Na: صفر، وأيون Na⁺: +1. ذرة Cl: صفر، وأيون Cl⁻: −1.',
-    rubric: ['تساوي البروتونات والإلكترونات في الذرتين', 'فقد Na إلكتروناً', 'اكتساب Cl إلكتروناً'],
-    explanation: 'في الذرة المتعادلة يتساوى الموجب والسالب فيكون المجموع صفراً. للصوديوم 11 بروتوناً و10 إلكترونات بعد الفقد فيكون +1. للكلور 17 بروتوناً و18 إلكتروناً بعد الاكتساب فيكون −1.',
-  },
-  {
-    id: 'activity-lewis-al-mg-o', type: 'short-answer', origin: 'textbook', source: source('10', 'النشاط'),
-    prompt: 'اكتب التوزع الإلكتروني وحدد عدد الإلكترونات السطحية ومثّل لويس لكل من ₁₃Al و₁₂Mg و₈O.',
-    referenceAnswer: 'Al: 2-8-3 وثلاث نقاط لويس. Mg: 2-8-2 ونقطتا لويس. O: 2-6 وست نقاط لويس.',
-    rubric: ['عدم إضافة أعداد كتلية', 'توزيع 13 و12 و8 إلكترونات على الترتيب', 'تمثيل إلكترونات السوية الأخيرة فقط'],
-    explanation: 'الأعداد المكتوبة أسفل الرموز أعداد ذرية فقط. في الذرات المتعادلة هي أعداد الإلكترونات. بعد التوزيع يظهر عدد السطح: 3 للألمنيوم، و2 للمغنزيوم، و6 للأكسجين؛ وهو عدد نقاط لويس.',
-  },
-]
+const prose = (text: string): ContentBlock => ({ kind: 'paragraph', text, attribution: 'platform' })
+const book = (text: string, page: string, item?: string): ContentBlock => ({
+  kind: 'textbook-verbatim',
+  text,
+  source: source(page, item),
+})
+const definition = (term: string, text: string, attribution: 'textbook' | 'platform' = 'platform'): ContentBlock => ({
+  kind: 'definition',
+  term,
+  text,
+  attribution,
+})
+const method = (title: string, text: string): ContentBlock => ({
+  kind: 'callout',
+  tone: 'method',
+  title,
+  text,
+  attribution: 'platform',
+})
+const note = (title: string, text: string): ContentBlock => ({
+  kind: 'callout',
+  tone: 'note',
+  title,
+  text,
+  attribution: 'platform',
+})
+const warn = (title: string, text: string): ContentBlock => ({
+  kind: 'callout',
+  tone: 'warning',
+  title,
+  text,
+  attribution: 'platform',
+})
+const bullets = (items: string[], attribution: 'textbook' | 'platform' = 'platform'): ContentBlock => ({
+  kind: 'list',
+  items,
+  attribution,
+})
+const ordered = (items: string[], attribution: 'textbook' | 'platform' = 'platform'): ContentBlock => ({
+  kind: 'list',
+  items,
+  ordered: true,
+  attribution,
+})
+const formula = (tex: string, caption?: string, attribution: 'textbook' | 'platform' = 'platform'): ContentBlock => ({
+  kind: 'formula',
+  tex,
+  display: 'block',
+  caption,
+  attribution,
+})
+const nuclear = (symbol: string, massNumber: string | undefined, atomicNumber: string, caption: string): ContentBlock => ({
+  kind: 'nuclear',
+  symbol,
+  massNumber,
+  atomicNumber,
+  caption,
+  attribution: 'textbook',
+})
+const ion = (symbol: string, charge: string, caption: string): ContentBlock => ({
+  kind: 'ion',
+  formula: symbol,
+  charge,
+  caption,
+  // The table values are the book's; this rendering and its sentence are the
+  // platform's reconstruction of the printed table row.
+  attribution: 'platform',
+})
+type Side = 'top' | 'right' | 'bottom' | 'left'
+const lewis = (
+  symbol: string,
+  dots: Side[],
+  caption: string,
+  pairs: Partial<Record<Side, number>> = {},
+): ContentBlock => ({
+  kind: 'lewis',
+  symbol,
+  dots: dots.map((position) => ({ position })),
+  pairs,
+  caption,
+  attribution: 'platform',
+})
+const interactive = (interactiveId: string, caption: string): ContentBlock => ({
+  kind: 'interactive',
+  interactiveId,
+  caption,
+})
+const question = (questionId: string, reveal = true): ContentBlock => ({ kind: 'question', questionId, reveal })
 
-export const finalTest: FinalTest = {
-  id: 'chem-u1-l1-final', lessonId: 'chem-u1-l1', origin: 'platform', status: 'source-verified', targetQuestionCount: { min: 10, max: 20 },
-  questions: [
-    { id: 'final-1', type: 'multiple-choice', selection: 'single', origin: 'platform', prompt: 'مرّت معظم جسيمات ألفا عبر صفيحة الذهب دون انحراف. ما الاستنتاج الأكثر مباشرة؟', options: [{ id: 'a', label: 'معظم حجم الذرة فراغ.' }, { id: 'b', label: 'الإلكترونات موجبة.' }, { id: 'c', label: 'النواة سالبة.' }, { id: 'd', label: 'كتلة الذرة موزعة بالتساوي.' }], correctOptionIds: ['a'], explanation: 'إذا كان معظم المسار خالياً من العائق المركز، تمر معظم الجسيمات مستقيمة؛ لذلك استنتج رذرفورد أن معظم حجم الذرة فراغ.' },
-    { id: 'final-2', type: 'true-false', origin: 'platform', prompt: 'يتغيّر العنصر إلى عنصر آخر عندما يكتسب إلكتروناً واحداً.', correctAnswer: false, explanation: 'هوية العنصر يحددها عدد البروتونات، لا عدد الإلكترونات. اكتساب إلكترون يحوّل الذرة إلى أيون سالب من العنصر نفسه.' },
-    { id: 'final-3', type: 'fill-blank', origin: 'platform', prompt: 'أكمل العلاقة بين أعداد الجسيمات.', template: 'في الذرة المتعادلة: عدد {b1} يساوي عدد {b2}.', blanks: [{ id: 'b1', acceptedAnswers: ['البروتونات', 'البروتون'] }, { id: 'b2', acceptedAnswers: ['الإلكترونات', 'الالكترونات', 'الإلكترون'] }], explanation: 'تعادل الذرة يعني تساوي الشحنات الموجبة والسالبة؛ لذا يتساوى عدد البروتونات والإلكترونات.' },
-    { id: 'final-4', type: 'numerical', origin: 'platform', prompt: 'احسب العدد الأعظمي للإلكترونات في السوية الرئيسية الرابعة N باستعمال y = 2(n)².', acceptedAnswers: [32], explanation: 'n = 4، إذن y = 2 × 4² = 2 × 16 = 32 إلكتروناً. هذه سعة السوية وليست بالضرورة عدد إلكترونات السوية الأخيرة.' },
-    { id: 'final-5', type: 'ordering', origin: 'platform', prompt: 'رتّب خطوات تحديد تمثيل لويس لذرة متعادلة.', items: [{ id: 'atomic', label: 'تحديد العدد الذري.' }, { id: 'electrons', label: 'تحديد عدد الإلكترونات.' }, { id: 'distribution', label: 'كتابة التوزع الإلكتروني.' }, { id: 'surface', label: 'عدّ إلكترونات السوية الأخيرة.' }, { id: 'dots', label: 'توزيع نقاط لويس حول الرمز.' }], correctOrder: ['atomic', 'electrons', 'distribution', 'surface', 'dots'], explanation: 'يبدأ الحل بالعدد الذري، ثم عدد الإلكترونات والتوزع، ومنه نعرف الإلكترونات السطحية التي تمثل وحدها بنقاط لويس.' },
-    { id: 'final-6', type: 'matching', origin: 'platform', prompt: 'طابق كل ذرة مع توزيعها الإلكتروني.', left: [{ id: 'na', label: '₁₁Na' }, { id: 'f', label: '₉F' }, { id: 'ca', label: '₂₀Ca' }, { id: 'o', label: '₈O' }], right: [{ id: 'r1', label: '2-8-1' }, { id: 'r2', label: '2-7' }, { id: 'r3', label: '2-8-8-2' }, { id: 'r4', label: '2-6' }], pairs: [{ leftId: 'na', rightId: 'r1' }, { leftId: 'f', rightId: 'r2' }, { leftId: 'ca', rightId: 'r3' }, { leftId: 'o', rightId: 'r4' }], explanation: 'مجموع أعداد كل توزيع يساوي العدد الذري: 11، 9، 20، 8 على الترتيب.' },
-    { id: 'final-7', type: 'multiple-choice', selection: 'single', origin: 'platform', prompt: 'ذرة متعادلة توزيعها 2-8-1. أي تغير يجعلها ذات شحنة +1؟', options: [{ id: 'a', label: 'تفقد إلكتروناً واحداً.' }, { id: 'b', label: 'تكتسب إلكتروناً واحداً.' }, { id: 'c', label: 'تفقد بروتوناً.' }, { id: 'd', label: 'تكتسب نيوتروناً.' }], correctOptionIds: ['a'], explanation: 'فقد إلكترون سالب واحد يترك فائضاً مقداره شحنة موجبة واحدة؛ فتغدو 2-8 وشحنتها +1.' },
-    { id: 'final-8', type: 'short-answer', origin: 'platform', prompt: 'فسّر لماذا لا تُعدّ ¹⁶₈O و¹⁸₈O عنصرين مختلفين.', referenceAnswer: 'لأن لهما العدد الذري نفسه 8، أي العدد نفسه من البروتونات؛ لذا فهما ذرتان للعنصر نفسه. اختلاف العدد الكتلي سببه اختلاف عدد النيوترونات، ولذلك هما نظيران للأكسجين.', rubric: ['ثبات العدد الذري', 'ثبات عدد البروتونات وهوية العنصر', 'اختلاف عدد النيوترونات والعدد الكتلي'], minWords: 12, explanation: 'عدد البروتونات هو بطاقة هوية العنصر. كلا الرمزين يحمل 8 أسفل الرمز، والفرق 16 مقابل 18 في الأعلى ناتج عن النيوترونات.' },
-    { id: 'final-9', type: 'numerical', origin: 'platform', prompt: 'لنظير الأكسجين ¹⁷₈O، احسب عدد النيوترونات.', acceptedAnswers: [9], explanation: 'عدد النيوترونات = العدد الكتلي − العدد الذري = 17 − 8 = 9.' },
-    { id: 'final-10', type: 'multiple-choice', selection: 'multiple', origin: 'platform', prompt: 'اختر العبارتين الصحيحتين عن نموذج بور.', options: [{ id: 'a', label: 'للإلكترونات سويات طاقة محددة.' }, { id: 'b', label: 'النواة سالبة الشحنة.' }, { id: 'c', label: 'ينبعث الضوء عند انتقال الإلكترون من سوية أعلى إلى أدنى.' }, { id: 'd', label: 'تتسع السوية الأخيرة دائماً لأكثر من ثمانية إلكترونات.' }], correctOptionIds: ['a', 'c'], explanation: 'في نموذج بور تشغل الإلكترونات سويات محددة، ويظهر فرق الطاقة ضوءاً عند الانتقال إلى سوية أدنى.' },
-    { id: 'final-11', type: 'fill-blank', origin: 'platform', prompt: 'أكمل وصف الترميز النووي.', template: 'في ²³₁₁Na العدد الكتلي هو {mass}، والعدد الذري هو {atomic}، وعدد النيوترونات هو {neutrons}.', blanks: [{ id: 'mass', acceptedAnswers: ['23', '٢٣'], kind: 'number' }, { id: 'atomic', acceptedAnswers: ['11', '١١'], kind: 'number' }, { id: 'neutrons', acceptedAnswers: ['12', '١٢'], kind: 'number' }], explanation: 'العدد العلوي 23 هو الكتلي، والسفلي 11 هو الذري، والنيوترونات = 23 − 11 = 12.' },
-    { id: 'final-12', type: 'short-answer', origin: 'platform', prompt: 'قارن بين تكوّن K⁺ وتكوّن O²⁻ من حيث فقد الإلكترونات أو اكتسابها وسبب إشارة الشحنة.', referenceAnswer: 'تفقد ذرة البوتاسيوم إلكتروناً واحداً فيصبح عدد البروتونات أكبر بواحد من الإلكترونات فتتشكل K⁺. تكتسب ذرة الأكسجين إلكترونين فيصبح عدد الإلكترونات أكبر باثنين من البروتونات فتتشكل O²⁻.', rubric: ['K يفقد إلكتروناً', 'O يكتسب إلكترونين', 'ربط فرق الأعداد بإشارة الشحنة'], minWords: 15, explanation: 'الإشارة لا تُحفظ منفصلة: الفقد يزيل شحنة سالبة فيعطي موجباً، والاكتساب يضيف شحنات سالبة فيعطي سالباً.' },
-    { id: 'final-13', type: 'matching', origin: 'platform', prompt: 'طابق الرمز مع الوصف الصحيح.', left: [{ id: 'mass', label: 'العدد الكتلي' }, { id: 'atomic', label: 'العدد الذري' }, { id: 'lewis', label: 'نقاط لويس' }, { id: 'charge', label: 'شحنة الأيون' }], right: [{ id: 'rn', label: 'بروتونات + نيوترونات' }, { id: 'rp', label: 'عدد البروتونات' }, { id: 'rs', label: 'إلكترونات السوية الأخيرة' }, { id: 'rd', label: 'الفرق الجبري بين الشحنات' }], pairs: [{ leftId: 'mass', rightId: 'rn' }, { leftId: 'atomic', rightId: 'rp' }, { leftId: 'lewis', rightId: 'rs' }, { leftId: 'charge', rightId: 'rd' }], explanation: 'هذه المطابقة تربط كل تمثيل بالكمية التي يصفها؛ وهي تمنع الخلط بين العدد الكتلي والذري وبين جميع الإلكترونات وإلكترونات لويس.' },
-    { id: 'final-14', type: 'true-false', origin: 'platform', prompt: 'لذرتي نظيرين للعنصر نفسه العدد نفسه من النيوترونات.', correctAnswer: false, explanation: 'خطأ؛ النظائر تتفق في البروتونات وتختلف تحديداً في النيوترونات، لذلك تختلف أعدادها الكتلية.' },
-    { id: 'final-15', type: 'short-answer', origin: 'platform', prompt: 'طالب مثّل الكربون C بنقطتين فقط لأن السوية K تحوي إلكترونين. حدّد الخطأ وصححه.', referenceAnswer: 'الخطأ أنه مثّل إلكترونات السوية الداخلية K. العدد الذري للكربون 6 وتوزعه 2-4؛ وتمثيل لويس يستخدم إلكترونات السوية الأخيرة L وعددها 4، فتُرسم أربع نقاط حول C، نقطة في كل جهة.', rubric: ['تحديد أن K سوية داخلية', 'كتابة التوزع 2-4', 'أربع نقاط منفردة حول C'], minWords: 12, explanation: 'لويس لا يعرض كل الإلكترونات ولا السوية الأولى وحدها، بل إلكترونات السوية الخارجية فقط.' },
-  ],
+type Column = { key: string; header: string; numeric?: boolean; rowHeader?: boolean }
+type Row = { id: string; cells: Record<string, string> }
+const table = (caption: string, columns: Column[], rows: Row[], footnote?: string): ContentBlock => ({
+  kind: 'table',
+  caption,
+  columns,
+  rows,
+  footnote,
+  attribution: 'textbook',
+})
+
+/* ---------------------------------------------------------------------------
+ * Assessment containers
+ * ------------------------------------------------------------------------ */
+
+/** Textbook questions and activities, used by the teacher area and inline self-checks. */
+export const bookAssessment: FinalTest = {
+  id: 'chem-u1-l1-book',
+  lessonId: 'chem-u1-l1',
+  origin: 'platform',
+  status: 'source-verified',
+  targetQuestionCount: { min: 10, max: 60 },
+  questions: [...bookActivitySolutions, ...bookQuestions],
 }
 
-const bookAssessment: FinalTest = {
-  id: 'chem-u1-l1-book', lessonId: 'chem-u1-l1', origin: 'platform', status: 'source-verified', targetQuestionCount: { min: 10, max: 20 }, questions: [...bookActivitySolutions, ...bookQuestions],
+/** Platform formative checks shown inside teaching steps (never marked as a test). */
+export const practiceAssessment: FinalTest = {
+  id: 'chem-u1-l1-practice',
+  lessonId: 'chem-u1-l1',
+  origin: 'platform',
+  status: 'source-verified',
+  targetQuestionCount: { min: 10, max: 40 },
+  questions: lesson1PracticeQuestions,
 }
+
+export const finalTest = lesson1FinalTest
+
+export { bookActivitySolutions, bookQuestions, lesson1TeacherGuide }
+
+/* ---------------------------------------------------------------------------
+ * Steps
+ * ------------------------------------------------------------------------ */
 
 const steps: LessonStep[] = [
-  { id: 'discovery-opening', kind: 'discovery', title: 'ماذا لو كان كل شيء من حولك فارغاً؟', summary: 'سؤال يبدأ رحلة فهم بنية المادة.', attribution: 'platform', minutes: 3, blocks: [
-    { kind: 'callout', tone: 'note', title: 'فكّر قبل أن تتابع', text: 'انظر إلى يدك، إلى الكتاب أمامك، إلى الشاشة. كل ما تراه يبدو صلباً وممتلئاً. لكن ماذا لو أخبرتك أن أكثر من 99% من حجم كل ذرة في هذه المواد هو فراغ؟', attribution: 'platform' },
-    { kind: 'paragraph', text: 'كيف يمكن لشيء «فارغ» أن يكون صلباً؟ ولماذا لا تسقط الإلكترونات في النواة؟ ومن أين جاءت شحنة الأيون في ملح الطعام؟ هذه الأسئلة هي ما ستكتشف إجاباتها في هذا الدرس.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'سنبدأ من سؤال بسيط: ما الذي يجعل الذهب ذهباً ولا يتحول إلى حديد؟ وسننتهي بفهم كيف تتحول الذرة المتعادلة إلى أيون مشحون، وكيف نمثّل إلكتروناتها بنقاط بسيطة حول الرمز.', attribution: 'platform' },
-  ] },
-  { id: 'goals', kind: 'source', title: 'مدخل الدرس ومفاهيمه', summary: 'النواة والإلكترونات والنظائر والسويات والأيونات.', attribution: 'textbook', source: { pages: [source('3')], verified: true }, minutes: 4, blocks: [
-    { kind: 'key-terms', attribution: 'textbook', terms: [{ term: 'النواة', meaning: 'جزء الذرة المركزي الذي تتركز فيه معظم كتلتها.' }, { term: 'الإلكترونات', meaning: 'جسيمات سالبة الشحنة توجد حول النواة.' }, { term: 'النظائر', meaning: 'ذرات العنصر الواحد المتفقة في العدد الذري والمختلفة في العدد الكتلي.' }, { term: 'السويات الرئيسية', meaning: 'سويات طاقة محددة توجد فيها الإلكترونات حول النواة.' }, { term: 'قاعدة الثمانية', meaning: 'ارتباط الاستقرار بوجود ثمانية إلكترونات في السوية الأخيرة.' }, { term: 'النشاط الكيميائي', meaning: 'قابلية الذرة للدخول في تغير كيميائي.' }, { term: 'الأيون', meaning: 'ذرة فقدت أو اكتسبت إلكتروناً أو أكثر فأصبحت مشحونة.' }] },
-  ] },
-  { id: 'thomson-source', kind: 'source', title: 'نموذج طومسون', summary: 'اكتشاف الإلكترون والتصور الأول لبنية الذرة.', attribution: 'textbook', source: { pages: [source('4')], verified: true }, minutes: 5, blocks: [
-    { kind: 'textbook-verbatim', text: '…وهو جسيم صغير كتلته تقريبًا (1/1860) من كتلة نواة ذرّة الهيدروجين ويحمل شحنة سالبة.', source: source('4') },
-    { kind: 'formula', tex: '\\frac{1}{1860}', display: 'block', caption: 'النسبة كما وردت في الكتاب', attribution: 'textbook' },
-    { kind: 'definition', term: 'نموذج طومسون', text: 'الذرة جسيم صغير متجانس المادة ويحمل شحنة موجبة تتوزع الإلكترونات السالبة داخله بحيث تكون الذرة متعادلة كهربائيًا.', attribution: 'textbook' },
-  ] },
-  { id: 'thomson-explain', kind: 'explanation', title: 'كيف نفهم نموذج طومسون؟', summary: 'الشحنة والتعادل وحدود النموذج.', attribution: 'platform', minutes: 6, blocks: [
-    { kind: 'paragraph', text: 'كلمة «نموذج» تعني تصوراً علمياً يفسّر الملاحظات المتاحة في زمنه. بعد اكتشاف الإلكترون لم تعد الذرة تُعد جسماً غير قابل للتجزئة؛ صار لا بد من تفسير وجود شحنة سالبة داخل مادة متعادلة. افترض طومسون شحنة موجبة منتشرة تتخللها إلكترونات سالبة، فتتوازن الشحنتان.', attribution: 'platform' },
-    { kind: 'callout', tone: 'method', title: 'اقرأ الكسر علمياً', text: 'الكسر العمودي 1 فوق 1860 يعني أن كتلة الإلكترون، بحسب العبارة المثبتة في المصدر، جزء واحد من 1860 جزءاً من كتلة نواة ذرة الهيدروجين. صِغَر الكتلة لا يعني انعدامها.', attribution: 'platform' },
-  ] },
-  { id: 'rutherford-source', kind: 'experiment', title: 'تجربة رذرفورد', summary: 'فعل ثم ملاحظة ثم استنتاج.', attribution: 'textbook', source: { pages: [source('4'), source('5')], verified: true }, minutes: 8, blocks: [
-    { kind: 'procedure', title: 'الفعل', items: ['أسقط رذرفورد حزمة من جسيمات ألفا الموجبة على صفيحة ذهب رقيقة.', 'رُصدت مسارات الجسيمات بعد اصطدامها بالصفيحة.'], attribution: 'textbook' },
-    { kind: 'list', items: ['معظم جسيمات ألفا تنفذ من صفيحة الذهب دون أن تنحرف.', 'جزء صغير من جسيمات ألفا ارتدّ وبعضها انحرف بزوايا مختلفة.'], attribution: 'textbook' },
-    { kind: 'interactive', interactiveId: 'rutherford-scattering', caption: 'حرّك عدد الجسيمات ثم أطلق الحزمة، وراقب قياسات النفاذ والانحراف والارتداد.' },
-    { kind: 'list', ordered: true, items: ['معظم حجم الذرة فراغ، بدليل نفاذ معظم جسيمات ألفا دون أن تنحرف.', 'تحتوي الذرة بداخلها جزء موجب سمّاه النواة، تتركز فيه معظم كتلة الذرة.'], attribution: 'textbook' },
-  ] },
-  { id: 'rutherford-deep', kind: 'deep-explanation', title: 'لماذا نستنتج الفراغ من النفاذ؟', summary: 'الربط بين الملاحظة والاستنتاج خطوة بخطوة.', attribution: 'platform', minutes: 5, blocks: [
-    { kind: 'paragraph', text: 'الملاحظة تقول: معظم الجسيمات مرت دون انحراف. لكن الاستنتاج «معظم الذرة فراغ» يحتاج فهماً أعمق. لماذا هذا الربط صحيح؟', attribution: 'platform' },
-    { kind: 'paragraph', text: 'جسيم ألفا ثقيل نسبياً (نواة هيليوم) ومشحون بشحنة موجبة. لو كانت كتلة الذرة موزعة بالتساوي (كما افترض طومسون)، لتوزع الانحراف على كل الجسيمات بنسبة صغيرة. لكن الواقع: معظمها مرّ تماماً كأن لا شيء يعترضه، وقليل جداً انحرف بشدة.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'التفسير الوحيد المتسق: الكتلة والشحنة الموجبة ليستا موزعتين؛ بل مركّزتان في نقطة صغيرة جداً (النواة). معظم حجم الذرة لا يحوي شيئاً يعترض جسيم ألفا، فينفذ. أما الجسيم الذي يمر قريباً من النواة فيشعر بقوة تنافر كبيرة فينحرف، والذي يصطدم بها تقريباً يرتد.', attribution: 'platform' },
-    { kind: 'callout', tone: 'note', title: 'فرق بين الملاحظة والتفسير', text: '«مرت معظم الجسيمات دون انحراف» ملاحظة. «معظم الذرة فراغ» تفسير علمي للملاحظة. الملاحظة صحيحة دائماً، أما التفسير فيبقى مقبولاً ما دام يتفق مع كل الملاحظات ولا يتناقض معها.', attribution: 'platform' },
-  ] },
-  { id: 'bohr', kind: 'source', title: 'نموذج بور للذرّة', summary: 'سويات محددة وانتقال الإلكترون بينها.', attribution: 'textbook', source: { pages: [source('5')], verified: true }, minutes: 6, blocks: [
-    { kind: 'list', ordered: true, items: ['تتكوّن الذرّة من نواة موجبة وتدور حولها الإلكترونات في سويّات لها طاقة محدّدة.', 'تمتص الذرّة طاقة عندما ينتقل الإلكترون من سويّة طاقة أدنى إلى سويّة طاقة أعلى، ومقدار الطاقة الممتصة يساوي فرق الطاقة بين السويتين.', 'تُصدر الذرّة طاقة محددة على شكل ضوء عندما يقفز الإلكترون من سويّة طاقة أعلى إلى سويّة طاقة أدنى.'], attribution: 'textbook' },
-    { kind: 'paragraph', text: 'لا يتحرك الإلكترون بين السويات بلا تبادل للطاقة. الانتقال إلى الخارج يحتاج امتصاصاً، والعودة إلى الداخل ترافقها طاقة منبعثة. لذلك يربط النموذج موضع الإلكترون النسبي بمقدار طاقته.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'جاء نموذج بور ليشرح كيف ترتبط الإلكترونات بالطاقة، ولماذا لا تتعامل الذرة مع الطاقة بأي مقدار أو بأي وضع عشوائي. الفكرة المركزية في النموذج هي أن الإلكترون يوجد في سوية طاقية محددة؛ أي حالة مسموحة لها طاقة معينة، وليس في موضع متوسط عشوائي بين سويتين.', attribution: 'platform' },
-    { kind: 'definition', term: 'السوية الطاقية', text: 'حالة محددة للطاقة يمكن أن يوجد فيها الإلكترون حول النواة وفق نموذج بور. السوية الأقرب إلى النواة أدنى طاقة، وتزداد الطاقة كلما انتقلنا إلى سويات أبعد.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'قولنا «الإلكترون موجود في السوية L» يصف حالته الحالية. أمّا قولنا «انتقل من K إلى L» فيصف تغيراً بين حالتين. الوجود لا يعني أن انتقالاً يحدث باستمرار؛ والانتقال لا يتم إلا عندما تتبادل الذرة مقدار الطاقة الموافق للفرق بين السويتين.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'عند امتصاص الذرة طاقة يستطيع الإلكترون الانتقال من سوية أدنى إلى سوية أعلى. لا تعني كلمة «أعلى» أعلى الصفحة، بل طاقة أكبر وابتعاداً في الرسم المبسط عن النواة. وعندما يعود الإلكترون من سوية أعلى إلى سوية أدنى تصدر الذرة طاقة على شكل ضوء.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'يظهر الضوء لأن فرق الطاقة بين السويتين لا يختفي عند عودة الإلكترون؛ بل يخرج من الذرة على هيئة ضوء. ولأن الانتقالات الممكنة مرتبطة بسويات محددة، تكون الطاقات المنبعثة محددة أيضاً، وهذا يفسّر ظهور طيف الانبعاث الذي تصدره الذرات بعد إثارتها.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'تُسمّى السويات الرئيسية بالترتيب K ثم L ثم M ثم N وهكذا، وتقابلها أرقام السويات n = 1 ثم 2 ثم 3 ثم 4. الحرف اسم للسوية، وn رقمها الذي نستخدمه في العلاقة الرياضية لحساب العدد الأعظمي للإلكترونات. لا تخلط بين رقم السوية وعدد الإلكترونات الموجودة فيها.', attribution: 'platform' },
-    { kind: 'callout', tone: 'method', title: 'طريقة التفكير في أي انتقال', text: 'حدّد أولاً السوية التي بدأ منها الإلكترون والسوية التي وصل إليها. إذا انتقل إلى سوية أعلى فالذرة امتصت طاقة. وإذا انتقل إلى سوية أدنى فالذرة أصدرت طاقة على شكل ضوء. بعد ذلك ميّز بين هذا الانتقال وبين مجرد وجود الإلكترون في سوية ثابتة.', attribution: 'platform' },
-    { kind: 'interactive', interactiveId: 'bohr-energy-transition', caption: 'انقل إلكتروناً بين K وL وM وN، وراقب اتجاه الانتقال وامتصاص الطاقة أو إصدارها على شكل ضوء.' },
-  ] },
-  { id: 'levels-law', kind: 'source', title: 'السويّات الرئيسية وقانون السعة', summary: 'y = 2(n)² ومعنى الرمزين.', attribution: 'mixed', source: { pages: [source('5'), source('6')], verified: true }, minutes: 8, blocks: [
-    { kind: 'list', items: ['تدور الإلكترونات حول النواة في سويات طاقة.', 'تشغل الإلكترونات السوية الأدنى ثم الأعلى وهكذا، ويُسمى ذلك التوزيع الإلكتروني.', 'السوية الأخيرة لا تحوي أكثر من ثمانية إلكترونات.'], attribution: 'textbook' },
-    { kind: 'formula', tex: 'y = 2(n)^2', caption: 'y العدد الأعظمي للإلكترونات، و n رقم السوية الرئيسية', attribution: 'textbook' },
-    { kind: 'paragraph', text: 'لاختيار قيمة n ننظر إلى رقم السوية لا إلى حرفها: K تقابل n = 1، وL تقابل 2، وهكذا. نحسب مربع n أولاً، ثم نضرب الناتج في 2. العلاقة تعطي السعة العظمى للسوية، ولا تعني أن كل ذرة تملأها دائماً حتى هذه السعة.', attribution: 'platform' },
-    { kind: 'formula', tex: 'n = 2 \\;\\Longrightarrow\\; y = 2 \\times 2^2 \\;\\Longrightarrow\\; y = 8', caption: 'مثال تعويض كامل محفوظ من اليسار إلى اليمين', attribution: 'platform' },
-    { kind: 'table', caption: 'السويات الرئيسية من K إلى O', columns: [{ key: 'level', header: 'السوية', rowHeader: true }, { key: 'n', header: 'n', numeric: true }, { key: 'work', header: 'التعويض' }, { key: 'y', header: 'y', numeric: true }], rows: [
-      { id: 'k', cells: { level: 'K', n: '1', work: '2 × 1²', y: '2' } }, { id: 'l', cells: { level: 'L', n: '2', work: '2 × 2²', y: '8' } }, { id: 'm', cells: { level: 'M', n: '3', work: '2 × 3²', y: '18' } }, { id: 'n', cells: { level: 'N', n: '4', work: '2 × 4²', y: '32' } }, { id: 'o', cells: { level: 'O', n: '5', work: '2 × 5²', y: '50' } },
-    ], attribution: 'textbook' },
-  ] },
-  { id: 'sodium', kind: 'example', title: 'تطبيق: التوزيع الإلكتروني للصوديوم', summary: 'توزيع 11 إلكتروناً من الداخل إلى الخارج.', attribution: 'mixed', source: { pages: [source('6', 'تطبيق')], verified: true }, minutes: 7, blocks: [
-    { kind: 'chemical-formula', formula: 'Na', caption: 'الصوديوم — 11 إلكتروناً في الذرة المعتدلة', attribution: 'textbook' },
-    { kind: 'table', caption: 'توزيع إلكترونات الصوديوم', columns: [{ key: 'level', header: 'السوية', rowHeader: true }, { key: 'electrons', header: 'عدد الإلكترونات', numeric: true }, { key: 'reason', header: 'التفسير' }], rows: [{ id: 'k', cells: { level: 'K', electrons: '2', reason: 'تمتلئ أولاً' } }, { id: 'l', cells: { level: 'L', electrons: '8', reason: 'تمتلئ بعدها' } }, { id: 'm', cells: { level: 'M', electrons: '1', reason: 'الإلكترون المتبقي' } }], footnote: 'K(2), L(8), M(1) — المجموع 11.', attribution: 'textbook' },
-    { kind: 'interactive', interactiveId: 'electron-shell-builder', caption: 'ابنِ توزيعاً إلكترونياً بنفسك؛ كل إضافة تغيّر العدادات والسوية الأخيرة فعلياً.' },
-  ] },
-  { id: 'distribution-deep', kind: 'deep-explanation', title: 'لماذا نملأ السويات من الداخل إلى الخارج؟', summary: 'فهم السبب وراء ترتيب التوزيع الإلكتروني.', attribution: 'platform', minutes: 4, blocks: [
-    { kind: 'paragraph', text: 'الإلكترونات في الذرة ليست حرّة في اختيار مكانها. السوية الأقرب إلى النواة (K) هي الأقل طاقة، والإلكترون يبحث دائماً عن الحالة الأقل طاقة لأنّها الأكثر استقراراً. لذلك يملأ الإلكترونات السوية الأدنى أولاً.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'تخيّل سلّماً: لا تستطيع وضع قدمك على الدرجة الثالثة قبل الأولى. وكذلك الإلكترونات: لا تدخل السوية L قبل أن تمتلئ K (بإلكترونين)، ولا تدخل M قبل أن تمتلئ L (بثمانية). لكن انتبه: قاعدة «السوية الأخيرة لا تحوي أكثر من 8» قيد إضافي يخص الذرات الحقيقية وليس مجرد قانون رياضي.', attribution: 'platform' },
-    { kind: 'callout', tone: 'note', title: 'السعة العظمى ليست دائماً العدد الفعلي', text: 'العلاقة y = 2(n)² تعطي السعة القصوى للسوية، لا عدد الإلكترونات الفعلي. ذرة الصوديوم مثلاً لها 11 إلكتروناً فقط موزعة K(2), L(8), M(1)، رغم أن سعة M هي 18. الذرة تضع فقط ما لديها من إلكترونات.', attribution: 'platform' },
-  ] },
-  { id: 'atomic-numbers', kind: 'source', title: 'العدد الذري والعدد الكتلي', summary: 'قراءة الترميز النووي واستخراج الجسيمات.', attribution: 'mixed', source: { pages: [source('7'), source('8')], verified: true }, minutes: 8, blocks: [
-    { kind: 'nuclear', symbol: 'Ne', massNumber: 20, atomicNumber: 10, caption: 'النيون كما ورد في الصفحة 7', attribution: 'textbook' },
-    { kind: 'paragraph', text: 'يوضع العدد الكتلي أعلى يسار الرمز، والعدد الذري أسفل يساره. تُبنى العلامات هنا بعناصر مستقلة، لا بمسافات أو محارف مرتفعة جاهزة.', attribution: 'platform' },
-    { kind: 'formula', tex: '\\text{عدد النيوترونات}=\\text{العدد الكتلي}-\\text{العدد الذري}', attribution: 'platform' },
-    { kind: 'table', caption: 'الترميز النووي والجسيمات والشحنة', columns: [{ key: 'form', header: 'شكل', rowHeader: true }, { key: 'nucleus', header: 'رمز النواة' }, { key: 'electrons', header: 'عدد الإلكترونات', numeric: true }, { key: 'protons', header: 'عدد البروتونات', numeric: true }, { key: 'sum', header: 'المجموع الجبري للشحنات' }], rows: [{ id: 'na-atom', cells: { form: 'ذرة الصوديوم', nucleus: '²³₁₁Na', electrons: '11', protons: '11', sum: '0' } }, { id: 'na-ion', cells: { form: 'أيون الصوديوم', nucleus: '²³₁₁Na', electrons: '10', protons: '11', sum: '+1' } }, { id: 'cl-atom', cells: { form: 'ذرة الكلور', nucleus: '³⁵₁₇Cl', electrons: '17', protons: '17', sum: '0' } }, { id: 'cl-ion', cells: { form: 'أيون الكلور', nucleus: '³⁵₁₇Cl', electrons: '18', protons: '17', sum: '−1' } }], attribution: 'textbook' },
-  ] },
-  { id: 'atomic-deep', kind: 'deep-explanation', title: 'لماذا العدد الذري هو «هوية» العنصر؟', summary: 'البروتونات تحدد العنصر، الإلكترونات تتغير، النيوترونات تتنوع.', attribution: 'platform', minutes: 4, blocks: [
-    { kind: 'paragraph', text: 'كل ذرة صوديوم في الكون تحتوي 11 بروتوناً — لا 10 ولا 12. لو تغير هذا العدد لتغير العنصر نفسه. لذلك يُسمى العدد الذري «رقم هوية» العنصر: هو الذي يحدد اسمه وموضعه في الجدول الدوري.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'لكن ماذا عن الجسيمات الأخرى؟ النيوترونات يمكن أن تختلف في ذرات العنصر الواحد — وهذا يُنتج النظائر (مثل ¹⁶O و ¹⁸O، كلاهما أكسجين). والإلكترونات يمكن أن تُفقد أو تُكتسب — وهذا يُنتج الأيونات (مثل Na و Na⁺، كلاهما صوديوم). وحدها البروتونات لا تتغير: تغييرها يحوّل العنصر إلى عنصر آخر.', attribution: 'platform' },
-    { kind: 'callout', tone: 'method', title: 'قراءة الترميز النووي بسهولة', text: 'العدد العلوي هو الأكبر دائماً (العدد الكتلي = بروتونات + نيوترونات). العدد السفلي هو الأصغر (العدد الذري = بروتونات فقط). الفرق بينهما = عدد النيوترونات. تذكّر: الكتلي دائماً أكبر.', attribution: 'platform' },
-  ] },
-  { id: 'ions', kind: 'source', title: 'تشكّل الأيونات', summary: 'الفقد والاكتساب والمجموع الجبري للشحنات.', attribution: 'mixed', source: { pages: [source('8'), source('9')], verified: true }, minutes: 8, blocks: [
-    { kind: 'ion', formula: 'K', charge: '+', caption: 'K⁺ — التوزع قبل الفقد 2-8-8-1', attribution: 'textbook' },
-    { kind: 'ion', formula: 'F', charge: '-', caption: 'F⁻ — التوزع قبل الاكتساب 2-7', attribution: 'textbook' },
-    { kind: 'ion', formula: 'Ca', charge: '2+', caption: 'Ca²⁺ — التوزع قبل الفقد 2-8-8-2', attribution: 'textbook' },
-    { kind: 'ion', formula: 'O', charge: '2-', caption: 'O²⁻ — التوزع قبل الاكتساب 2-6', attribution: 'textbook' },
-    { kind: 'paragraph', text: 'الذرة المتعادلة تملك عدداً متساوياً من البروتونات الموجبة والإلكترونات السالبة، فيكون المجموع الجبري للشحنات صفراً. عند تشكّل الأيون يبقى عدد البروتونات ثابتاً لأن التغير يحدث في الإلكترونات المحيطة بالنواة.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'عندما تفقد الذرة إلكتروناً فهي لا تكتسب شحنة موجبة جديدة؛ بل تفقد شحنة سالبة كانت تعادل أحد البروتونات، فيظهر فائض موجب. وعندما تكتسب إلكتروناً تزداد الشحنات السالبة على الشحنات الموجبة، فيظهر فائض سالب.', attribution: 'platform' },
-    { kind: 'callout', tone: 'method', title: 'تحقق من شحنة الأيون', text: 'اكتب عدد البروتونات الموجبة، ثم عدد الإلكترونات السالبة، واحسب الفرق الجبري. إذا زادت البروتونات كان الأيون موجباً، وإذا زادت الإلكترونات كان الأيون سالباً، وإذا تساويا بقيت الذرة متعادلة.', attribution: 'platform' },
-    { kind: 'interactive', interactiveId: 'ion-formation-lab', caption: 'اختر K أو F أو Ca أو O، ثم حرّك الإلكترون خطوة خطوة وراقب تغيّر عدد الإلكترونات والشحنة الكلية.' },
-    { kind: 'callout', tone: 'warning', title: 'لا تعكس الإشارة', text: 'فقد الإلكترونات السالبة يعطي أيوناً موجباً، واكتساب الإلكترونات السالبة يعطي أيوناً سالباً. البروتونات لا تتغير عند تشكل هذه الأيونات.', attribution: 'platform' },
-  ] },
-  { id: 'lewis-deep', kind: 'deep-explanation', title: 'لماذا إلكترونات السطح وحدها؟', summary: 'السبب الذي يجعل تمثيل لويس يهمل إلكترونات الداخل.', attribution: 'platform', minutes: 4, blocks: [
-    { kind: 'paragraph', text: 'عندما تتفاعل ذرتان، ما الذي يحدث؟ الإلكترونات القريبة من النواة (في السويات الداخلية) محمية ومحاصرة بقوة جذب النواة؛ لا تستطيع الخروج أو المشاركة في التفاعل. أما إلكترونات السوية الأخيرة — إلكترونات السطح — فهي الأبعد عن النواة والأقل ارتباطاً بها، وهي وحدها القادرة على التفاعل مع ذرات أخرى.', attribution: 'platform' },
-    { kind: 'paragraph', text: 'لذلك اخترع لويس طريقة ذكية: بدل رسم كل الإلكترونات، نكتب رمز العنصر ونضع حوله نقاطاً تمثل إلكترونات السطح فقط. كل نقطة = إلكترون واحد في السوية الأخيرة. وبهذا نرى بسرعة: هل الذرة قريبة من الاستقرار (ثمانية) أم بعيدة؟', attribution: 'platform' },
-    { kind: 'paragraph', text: 'الخطوات بسيطة: (1) حدد العدد الذري، (2) وزّع الإلكترونات على السويات، (3) عدّ إلكترونات السوية الأخيرة، (4) ضع نقاطاً حول الرمز — فرادى أولاً في الجهات الأربع (فوق، يمين، تحت، يسار)، ثم ازوجها إن لزم.', attribution: 'platform' },
-    { kind: 'callout', tone: 'warning', title: 'لا تبدأ بالازدواج', text: 'الخطأ الأكثر شيوعاً في تمثيل لويس هو وضع زوجين في جهة واحدة قبل توزيع النقاط فرادى في كل الجهات. القاعدة: فرادى أولاً، ثم أزواج. كربون (4 إلكترونات سطحية) = 4 نقاط في 4 جهات، لا زوجان في جهتين.', attribution: 'platform' },
-  ] },
-  { id: 'lewis', kind: 'source', title: 'تمثيل لويس', summary: 'الإلكترونات السطحية كنقاط مستقلة حول الرمز.', attribution: 'mixed', source: { pages: [source('9')], verified: true }, minutes: 8, blocks: [
-    { kind: 'paragraph', text: 'يمثل لويس إلكترونات السوية الأخيرة فقط، لا جميع إلكترونات الذرة. نضع الإلكترونات فرادى حول الجهات الأربع قبل أن نبدأ بتكوين الأزواج.', attribution: 'platform' },
-    { kind: 'table', caption: 'عناصر جدول لويس في الكتاب', columns: [{ key: 'symbol', header: 'الرمز', rowHeader: true }, { key: 'atomic', header: 'العدد الذري', numeric: true }, { key: 'distribution', header: 'التوزع الإلكتروني' }, { key: 'surface', header: 'الإلكترونات السطحية', numeric: true }], rows: [{ id: 'li', cells: { symbol: 'Li', atomic: '3', distribution: '2-1', surface: '1' } }, { id: 'b', cells: { symbol: 'B', atomic: '5', distribution: '2-3', surface: '3' } }, { id: 'c', cells: { symbol: 'C', atomic: '6', distribution: '2-4', surface: '4' } }, { id: 'n', cells: { symbol: 'N', atomic: '7', distribution: '2-5', surface: '5' } }], attribution: 'textbook' },
-    { kind: 'lewis', symbol: 'Li', dots: [{ position: 'right' }], caption: 'Li — إلكترون سطحي واحد', attribution: 'textbook' },
-    { kind: 'lewis', symbol: 'B', dots: [{ position: 'top' }, { position: 'right' }, { position: 'bottom' }], caption: 'B — ثلاثة إلكترونات سطحية', attribution: 'textbook' },
-    { kind: 'lewis', symbol: 'C', dots: [{ position: 'top' }, { position: 'right' }, { position: 'bottom' }, { position: 'left' }], caption: 'C — أربع نقاط في الجهات الأربع', attribution: 'textbook' },
-    { kind: 'lewis', symbol: 'N', pairs: { top: 1 }, dots: [{ position: 'right' }, { position: 'bottom' }, { position: 'left' }], caption: 'N — خمسة إلكترونات سطحية', attribution: 'textbook' },
-  ] },
-  { id: 'activity-al-mg-o', kind: 'activity', title: 'نشاط: التوزع وتمثيل لويس', summary: 'الأعداد الذرية 13 و12 و8 فقط.', attribution: 'textbook', source: { pages: [source('10', 'نشاط')], verified: true }, minutes: 8, blocks: [
-    { kind: 'nuclear', symbol: 'Al', atomicNumber: 13, caption: '₁₃Al — عدد ذري فقط', attribution: 'textbook' },
-    { kind: 'nuclear', symbol: 'Mg', atomicNumber: 12, caption: '₁₂Mg — عدد ذري فقط', attribution: 'textbook' },
-    { kind: 'nuclear', symbol: 'O', atomicNumber: 8, caption: '₈O — عدد ذري فقط', attribution: 'textbook' },
-    { kind: 'callout', tone: 'method', title: 'خطة العمل', text: 'اعتبر العدد الذري عدد الإلكترونات في الذرة المتعادلة، وزّعها من السوية الداخلية إلى الخارجية، ثم مثّل عدد إلكترونات السوية الأخيرة بنقاط لويس. لا يوجد عدد كتلي في رموز النشاط.', attribution: 'platform' },
-  ] },
-  { id: 'isotopes', kind: 'source', title: 'النظائر', summary: 'أكسجين-16 وأكسجين-17 وأكسجين-18.', attribution: 'mixed', source: { pages: [source('10'), source('11')], verified: true }, minutes: 9, blocks: [
-    { kind: 'definition', term: 'النظائر', text: 'ذرّات للعنصر نفسه متماثلة بالعدد الذري ومختلفة بالعدد الكتلي.', attribution: 'textbook' },
-    { kind: 'nuclear', symbol: 'O', massNumber: 16, atomicNumber: 8, caption: '¹⁶₈O', attribution: 'textbook' },
-    { kind: 'nuclear', symbol: 'O', massNumber: 17, atomicNumber: 8, caption: '¹⁷₈O', attribution: 'textbook' },
-    { kind: 'nuclear', symbol: 'O', massNumber: 18, atomicNumber: 8, caption: '¹⁸₈O', attribution: 'textbook' },
-    { kind: 'table', caption: 'مقارنة نظائر الأكسجين', columns: [{ key: 'isotope', header: 'النظير', rowHeader: true }, { key: 'mass', header: 'العدد الكتلي', numeric: true }, { key: 'atomic', header: 'العدد الذري', numeric: true }, { key: 'neutrons', header: 'عدد النيوترونات', numeric: true }], rows: [{ id: 'o16', cells: { isotope: '¹⁶₈O', mass: '16', atomic: '8', neutrons: '8' } }, { id: 'o17', cells: { isotope: '¹⁷₈O', mass: '17', atomic: '8', neutrons: '9' } }, { id: 'o18', cells: { isotope: '¹⁸₈O', mass: '18', atomic: '8', neutrons: '10' } }], attribution: 'textbook' },
-    { kind: 'interactive', interactiveId: 'isotope-lab', caption: 'ثبّت عدد البروتونات وغيّر النيوترونات، ثم راقب العدد الكتلي واسم النظير.' },
-    { kind: 'callout', tone: 'note', title: 'تعلّمُ', text: 'هوية العنصر تبقى مرتبطة بعدد البروتونات؛ تغيير النيوترونات يغيّر النظير والعدد الكتلي، لا رمز العنصر.', attribution: 'mixed' },
-  ] },
-  { id: 'isotopes-vs-ions', kind: 'comparison', title: 'الفرق بين النظير والأيون: لا تخلط بينهما', summary: 'مقارنة تبين ما يتغير وما يثبت في كل حالة.', attribution: 'platform', minutes: 4, blocks: [
-    { kind: 'paragraph', text: 'كثيراً ما يخلط الطلاب بين النظير والأيون لأن كلا المفهومين يتعلقان بذرة العنصر نفسه. لكن الفرق جوهري: النظير يتعلق بالنواة (النيوترونات)، والأيون يتعلق بالإلكترونات المحيطة بها.', attribution: 'platform' },
-    { kind: 'table', caption: 'مقارنة النظير والأيون', columns: [{ key: 'aspect', header: 'الجانب', rowHeader: true }, { key: 'isotope', header: 'النظير' }, { key: 'ion', header: 'الأيون' }], rows: [
-      { id: 'changes', cells: { aspect: 'ما الذي يتغير؟', isotope: 'عدد النيوترونات', ion: 'عدد الإلكترونات' } },
-      { id: 'stays', cells: { aspect: 'ما الذي يثبت؟', isotope: 'البروتونات والإلكترونات', ion: 'البروتونات والنيوترونات' } },
-      { id: 'charge', cells: { aspect: 'هل يتغير الشحن؟', isotope: 'لا — الذرة تبقى متعادلة', ion: 'نعم — تصبح مشحونة' } },
-      { id: 'identity', cells: { aspect: 'هل يتغير العنصر؟', isotope: 'لا — يبقى العنصر نفسه', ion: 'لا — يبقى العنصر نفسه' } },
-      { id: 'mass', cells: { aspect: 'هل تتغير الكتلة؟', isotope: 'نعم — يتغير العدد الكتلي', ion: 'تقريباً لا — كتلة الإلكترون ضئيلة' } },
-      { id: 'example', cells: { aspect: 'مثال', isotope: '¹⁶O و ¹⁸O كلاهما أكسجين', ion: 'Na و Na⁺ كلاهما صوديوم' } },
-    ], attribution: 'platform' },
-    { kind: 'callout', tone: 'warning', title: 'خطأ شائع', text: 'لا تقل «الأيون نظير مشحون». النظير لا يكون مشحوناً بالضرورة، والأيون لا يختلف في عدد النيوترونات. هما مفهومان مستقلان: الأول يصف تنوع النواة، والثاني يصف فقد أو اكتساب الإلكترونات.', attribution: 'platform' },
-  ] },
-  { id: 'book-check-1', kind: 'question', title: 'أختبر نفسي: صح أم غلط', summary: 'العبارات الست كما في الكتاب.', attribution: 'textbook', source: { pages: [source('12', 'أختبر نفسي — السؤال الأول')], verified: true }, minutes: 8, blocks: bookQuestions.slice(0, 6).map((question) => ({ kind: 'question' as const, questionId: question.id })) },
-  { id: 'book-check-2', kind: 'question', title: 'أختبر نفسي: اختر الإجابة', summary: 'الأسئلة الخمسة وخياراتها.', attribution: 'textbook', source: { pages: [source('12', 'أختبر نفسي — السؤال الثاني')], verified: true }, minutes: 8, blocks: bookQuestions.slice(6, 11).map((question) => ({ kind: 'question' as const, questionId: question.id })) },
-  { id: 'book-check-3', kind: 'question', title: 'أختبر نفسي: التوزع ولويس', summary: 'أربع ذرات وتمثيلاتها.', attribution: 'textbook', source: { pages: [source('12', 'أختبر نفسي — السؤال الثالث')], verified: true }, minutes: 10, blocks: bookQuestions.slice(11).map((question) => ({ kind: 'question' as const, questionId: question.id })) },
-  { id: 'summary', kind: 'summary', title: 'خلاصة مترابطة', summary: 'من النموذج الذري إلى النظائر والأيونات.', attribution: 'platform', minutes: 5, blocks: [
-    { kind: 'list', items: ['كشف الإلكترون أن الذرة تحوي جسيمات أصغر منها.', 'أظهرت تجربة رذرفورد أن معظم الذرة فراغ وأن الكتلة والشحنة الموجبة تتركزان في النواة.', 'نظّم نموذج بور الإلكترونات في سويات طاقة، وتحسب سعتها بالعلاقة y = 2(n)² مع قيد السوية الأخيرة في الدرس.', 'العدد الذري يحدد عدد البروتونات وهوية العنصر، والعدد الكتلي يساوي البروتونات والنيوترونات.', 'الأيون ينتج من فقد الإلكترونات أو اكتسابها، أما النظير فينتج من اختلاف عدد النيوترونات.', 'تمثيل لويس يعرض إلكترونات السوية الأخيرة كنقاط مستقلة حول رمز العنصر.'], attribution: 'platform' },
-  ] },
-  { id: 'final-test', kind: 'final-test', title: 'الاختبار الشامل للدرس', summary: '15 سؤالاً جديداً ومتنوّعاً.', attribution: 'platform', testId: finalTest.id, minutes: 25, blocks: [] },
+  {
+    id: 'discovery-opening',
+    kind: 'discovery',
+    title: 'ماذا لو كان معظم ما تلمسه فراغاً؟',
+    summary: 'سؤال يفتح الدرس: كيف يمكن لشيء «فارغ» أن يبدو صلباً؟',
+    attribution: 'platform',
+    minutes: 3,
+    blocks: [
+      note(
+        'فكّر قبل أن تتابع',
+        'ضع يدك على الطاولة أمامك. تبدو صلبة ممتلئة. لكن التجارب التي ستقرأ عنها في هذا الدرس قادت العلماء إلى استنتاج أن معظم حجم كل ذرة فيها فراغ، وأن كتلتها كلها تقريباً محصورة في جزء صغير جداً في مركزها. أين ذهب «الامتلاء» الذي نشعر به؟',
+      ),
+      prose(
+        'الجواب يبدأ من سؤال أعمق: مما تتكوّن الذرة؟ الإجابة لم تأتِ من النظر في المجهر، بل من تجارب قاست آثار جسيمات صغيرة جداً على المادة. سنمشي في هذا الدرس على الخط نفسه: تجربة طومسون، ثم تجربة رذرفورد، ثم نموذج بور، ثم نستخدم ما تعلّمناه لتفسير الأيونات والنظائر وتمثيل لويس.',
+      ),
+      prose(
+        'في نهاية الدرس ستكون قادراً على الإجابة عن أسئلة مثل: لماذا يختلف معدن الصوديوم عن ملح الطعام؟ لماذا يتحول بعض الذرات إلى أيونات موجبة وبعضها إلى سالبة؟ وكيف نختصر إلكترونات الذرة في نقاط بسيطة حول رمزها؟',
+      ),
+      method(
+        'كيف تدرس هذا الدرس؟',
+        'كل محور فيه نص من الكتاب معروض كما هو، يليه شرح من المنصة يبدأ غالباً بـ«لماذا؟». لا تنتقل إلى المحور التالي قبل أن تجيب عن سؤال التحقق القصير. الإجابات لا تُعرض قبل أن تحاول، وستجد لها شرحاً بعد الإجابة.',
+      ),
+    ],
+  },
+  {
+    id: 'goals',
+    kind: 'source',
+    title: 'أهداف الدرس ومفاهيمه الأساسية',
+    summary: 'الأهداف الثمانية والكلمات المفتاحية كما وردت في صفحة 3.',
+    attribution: 'textbook',
+    source: { pages: [source('3', 'الأهداف والكلمات المفتاحية')], verified: true },
+    minutes: 4,
+    blocks: [
+      book('الوحدة الأولى', '3', 'عنوان الوحدة'),
+      book('الكيمياء البنيوية', '3', 'اسم المادة'),
+      book('1', '3', 'رقم الدرس'),
+      book('الذرّة والعنصر', '3', 'عنوان الدرس'),
+      {
+        kind: 'callout',
+        tone: 'note',
+        title: 'الأهداف كما وردت في الكتاب',
+        text: 'ثمانية أهداف تحدد ما يجب أن يتقنه الطالب في نهاية الدرس.',
+        attribution: 'textbook',
+      },
+      ordered(
+        [
+          'يتعرّفُ نموذج رذرفورد للذرّة.',
+          'يتعرّفُ نموذج بور للذرّة.',
+          'يمثّلُ توزّع الإلكترونات على مداراتها حول النواة في سويّات الطاقة الرئيسيّة.',
+          'يحدّدُ البُنية الإلكترونيّة للذرّة من عددها الذرّي.',
+          'يحدّدُ مفهوم العنصر الكيميائي.',
+          'يشرحُ تشكّل الأيون أحادي التكافؤ.',
+          'يكتبُ تمثيل لويس للذرّات.',
+          'يتعرّفُ النظائر.',
+        ],
+        'textbook',
+      ),
+      book(
+        'النواة – الإلكترونات – النظائر – السويات الرئيسية – قاعدة الثمانية – النشاط الكيميائي – الأيون.',
+        '3',
+        'الكلمات المفتاحية',
+      ),
+      note(
+        'الكلمات المفتاحية كما وردت بلا تعريفات مطبوعة',
+        'الكتاب يسرد المصطلحات السبعة فقط. التعريفات الآتية صياغة من المنصة تجمع ما ينص عليه الدرس لاحقاً، وليست نصاً مطبوعاً.',
+      ),
+      {
+        kind: 'key-terms',
+        attribution: 'platform',
+        terms: [
+          { term: 'النواة', meaning: 'الجزء المركزي الموجب في الذرة، وتتركز فيه معظم كتلتها.' },
+          { term: 'الإلكترونات', meaning: 'جسيمات سالبة الشحنة توجد حول النواة.' },
+          { term: 'النظائر', meaning: 'ذرات العنصر الواحد المتفقة في العدد الذري والمختلفة في العدد الكتلي.' },
+          { term: 'السويات الرئيسية', meaning: 'سويات طاقة محددة توجد فيها الإلكترونات حول النواة.' },
+          { term: 'قاعدة الثمانية', meaning: 'ارتباط الاستقرار بوجود ثمانية إلكترونات في السوية الأخيرة.' },
+          { term: 'النشاط الكيميائي', meaning: 'قابلية الذرة للدخول في تغيّر كيميائي.' },
+          { term: 'الأيون', meaning: 'ذرة فقدت أو اكتسبت إلكتروناً أو أكثر فأصبحت مشحونة.' },
+        ].map(({ term, meaning }) => ({
+          term,
+          meaning,
+        })),
+      },
+      note(
+        'كيف تقرأ الكلمات المفتاحية؟',
+        'هذه المصطلحات ستأتي الواحد تلو الآخر في الدرس. لا تحفظ تعريفاتها الآن؛ عُد إليها في الخلاصة، وستجد أنك تستطيع شرح كل منها بمثال من عندك.',
+      ),
+    ],
+  },
+  {
+    id: 'prerequisites',
+    kind: 'question',
+    title: 'قبل أن نبدأ: ما تعرفه عن الذرة والشحنة',
+    summary: 'سؤالان سريعان يبنيان على معلومات سابقة.',
+    attribution: 'platform',
+    minutes: 4,
+    blocks: [
+      prose(
+        'قبل الدخول إلى نماذج الذرة، تأكد من فكرتين: الذرة تتكوّن من جسيمات، والشحنات نوعان: موجبة وسالبة. إذا كانت الإجابتان واضحتين فأنت جاهز.',
+      ),
+      question('l1-practice-1'),
+      question('l1-practice-2'),
+      note(
+        'لماذا يبدأ الدرس بالشحنة؟',
+        'كل ما سيأتي لاحقاً — نموذج طومسون ورذرفورد والأيونات — يقوم على موازنة الشحنات. من يفهم أن +1 و−1 يتعادلان سيقرأ الشحنة بسهولة.',
+      ),
+    ],
+  },
+  {
+    id: 'electron-discovery',
+    kind: 'source',
+    title: 'كيف عرف العلماء بوجود الإلكترون؟',
+    summary: 'المنهج التجريبي واكتشاف أول جسيم داخل الذرة (ص4).',
+    attribution: 'textbook',
+    source: { pages: [source('4', 'الفقرة الافتتاحية')], verified: true },
+    minutes: 6,
+    blocks: [
+      book(
+        'بدأ العلماء في العصر الحديث يعتمدون المنهج التجريبي للتأكد من بنية الذرّة، وقد أدّى اكتشاف التيار الكهربائي ونقل محاليل الأملاح للتيار الكهربائي إلى أن الذرّة تتكوّن من جسيمات تحمل شحنات سالبة وأخرى موجبة.',
+        '4',
+      ),
+      prose(
+        'هذه الفقرة تحمل فكرة منهجية مهمة: العلماء لم يروا الذرة، بل استنتجوا وجود جسيماتها من آثار كهربائية. الأنبوب الزجاجي المفرغ الذي يمر فيه تيار كهربائي يُظهر ضوءاً؛ ولما حُرّف هذا الضوء بوسائل كهربائية ومغناطيسية، دلّ ذلك على جسيمات مشحونة صغيرة.',
+      ),
+      {
+        kind: 'callout',
+        tone: 'method',
+        title: 'ما الذي يميّز استنتاجاً علمياً عن حدس؟',
+        text: 'الحدس فكرة، والاستنتاج العلمي فكرة مدعومة بقياس يمكن تكراره. لم يسأل العالم «هل توجد إلكترونات؟» ثم أجاب بنعم؛ بل توقع نتيجة لتجربة، ثم قاس ما يحدث فعلاً. هذه هي الدورة: توقع ← تجربة ← ملاحظة ← استنتاج.',
+        attribution: 'platform',
+      },
+      book(
+        'تمكّن العالم طومسون بعد دراسة التقريب الكهربائي من اكتشاف الإلكترون وهو جسيم صغير كتلته تقريبًا (1/1860) من كتلة نواة ذرّة الهيدروجين ويحمل شحنة سالبة.',
+        '4',
+        'اكتشاف الإلكترون',
+      ),
+      formula('\\frac{1}{1860}', 'كتلة الإلكترون مقارنةً بكتلة نواة ذرة الهيدروجين كما وردت في الكتاب', 'textbook'),
+      prose(
+        'لماذا نسمّي كتلة الإلكترون «صغيرة جداً» لا «معدومة»؟ لأن الكسر 1/1860 يعني أن له كتلة، لكنها جزء صغير من كتلة النواة. وقد صار هذا الكسر مفتاحاً لفهم لماذا لا تردّ الإلكترونات جسيمات ألفا في تجربة رذرفورد: كتلتها أصغر بآلاف المرات.',
+      ),
+      warn(
+        'تصحيح عبارة شائعة',
+        '«الإلكترون ليس له كتلة» عبارة خاطئة. الكتاب ينص على كتلة صغيرة جداً (1/1860 من كتلة نواة الهيدروجين). الصغر لا يعني العدم.',
+      ),
+      note(
+        'لماذا لم يظهر النموذج الكامل للذرة فوراً؟',
+        'لأن العلم يبني فهمه على ما تستطيع التجارب إظهاره في لحظتها. اكتشاف الإلكترون فتح سؤالاً جديداً: إذا كانت الذرة متعادلة وفيها سالب، فأين الموجب؟ هذا سؤال طومسون.',
+      ),
+    ],
+  },
+  {
+    id: 'thomson-model',
+    kind: 'source',
+    title: 'نموذج طومسون: أول تفسير لتوزيع الشحنة',
+    summary: 'كرة موجبة متجانسة تتوزع داخلها إلكترونات سالبة (ص4).',
+    attribution: 'textbook',
+    source: { pages: [source('4', 'نموذج طومسون')], verified: true },
+    minutes: 7,
+    blocks: [
+      book('نموذج طومسون:', '4', 'عنوان'),
+      book(
+        'الذرّة جسيم صغير متجانس المادة ويحمل شحنة موجبة تتوزع الإلكترونات السالبة داخله بحيث تكون الذرّة متعادلة كهربائيًا.',
+        '4',
+        'التعريف',
+      ),
+      definition(
+        'نموذج طومسون',
+        'الذرّة جسيم صغير متجانس المادة ويحمل شحنة موجبة تتوزع الإلكترونات السالبة داخله بحيث تكون الذرّة متعادلة كهربائيًا.',
+        'textbook',
+      ),
+      prose(
+        'لماذا كان هذا النموذج معقولاً في زمنه؟ لأنه يفسر ملاحظتين معاً: تعادل الذرة كهربائياً، ووجود إلكترونات سالبة داخلها. إذا كانت الشحنة الموجبة منتشرة بانتظام، فكل إلكترون يجد حوله شيئاً موجباً يعادله. وسُمّي النموذج «نموذج الكرة المتجانسة» لأن الشحنة فيه موزعة على كل الحجم.',
+      ),
+      prose(
+        'لكن هذه «المعقولية» ليست دليلاً. النموذج تنبأ بأن كتلة الذرة موزعة بالتساوي تقريباً في حجمها. وهذا تنبؤ يمكن اختباره بجسيمات سريعة تُطلق على الذرات. تجربة رذرفورد كانت الاختبار الذي بيّن أن التنبؤ خاطئ.',
+      ),
+      warn(
+        'خطأ شائع',
+        '«نموذج طومسون هو النموذج الصحيح للذرة» — لا. هو تفسير تاريخي مقبولاً في زمنه ثم تجاوزته التجربة. الدرس يعرضه لأنه يوضح كيف تُبنى النماذج العلمية وتُختبر، لا لأنه وصف نهائي.',
+      ),
+      question('l1-practice-3'),
+      question('l1-practice-4'),
+    ],
+  },
+  {
+    id: 'rutherford-experiment',
+    kind: 'experiment',
+    title: 'تجربة رذرفورد: جسيمات ألفا على صفيحة ذهب',
+    summary: 'الفعل والملاحظتان اللتان غيّرتا تصور الذرة (ص4).',
+    attribution: 'mixed',
+    source: { pages: [source('4', 'تجربة رذرفورد')], verified: true },
+    minutes: 10,
+    blocks: [
+      book('تجربة رذرفورد:', '4', 'عنوان'),
+      book(
+        'قام رذرفورد بتجربته الآتية: أسقط رزمة من جسيمات ألفا (جسيمات موجبة الشحنة) على صفيحة ذهب رقيقة.',
+        '4',
+        'الفعل',
+      ),
+      {
+        kind: 'procedure',
+        title: 'تجهيز التجربة كما في الشكل',
+        items: [
+          'مصدر جسيمات ألفا يقذف حزمة من الجسيمات الموجبة.',
+          'صفيحة ذهب رقيقة جداً في مسار الحزمة.',
+          'شاشة مطلية بمادة ZnS ترصد مواضع اصطدام الجسيمات بعد مرورها بالصفيحة.',
+        ],
+        attribution: 'textbook',
+      },
+      note(
+        'لماذا الذهب؟',
+        'لأنه يمكن طرقه إلى صفائح رقيقة جداً، فتمرّ الجسيمات عبر طبقات قليلة من الذرات. هذا اختيار عملي من التجربة، والكتاب يذكر «صفيحة ذهب رقيقة» دون تفصيل السبب.',
+      ),
+      book(
+        '1. معظم جسيمات ألفا تنفذ من صفيحة الذهب دون أن تنحرف مما يدل أن معظم حجم الذرة فراغ.',
+        '4',
+        'الملاحظة 1',
+      ),
+      book(
+        '2. جزء صغير من جسيمات ألفا ارتد وبعضها انحرف بزوايا مختلفة، مما يدل على أن الذرة تحوي بداخلها على جزء موجب يمثل معظم كتلة الذرة أطلق عليه العالم رذرفورد النواة.',
+        '4',
+        'الملاحظة 2',
+      ),
+      interactive(
+        'rutherford-scattering',
+        'توقّع أولاً: هل ستمر معظم الجسيمات أم سترتد؟ ثم أطلق الحزمة وراقب أعداد النفاذ والانحراف والارتداد، وغيّر عدد الجسيمات وحجم النواة في النموذج.',
+      ),
+      question('l1-practice-5'),
+      question('l1-practice-6'),
+      method(
+        'ماذا يفعل الطالب في المحاكاة؟',
+        '1) يقرأ السؤال ويتوقع النتيجة قبل التشغيل. 2) يطلق الحزمة ويقرأ العدادات. 3) يغيّر «حجم النواة في النموذج» ويلاحظ كيف تزداد الانحرافات عندما يكبر الهدف المركزي. 4) يعيد المحاولة ويشرح العلاقة بين الملاحظة والاستنتاج.',
+      ),
+    ],
+  },
+  {
+    id: 'rutherford-reasoning',
+    kind: 'deep-explanation',
+    title: 'لماذا يدلّ النفاذ على أن معظم الذرة فراغ؟',
+    summary: 'من الملاحظة إلى الاستنتاج، ولماذا فشل نموذج طومسون.',
+    attribution: 'platform',
+    minutes: 7,
+    blocks: [
+      prose(
+        'الملاحظة تقول: «معظم الجسيمات مرّت دون انحراف». لكن كيف ننتقل منها إلى «معظم حجم الذرة فراغ»؟ الانتقال ليس تخميناً، بل استدلال على ما يجب أن يكون عليه توزيع الكتلة والشحنة.',
+      ),
+      ordered([
+        'جسيم ألفا ثقيل نسبياً ومشحون بشحنة موجبة.',
+        'لو كانت كتلة الذرة وشحنتتها الموجبة موزعتين بالتساوي، لكان تأثير كل جزء صغيراً، ولتوزعت الانحرافات الصغيرة على معظم الجسيمات.',
+        'لكن الملاحظة: معظم الجسيمات لم تنحرف إطلاقاً، وقليل جداً انحرف بشدة أو ارتد.',
+        'التفسير المتسق الوحيد: الكتلة والشحنة الموجبة مركّزتان في جزء صغير جداً (النواة)، ومعظم الحجم لا يحوي ما يعترض الجسيم.',
+      ]),
+      prose(
+        'لاحظ أن الكتاب يقرن كل ملاحظة باستنتاجها في الجملة نفسها: «دون أن تنحرف» ← «معظم حجم الذرة فراغ»، و«ارتد وبعضها انحرف» ← «جزء موجب يمثل معظم الكتلة هو النواة». هذه هي عادة الاستدلال العلمي: الملاحظة أولاً، ثم العبارة التي تفسرها.',
+      ),
+      prose(
+        'والوجهان ليسا مستقلين: الفراغ في الحجم نتيجة حتمية لكون الكتلة والشحنة الموجبة مركّزتين في جزء صغير جداً. وارتداد الجسيم القليل قرب النواة هو الدليل المباشر على مركزية الشحنة الموجبة.',
+      ),
+      note(
+        'تشبيه من إعداد المنصة (لا من الكتاب)',
+        'لو كبّرنا الذرة حتى تصير بحجم ملعب كرة قدم، لكانت النواة في هذا التشبيه بحجم حبة صغيرة في منتصفه. التشبيه يوضح نسبة الفراغ، لكنه لا يعني أن الذرة «عدم»: الشحنة الكهربائية للإلكترونات تمتد في الحجم كله.',
+      ),
+      question('l1-practice-7'),
+      warn(
+        'ثلاثة أخطاء يقع فيها الطالب هنا',
+        '1) «الإلكترونات ردّت جسيمات ألفا»: كتلتها أصغر بآلاف المرات فلا تكفي لذلك. 2) «كل الجسيمات نفذت»: الكتاب يقول «معظم». 3) الخلط بين ما رصدناه (ملاحظة) وما استنتجناه (نواة وفراغ).',
+      ),
+      prose(
+        'سؤال نقل: لو كانت النواة أكبر مما هي عليه، فماذا تتوقع أن يحدث لنسبة الجسيمات المنحرفة؟ ستزداد، لأن مساحة الهدف المركزي ستكبر. جرّب ذلك في المحاكاة بتغيير حجم النواة في النموذج.',
+      ),
+    ],
+  },
+  {
+    id: 'bohr',
+    kind: 'source',
+    title: 'نموذج بور: الإلكترونات في سويات طاقة محددة',
+    summary: 'ثلاث نقاط مطبوعة، وشرح للامتصاص والإصدار، ومحاكاة انتقالات.',
+    attribution: 'textbook',
+    source: { pages: [source('5', 'نموذج بور')], verified: true },
+    minutes: 9,
+    blocks: [
+      book('نموذج بور للذرّة:', '5', 'عنوان'),
+      ordered(
+        [
+          'تتكوّن الذرّة من نواة موجبة وتدور حولها الإلكترونات في سويّات لها طاقة محدّدة.',
+          'تمتصّ الذرّة طاقة محددة عندما يقفز الإلكترون من سوية طاقة أدنى إلى سوية طاقة أعلى بحيث تكون الطاقة الممتصّة تساوي فرق الطاقة بين السويتين اللتين قفز بينهما الإلكترون.',
+          'تصدر الذرّة طاقة محددة على شكل ضوء عندما يقفز الإلكترون من سوية طاقة أعلى إلى سوية طاقة أدنى.',
+        ],
+        'textbook',
+      ),
+      book('(هذا ما يفسر طيف الانبعاثات الذي تصدره الذرّات بعد إثارتها)', '5', 'ملاحظة بين قوسين'),
+      prose(
+        'الانتقال إلى الخارج يحتاج امتصاصاً، والعودة إلى الداخل ترافقها طاقة منبعثة على شكل ضوء. لا يتحرك الإلكترون بين السويات بلا تبادل للطاقة، ولا يستقر في «منتصف الطريق» بين سويّتين.',
+      ),
+      definition(
+        'السوية الطاقية',
+        'حالة محددة للطاقة يمكن أن يوجد فيها الإلكترون حول النواة وفق نموذج بور. السوية الأقرب إلى النواة أدنى طاقة، وتزداد الطاقة كلما ابتعدنا عن النواة.',
+      ),
+      prose(
+        'كلمة «أعلى» لا تعني أعلى الصفحة؛ تعني طاقة أكبر وابتعاداً في الرسم المبسّط عن النواة. والسويات مسمّاة K ثم L ثم M ثم N، ويقابلها الأرقام n = 1, 2, 3, 4. الحرف اسم، والرقم هو ما نعوّض به في قانون السعة لاحقاً.',
+      ),
+      interactive(
+        'bohr-energy-transition',
+        'انقل الإلكترون بين K وL وM وN، وراقب اتجاه الانتقال: امتصاص طاقة عند الصعود، وإصدار ضوء عند الهبوط.',
+      ),
+      question('l1-practice-8'),
+      question('l1-practice-9'),
+      note(
+        'الكتاب لا يطبع قيماً للطاقة — وأين تظهر الأرقام؟',
+        'الكتاب لا يعطي قيماً عددية لطاقات هذه السويات، ولن يُطلب منك حفظ أي رقم منها. أما الأرقام التي تراها في المحاكاة (مثل 10.20 eV وطول موجي بالنانومتر) فهي محسوبة من نموذج بور لذرّة الهيدروجين وموسومة داخل المحاكاة كإثراء من المنصة، لا كبيانات من الكتاب. ما يهم في هذا الصف هو أن مقدار الطاقة المتبادلة يساوي الفرق بين السويتين، وأن الطاقات محددة بسبب أن السويات محددة.',
+      ),
+      warn(
+        'خطأ شائع',
+        '«الإلكترون يفقد طاقة باستمرار حتى يسقط في النواة». نموذج بور يجعل الإلكترون في سوية محددة ولا يسمح بحالات طاقة بينية؛ ولا يناقش الدرس تفاصيل الاستقرار النهائي. نكتفي بما ينص عليه المصدر: الانتقال بين سويات محددة يرافقه امتصاص أو إصدار طاقة.',
+      ),
+    ],
+  },
+  {
+    id: 'levels-law',
+    kind: 'source',
+    title: 'السويات الرئيسية وقانون السعة',
+    summary: 'y = 2(n)² وقيد السوية الأخيرة، مع أسئلة الكتاب الأربعة.',
+    attribution: 'mixed',
+    source: { pages: [source('5', 'السويات الرئيسية'), source('6', 'قانون السعة')], verified: true },
+    minutes: 9,
+    blocks: [
+      book(
+        'يتألف بناءٌ مدرسيٌّ من عدة طوابق وكل طابقٍ صفٌّ معيّن، كيف يمكن أن يتمّ توزيع الطلبة على القاعات الصفية؟ تتألف الذرّة من نواة وإلكترونات تدور حول النواة في مدارات محددة (سويات طاقة)، فكيف يتمّ توزّع هذه الإلكترونات على المدارات؟',
+        '5',
+        'تشبيه المبنى المدرسي',
+      ),
+      {
+        kind: 'diagram',
+        diagramId: 'source-figure-p5-levels',
+        title: 'السويات الرئيسية السبع',
+        description:
+          'شكل من الكتاب يمثل سبع حلقات حول النواة، مرقمة n = 1 إلى n = 7، ومقابلة للحروف K, L, M, N, O, P, Q. الشكل رسم توضيحي؛ الصورة الأصلية غير محفوظة كملف في المستودع.',
+        sourceRef: 'ص5 — شكل السويات الرئيسية',
+        caption: 'K ↔ n = 1، L ↔ n = 2، M ↔ n = 3، وهكذا حتى Q ↔ n = 7.',
+        attribution: 'platform',
+      },
+      book(
+        'y = 2(n)² حيث يعبّر n عن رقم السوية الرئيسية، مع العلم أن السوية الأخيرة لا تحوي أكثر من ثمانية إلكترونات.',
+        '5',
+        'قانون السعة',
+      ),
+      formula('y = 2(n)^2', 'y: العدد الأعظمي للإلكترونات، n: رقم السوية الرئيسية (1–7)', 'textbook'),
+      prose(
+        'العلاقة تعطي السعة العظمى، لا العدد الفعلي. السوية التي سعتها 18 قد تحتوي إلكتروناً واحداً فقط إذا كانت الذرة تملك إلكتروناً واحداً في تلك السوية، كما في الصوديوم. الفرق بين «أقصى ما يمكن» و«ما هو موجود فعلاً» هو أول ما يجب أن يثبت في ذهن الطالب.',
+      ),
+      prose(
+        'أما قاعدة «السوية الأخيرة لا تحوي أكثر من ثمانية إلكترونات» فهي قيد على التوزيع الفعلي في هذا الدرس، وتفسر كتابة الكالسيوم 2-8-8-2 بدل 2-8-10. ولهذا أيضاً لا تُملأ السوية M بسعتها الكاملة في الأمثلة المطبوعة، بل تُترك ثمانية إلكترونات كحد أقصى للسوية الأخيرة.',
+      ),
+      method(
+        'خطوات الحل الصحيحة',
+        '1) حدد n من الحرف. 2) احسب مربع n أولاً. 3) اضرب في 2. 4) اكتب الوحدة المنطقية (إلكترون). 5) تحقق: K=2، L=8، M=18، N=32، O=50.',
+      ),
+      book(
+        'أقرأ وأستنتج: العدد الأعظمي من الإلكترونات الذي تحويه السوية الرئيسية الأولى K يساوي 2 × (1)² = 2، والسوية الرئيسية الثانية L يساوي 2 × (2)² = 8. أحسب عدد الإلكترونات الأعظمى في السوية الثالثة M: 2 × (3)² = ..... وأحسب عدد الإلكترونات الأعظمى في السوية الرابعة N: .....',
+        '5',
+        'أقرأ وأستنتج',
+      ),
+      question('book-p5-k'),
+      question('book-p5-l'),
+      question('book-p5-m'),
+      question('book-p5-n'),
+      interactive(
+        'shell-capacity-lab',
+        'جرّب القانون على أي سوية من K إلى Q، ثم أكمل جدول صفحة 6 (K–O) وتحقّق من إجاباتك داخل المختبر.',
+      ),
+    ],
+  },
+  {
+    id: 'capacity-practice',
+    kind: 'activity',
+    title: 'أكمل جدول السويات واختبر فهمك للقانون',
+    summary: 'نشاط صفحة 6 كاملاً مع تحقق فوري من القيم.',
+    attribution: 'textbook',
+    source: { pages: [source('6', 'أكمل الجدول')], verified: true },
+    minutes: 7,
+    blocks: [
+      book('أكمل الجدول الآتي:', '6', 'عنوان النشاط'),
+      table(
+        'جدول الكتاب: السويات K–O ورقم كل سوية والعدد الأعظمي للإلكترونات',
+        [
+          { key: 'level', header: 'السوية الرئيسية', rowHeader: true },
+          { key: 'k', header: 'K', numeric: true },
+          { key: 'l', header: 'L', numeric: true },
+          { key: 'm', header: 'M', numeric: true },
+          { key: 'n', header: 'N', numeric: true },
+          { key: 'o', header: 'O', numeric: true },
+        ],
+        [
+          {
+            id: 'n-row',
+            cells: { level: 'رقم السوية الرئيسية n', o: '5', n: '4', m: '3', l: '2', k: '1' },
+          },
+          {
+            id: 'y-row',
+            cells: { level: 'عدد الإلكترونات الأعظمي y', o: '؟', n: '؟', m: '؟', l: '8', k: '2' },
+          },
+        ],
+        'القيم المطبوعة في الكتاب: K = 2 وL = 8. أكمل M وN وO.',
+      ),
+      question('book-p6-table'),
+      question('l1-practice-15'),
+      book('أسئلة:', '6', 'عنوان القواعد الثلاث'),
+      bullets(
+        [
+          'توزّع إلكترونات الذرّة على سبع سويّات طاقة رئيسية.',
+          'تحوي كل سوية رئيسية عدداً أعظمياً من الإلكترونات y يحدده القانون y = 2(n)².',
+          'الإلكترونات تشغل السويّات الأدنى أولاً إلا السوية الرئيسية الأخيرة لا تحوي أكثر من ثمانية إلكترونات.',
+        ],
+        'textbook',
+      ),
+      prose(
+        'لاحظ الجملة الثالثة: «تشغل الإلكترونات السويات الأدنى أولاً». هذا هو سبب توزيع الصوديوم 2-8-1 لا 1-8-2. الترتيب ليس اعتباطياً: الإلكترون يفضّل الحالة الأقل طاقة، وهي الأقرب إلى النواة والأقل عدداً في السوية.',
+      ),
+      question('l1-practice-10'),
+      question('l1-practice-11'),
+      question('l1-practice-13'),
+    ],
+  },
+  {
+    id: 'sodium',
+    kind: 'example',
+    title: 'تطبيق محلول: توزيع إلكترونات الصوديوم',
+    summary: 'المثال الكامل من صفحة 6 خطوة بخطوة، مع التحقق.',
+    attribution: 'mixed',
+    source: { pages: [source('6', 'تطبيق محلول')], verified: true },
+    minutes: 8,
+    blocks: [
+      book(
+        'أكتب التوزّع الإلكتروني على السويّات الرئيسية لذرّة الصوديوم، إذا علمتَ أنّ عدد الإلكترونات فيها يساوي 11، وأوضّح ذلك بالرسم.',
+        '6',
+        'نص التطبيق',
+      ),
+      {
+        kind: 'chemical-formula',
+        formula: 'Na',
+        caption: 'الصوديوم — 11 إلكتروناً في الذرة المتعادلة',
+        attribution: 'textbook',
+      },
+      table(
+        'جدول الحل كما ورد في الكتاب',
+        [
+          { key: 'level', header: 'السوية الرئيسية', rowHeader: true },
+          { key: 'k', header: 'K', numeric: true },
+          { key: 'l', header: 'L', numeric: true },
+          { key: 'm', header: 'M', numeric: true },
+        ],
+        [
+          { id: 'n', cells: { level: 'رقم السوية الرئيسية n', m: '3', l: '2', k: '1' } },
+          { id: 'y', cells: { level: 'عدد الإلكترونات الأعظمى y', m: '1', l: '8', k: '2' } },
+        ],
+        'كما في الكتاب: الصف الثاني مسمّى «عدد الإلكترونات الأعظمى y»، وقيمه 1 و8 و2. ثم يكتب الكتاب النتيجة: Na: K(2), L(8), M(1).',
+      ),
+      note(
+        'دقّة في قراءة جدول الكتاب',
+        'الصف الثاني مسمّى «عدد الإلكترونات الأعظمى y» لكن قيمه 1 و8 و2 هي العدد الفعلي في ذرة الصوديوم، لا السعة العظمى: فسعة M وحدها 18. الكتاب نفسه يكتب بعد الجدول Na: K(2), L(8), M(1) أي بالعدد الفعلي. نعرض الجدول كما هو ونفصل بين السعة والعدد الفعلي في الجدول الآتي، لأن الخلط بينهما أكثر ما يوقع الطالب في الخطأ.',
+      ),
+      {
+        kind: 'table',
+        caption: 'السعة العظمى مقابل العدد الفعلي (إضافة من المنصة)',
+        columns: [
+          { key: 'level', header: 'السوية الرئيسية', rowHeader: true },
+          { key: 'k', header: 'K', numeric: true },
+          { key: 'l', header: 'L', numeric: true },
+          { key: 'm', header: 'M', numeric: true },
+        ],
+        rows: [
+          { id: 'n', cells: { level: 'رقم السوية n', m: '3', l: '2', k: '1' } },
+          { id: 'cap', cells: { level: 'السعة العظمى y = 2(n)²', m: '18', l: '8', k: '2' } },
+          { id: 'actual', cells: { level: 'العدد الفعلي في ذرة الصوديوم', m: '1', l: '8', k: '2' } },
+        ],
+        footnote: 'المجموع الفعلي 2 + 8 + 1 = 11، وهو عدد الإلكترونات المعطى في السؤال.',
+        attribution: 'platform',
+      },
+      prose(
+        'نتحقق الآن: هل يبدأ التوزيع بالسوية الأقرب إلى النواة؟ هل مجموع الأعداد الفعلية يساوي 11؟ هل عدد إلكترونات السوية الأخيرة (1) هو ما سنرسمه بنقطة واحدة في تمثيل لويس؟',
+      ),
+      interactive(
+        'electron-shell-builder',
+        'ابنِ التوزيع بنفسك: ابدأ بـ11 إلكتروناً وشاهد الحلقات وهي تمتلئ من الداخل إلى الخارج. غيّر العدد وراقب إلكترونات السوية الأخيرة.',
+      ),
+      question('book-p6-sodium'),
+      method(
+        'تحقق من إجابتك في 3 أسئلة',
+        '1) هل بدأتُ بالسوية الأقرب إلى النواة؟ 2) هل مجموع الأعداد يساوي 11؟ 3) هل عدد إلكترونات السوية الأخيرة يساوي عدد نقاط لويس التي سأرسمها لاحقاً؟',
+      ),
+    ],
+  },
+  {
+    id: 'distribution-reasoning',
+    kind: 'deep-explanation',
+    title: 'لماذا نملأ السويات من الداخل إلى الخارج؟',
+    summary: 'السبب وراء ترتيب التوزيع، والفرق بين السعة والعدد الفعلي.',
+    attribution: 'platform',
+    minutes: 5,
+    blocks: [
+      prose(
+        'الإلكترون في الذرة لا يختار موقعه عشوائياً. السوية الأقرب إلى النواة هي الأقل طاقة، والحالة الأقل طاقة هي الأكثر استقراراً. لذلك تبدأ الإلكترونات بالسوية الأدنى ثم تنتقل إلى التي تليها.',
+      ),
+      prose(
+        'تخيّل سلّماً: لا تستطيع أن تضع قدمك على الدرجة الثالثة قبل أن تلمس الأولى. لكن التشبيه له حدّ: في الدرس لا تنتقل الإلكترونات بين السويات إلا بتبادل طاقة (كما رأينا في نموذج بور)، أما أثناء التوزيع فنحن نصف الحالة المستقرة للذرة، لا حركة مستمرة.',
+      ),
+      note(
+        'السعة ليست عدّاً',
+        'y = 2(n)² تجيب عن سؤال «كم تستطيع السوية أن تحمل؟» لا «كم تحمل فعلاً؟». ذرة الأكسجين لها 8 إلكترونات فقط، فتوزيعها 2-6 مع أن سعة L هي 8. وذرة الصوديوم لها 11، فتضع 1 في M مع أن سعتها 18.',
+      ),
+      warn(
+        'خطأ شائع في الكتابة',
+        'كتابة التوزيع بترتيب معكوس (1-8-2) أو إضافة أصفار (2-08-01). الترتيب من الداخل إلى الخارج دائماً، والأعداد صحيحة بلا أصفار زائدة.',
+      ),
+      question('l1-practice-12'),
+      method(
+        'طريقة التحقق من أي توزيع',
+        'اجمع الأعداد: يجب أن تساوي العدد الذري. ثم تأكد أن كل سوية لم تتجاوز سعتها، وأن السويات الأدنى امتلأت قبل الأعلى، وأن السوية الأخيرة لا تحمل أكثر من ثمانية. الشروط الأربعة تكفي لكشف أي توزيع خاطئ. مثال محلول: الكبريت Z = 16 ← 2-8-6، فالمجموع 16، والسوية الأخيرة فيها 6 إلكترونات.',
+      ),
+    ],
+  },
+  {
+    id: 'atomic-numbers',
+    kind: 'source',
+    title: 'العدد الذري والعدد الكتلي والترميز النووي',
+    summary: 'مثال النيون كاملاً، ثم أداة تجمع الجسيمات وتقرأ الهوية.',
+    attribution: 'mixed',
+    source: { pages: [source('7', 'مثال النيون')], verified: true },
+    minutes: 9,
+    blocks: [
+      nuclear('Ne', '20', '10', 'رمز ذرة النيون كما ورد في صفحة 7'),
+      book(
+        'رمز ذرة النيون ²⁰₁₀Ne، المطلوب: ما قيمة العدد الكتلي A؟ ما قيمة العدد الذري Z؟ ما عدد الإلكترونات في ذرّة عنصر النيون؟ أكتب التوزّع الإلكتروني لذرّة النيون على السويّات الرئيسية.',
+        '7',
+        'مثال',
+      ),
+      prose(
+        'قبل أن تقرأ الحل: الرمز ²⁰₁₀Ne يحمل معلومتين فقط. العدد العلوي هو العدد الكتلي A، والسفلي هو العدد الذري Z. من هذين العددين تستطيع أن تستخرج البروتونات والنيوترونات والإلكترونات والتوزيع، لأن كل واحدة منها علاقة رياضية واحدة: البروتونات = Z، والنيوترونات = A − Z، والإلكترونات = البروتونات في الذرة المتعادلة. ابدأ بالسؤال الأول ثم اكتب إجابتك قبل أن تفتح الشرح.',
+      ),
+      formula('N = A - Z', 'N: عدد النيوترونات، A: العدد الكتلي، Z: العدد الذري'),
+      question('book-p7-neon-a'),
+      question('book-p7-neon-z'),
+      question('book-p7-neon-e'),
+      question('book-p7-neon-dist'),
+      method(
+        'راجع حلك الكامل',
+        'A = 20 وZ = 10، فالبروتونات 10، والنيوترونات 20 − 10 = 10، والإلكترونات 10 في الذرة المتعادلة. وتوزيع 10 إلكترونات: K(2) ثم L(8)، فالتوزيع 2-8. قارن هذه الخطوات بما كتبته أنت؛ إن اختلفت فارجع إلى الشرح داخل السؤال الذي أخطأت فيه قبل أن تنتقل.',
+      ),
+      interactive(
+        'atom-inventory-lab',
+        'غيّر عدد البروتونات والنيوترونات والإلكترونات، وراقب اسم العنصر والعدد الكتلي والشحنة ونوع الجسيم (ذرة/أيون). جرّب أيضاً تحدّي «حقق الهدف» بجسيم مطلوب.',
+      ),
+      method(
+        'ترتيب القراءة الذي لا يخطئ',
+        '1) اقرأ A من أعلى الرمز. 2) اقرأ Z من أسفله. 3) البروتونات = Z. 4) النيوترونات = A − Z. 5) الإلكترونات: تساوي البروتونات في الذرة المتعادلة، وتزيد أو تنقص في الأيون. 6) وزّع الإلكترونات من الداخل إلى الخارج.',
+      ),
+    ],
+  },
+  {
+    id: 'atomic-identity',
+    kind: 'deep-explanation',
+    title: 'لماذا العدد الذري هو «هوية» العنصر؟',
+    summary: 'البروتونات تحدد العنصر، النيوترونات تصنع النظائر، والإلكترونات تصنع الأيونات.',
+    attribution: 'platform',
+    minutes: 5,
+    blocks: [
+      prose(
+        'كل ذرة صوديوم في الكون فيها 11 بروتوناً، وكل ذرة أكسجين فيها 8. تغيير هذا العدد لا يعطي «صوديوماً مختلفاً» بل عنصراً مختلفاً. ولهذا يُسمّى العدد الذري رقم هوية العنصر، وهو ما يحدد موضعه في الجدول الدوري.',
+      ),
+      prose(
+        'بقية الجسيمات تسمح بتنويعات لا تغيّر الهوية: اختلاف عدد النيوترونات ينتج النظائر (أكسجين-16 وأكسجين-18 كلاهما أكسجين)، واختلاف عدد الإلكترونات ينتج الأيونات (Na وNa⁺ كلاهما صوديوم). وحدها البروتونات إذا تغيّرت تغيّر العنصر.',
+      ),
+      question('l1-practice-16'),
+      question('l1-practice-14'),
+      warn(
+        'خطأ شائع',
+        'اعتبار العدد الكتلي هو «هوية» العنصر. لو كان كذلك لكان أكسجين-16 وأكسجين-18 عنصرين مختلفين، لكنهما نظيران للعنصر نفسه. الهوية من العدد الذري وحده.',
+      ),
+      note(
+        'تفصيل دقيق: العدد الذري والكتلي في الإجابة',
+        'عند السؤال عن «العدد الذري» نعطي Z، وعند السؤال عن «عدد البروتونات» نعطي القيمة نفسها بلا لبس. وعند السؤال عن «عدد النيوترونات» نحسب A − Z. أما «عدد الإلكترونات» فيتطلب معرفة الشحنة، لا مجرد رمز النواة.',
+      ),
+    ],
+  },
+  {
+    id: 'octet-rule',
+    kind: 'source',
+    title: 'قاعدة الثمانية والنشاط الكيميائي',
+    summary: 'لماذا تسعى الذرات إلى ثمانية إلكترونات في سطحها؟',
+    attribution: 'textbook',
+    source: { pages: [source('7', 'قاعدة الثمانية')], verified: true },
+    minutes: 6,
+    blocks: [
+      book('قاعدة الثمانية الإلكترونية:', '7', 'عنوان'),
+      book(
+        'تسعى ذرّات العناصر الكيميائية إلى الاستقرار بأن يصبح في طبقتها السطحية ثمانية إلكترونات، عدا الهيدروجين الذي يحتوي على إلكترونين فقط. تسعى الذرّة للحصول على ثمانية إلكترونات في طبقتها السطحية، فتكتسب أو تفقد الإلكترونات وهذا ما يسمى النشاط الكيميائي.',
+        '7',
+        'نص القاعدة',
+      ),
+      prose(
+        'القاعدة تفسر لماذا تتفاعل الذرات أصلاً. الذرة التي سطحها ممتلئ بثمانية إلكترونات (أو بإلكترونين في الحالة الصغيرة) أكثر استقراراً، فتقل حاجتها للتفاعل. والذرة التي تنقصها إلكترونات أو تملك إلكتروناً زائداً تكون أعلى نشاطاً لأنها تسعى إلى تلك الحالة.',
+      ),
+      prose(
+        'الطريقان إلى الثمانية: فقد الإلكترونات (إذا كان العدد الزائد قليلاً) أو اكتسابها (إذا كانت الحاجة قليلة). وسنرى في المحور التالي أن هذين الطريقين هما أصل الأيونات الموجبة والسالبة.',
+      ),
+      exampleOctet(),
+      question('l1-practice-17'),
+      note(
+        'حدود العبارة في الصف الثامن',
+        'قاعدة الثمانية قاعدة عملية مفيدة في هذا المستوى، وليست قانوناً مطلقاً لكل الذرات. الهيدروجين والليثيوم ونحوهما يصلان إلى الاستقرار بإلكترونين في السوية K. نلتزم بنص الكتاب: ثمانية إلا الهيدروجين.',
+      ),
+    ],
+  },
+  {
+    id: 'ion-concept',
+    kind: 'explanation',
+    title: 'لماذا يحرق الصوديوم يدك بينما نأكل ملح الطعام؟',
+    summary: 'نفس العنصر، لكن بحالة جسيم مختلفة: ذرة متعادلة مقابل أيون.',
+    attribution: 'mixed',
+    source: { pages: [source('7', 'مفهوم الذرة والأيون')], verified: true },
+    minutes: 6,
+    blocks: [
+      book(
+        'نتعامل مع معدن الصوديوم في المختبر باستخدام مِلقط خشبي لأنّه يسبب حروقاً عند ملامسته لليد، بينما نستعمل كلوريد الصوديوم (ملح الطعام) في طعامنا. أفسّر ذلك؟',
+        '7',
+        'مفهوم الذرة والأيون',
+      ),
+      question('l1-practice-27'),
+      prose(
+        'الجواب يبدأ من حالة الصوديوم في كل مادة. في معدن الصوديوم توجد ذرات صوديوم متعادلة، توزيعها 2-8-1، وفي سطحها إلكترون واحد يسعى إلى فقدانه، فلها نشاط كيميائي عالٍ وتتفاعل بسرعة مع رطوبة الجلد. أما في كلوريد الصوديوم فالصوديوم موجود على هيئة أيون Na⁺ بعد أن فقد ذلك الإلكترون، وتوزيعه 2-8، وهو أكثر استقراراً. والكلور موجود على هيئة أيون Cl⁻ بتوزيع 2-8-8.',
+      ),
+      prose(
+        'إذن الخواص التي نراها تعود إلى المادة وحالة جسيماتها، لا إلى «اسم» العنصر وحده. وجود العنصر نفسه في حالتين مختلفتين كذرة أو أيون قد يعطي سلوكاً مختلفاً تماماً. هذا هو جوهر السؤال المطبوع في الكتاب.',
+      ),
+      warn(
+        'سلامة',
+        'لا تُجرَّب هذه المقارنة عملياً في المنزل أو المختبر دون إشراف. نحن نفسر ظاهرة معروفة، لا ندعو إلى ملامسة المعادن أو المواد الكيميائية. الصوديوم الفلزي شديد التفاعل ولا يُلمس.',
+      ),
+      note(
+        'حدود التبسيط في هذه المقارنة',
+        'عندما نقول إن ذرات الصوديوم في المعدن «متعادلة» فهذا تبسيط مقصود يناسب هذا الصف ويطابق طريقة عرض الكتاب. في البلورة المعدنية الحقيقية تكون الذرات مترابطة في شبكة، والإلكترون الخارجي مشترك بينها إلى حد كبير. لا يتغير الاستنتاج: الإلكترون الخارجي وحده هو المسؤول عن النشاط الكيميائي، وبعد فقدانه يصبح الصوديوم أيوناً أكثر استقراراً في المركّب.',
+      ),
+      method(
+        'كيف تجيب عن سؤال «فسّر»؟',
+        'ابدأ بحالة الجسيم (ذرة أم أيون؟)، ثم اذكر التوزيع الإلكتروني، ثم اربط الاستقرار بقاعدة الثمانية، ثم اربط الخواص بالحالة الناتجة. لا تكتفِ بعبارة «لأن أحدهما خطر والآخر آمن» فهي نتيجة لا تفسير.',
+      ),
+    ],
+  },
+  {
+    id: 'ions',
+    kind: 'source',
+    title: 'جدول الذرات والأيونات وتعريف الأيون',
+    summary: 'Na وNa⁺ وCl وCl⁻ مع أسئلة الكتاب الأربعة وتعريف الأيون.',
+    attribution: 'textbook',
+    source: { pages: [source('8', 'ألاحظ واستنتج'), source('8', 'تعريف')], verified: true },
+    minutes: 10,
+    blocks: [
+      book('ألاحظ واستنتج:', '8', 'عنوان'),
+      book(
+        'ألاحظ نموذج ذرّة الصوديوم Na ونموذج أيون الصوديوم Na⁺، ونموذج ذرّة الكلور Cl وأيون Cl⁻، وأملأ الجدول الآتي.',
+        '8',
+        'المقدمة',
+      ),
+      table(
+        'جدول الكتاب فارغاً كما طُبع: رمز النواة، عدد الإلكترونات، عدد البروتونات، المجموع الجبري للشحنات',
+        [
+          { key: 'species', header: 'الشكل في الكتاب', rowHeader: true },
+          { key: 'symbol', header: 'رمز النواة' },
+          { key: 'electrons', header: 'عدد الإلكترونات', numeric: true },
+          { key: 'protons', header: 'عدد البروتونات', numeric: true },
+          { key: 'sum', header: 'المجموع الجبري للشحنات' },
+        ],
+        [
+          { id: 'na', cells: { species: 'نموذج ذرة الصوديوم', symbol: '²³₁₁Na', electrons: '؟', protons: '؟', sum: '؟' } },
+          { id: 'na-ion', cells: { species: 'نموذج أيون الصوديوم', symbol: '²³₁₁Na⁺', electrons: '؟', protons: '؟', sum: '؟' } },
+          { id: 'cl', cells: { species: 'نموذج ذرة الكلور', symbol: '³⁵₁₇Cl', electrons: '؟', protons: '؟', sum: '؟' } },
+          { id: 'cl-ion', cells: { species: 'نموذج أيون الكلور', symbol: '³⁵₁₇Cl⁻', electrons: '؟', protons: '؟', sum: '؟' } },
+        ],
+        'الجدول مطبوع فارغاً في الكتاب؛ نعرضه فارغاً. نماذج الذرات والأيونات المرسومة في الشكل الأصلي غير محفوظة كملف في المستودع، ويقوم مقامها مختبر تشكّل الأيونات أسفل هذه الخطوة.',
+      ),
+      note(
+        'كيف تملأ صفاً في الجدول؟',
+        'ابدأ بعدد البروتونات من العدد الذري أسفل رمز النواة. في الذرة المتعادلة يساوي عدد الإلكترونات عدد البروتونات. عند تكوّن الأيون يتغير عدد الإلكترونات وحده: فقدان إلكترونات ← مجموع موجب بعددها، واكتسابها ← مجموع سالب بعددها. ثم اجمع الشحنات جبرياً.',
+      ),
+      question('book-p8-table'),
+      question('book-p8-q1'),
+      question('book-p8-q2'),
+      question('book-p8-q3'),
+      question('book-p8-q4'),
+      book('تعريف:', '8', 'عنوان التعريف'),
+      book(
+        'الأيون هو ذرة فقدت أو اكتسبت إلكترونًا أو أكثر. إذا فقدت الذرة إلكترونًا (أو أكثر) تتحوّل إلى أيون موجب، ويرمز له برمز ذرته مع عدد من الإشارات الموجبة يساوي عدد الإلكترونات التي فقدتها الذرة. (كما في مثالنا السابق Na⁺). إذا اكتسبت الذرة إلكترونًا (أو أكثر) تتحوّل إلى أيون سالب، ويرمز له برمز ذرته مع عدد من الإشارات السالبة يساوي عدد الإلكترونات التي اكتسبتها الذرة. (كما في مثالنا السابق Cl⁻).',
+        '8',
+        'تعريف الأيون',
+      ),
+      interactive(
+        'ion-formation-lab',
+        'اختر K أو F أو Ca أو O، ثم حرّك الإلكترون خطوة خطوة وراقب تغيّر عدد الإلكترونات والشحنة الكلية مع ثبات البروتونات.',
+      ),
+    ],
+  },
+  {
+    id: 'ion-reasoning',
+    kind: 'deep-explanation',
+    title: 'دفتر شحنات الأيون: كيف نحسب الإشارة بلا خطأ؟',
+    summary: 'الفرق بين فقد السالب واكتساب السالب، مع أمثلة محلولة.',
+    attribution: 'platform',
+    minutes: 6,
+    blocks: [
+      prose(
+        'الخطأ الأشهر: «الذرة فقدت إلكتروناً، إذن صارت سالبة». سبب الخطأ أن الطالب يركّز على أن الإلكترون سالب، فيعكس النتيجة. الصواب أن نفكر بميزان: البروتونات (+) ثابتة، والإلكترونات (−) هي التي تتغير.',
+      ),
+      formula('q = N_{p} - N_{e}', 'q: الشحنة، Np: عدد البروتونات، Ne: عدد الإلكترونات'),
+      ordered([
+        'اكتب عدد البروتونات من العدد الذري.',
+        'اكتب عدد الإلكترونات بعد الفقد أو الاكتساب.',
+        'اطرح: البروتونات − الإلكترونات.',
+        'إن كان الناتج موجباً فالأيون موجب، وإن كان سالباً فالأيون سالب.',
+        'اكتب عدد الإشارات مساوياً للفرق: فقد إلكترون واحد ← +1، فقد إلكترونين ← +2.',
+      ]),
+      prose(
+        'مثال محلول (Ca): العدد الذري 20، والتوزيع 2-8-8-2. للوصول إلى ثمانية في السوية الأخيرة تفقد الذرة إلكترونين، فيصبح عدد الإلكترونات 18 وعدد البروتونات 20. الشحنة = 20 − 18 = +2، ويُكتب Ca²⁺. مثال آخر (O): العدد الذري 8 والتوزيع 2-6؛ تكتسب إلكترونين فيصبح عدد الإلكترونات 10 والبروتونات 8، والشحنة = 8 − 10 = −2، ويُكتب O²⁻.',
+      ),
+      warn(
+        'خطأ شائع آخر',
+        'القول إن «البروتونات تتغير عند تكوّن الأيون». البروتونات تبقى في النواة، ولهذا يبقى العنصر نفسه. لو تغيّر عدد البروتونات لتغيّر العنصر، ولما كان لدينا أيون من العنصر نفسه.',
+      ),
+      note(
+        'اربط بالأهداف: ما معنى «أيون أحادي التكافؤ»؟',
+        'هدف صفحة 3 يتحدث عن «الأيون أحادي التكافؤ»، أي الأيون الذي شحنته ±1 مثل Na⁺ وCl⁻ وK⁺ وF⁻. والكتاب نفسه يضمّ في جدول أمثلة صفحة 9 أيونين بشحنة أكبر: Ca²⁺ (2+) وO²⁻ (2−)، ونشرحهما بالقاعدة نفسها: الفرق بين البروتونات والإلكترونات يحدد مقدار الشحنة. لذلك لا نصف Ca²⁺ بأنه أحادي التكافؤ؛ فالتكافؤ هنا هو مقدار الشحنة لا عدد الذرات. أما المركبات الأيونية مثل NaCl فتتكون من أكثر من أيون، وهي امتداد لاحق خارج نطاق هذا الدرس.',
+      ),
+      question('l1-practice-18'),
+      question('l1-practice-19'),
+      question('l1-practice-20'),
+    ],
+  },
+  {
+    id: 'ion-examples',
+    kind: 'source',
+    title: 'أمثلة الأيونات ونشاط الفراغين',
+    summary: 'K⁺ وF⁻ وCa²⁺ وO²⁻، ثم فراغا صفحة 9.',
+    attribution: 'textbook',
+    source: { pages: [source('9', 'أمثلة'), source('9', 'نشاط')], verified: true },
+    minutes: 8,
+    blocks: [
+      book('أمثلة:', '9', 'عنوان'),
+      table(
+        'جدول أمثلة الأيونات كما في الكتاب',
+        [
+          { key: 'element', header: 'اسم العنصر', rowHeader: true },
+          { key: 'z', header: 'عدده الذري', numeric: true },
+          { key: 'dist', header: 'توزعه الإلكتروني على السويات الرئيسية' },
+          { key: 'way', header: 'طريقة حصوله على قاعدة الثمانية' },
+          { key: 'charge', header: 'شحنة الأيون' },
+          { key: 'ion', header: 'يرمز له بأيون' },
+        ],
+        [
+          { id: 'k', cells: { element: 'البوتاسيوم', z: '19', dist: '2-8-8-1', way: 'فقدان إلكترون واحد', charge: '1+', ion: 'K⁺' } },
+          { id: 'f', cells: { element: 'الفلور', z: '9', dist: '2-7', way: 'اكتساب إلكترون واحد', charge: '1−', ion: 'F⁻' } },
+          { id: 'ca', cells: { element: 'الكالسيوم', z: '20', dist: '2-8-8-2', way: 'فقدان إلكترونين', charge: '2+', ion: 'Ca²⁺' } },
+          { id: 'o', cells: { element: 'الأكسجين', z: '8', dist: '2-6', way: 'اكتساب إلكترونين', charge: '2−', ion: 'O²⁻' } },
+        ],
+      ),
+      prose(
+        'الجدول يلخص المنطق كله: التوزيع يقول لنا كم إلكتروناً ينقص أو يزيد عن ثمانية، وطريقة الحصول على الثمانية تحدد الفقد أو الاكتساب، وعدد الإلكترونات المتبادلة يحدد عدد إشارات الشحنة. جرّب أن تغطي عمود الشحنة وتستنتجه بنفسك.',
+      ),
+      ion('K', '+', 'K⁺ — التوزع قبل الفقد 2-8-8-1'),
+      ion('F', '-', 'F⁻ — التوزع قبل الاكتساب 2-7'),
+      ion('Ca', '2+', 'Ca²⁺ — التوزع قبل الفقد 2-8-8-2'),
+      ion('O', '2-', 'O²⁻ — التوزع قبل الاكتساب 2-6'),
+      question('book-p9-blank-1'),
+      question('book-p9-blank-2'),
+      question('book-p9-examples'),
+      note(
+        'ملاحظة على الترميز',
+        'إشارة الشحنة تُكتب بعد الرمز وبعدد المرات نفسه: فقد إلكترونين ← 2+، واكتساب إلكترونين ← 2−. ترتيب الكتاب هو «2+» و«2−» لا «+2» و«−2» في رمز الأيون، ونلتزم به.',
+      ),
+    ],
+  },
+  {
+    id: 'lewis',
+    kind: 'source',
+    title: 'تمثيل لويس: إلكترونات السطح كنقاط',
+    summary: 'تعريف لويس، مثال الكالسيوم، وجدول Li وB وC ثم N وF.',
+    attribution: 'mixed',
+    source: { pages: [source('9', 'تمثيل لويس'), source('10', 'نشاط')], verified: true },
+    minutes: 10,
+    blocks: [
+      book('تمثيل لويس للذرات:', '9', 'عنوان'),
+      book(
+        'اقترح لويس تمثيلًا مبسّطًا للذرات بحيث نكتبُ رمز الذرّة محاطة بالإلكترونات السّطحية فقط ويشار لها بنقاط أو حرف X صغير. مثال: ذرة الكالسيوم Ca نكتبها وفق لويس بالشكل C̈a لأنها تحوي إلكترونين سطحيين.',
+        '9',
+        'تعريف تمثيل لويس',
+      ),
+      definition(
+        'تمثيل لويس',
+        'رمز الذرة محاطاً بنقاط تمثل إلكترونات السوية الأخيرة (السطحية) فقط، لا جميع إلكترونات الذرة.',
+      ),
+      lewis('Ca', ['right', 'left'], 'Ca — إلكترونان سطحيان: توزيع 2-8-8-2', {}),
+      table(
+        'جدول لويس في الكتاب (الليثيوم والبورون والكربون مكتملة)',
+        [
+          { key: 'label', header: 'العنصر', rowHeader: true },
+          { key: 'li', header: 'الليثيوم · 3', numeric: true },
+          { key: 'b', header: 'البورون · 5', numeric: true },
+          { key: 'c', header: 'الكربون · 6', numeric: true },
+          { key: 'n', header: 'النيتروجين · 7', numeric: true },
+          { key: 'f', header: 'الفلور · 9', numeric: true },
+        ],
+        [
+          { id: 'z', cells: { label: 'عدده الذري', f: '9', n: '7', c: '6', b: '5', li: '3' } },
+          { id: 'dist', cells: { label: 'توزعه الإلكتروني', f: '؟', n: '؟', c: '2-4', b: '2-3', li: '2-1' } },
+          { id: 'lewis', cells: { label: 'تمثيل لويس للعنصر', f: '؟', n: '؟', c: '٤ نقاط', b: '٣ نقاط', li: 'نقطة' } },
+        ],
+      ),
+      lewis('Li', ['right'], 'Li — إلكترون سطحي واحد'),
+      lewis('B', ['top', 'right', 'bottom'], 'B — ثلاثة إلكترونات سطحية'),
+      lewis('C', ['top', 'right', 'bottom', 'left'], 'C — أربع نقاط في الجهات الأربع'),
+      prose(
+        'الخطوات الأربع: (1) العدد الذري. (2) التوزيع. (3) عدّ إلكترونات السوية الأخيرة. (4) نقاط حول الرمز: فرادى أولاً في الجهات الأربع، ثم ازدواج. أجب عن السؤال التالي بنفسك قبل أن ترى حلّي العمودين الفارغين.',
+      ),
+      question('book-p9-lewis-table'),
+      lewis('N', ['right', 'bottom', 'left'], 'N — خمس نقاط: زوج أعلى وثلاث نقاط مفردة', { top: 1 }),
+      prose(
+        'هكذا يُكمل العمودان: النيتروجين 2-5 فله خمس نقاط (زوج واحد وثلاث مفردات)، والفلور 2-7 فله سبع نقاط (ثلاثة أزواج ومفردة واحدة). والمثال الخامس (الفلور) يُترك للطالب في النشاط.',
+      ),
+      interactive(
+        'lewis-dot-lab',
+        'اختر عنصراً من عناصر الكتاب وغيرها، ثم ضع النقاط بنفسك. المنصة تتحقق من العدد ومن قاعدة «إلى نقطتين في الجهة الواحدة»، وتُظهر الترتيب المرجعي بعد المحاولة.',
+      ),
+    ],
+  },
+  {
+    id: 'lewis-deep',
+    kind: 'deep-explanation',
+    title: 'لماذا إلكترونات السطح وحدها؟',
+    summary: 'السبب الكيميائي وراء اختصار لويس، وقاعدة الترتيب.',
+    attribution: 'platform',
+    minutes: 5,
+    blocks: [
+      prose(
+        'عندما تتفاعل ذرتان، ما الذي يتغير فعلاً؟ الإلكترونات القريبة من النواة محتجزة بقوة جذب كبيرة، ولا تُفقد ولا تُشارك في التفاعلات العادية. أما إلكترونات السوية الأخيرة فهي الأبعد والأقل ارتباطاً، وهي التي تُكسب أو تُفقد أو تُشارك. لذلك صار تمثيلها وحده كافياً لوصف السلوك الكيميائي.',
+      ),
+      prose(
+        'هذه هي أيضاً الصلة بقاعدة الثمانية: عدد نقاط لويس هو عدد إلكترونات السطح، أي المسافة الحالية بين الذرة وبين الثمانية. الأكسجين له 6 نقاط، فيحتاج 2؛ والفلور 7 يحتاج 1؛ والصوديوم 1 يفقد 1. النقاط إذاً خريطة سريعة للنشاط الكيميائي.',
+      ),
+      warn(
+        'الازدواج بعد الفرادى',
+        'الترتيب الصحيح: ضع نقطة في كل جهة من الجهات الأربع قبل أن تضع النقطة الثانية في أي جهة. لذلك الكربون (4 إلكترونات سطحية) = أربع نقاط مفردة في أربع جهات، لا زوجان في جهتين. والنيتروجين = زوج واحد + ثلاث نقاط مفردة.',
+      ),
+      question('l1-practice-21'),
+      question('l1-practice-22'),
+      prose(
+        'سؤال نقل: ما تمثيل لويس لذرة الأرغون (18)؟ توزيعها 2-8-8، وإلكترونات سطحها 8، فتُرسم ثماني نقاط حول Ar: زوج في كل جهة. هذا يطابق إجابة سؤال الكتاب في صفحة 12 (السؤال الثالث).',
+      ),
+    ],
+  },
+  {
+    id: 'activity-al-mg-o',
+    kind: 'activity',
+    title: 'نشاط: التوزع وتمثيل لويس للألمنيوم والمغنزيوم والأكسجين',
+    summary: 'نشاط صفحة 10 كاملاً مع تحقق من الإلكترونات السطحية.',
+    attribution: 'textbook',
+    source: { pages: [source('10', 'نشاط')], verified: true },
+    minutes: 8,
+    blocks: [
+      book('لدينا الذرّات:', '10', 'عنوان النشاط'),
+      nuclear('Al', undefined, '13', '₁₃Al — عدد ذري فقط'),
+      nuclear('Mg', undefined, '12', '₁₂Mg — عدد ذري فقط'),
+      nuclear('O', undefined, '8', '₈O — عدد ذري فقط'),
+      book(
+        'ما عدد الإلكترونات السطحية في كلّ منها؟ أكتب تمثيل لويس للذرات السابقة.',
+        '10',
+        'المطلوب',
+      ),
+      method(
+        'خطة العمل',
+        'العدد المكتوب أسفل الرمز عدد ذري، لا كتلي. في الذرة المتعادلة هو عدد الإلكترونات. وزّعها من الداخل إلى الخارج، ثم عدّ إلكترونات السوية الأخيرة، ثم ارسمها نقاطاً: فرادى أولاً ثم أزواجاً.',
+      ),
+      question('book-p10-al-mg-o'),
+      note(
+        'قبل أن تنتقل',
+        'اكتب إجابتك كاملة: التوزيع، ثم عدد الإلكترونات السطحية، ثم الرسم. الحل المفصّل يظهر بعد إجابتك في بطاقة النشاط، وتستطيع أيضاً بناء التمثيلات في مختبر لويس ومقارنتها.',
+      ),
+    ],
+  },
+  {
+    id: 'isotopes',
+    kind: 'source',
+    title: 'النظائر: نظائر الهيدروجين الثلاثة',
+    summary: 'الهيدروجين العادي والديوتيريوم والتريتيوم، وجدولها وأسئلتها (ص10).',
+    attribution: 'mixed',
+    source: { pages: [source('10', 'النظائر')], verified: true },
+    minutes: 9,
+    blocks: [
+      book('النظائر:', '10', 'عنوان'),
+      book(
+        'ألاحظ وأستنتج: الذرّات الآتية هي لعنصر واحد هو الهيدروجين: الهيدروجين العادي ¹₁H، والديوتيريوم ²₁H، والتريتيوم ³₁H.',
+        '10',
+        'ألاحظ وأستنتج',
+      ),
+      nuclear('H', '1', '1', 'الهيدروجين العادي (البروتيوم) — بروتون واحد وإلكترون واحد'),
+      nuclear('H', '2', '1', 'الديوتيريوم — بروتون ونيوترون واحد'),
+      nuclear('H', '3', '1', 'التريتيوم — بروتون ونيوترونان'),
+      question('book-p10-hydrogen-table'),
+      question('book-p10-q1'),
+      question('book-p10-q2'),
+      question('book-p10-q3'),
+      prose(
+        'لاحظ الآن ما يتغير وما يثبت: الحرف H والعدد السفلي 1 ثابتان في الحالات الثلاث، والعدد العلوي 1 ثم 2 ثم 3 يتغير. ثبات العدد الذري يعني أن العنصر واحد (هيدروجين). وتغيّر العدد الكتلي سببه اختلاف عدد النيوترونات: صفر في العادي، وواحد في الديوتيريوم، واثنان في التريتيوم. وعدد الإلكترونات واحد في الحالات الثلاث. قارن هذا الشرح بإجابتك في الجدول.',
+      ),
+      interactive(
+        'isotope-lab',
+        'ثبّت عدد البروتونات وغيّر النيوترونات، ثم راقب العدد الكتلي واسم النظير. جرّب أيضاً الهيدروجين والأكسجين والكلور.',
+      ),
+      warn(
+        'خطأ شائع',
+        '«النظائر عناصر مختلفة». لا: النظائر ذرات للعنصر نفسه، ولا يتغير اسمها الكيميائي. أكسجين-16 وأكسجين-18 عنصر واحد، والفرق في الكتلة لا في الهوية.',
+      ),
+    ],
+  },
+  {
+    id: 'isotopes-oxygen',
+    kind: 'source',
+    title: 'تعريف النظائر وجدول نظائر الأكسجين',
+    summary: 'التعريف المطبوع وثلاثة نظائر أكسجين، وخلاصة «تعلّمُ» (ص11).',
+    attribution: 'textbook',
+    source: { pages: [source('11', 'تعريف النظائر')], verified: true },
+    minutes: 8,
+    blocks: [
+      book('أسئلة:', '11', 'عنوان'),
+      book(
+        'تعريف النظائر: هي ذرّات للعنصر نفسه تتماثل بالعدد الذري (فهي تتماثل بخاصياتها الكيميائية)، وتختلف بالعدد الكتلي (فهي تختلف بخاصياتها الفيزيائية).',
+        '11',
+        'تعريف النظائر',
+      ),
+      definition(
+        'النظائر',
+        'ذرّات للعنصر نفسه تتماثل بالعدد الذري (فهي تتماثل بخاصياتها الكيميائية)، وتختلف بالعدد الكتلي (فهي تختلف بخاصياتها الفيزيائية).',
+        'textbook',
+      ),
+      book('أملأ الجدول الآتي:', '11', 'عنوان النشاط'),
+      nuclear('O', '16', '8', '¹⁶O'),
+      nuclear('O', '17', '8', '¹⁷O'),
+      nuclear('O', '18', '8', '¹⁸O'),
+      question('book-p11-oxygen-table'),
+      book(
+        'تعلّمُ: يوجد في الذرة سبع سويّات طاقة أساسية لها الأرقام (1 – 2 – 3 – 4 – 5 – 6 – 7) (K, L, M, N, O, P, Q)، وتحوي كل منها عددًا أعظميًا من الإلكترونات يساوي (2n²). عدد الإلكترونات يساوي عدد البروتونات في الذرة. إذا فقدت الذرة إلكترونًا أو أكثر أصبحت أيونًا موجبًا. إذا اكتسبت الذرة إلكترونًا أو أكثر أصبحت أيونًا سالبًا. النظائر هي ذرّات لعنصر واحد تتماثل بالعدد الذري وتختلف بالعدد الكتلي.',
+        '11',
+        'تعلّمُ',
+      ),
+      prose(
+        'هذه الخلاصة المطبوعة تجمع الدرس كله في خمس جمل: السويات السبع، قانون السعة، تساوي الإلكترونات والبروتونات، طريقا الأيون، وتعريف النظائر. استخدمها كقائمة تحقق قبل الاختبار النهائي، لا كشيء يُحفظ بلا فهم.',
+      ),
+      note(
+        'ملاحظة مصدرية دقيقة عن شكل القانون',
+        'الكتاب يكتب القانون في هذه الخلاصة داخل قوسين بالشكل (2n²): الأس 2 على n وحدها، ثم يُضرب الناتج في 2. وهو المعنى نفسه لقانون السعة المطبوع في ص5–6 بالشكل y = 2(n)². الفرق بين الكتابتين في موضع القوس فقط، لا في الناتج: 2 × 3² = 18، ولو كانت (2 × 3)² لكانت 36 وهذا لا يطابق K = 2 وL = 8 وM = 18. نعرض النص المطبوع كما هو، ونكتب القانون في المنصة بالشكل الأوضح y = 2(n)².',
+      ),
+    ],
+  },
+  {
+    id: 'isotopes-vs-ions',
+    kind: 'comparison',
+    title: 'الفرق بين النظير والأيون: لا تخلط بينهما',
+    summary: 'مقارنة تبين ما يتغير وما يثبت في كل حالة.',
+    attribution: 'platform',
+    minutes: 5,
+    blocks: [
+      prose(
+        'كثيراً ما يخلط الطلاب بين النظير والأيون لأنهما يتعلقان بذرة العنصر نفسه. لكن الفرق جوهري: النظير يتعلق بالنواة (عدد النيوترونات)، والأيون يتعلق بالإلكترونات المحيطة بها. والبروتونات ثابتة في الحالتين.',
+      ),
+      {
+        kind: 'table',
+        caption: 'مقارنة النظير والأيون',
+        columns: [
+          { key: 'aspect', header: 'الجانب', rowHeader: true },
+          { key: 'isotope', header: 'النظير' },
+          { key: 'ion', header: 'الأيون' },
+        ],
+        rows: [
+          { id: 'changes', cells: { aspect: 'ما الذي يتغير؟', isotope: 'عدد النيوترونات', ion: 'عدد الإلكترونات' } },
+          { id: 'stays', cells: { aspect: 'ما الذي يثبت؟', isotope: 'البروتونات والإلكترونات', ion: 'البروتونات والنيوترونات' } },
+          { id: 'charge', cells: { aspect: 'هل يتغير الشحن؟', isotope: 'لا — الذرة تبقى متعادلة', ion: 'نعم — تصبح مشحونة' } },
+          { id: 'identity', cells: { aspect: 'هل يتغير العنصر؟', isotope: 'لا — يبقى العنصر نفسه', ion: 'لا — يبقى العنصر نفسه' } },
+          { id: 'mass', cells: { aspect: 'هل تتغير الكتلة؟', isotope: 'نعم — يتغير العدد الكتلي', ion: 'تقريباً لا — كتلة الإلكترون ضئيلة' } },
+          { id: 'example', cells: { aspect: 'مثال', isotope: '¹⁶O و¹⁸O كلاهما أكسجين', ion: 'Na وNa⁺ كلاهما صوديوم' } },
+        ],
+        attribution: 'platform',
+      },
+      warn(
+        'خطأ شائع',
+        'لا تقل «الأيون نظير مشحون». النظير لا يكون مشحوناً بالضرورة، والأيون لا يختلف بالضرورة في عدد النيوترونات. هما مفهومان مستقلان: الأول يصف تنوع النواة، والثاني يصف فقد أو اكتساب الإلكترونات.',
+      ),
+      question('l1-practice-23'),
+      question('l1-practice-24'),
+      question('l1-practice-25'),
+      question('l1-practice-26'),
+    ],
+  },
+  {
+    id: 'book-check-1',
+    kind: 'question',
+    title: 'أختبر نفسي: صواب أو خطأ',
+    summary: 'العبارات الست كما في صفحة 12.',
+    attribution: 'textbook',
+    source: { pages: [source('12', 'أختبر نفسي — السؤال الأول')], verified: true },
+    minutes: 6,
+    blocks: [
+      prose(
+        'العبارات الست المطبوعة في السؤال الأول. أجب أولاً ثم راجع الشرح؛ لا تُعرض الإجابة قبل المحاولة. عند الخطأ، ارجع إلى المحور الذي تعالجه العبارة قبل الانتقال.',
+      ),
+      question('book-tf-1'),
+      question('book-tf-2'),
+      question('book-tf-3'),
+      question('book-tf-4'),
+      question('book-tf-5'),
+      question('book-tf-6'),
+    ],
+  },
+  {
+    id: 'book-check-2',
+    kind: 'question',
+    title: 'أختبر نفسي: اختر الإجابة الصحيحة',
+    summary: 'الأسئلة الخمسة وخياراتها الأربعة كما في صفحة 12.',
+    attribution: 'textbook',
+    source: { pages: [source('12', 'أختبر نفسي — السؤال الثاني')], verified: true },
+    minutes: 7,
+    blocks: [
+      prose(
+        'الأسئلة الخمسة المطبوعة مع خياراتها. لا تحسب الإجابة بالحدس: اكتب سبب استبعاد كل خيار خاطئ. هذا الاستبعاد هو المهارة التي يختبرها القسم.',
+      ),
+      question('book-mc-1'),
+      question('book-mc-2'),
+      question('book-mc-3'),
+      question('book-mc-4'),
+      question('book-mc-5'),
+    ],
+  },
+  {
+    id: 'book-check-3',
+    kind: 'question',
+    title: 'أختبر نفسي: التوزع الإلكتروني وتمثيل لويس',
+    summary: 'كربون وهيليوم وأرغون وأكسجين كما في صفحة 12.',
+    attribution: 'textbook',
+    source: { pages: [source('12', 'أختبر نفسي — السؤال الثالث')], verified: true },
+    minutes: 10,
+    blocks: [
+      prose(
+        'السؤال الثالث يطلب مهارتين معاً: التوزع الإلكتروني الكامل، ثم تمثيل السطح وحده بنقاط لويس. اكتب التوزع أولاً في ورقة، ثم عدّ إلكترونات السوية الأخيرة قبل رسم النقاط.',
+      ),
+      book('اكتب التوزع الإلكتروني ثم تمثيل لويس لكل من الذرّات التالية: ₆C، ₂He، ₁₈Ar، ₈O.', '12', 'السؤال الثالث'),
+      question('book-lewis-c'),
+      question('book-lewis-he'),
+      question('book-lewis-ar'),
+      question('book-lewis-o'),
+    ],
+  },
+  {
+    id: 'summary',
+    kind: 'summary',
+    title: 'خلاصة مترابطة: من النموذج الذري إلى النظائر',
+    summary: 'خط فكري واحد يربط كل محاور الدرس.',
+    attribution: 'platform',
+    minutes: 5,
+    blocks: [
+      prose(
+        'القصة التي يرويها هذا الدرس واحدة لا عشر قصص: حاول العلماء تفسير ما لا يُرى، فبنوا نموذجاً، ثم صدمهم في التجربة، فعدّلوه. النموذج الأول جعل الشحنة الموجبة منتشرة، فجاءت تجربة رذرفورد لتدل على نواة صغيرة كثيفة. ثم رتّب بور الإلكترونات في سويات طاقة، فصار يمكن تفسير الضوء الصادر عن الذرات. ومن ترتيب الإلكترونات نفسه خرجت بقية الدرس: عدد ذري يحدد الهوية، وعدد كتلي يحدد النظائر، وقاعدة ثمانية تفسر الأيونات والنشاط الكيميائي، وتمثيل لويس يختصر كل ذلك في نقاط حول الرمز. اقرأ القائمة التالية بوصفها حلقات هذه السلسلة.',
+      ),
+      bullets([
+        'التجربة سبقت التصور: اكتشاف الإلكترون جاء من آثار كهربائية، لا من رؤية مباشرة.',
+        'نموذج طومسون فسّر التعادل بشحنة موجبة منتشرة، لكنه لم يصمد أمام تجربة رذرفورد.',
+        'تجربة رذرفورد: معظم الجسيمات نفذت، وقليل انحرف أو ارتد ← معظم الحجم فراغ + نواة موجبة كثيفة.',
+        'نموذج بور نظّم الإلكترونات في سويات طاقة محددة: صعود = امتصاص طاقة، هبوط = إصدار ضوء.',
+        'السويات سبع (K…Q) وn من 1 إلى 7، والسعة العظمى y = 2(n)²، والتوزيع من الداخل إلى الخارج.',
+        'العدد الذري Z = البروتونات = هوية العنصر. العدد الكتلي A = بروتونات + نيوترونات، والنيوترونات = A − Z.',
+        'قاعدة الثمانية تفسر النشاط الكيميائي: الوصول إلى ثمانية إلكترونات في السوية الأخيرة (أو إلكترونين للهيدروجين).',
+        'الأيون: فقد إلكترونات ← موجب، واكتساب إلكترونات ← سالب. الشحنة = البروتونات − الإلكترونات.',
+        'تمثيل لويس يعرض إلكترونات السطح فقط: نقاط مفردة أولاً ثم أزواج.',
+        'النظائر: العدد الذري ثابت والعدد الكتلي مختلف؛ النيوترونات هي المتغير.',
+      ]),
+      method(
+        'خريطة المفاهيم في سطر واحد',
+        'بنية الذرة ← توزيع الإلكترونات ← هوية العنصر والعدد الكتلي ← الاستقرار (الثمانية) ← الأيونات ← تمثيل لويس ← النظائر. كل مفهوم في السطر يعتمد على الذي قبله.',
+      ),
+      note(
+        'قبل الاختبار',
+        'راجع جدول الأمثلة في ص9، وجدول الذرات والأيونات في ص8، وتعريف النظائر في ص11. هذه المواضع الثلاثة تجمع أكبر قدر من البيانات التي يُخطئ فيها الطالب.',
+      ),
+    ],
+  },
+  {
+    id: 'final-test',
+    kind: 'final-test',
+    title: 'الاختبار الشامل للدرس',
+    summary: '15 سؤالاً جديداً تقيس الأهداف الثمانية بلا نسخ من الكتاب.',
+    attribution: 'platform',
+    testId: finalTest.id,
+    minutes: 25,
+    blocks: [],
+  },
 ]
 
-/** Detailed scientific concepts for the independent Lesson 1 Teacher tab. */
-export const lesson1TeacherGuide: ContentBlock[] = [
-  { kind: 'callout', tone: 'method', title: '1. نموذج طومسون — اكتشاف الإلكترون (ص4)', attribution: 'platform', text: 'اكتشف طومسون الإلكترون كجسيم سالب داخل الذرة، وكتلته جزء من 1860 من كتلة نواة الهيدروجين (حسب نص المصدر). النموذج تصوّر تاريخي: شحنة موجبة متجانسة تتخللها إلكترونات سالبة. لا نعرضه كنموذج حالي؛ نوضح أنه فُسّر بوجود شحنة سالبة داخل مادة متعادلة، ثم أظهرت تجربة رذرفورد قصوره.' },
-  { kind: 'callout', tone: 'method', title: '2. تجربة رذرفورد — تسلسل التدريس (ص4–5)', attribution: 'platform', text: 'نرتب الشرح ثلاثياً: الفعل (أسقط جسيمات ألفا الموجبة على صفيحة ذهب)، ثم الملاحظة (معظمها نفذ، قليل انحرف أو ارتد)، ثم الاستنتاج (معظم الذرة فراغ، ونواة موجبة مركزية). نطلب من الطالب تسمية الملاحظة أولاً قبل الاستنتاج؛ الخلط بينهما شائع. المحاكاة تعطي قياسات نوعية لا عددية دقيقة.' },
-  { kind: 'callout', tone: 'note', title: '3. نموذج بور — السويات والطاقة (ص5)', attribution: 'platform', text: 'ثلاث نقاط رئيسية: (أ) نواة موجبة وإلكترونات في سويات طاقة محددة، (ب) الانتقال للخارج يحتاج امتصاص طاقة مساوية لفرق السويتين، (ج) العودة للداخل تُصدر طاقة على شكل ضوء. نربط موضع الإلكترون بطاقته، لا باتجاه الصفحة. كلمة «أعلى» تعني طاقة أكبر وابتعاداً عن النواة في الرسم.' },
-  { kind: 'procedure', title: '4. قانون السعة y = 2(n)² — خطوات الحل (ص5–6)', attribution: 'platform', items: [
-    'نحدد رقم السوية n (K=1, L=2, M=3, N=4) لا حرفها.',
-    'نحسب مربع n ثم نضرب في 2؛ العلاقة تعطي السعة العظمى لا العدد الفعلي.',
-    'قيد إضافي من المصدر: السوية الأخيرة لا تحوي أكثر من 8 إلكترونات، مهما كانت سعتها النظرية.',
-    'في التوزيع: نملأ من الداخل للخارج. مثال الصوديوم Na(11): K(2), L(8), M(1).',
-  ] },
-  { kind: 'callout', tone: 'method', title: '5. العدد الذري والعدد الكتلي — الترميز النووي (ص7–8)', attribution: 'platform', text: 'العدد العلوي (الكتلي) أكبر دائماً = بروتونات + نيوترونات. العدد السفلي (الذري) = بروتونات فقط = عدد الإلكترونات في الذرة المتعادلة. النيوترونات = الكتلي − الذري. الهوية ترتبط بالبروتونات: تغييرها يغير العنصر. تغيير النيوترونات يُنتج النظائر، وتغيير الإلكترونات يُنتج الأيونات.' },
-  { kind: 'callout', tone: 'warning', title: '6. تشكّل الأيونات — التباس شائع (ص8–9)', attribution: 'platform', text: 'الخطأ الأكثر تكراراً: «فقد إلكترون = شحنة سالبة». التصحيح: الإلكترون سالب، ففقد شحنة سالبة يُنقص السالب ويزيد الفائض الموجب. اكتساب إلكترون سالب يزيد السالب فيظهر فائض سالب. البروتونات لا تتغير عند تشكّل الأيونات العادية. نعلّم الطالب الإجراء: عدد البروتونات (+)، عدد الإلكترونات (−)، الفرق الجبري = الشحنة.' },
-  { kind: 'callout', tone: 'method', title: '7. تمثيل لويس — القاعدة والتطبيق (ص9–10)', attribution: 'platform', text: 'لويس يمثل إلكترونات السوية الأخيرة فقط؛ إلكترونات الداخل محجوزة بقوة النواة. الخطوات: (1) العدد الذري، (2) التوزيع، (3) عدّ إلكترونات السطح، (4) نقاط حول الرمز — فرادى أولاً في الجهات الأربع ثم أزواج. الخطأ الشائع: البدء بالازدواج. نؤكد أن كربون (4 إلكترونات سطحية) = 4 نقاط في 4 جهات، لا زوجان.' },
-  { kind: 'callout', tone: 'note', title: '8. النظائر — تمييزها عن الأيونات (ص10–11)', attribution: 'platform', text: 'النظائر ذرات للعنصر نفسه (نفس عدد البروتونات) تختلف في عدد النيوترونات وبالتالي في العدد الكتلي. الأمثلة من المصدر: ¹⁶O, ¹⁷O, ¹⁸O. نستخدم جدول المقارنة: النظير يتعلق بالنواة (النيوترونات) والأيون يتعلق بالإلكترونات. النظير متعادل، الأيون مشحون. كلاهما يحافظ على هوية العنصر.' },
-  { kind: 'procedure', title: '9. تصحيح أسئلة الكتاب — توجيه عام (ص12)', attribution: 'platform', items: [
-    'السؤال الأول (صح/غلط): كل عبارة تحتاج تعليل لماذا صح أو لماذا غلط، لا مجرد الحكم.',
-    'السؤال الثاني (اختيار): نطلب من الطالب استبعاد البدائل الخاطئة وتعليل الاستبعاد.',
-    'السؤال الثالث (التوزيع + لويس): نتأكد من البدء بالعدد الذري، ثم التوزيع من الداخل، ثم عدّ السطح، ثم النقاط فرادى ثم أزواج.',
-    'نشاط ص6 (توزيع الصوديوم): K(2), L(8), M(1) مع التحقق: 2+8+1=11.',
-    'نشاط ص7 (قراءة الترميز): نحدد العددين من موضعيهما ثم نستخرج الجسيمات.',
-    'نشاط ص8 (جدول الذرات والأيونات): نقارن المجموع الجبري في الذرة (صفر) وفي الأيون.',
-    'نشاط ص10 (Al, Mg, O): نركز على أن الأعداد المعطاة أعداد ذرية فقط لا كتلية.',
-  ] },
-]
+/* Small local helper kept next to its only consumer for readability. */
+function exampleOctet(): ContentBlock {
+  return {
+    kind: 'table',
+    caption: 'كيف تصل الذرات إلى الثمانية؟ (إضافة من المنصة)',
+    columns: [
+      { key: 'atom', header: 'الذرّة', rowHeader: true },
+      { key: 'dist', header: 'التوزيع' },
+      { key: 'gap', header: 'ما ينقصها أو يزيد' },
+      { key: 'route', header: 'الطريق إلى الثمانية' },
+    ],
+    rows: [
+      { id: 'na', cells: { atom: 'Na', dist: '2-8-1', gap: 'إلكترون زائد', route: 'تفقد إلكتروناً ← Na⁺' } },
+      { id: 'cl', cells: { atom: 'Cl', dist: '2-8-7', gap: 'إلكترون ناقص', route: 'تكتسب إلكتروناً ← Cl⁻' } },
+      { id: 'mg', cells: { atom: 'Mg', dist: '2-8-2', gap: 'إلكترونان زائدان', route: 'تفقد إلكترونين ← Mg²⁺' } },
+      { id: 'o', cells: { atom: 'O', dist: '2-6', gap: 'إلكترونان ناقصان', route: 'تكتسب إلكترونين ← O²⁻' } },
+    ],
+    attribution: 'platform',
+  }
+}
 
 export const chemistryLesson1: LessonDefinition = {
-  id: 'chem-u1-l1', slug: 'atom-and-element', title: 'الدرس الأول — الذرّة والعنصر', order: 1, status: 'source-verified', source: verifiedSource,
-  summary: 'بنية الذرة ونماذجها، السويات الرئيسية، التوزيع الإلكتروني، الأيونات، تمثيل لويس، والنظائر.',
+  id: 'chem-u1-l1',
+  slug: 'atom-and-element',
+  title: 'الدرس الأول — الذرّة والعنصر',
+  order: 1,
+  status: 'source-verified',
+  source: verifiedSource,
+  summary:
+    'بنية الذرة ونماذجها (طومسون ورذرفورد وبور)، السويات الرئيسية وقانون السعة، التوزيع الإلكتروني، العدد الذري والكتلي، قاعدة الثمانية، الأيونات، تمثيل لويس، والنظائر.',
   steps,
-  tests: [bookAssessment, finalTest],
+  tests: [bookAssessment, practiceAssessment, finalTest],
 }

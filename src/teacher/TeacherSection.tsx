@@ -156,7 +156,9 @@ function QuestionMaterial({ question }: { question: Question }) {
   switch (question.type) {
     case 'multiple-choice': return <ol type="a">{question.options.map((option) => <li key={option.id}><ScientificNotationText>{option.label}</ScientificNotationText></li>)}</ol>
     case 'true-false': return <p>اختر: صح / غلط.</p>
-    case 'fill-blank': return <p dir="rtl">{question.template.replace(/\{[^}]+\}/g, '________')}</p>
+    // The template is authored prose: charges such as `Br⁻` must be promoted to
+    // the shared superscript renderer here exactly as on the student surface.
+    case 'fill-blank': return <p dir="rtl"><ScientificNotationText>{question.template.replace(/\{[^}]+\}/g, '________')}</ScientificNotationText></p>
     case 'ordering': return <ul>{question.items.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul>
     case 'matching': return <div className="cluster"><ul>{question.left.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul><ul>{question.right.map((item) => <li key={item.id}><ScientificNotationText>{item.label}</ScientificNotationText></li>)}</ul></div>
     case 'table-interpretation': return <p><ScientificNotationText>{question.table.caption}</ScientificNotationText></p>
