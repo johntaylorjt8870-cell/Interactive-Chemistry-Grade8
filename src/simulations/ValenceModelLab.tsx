@@ -248,7 +248,7 @@ export default function ValenceModelLab({ reducedMotion }: InteractiveProps) {
       <div className="lab__measurements">
         <div>
           <span>الروابط المشتركة المُتكوّنة</span>
-          <RtlRun as="strong">
+          <RtlRun as="strong" className="lab__count">
             {formed} من {molecule.bonds}
           </RtlRun>
         </div>

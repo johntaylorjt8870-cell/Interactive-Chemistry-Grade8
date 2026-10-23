@@ -39,12 +39,11 @@ describe('curriculum registry — lesson 3', () => {
     const pages = chemistryLesson3.source.pages.map((page) => page.page)
     expect(pages).toEqual(['18', '19', '20', '21', '22', '23'])
     expect(chemistryLesson3.source.verified).toBe(true)
-    const readability = chemistryLesson3.source.readability!
-    for (const level of Object.values(readability)) {
-      if (typeof level === 'string' && level !== 'clear' && !level.includes('Source')) {
-        expect(level).toBe('clear')
-      }
+    const { notes, ...levels } = chemistryLesson3.source.readability!
+    for (const [category, level] of Object.entries(levels)) {
+      expect(level, category).toBe('clear')
     }
+    expect(notes).toContain('2026-10-23')
   })
 
   it('passes the platform fidelity validators', () => {
@@ -72,23 +71,25 @@ describe('verbatim fidelity against the finalized source report', () => {
   const allText = JSON.stringify(chemistryLesson3)
 
   it.each([
-    'الكلماتِ المفتاحيّة: صيغةٌ كيميائيّةٌ – التّكافؤُ الكيميائيُّ – مركّبٌ كيميائيٌّ – جَذْرٌ كيميائيٌّ.',
-    'تتّحدُ ذرّاتُ هيدروجينٍ مع ذرّةِ أكسجينٍ فتُكوِّنُ جزيءَ الماءِ، فما الصّيغةُ الكيميائيّةُ لجزئِ الماء؟',
-    'شكّلَ الكربونُ أربعَ روابطَ مشتركةٍ مع أربعةِ ذرّاتِ هيدروجينٍ في جزيءِ الميتان.',
-    'التّكافؤُ الكيميائيُّ في المركّباتِ ذاتِ الرّوابطِ المشتركةِ يساوي عددَ الرّوابطِ التي شاركتْ بها الذّرّةُ.',
-    'أَرْبِطُ المعادلاتِ الأيُونيّةِ الآتيّةِ، وأمْلَأِ الجدولَ الآتيِّ:',
-    'عددُ الإلّكتروناتِ الّتي فقدْها أو اكتسبْها الذّرّة',
-    'التّكافؤُ الكيميائيُّ في المركّباتِ ذاتِ الرّوابطِ الأيونيّةِ هو: عددُ الإلّكتروناتِ التي تفقدُها أو تكتسبُها ذرّةُ عنصرٍ ما عندَ ارتباطِها بأذرّةِ عناصرِ أخرى.',
-    'تنجمُ الجذورُ الكيميائيّةُ عن ذرّتينِ أو أكثرِ في مركّباتِ حامضيّةٍ أو مركّباتِ أسّيّةٍ.',
-    'الجذورُ صيغٌ ثابتةٌ:',
-    'الجَذْرُ الكيميائيُّ: مجموعةُ ذرّاتٍ مترابِطَةٍ بقوّةٍ تسلكُ سلوكَ أيونٍ أو ذرّةٍ واحدةٍ.',
-    'أكتبُ رموزَ (صيغَ أو جذورِ) مكوناتِ الشّيئةِ.',
-    'أربطُ بينَ تكافؤاتِ مكوناتِ الشّيئةِ بحيثِ يتحقّقُ التعادلُ الكهربائيُّ.',
-    '1. أكتبُ صيغةَ كبريتاتِ الألمنيومِ:',
-    '2. أكتبْ صيغةَ أكسيدِ الكالسيومِ:',
-    'المُؤلِّفانِ',
-    'التَّكافؤُ الكيميائيُّ في المركّباتِ الأيُونيّةِ: هو عددُ الإلّكتروناتِ الّتي تفقدُها أو تكتسبُها ذرّةُ عنصرٍ عند ارتباطِها بذرّةِ عنصرٍ آخرَ في المركّبِ الأيُونيِّ.',
-    'التَّكافؤُ الكيميائيُّ في المركّباتِ ذاتِ الرّوابطِ المشتركةِ: عددُ الأزواجِ الإلّكترونيّةِ الّتي اشتركتْ بها الذَّرّةُ مع ذرّةٍ أخرى.',
+    'الكلمات المفتاحية: صيغة كيميائية – التكافؤ الكيميائي – مركّب كيميائي – جذر كيميائي.',
+    'تتّحد ذرّتا هيدروجين مع ذرّة أكسجين فيتكوّن جزيء الماء، فما الصيغة الكيميائية لجزيء الماء؟',
+    'شكّل الكربون أربع روابط مشتركة مع أربع ذرّات هيدروجين في جزيء الميتان.',
+    'التكافؤ الكيميائي في المركّبات ذات الروابط المشتركة يساوي عدد الروابط التي اشتركت بها الذرّة.',
+    'ألاحظ المعادلات الأيونية الآتية، وأملأ الجدول الآتي:',
+    'عدد الإلكترونات التي فقدها أو اكتسبتها الذرّة',
+    'التكافؤ الكيميائي في المركّبات ذات الروابط الأيونية هو: عدد الإلكترونات التي تفقدها أو تكتسبها ذرّة عنصر ما عند ارتباطها بذرّة عنصر آخر.',
+    'ألاحظ معادلات التأيّن الآتية:',
+    'ألاحظ الأيونات الناتجة عن تفكك كلٍّ من المركّبات السابقة.',
+    'الجذر الكيميائي: مجموعة ذرّات مترابطة بقوّة تسلك سلوك أيون أو ذرّة عنصر.',
+    'أفكّر وأستنتج:',
+    'أكتبُ رموز (صيغ أو جذور) مكوّنات الصيغة.',
+    'أبادلُ بين تكافؤات مكوّنات الصيغة بحيث يتحقق التعادل الكهربائي.',
+    '1. أكتبُ صيغة كبريتات الألمنيوم:',
+    '2. أكتبُ صيغة أكسيد الكالسيوم:',
+    'المكوّنات',
+    'التكافؤ الكيميائي في المركّبات الأيونيّة: هو عدد الإلكترونات التي تفقدها أو تكتسبها ذرّة عنصر ما عند ارتباطها بذرّة عنصر آخر في المركّب الأيونيّ.',
+    'الجذر الكيميائي: مجموعة ذرّية مترابطة تسلك سلوك ذرّة واحدة.',
+    'أبادلُ بين تكافؤات مكونات الصيغة بحيث يتحقق التعادل الكهربائي.',
   ])('keeps the printed wording character for character: %s', (text) => {
     expect(allText).toContain(text)
   })
@@ -101,37 +102,44 @@ describe('verbatim fidelity against the finalized source report', () => {
     if (table?.kind !== 'table') return
     const ionRow = table.rows.find((row) => row.cells.label === 'الأيُون')!
     expect(ionRow.cells).toEqual({ label: 'الأيُون', na: 'Na⁺', ca: '', mg: '', cl: '', o: '' })
+    expect(table.columns[0]?.header).toBe('')
     const countRow = table.rows.find((row) => row.id === 'count')!
+    expect(countRow.cells.label).toBe('عدد الإلكترونات التي فقدها أو اكتسبتها الذرّة')
     expect([countRow.cells.na, countRow.cells.ca, countRow.cells.mg, countRow.cells.cl, countRow.cells.o]).toEqual([
       '', '', '', '', '',
     ])
   })
 
-  it('keeps the element-valence table content in book order', () => {
+  it('keeps the element-valence table as the two printed blocks, in book order', () => {
     const table = chemistryLesson3.steps
       .flatMap((step) => step.blocks)
       .find((block) => block.kind === 'table' && block.caption.includes('جدول تكافؤات بعض العناصر'))
+    expect(table).toBeDefined()
     if (table?.kind !== 'table') return
-    expect(table.rows.map((row) => row.cells.element)).toEqual([
-      'Na', 'H', 'Br', 'K', 'Cl', 'Ag', 'S', 'Mg', 'Ca', 'O', 'Zn', 'Al', 'Fe(III)', 'Fe(II)', 'Cu(II)', 'Cu(I)',
+    expect(table.rows.map((row) => row.cells.element)).toEqual(['Na', 'H', 'Br', 'K', 'Cl', 'Ag', 'S', 'Mg'])
+    expect(table.rows.map((row) => row.cells.valence)).toEqual(['1', '1', '1', '1', '1', '1', '2', '2'])
+    expect(table.rows.map((row) => row.cells.element2)).toEqual([
+      'Ca', 'O', 'Zn', 'Al', 'Fe(III)', 'Fe(II)', 'Cu(II)', 'Cu(I)',
     ])
-    expect(table.rows.map((row) => row.cells.valence)).toEqual([
-      '1', '1', '1', '1', '1', '1', '2', '2', '2', '2', '2', '3', '3', '2', '2', '1',
-    ])
+    expect(table.rows.map((row) => row.cells.valence2)).toEqual(['2', '2', '2', '3', '3', '2', '2', '1'])
   })
 
-  it('keeps the radicals table with the finalized names and charges', () => {
+  it('keeps the radicals table as the two printed blocks, with printed names and charges', () => {
     const table = chemistryLesson3.steps
       .flatMap((step) => step.blocks)
-      .find((block) => block.kind === 'table' && block.caption.includes('بعض الجذور الكيميائية'))
+      .find((block) => block.kind === 'table' && block.caption.includes('جدول الجذور الكيميائية'))
+    expect(table).toBeDefined()
     if (table?.kind !== 'table') return
-    expect(table.rows.map((row) => row.cells.name)).toEqual([
+    expect(table.rows.map((row) => row.cells.radical)).toEqual([
       'جذور النترات', 'جذور الكبريتات', 'جذور الكربونات', 'جذور الفوسفات',
-      'جذور الفورمات', 'جذور الأسيتات', 'جذور الهيدروكسيل', 'جذور الأمونيوم',
     ])
-    expect(table.rows.map((row) => row.cells.formula)).toEqual([
-      'NO₃⁻', 'SO₄²⁻', 'CO₃²⁻', 'PO₄³⁻', 'HCOO⁻', 'CH₃COO⁻', 'OH⁻', 'NH₄⁺',
+    expect(table.rows.map((row) => row.cells.formula)).toEqual(['NO₃⁻', 'SO₄²⁻', 'CO₃²⁻', 'PO₄³⁻'])
+    expect(table.rows.map((row) => row.cells.valence)).toEqual(['1', '2', '2', '3'])
+    expect(table.rows.map((row) => row.cells.radical2)).toEqual([
+      'جذور الفورمات', 'جذور الخلّات', 'جذور الهيدروكسيل', 'جذور الأمونيوم',
     ])
+    expect(table.rows.map((row) => row.cells.formula2)).toEqual(['HCOO⁻', 'CH₃COO⁻', 'OH⁻', 'NH₄⁺'])
+    expect(table.rows.map((row) => row.cells.valence2)).toEqual(['1', '1', '1', '1'])
   })
 
   it('keeps the solved-application tables with the printed header and empty symbols row', () => {
@@ -141,13 +149,13 @@ describe('verbatim fidelity against the finalized source report', () => {
     expect(tables).toHaveLength(2)
     for (const table of tables) {
       if (table.kind !== 'table') continue
-      expect(table.columns[0]?.header).toBe('المُؤلِّفانِ')
+      expect(table.columns[0]?.header).toBe('المكوّنات')
       expect(table.rows[0]?.cells.label).toBe('')
     }
     const first = tables[0]
     if (first?.kind === 'table') {
       expect(first.rows[0]?.cells).toEqual({ label: '', first: 'SO₄', second: 'Al' })
-      expect(first.rows[1]?.cells).toEqual({ label: 'التّكافُؤ', first: '2', second: '3' })
+      expect(first.rows[1]?.cells).toEqual({ label: 'التكافؤ', first: '2', second: '3' })
     }
   })
 
@@ -157,14 +165,16 @@ describe('verbatim fidelity against the finalized source report', () => {
     )
     expect(bookQuestions.every((question) => question.origin === 'textbook')).toBe(true)
     expect(bookActivitySolutions.every((question) => question.origin === 'textbook')).toBe(true)
-    expect(bookActivitySolutions.map((question) => question.source?.page)).toEqual(['18', '19', '19', '20', '21'])
+    expect(bookActivitySolutions.map((question) => question.source?.page)).toEqual([
+      '18', '19', '19', '20', '21', '22', '22',
+    ])
 
     const mc1 = bookQuestions.find((question) => question.id === 'l3-book-mc-1')!
     if (mc1.type === 'multiple-choice') {
       expect(mc1.options.map((option) => option.label)).toEqual([
-        'كربيدُ الكالسيوم.', 'كبريتاتُ الكالسيوم.', 'كربوناتُ الكالسيوم.', 'كلوراتُ الكالسيوم.',
+        'كربيتيد الكالسيوم.', 'كبريتات الكالسيوم.', 'كربون أكسيجين الكالسيوم.', 'كربونات الكالسيوم.',
       ])
-      expect(mc1.correctOptionIds).toEqual(['c'])
+      expect(mc1.correctOptionIds).toEqual(['d'])
     }
   })
 
@@ -172,10 +182,10 @@ describe('verbatim fidelity against the finalized source report', () => {
     const prompts = bookQuestions
       .filter((question) => question.id.startsWith('l3-book-q3-'))
       .map((question) => question.prompt)
-    expect(prompts[0]).toContain('كبريتاتُ الألمنيومِ')
-    expect(prompts[1]).toContain('أكسيدُ الحَديدِ I')
-    expect(prompts[2]).toContain('هيدروكسيدُ الصوديومِ')
-    expect(prompts[3]).toContain('خَلّاتُ الزنكِ')
+    expect(prompts[0]).toContain('كبريتات الكالسيوم')
+    expect(prompts[1]).toContain('أكسيد النحاس I')
+    expect(prompts[2]).toContain('هيدروكسيد الصوديوم')
+    expect(prompts[3]).toContain('خَلّات الزنك')
   })
 
   it('keeps question 4 formulas in the finalized RTL reading order', () => {
@@ -190,7 +200,7 @@ describe('verbatim fidelity against the finalized source report', () => {
 
   it('keeps the everyday-materials wording of question 5 verbatim', () => {
     const q5 = bookQuestions.find((question) => question.id === 'l3-book-q5')!
-    expect(q5.prompt).toContain('ملحُ الطعامِ – الجبسُ – الحَجَرُ الكَلْسيُّ – الكَلْسُ الحيُّ – رائقُ الكَلْسِ.')
+    expect(q5.prompt).toContain('ملح الطعام – الجبس – الحجر الكلسي – الكلس الحي – رائق الكلس.')
   })
 
   it('stores no bidi control characters in data', () => {
@@ -309,7 +319,7 @@ describe('lesson 3 assessment', () => {
     const tf = finalTest.questions.find((question) => question.id === 'l3-final-3')!
     expect(evaluateQuestion(tf, { questionId: tf.id, value: { type: 'boolean', value: true } }).outcome).toBe('correct')
 
-    const num = finalTest.questions.find((question) => question.id === 'l3-final-9')!
+    const num = finalTest.questions.find((question) => question.id === 'l3-final-10')!
     expect(evaluateQuestion(num, { questionId: num.id, value: { type: 'number', value: '17' } }).outcome).toBe('correct')
 
     const blank = finalTest.questions.find((question) => question.id === 'l3-final-6')!
@@ -356,7 +366,7 @@ describe('teacher area — lesson 3 tab', () => {
     expect(TEACHER_LESSONS.map((lesson) => lesson.lessonId)).toContain('chem-u1-l3')
     expect(getTeacherLesson('chem-u1-l3').label).toBe('الدرس الثالث — كيمياء: صيغةُ المركّباتِ الكيميائيَّةِ')
     expect(getTeacherLesson(null).lessonId).toBe('chem-u1-l1')
-    expect(getTeacherLesson('chem-u1-l3').bookQuestions).toHaveLength(20)
+    expect(getTeacherLesson('chem-u1-l3').bookQuestions).toHaveLength(22)
   })
 
   it('shows lesson 3 book solutions with page references after switching tabs', async () => {
