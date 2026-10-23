@@ -16,6 +16,7 @@ import {
   bookActivitySolutions as lesson3Activities,
   bookQuestions as lesson3Questions,
   finalTest as lesson3FinalTest,
+  lesson3TeacherGuide,
 } from '@/data/curriculum/chemistryLesson3'
 
 import {
@@ -77,9 +78,12 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     lessonId: 'chem-u1-l3',
     label: 'الدرس الثالث — كيمياء: صيغةُ المركّباتِ الكيميائيَّةِ',
     pages: 'الصفحات 18–23',
-    bookNote: 'تتضمن حلول السؤال التمهيدي ونشاط النماذج وجدول الأيونات ونشاط التفكك (ص19–20)، وحلول «أختبر نفسي» الخمسة كاملة بترتيبها القرائي (ص23).',
+    bookNote:
+      'تتضمن حلول السؤال التمهيدي، ونشاط النماذج (ص19)، وجدول الأيونات، ونشاط التفكك (ص20)، ومثالَي كتابة الصيغة (ص21)، والتطبيقين المحلولين (ص22)، وحلول «أختبر نفسي» الخمسة كاملة بترتيبها القرائي (ص23) — 7 أنشطة و15 سؤالًا بعباراتها المصحَّحة على المصدر.',
     bookQuestions: [...lesson3Activities, ...lesson3Questions],
     finalTest: lesson3FinalTest,
+    conceptBlocks: lesson3TeacherGuide,
+    testAreaId: 'chem-u1-l3',
   },
   {
     lessonId: 'chem-u1-l4',

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChemicalEquation, ChargeNotation, IonNotation } from '@/scientific'
+import { ChemicalEquation, ChemicalFormula, ChargeNotation, IonNotation } from '@/scientific'
 import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
@@ -166,7 +166,9 @@ export default function IonEquationLab({ reducedMotion }: InteractiveProps) {
           {complete ? (
             <IonNotation formula={equation.symbol} charge={ionChargeLabel} size="lg" />
           ) : (
-            <strong className="ion-equation-lab__pending" dir="ltr">{equation.symbol}</strong>
+            <span className="ion-equation-lab__pending">
+              <ChemicalFormula formula={equation.symbol} size="lg" />
+            </span>
           )}
           <span>{protons} بروتوناً، {protons + electronsDelta} إلكتروناً</span>
           <span>التوزع: {complete ? equation.distributionAfter : equation.distributionBefore}</span>
@@ -206,7 +208,7 @@ export default function IonEquationLab({ reducedMotion }: InteractiveProps) {
       <div className="lab__measurements">
         <div>
           <span>إلكترونات فقدَتها أو اكتسبَتها الذرّة</span>
-          <RtlRun as="strong">
+          <RtlRun as="strong" className="lab__count">
             {moved} من {equation.transfer}
           </RtlRun>
         </div>
@@ -215,16 +217,23 @@ export default function IonEquationLab({ reducedMotion }: InteractiveProps) {
           <strong>{equation.transfer}</strong>
         </div>
         <div>
-          <span>سوية الأخيرة بعد الانتقال</span>
+          <span>السوية الأخيرة بعد الانتقال</span>
           <strong>{complete ? 'مكتملة (8)' : 'غير مكتملة بعد'}</strong>
         </div>
       </div>
 
       <p className="lab__conclusion" role="status">
         <strong>الاستنتاج:</strong>{' '}
-        {complete
-          ? `تحقّقت المعادلة كما في الكتاب: ${equation.direction === 1 ? `فقدت ذرّة ${equation.name} ${equation.transfer === 1 ? 'إلكتروناً واحداً' : `إلكترونَيْن`} فصارت أيون ${equation.symbol} موجباً` : `اكتسبت ذرّة ${equation.name} ${equation.transfer === 1 ? 'إلكتروناً واحداً' : 'إلكترونَيْن'} فصارت أيون ${equation.symbol} سالباً`}؛ وعدد الإلكترونات المنتقلة هو تكافؤ العنصر في مركّباته الأيونية.`
-          : 'أكمل الانتقالات ولاحظ: البروتونات ثابتة، وما يتغيّر هو الإلكترونات؛ والفرق بينهما هو شحنة الأيون.'}
+        {complete ? (
+          <>
+            {`تحقّقت المعادلة كما في الكتاب: ${equation.direction === 1 ? `فقدت ذرّة ${equation.name} ${equation.transfer === 1 ? 'إلكتروناً واحداً' : 'إلكترونَيْن'} فصارت ` : `اكتسبت ذرّة ${equation.name} ${equation.transfer === 1 ? 'إلكتروناً واحداً' : 'إلكترونَيْن'} فصارت `}`}
+            أيون {equation.name} {equation.direction === 1 ? 'الموجب' : 'السالب'} (
+            <IonNotation formula={equation.symbol} charge={ionChargeLabel} size="sm" />
+            )؛ وعدد الإلكترونات المنتقلة هو تكافؤ العنصر في مركّباته الأيونية.
+          </>
+        ) : (
+          'أكمل الانتقالات ولاحظ: البروتونات ثابتة، وما يتغيّر هو الإلكترونات؛ والفرق بينهما هو شحنة الأيون.'
+        )}
       </p>
     </section>
   )

@@ -396,8 +396,11 @@ describe('source fidelity — the printed heading and the questions', () => {
     expect(lesson2Bank.questions).toHaveLength(20)
     expect(lesson3Bank.questions).toHaveLength(20)
 
+    // Lesson 3 was rebuilt from its source pages (18–23) on its own branch:
+    // 7 book activities + 15 printed questions = 22 teacher items, and an
+    // 18-question platform final test. The banks above stay untouched.
     const teacherLesson = getTeacherLesson('chem-u1-l3')
-    expect(teacherLesson.bookQuestions).toHaveLength(20)
-    expect(teacherLesson.finalTest.questions).toHaveLength(14)
+    expect(teacherLesson.bookQuestions).toHaveLength(22)
+    expect(teacherLesson.finalTest.questions).toHaveLength(18)
   })
 })

@@ -1,0 +1,65 @@
+/* Lesson 3 — «صيغةُ المركّباتِ الكيميائيّة» (الصفحات 18–23).
+   Scoped to this lesson only, following the existing per-lesson convention
+   (lesson2.css / lesson4.css / lesson5.css). Nothing here changes another
+   lesson's look.
+
+   Real-browser axe found the shared badge/index/pending microcopy below the
+   4.5:1 contrast ratio once it sits inside this lesson's dense notation blocks.
+   We restore the stronger token inside a lesson-3 scope instead of disabling
+   the contrast rule. */
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .platform-addition-badge__en,
+.teacher-section-page[data-lesson-id='chem-u1-l3'] .platform-addition-badge__en {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .lesson-outline__button[data-current='true'] .lesson-outline__index {
+  background: var(--palette-chem-700);
+  border-color: var(--palette-chem-700);
+  color: var(--palette-paper);
+}
+
+/* The ion lab dims the not-yet-produced ion to 40% opacity; at that opacity the
+   grey text measures 2.36:1. Keep the "not produced yet" cue in the colour token
+   and the dashed frame, but at full opacity so the symbol stays readable. */
+.lesson-shell[data-lesson-id='chem-u1-l3'] .ion-equation-lab__pending {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .final-test__meta,
+.lesson-shell[data-lesson-id='chem-u1-l3'] .lesson-rail__visited,
+.lesson-shell[data-lesson-id='chem-u1-l3'] .interactive-host__caption {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+/* `.lab__measurements strong` is an LTR numeric slot by design. These two
+   lesson-3 labs show an Arabic ratio (`2 من 3`) in it, so the forced LTR base
+   direction reordered the words. Opt the ratio back into RTL while keeping the
+   isolation so the two counts stay as authored. */
+.lesson-shell[data-lesson-id='chem-u1-l3'] .lab__measurements strong.lab__count {
+  direction: rtl;
+  font-family: var(--font-arabic);
+  font-size: var(--fs-lg);
+  unicode-bidi: isolate;
+}
+
+/* Before the transition completes the target ion is shown dimmed in place of
+   the neutral atom; keep it a single inline notation so the superscript
+   survives the RTL prose around it. */
+.lesson-shell[data-lesson-id='chem-u1-l3'] .ion-equation-lab__pending {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* `.lab` asks for `clamp(var(--space-4), 3vw, var(--space-7))`, but this design
+   system defines no `--space-7`, so the declaration is invalid at computed-value
+   time and every lab renders with zero padding: content touches the card border
+   and the first glyph of the header line is clipped by `overflow: hidden`.
+   Restoring a valid clamp inside lesson 3 only; other lessons keep their
+   current rendering until they are reviewed on their own. */
+.lesson-shell[data-lesson-id='chem-u1-l3'] .lab {
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
+}
