@@ -133,7 +133,7 @@ describe('Lesson 5 curriculum registration, source coverage and solution set', (
     expect(getUnit('chemistry', 'structural-chemistry')?.lessons.map((lesson) => lesson.id)).toEqual([
       'chem-u1-l1', 'chem-u1-l2', 'chem-u1-l3', 'chem-u1-l4', 'chem-u1-l5',
     ])
-    expect(chemistryLesson5.tests?.map((test) => test.id)).toEqual(['chem-u1-l5-book', 'chem-u1-l5-final'])
+    expect(chemistryLesson5.tests?.map((test) => test.id)).toEqual(['chem-u1-l5-book', 'chem-u1-l5-practice', 'chem-u1-l5-final'])
     expect(chemistryLesson5.tests?.some((test) => test.id.includes('unit'))).toBe(false)
     expect(validateLesson(chemistryLesson5, chemistryLesson5.id)).toEqual([])
     for (const test of chemistryLesson5.tests ?? []) expect(validateFinalTest(test, test.id)).toEqual([])
@@ -150,7 +150,8 @@ describe('Lesson 5 curriculum registration, source coverage and solution set', (
     expect(new Set(lesson5BookQuestionIds).size).toBe(19)
 
     const flowIds = chemistryLesson5.steps.flatMap((step) => step.blocks).flatMap((block) => block.kind === 'question' ? [block.questionId] : [])
-    expect(flowIds).toEqual([...bookActivitySolutions, ...bookQuestions].map((question) => question.id))
+    const topLevelBookIds = new Set([...bookActivitySolutions, ...bookQuestions].map((question) => question.id))
+    expect(flowIds.filter((id) => topLevelBookIds.has(id))).toEqual([...bookActivitySolutions, ...bookQuestions].map((question) => question.id))
     const flattened = nestedQuestions([...bookActivitySolutions, ...bookQuestions])
     expect(flattened.map((question) => question.id)).toEqual(lesson5BookQuestionIds)
     expect(new Set(flattened.map((question) => question.id)).size).toBe(flattened.length)
@@ -179,8 +180,8 @@ describe('Lesson 5 curriculum registration, source coverage and solution set', (
       expect(item.coverage.length).toBeGreaterThan(60)
       for (const id of item.questionIds) expect(sourceById.get(id)?.source?.page).toBe(item.page)
     }
-    expect(chemistryLesson5.source.readability?.diagrams).toBe('partial')
-    expect(chemistryLesson5.source.readability?.notes).toContain('not available in this checkout')
+    expect(chemistryLesson5.source.readability?.diagrams).toBe('clear')
+    expect(chemistryLesson5.source.readability?.notes).toContain('lesson5SourceLedger')
   })
 
   it('includes the learner tables instead of only storing their completed teacher answers', () => {
@@ -206,12 +207,12 @@ describe('Lesson 5 curriculum registration, source coverage and solution set', (
     const composite = sourceById.get('l5-selftest-carbon-table')!
     expect(composite.type).toBe('table-interpretation')
     if (composite.type === 'table-interpretation') {
-      expect(composite.table.rows[2]?.cells.sample4).toBe('32 / 12 = 2.66')
+      expect(composite.table.rows[2]?.cells.sample1).toBe('32 / 12 = 2.66')
       expect(composite.table.footnote).toContain('كما في المصدر')
       const ratio = composite.questions.find((question) => question.id === 'l5-selftest-co-table')!
       expect(ratio.type).toBe('short-answer')
       if (ratio.type === 'short-answer') {
-        expect(ratio.referenceAnswer).toContain('32/12 = 8/3 = 2.666…')
+        expect(ratio.referenceAnswer).toContain('8/3 = 2.666…')
         expect(ratio.explanation).toContain('التقريب المعتاد إلى منزلتين تكون 2.67')
         expect(ratio.solutionBlocks?.some((block) => block.kind === 'table' && block.footnote?.includes('2.67'))).toBe(true)
       }
@@ -297,22 +298,39 @@ describe('Formula, mass-boundary and fixed-ratio scientific models', () => {
     expect(screen.getByText(/استنتاج رياضي لا قياس مخبري جديد/)).toBeInTheDocument()
   })
 
-  it('registers and lazy-loads exactly the three lesson 5 interactions used by lesson content', async () => {
+  it('registers and lazy-loads the three lesson 5 labs and three reconstructed source figures', async () => {
     const used = chemistryLesson5.steps.flatMap((step) => step.blocks).flatMap((block) => block.kind === 'interactive' ? [block.interactiveId] : [])
     const diagramIds = chemistryLesson5.steps.flatMap((step) => step.blocks).flatMap((block) => block.kind === 'diagram' ? [block.diagramId] : [])
     expect(used).toEqual(['lesson5-atom-count-lab', 'lesson5-mass-boundary-lab', 'lesson5-fixed-ratio-lab'])
-    expect(diagramIds).toEqual(['lesson5-mass-boundary-lab'])
-    for (const id of [...used, ...diagramIds]) {
+    expect(diagramIds).toEqual([
+      'source-figure-p30-balance',
+      'book-l5-p31-enrichment',
+      'source-figure-p31-scale',
+      'book-l5-p32-lavoisier',
+      'source-figure-p32-trials',
+      'book-l5-p33-proust',
+    ])
+    for (const id of used) {
       const definition = getInteractive(id)
       expect(definition).toBeDefined()
       expect(definition?.kind).toBe('simulation')
       expect((await definition!.load()).default).toBeDefined()
     }
+    for (const id of diagramIds.filter((candidate) => candidate.startsWith('source-figure-'))) {
+      const definition = getInteractive(id)
+      expect(definition).toBeDefined()
+      expect(definition?.kind).toBe('diagram')
+      expect((await definition!.load()).default).toBeDefined()
+    }
+    // book-l5-* ids are intentional text reference cards (photos/portraits).
+    for (const id of diagramIds.filter((candidate) => candidate.startsWith('book-l5-'))) {
+      expect(getInteractive(id)).toBeUndefined()
+    }
     expect(chemistryLesson5.steps.flatMap((step) => step.blocks).some((block) => block.kind === 'source-image')).toBe(false)
   })
 })
 
-describe('Lesson 5 final test — exact 16-item scope, grading and delayed feedback', () => {
+describe('Lesson 5 final test — exact 20-item scope, grading and delayed feedback', () => {
   it.each(finalTest.questions)('$id grades completed correct and wrong responses deterministically', (question) => {
     const correct = correctResponse(question)
     const wrong = wrongResponse(question)
@@ -320,10 +338,10 @@ describe('Lesson 5 final test — exact 16-item scope, grading and delayed feedb
     expect(evaluateQuestion(question, { questionId: question.id, value: wrong }).outcome).not.toBe('correct')
   })
 
-  it('has 16 original single-point platform questions, a complete blueprint and full worked explanations', () => {
-    expect(finalTest.questions).toHaveLength(16)
-    expect(countQuestions(finalTest.questions)).toBe(16)
-    expect(finalTest.targetQuestionCount).toEqual({ min: 16, max: 16 })
+  it('has 20 original single-point platform questions, a complete blueprint and full worked explanations', () => {
+    expect(finalTest.questions).toHaveLength(20)
+    expect(countQuestions(finalTest.questions)).toBe(20)
+    expect(finalTest.targetQuestionCount).toEqual({ min: 20, max: 20 })
     expect(finalTest.requireComplete).toBe(true)
     expect(new Set(finalTest.questions.map((question) => question.type).values()).size).toBeGreaterThanOrEqual(5)
     const sourcePrompts = new Set(allLesson5BookQuestions.map((question) => question.prompt))
@@ -340,9 +358,9 @@ describe('Lesson 5 final test — exact 16-item scope, grading and delayed feedb
       expect(method?.kind === 'procedure' ? method.items.length : 0).toBeGreaterThanOrEqual(3)
     }
     const summary = summariseAttempt(finalTest.questions, completeResponses(finalTest))
-    expect(summary.answered).toBe(16)
+    expect(summary.answered).toBe(20)
     expect(summary.results.every((result) => result.outcome === 'correct')).toBe(true)
-    expect(summary.results.reduce((sum, result) => sum + (result.points ?? 1), 0)).toBe(16)
+    expect(summary.results.reduce((sum, result) => sum + (result.points ?? 1), 0)).toBe(20)
     const responses = completeResponses(finalTest)
     expect(isAttemptComplete(finalTest.questions, responses, true)).toBe(true)
     delete responses[finalTest.questions[0]!.id]
@@ -352,7 +370,7 @@ describe('Lesson 5 final test — exact 16-item scope, grading and delayed feedb
   it('requires all questions before submission and does not expose a solution early', async () => {
     const user = userEvent.setup()
     const { container } = render(<FinalTestRunner test={finalTest} />)
-    expect(container.querySelectorAll('[data-question]')).toHaveLength(16)
+    expect(container.querySelectorAll('[data-question]')).toHaveLength(20)
     expect(container.querySelector('.question__explanation, [data-outcome], [data-correct]')).toBeNull()
     await user.click(screen.getByRole('button', { name: /إنهاء الاختبار/ }))
     expect(screen.getByRole('alert')).toHaveTextContent('أكمل جميع أجزاء')
@@ -363,34 +381,34 @@ describe('Lesson 5 final test — exact 16-item scope, grading and delayed feedb
     expect(container.querySelector('.question__explanation, [data-outcome], [data-correct]')).toBeNull()
     await user.click(screen.getByRole('button', { name: /إنهاء الاختبار/ }))
     expect(screen.getByText('نتيجة المحاولة')).toBeInTheDocument()
-    expect(container.textContent).toContain('16 من 16')
-    expect(container.querySelectorAll('[data-outcome="correct"]')).toHaveLength(16)
+    expect(container.textContent).toContain('20 من 20')
+    expect(container.querySelectorAll('[data-outcome="correct"]')).toHaveLength(20)
     await user.click(screen.getByRole('button', { name: 'إعادة المحاولة' }))
     expect(screen.queryByText('نتيجة المحاولة')).toBeNull()
   }, 30000)
 })
 
 describe('Lesson 5 teacher area, student route and accessible platform diagrams', () => {
-  it('provides all 19 book-item solutions, a separate 16-item test and no Test Area bank link', () => {
+  it('provides all 19 book-item solutions, a separate 20-item test and no Test Area bank link', () => {
     const teacher = getTeacherLesson('chem-u1-l5')!
     expect(teacher.bookQuestions).toEqual([...bookActivitySolutions, ...bookQuestions])
     expect(nestedQuestions(teacher.bookQuestions)).toHaveLength(19)
     expect(teacher.finalTest).toBe(finalTest)
-    expect(teacher.finalTest.questions).toHaveLength(16)
+    expect(teacher.finalTest.questions).toHaveLength(20)
     expect(teacher.conceptBlocks).toBe(lesson5TeacherGuide)
     expect(teacher.testAreaId).toBeUndefined()
     expect(teacher.conceptBlocks?.every((block) => 'attribution' in block && block.attribution === 'platform')).toBe(true)
   })
 
   it('renders the fifth lesson through its registered path with textbook and platform marks intact', async () => {
-    window.location.hash = '#atom-count-source'
+    window.location.hash = '#step-4'
     renderApp(PATH)
-    expect(screen.getByRole('heading', { name: 'ألاحظ وأستنتج: عدّ الذرات' })).toBeInTheDocument()
-    expect(screen.getByText('ألاحظ وأستنتج:')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'قانون انحفاظ الكتلة (قانون لافوازييه): ألاحظ وأستنتج' })).toBeInTheDocument()
+    expect(screen.getByText('أُلاحِظُ وأستنتجُ:')).toBeInTheDocument()
     expect(screen.getAllByText('من الكتاب المدرسي').length).toBeGreaterThan(0)
-    expect(document.querySelector('[data-interactive="lesson5-atom-count-lab"]')).not.toBeNull()
-    await screen.findByRole('heading', { name: /مختبر عدّ الذرات/ })
-    expect(screen.getAllByText(/إضافة من المنصة/).length).toBeGreaterThan(0)
+    expect(document.querySelector('[data-interactive="source-figure-p30-balance"]')).not.toBeNull()
+    await screen.findByText(/إعادة رسم تخطيطية من المنصة لشكل ص30/)
+    expect(document.body.textContent).toContain('من المنصة')
   })
 
   it('renders the teacher tab and full final-test solution page without an extra-bank navigation', async () => {

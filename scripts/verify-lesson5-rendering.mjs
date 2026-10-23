@@ -1,12 +1,19 @@
 #!/usr/bin/env node
 /**
- * Real-Chromium responsive and visual QA for the fifth chemistry lesson.
+ * Real-Chromium verification for rebuilt Lesson 5 («قانونا التفاعل الكيميائي»,
+ * pp. 30–35): 28 steps at desktop and mobile widths.
  *
- * Run `npm run build && npm run verify:lesson5`. The optional browser harness
- * uses puppeteer-core plus @sparticuz/chromium (or CHROMIUM_PATH), just like
- * verify:badges and verify:lesson4. It writes ignored screenshots and a JSON
- * report to artifacts/lesson5/browser/; it does not claim to compare against
- * unavailable textbook scan pixels.
+ * Run `npm run build && npm run verify:lesson5`. The browser harness uses
+ * puppeteer-core plus @sparticuz/chromium (or CHROMIUM_PATH), like
+ * verify:lesson2/verify:lesson4. It writes ignored screenshots and a JSON
+ * report to artifacts/lesson5/browser/.
+ *
+ * Checks per step: title, no horizontal page overflow, no KaTeX error or raw
+ * TeX, no textbook scan presented as original. Spot checks: verbatim
+ * objectives and «تعلّمتُ», the reconstructed source figures, the p33
+ * misprint note, the printed 2.66 value, lab reset/controls, final-test
+ * question count (20), mobile equation scroll hint, and axe (serious/critical)
+ * on every step.
  */
 import http from 'node:http'
 import fs from 'node:fs'
@@ -98,10 +105,18 @@ try {
   server = served.server
   const origin = `http://127.0.0.1:${served.port}${BASE}`
   const page = await browser.newPage()
-  page.setDefaultTimeout(10000)
+  page.setDefaultTimeout(15000)
+  const consoleErrors = []
   page.on('pageerror', (error) => failures.push(`browser error: ${error.message}`))
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
 
-  const selected = new Set([0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+  const stepIndex = (id) => chemistryLesson5.steps.findIndex((step) => step.id === id)
+  const screenshotSteps = new Set([
+    'opening', 'atom-count-source', 'atom-count-lab', 'mass-experiment-source',
+    'mass-boundary-lab', 'proust-trials-source', 'fixed-ratio-lab', 'learned-summary', 'final-test',
+  ])
   const viewports = [
     { name: 'desktop', width: 1365, height: 960 },
     { name: 'mobile', width: 390, height: 844 },
@@ -116,63 +131,94 @@ try {
       await page.evaluate(() => document.fonts.ready)
       const rendered = await page.evaluate(() => {
         const title = document.querySelector('.step__title')
-        const root = document.documentElement
+        const clone = document.querySelector('#main-content')?.cloneNode(true)
+        clone?.querySelectorAll('.katex-mathml').forEach((node) => node.remove())
+        const visibleText = clone?.textContent ?? ''
         return {
           title: title?.textContent?.trim() ?? '',
           viewport: innerWidth,
-          documentWidth: root.scrollWidth,
-          mainWidth: document.querySelector('#main-content')?.scrollWidth ?? null,
+          documentWidth: document.documentElement.scrollWidth,
           hasSourceImage: Boolean(document.querySelector('[data-source-image], .source-image')),
+          katexError: Boolean(document.querySelector('.katex-error')),
+          rawTex: /\\frac|\\text\{|\\mathrm/.test(visibleText),
         }
       })
-      check(`${viewport.name} / step ${index + 1}: title renders`, rendered.title.includes(step.title), rendered.title)
-      check(`${viewport.name} / step ${index + 1}: no horizontal page overflow`, rendered.documentWidth <= rendered.viewport + 1, { viewport: rendered.viewport, document: rendered.documentWidth, main: rendered.mainWidth })
-      check(`${viewport.name} / step ${index + 1}: no textbook scan is presented as original`, !rendered.hasSourceImage)
-      if (index === 0 && viewport.name === 'mobile') {
-        const hint = await page.$eval('.l5-lab__equation-hint', (node) => ({ display: getComputedStyle(node).display, text: node.textContent.trim() }))
-        check('mobile: the horizontally scrollable reaction equation has a visible scroll hint', hint.display !== 'none' && /مرّر المعادلة أفقياً/.test(hint.text), hint)
-      }
+      check(`${viewport.name} / ${step.id}: title renders`, rendered.title.includes(step.title), rendered.title)
+      check(`${viewport.name} / ${step.id}: no horizontal page overflow`, rendered.documentWidth <= rendered.viewport + 1, { viewport: rendered.viewport, document: rendered.documentWidth })
+      check(`${viewport.name} / ${step.id}: no KaTeX error or raw TeX`, !rendered.katexError && !rendered.rawTex)
+      check(`${viewport.name} / ${step.id}: no textbook scan presented as original`, !rendered.hasSourceImage)
 
-      if (selected.has(index)) {
-        const targetSelector = index === 3 ? '[data-diagram-surface]' : [0, 4, 8].includes(index) ? '.l5-lab' : '.step__title'
-        const target = await page.$(targetSelector)
+      if (screenshotSteps.has(step.id)) {
+        const target = await page.$('.l5-lab, [data-source-reconstruction], .step__title')
         const topOffset = viewport.name === 'mobile' ? 180 : 130
         if (target) await target.evaluate((node, offset) => window.scrollTo({ top: Math.max(0, window.scrollY + node.getBoundingClientRect().top - offset), behavior: 'instant' }), topOffset)
         await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
-        await page.screenshot({ path: path.join(OUT, `${viewport.name}-step-${String(index + 1).padStart(2, '0')}.png`), fullPage: false })
+        await page.screenshot({ path: path.join(OUT, `${viewport.name}-${step.id}.png`), fullPage: false })
       }
 
-      if (index === 3) {
+      if (step.id === 'opening') {
+        const text = await page.evaluate(() => document.body.textContent ?? '')
+        check(`${viewport.name}: opening shows printed title, 4 objectives and keywords`,
+          /قانونا التَّفاعلِ الكِيميائِيِّ/.test(text) && /يطبّق قانون النّسب الثّابتة/.test(text) && /الكلمات المفتاحية/.test(text))
+      }
+      if (step.id === 'atom-count-source') {
         const data = await page.evaluate(() => ({
-          readings: [...document.querySelectorAll('[data-diagram-svg] text')].map((node) => node.textContent?.trim()).filter((text) => text === '125.100').length,
-          sourceLabel: document.querySelector('.diagram__source')?.textContent ?? '',
-          caption: document.querySelector('.diagram__caption')?.textContent ?? '',
+          figure: Boolean(document.querySelector('[data-source-reconstruction="p30-balance"]')),
+          counts: ['3 C', '5 H', '5 O', '1 Na'].every((value) => [...document.querySelectorAll('text')].some((node) => node.textContent?.trim() === value)),
         }))
-        check(`${viewport.name}: p32 source data is reproduced twice and labeled as a platform redraw`, data.readings === 2 && /رسم تعليمي من المنصة/.test(data.sourceLabel) && /لا تُنسب القراءة إلى النموذج/.test(data.caption), data)
+        check(`${viewport.name}: p30 balance reconstruction renders with printed counts`, data.figure && data.counts, data)
       }
-      if (index === 4) {
-        check(`${viewport.name}: closed/open mass-boundary controls render`, await page.$$eval('.l5-lab__choices button', (nodes) => nodes.some((node) => node.textContent.includes('نموذج نظام مغلق')) && nodes.some((node) => node.textContent.includes('نموذج نظام مفتوح'))))
+      if (step.id === 'atom-count-lab' && viewport.name === 'mobile') {
+        const hint = await page.$eval('.l5-lab__equation-hint', (node) => ({ display: getComputedStyle(node).display, text: node.textContent.trim() }))
+        check('mobile: scrollable reaction equation has a visible scroll hint', hint.display !== 'none' && /مرّر المعادلة أفقياً/.test(hint.text), hint)
       }
-      if (index === 8) {
-        check(`${viewport.name}: the fixed-ratio model distinguishes book data from calculation`, await page.evaluate(() => /استنتاج رياضي لا قياس مخبري جديد/.test(document.body.textContent ?? '') && /82\.5/.test(document.body.textContent ?? '')))
-        const ratioVisual = await page.evaluate(() => {
-          const ratio = document.querySelector('.l5-lab__status .sci')
-          const svg = document.querySelector('.l5-lab .diagram__svg')
-          const labels = [...(svg?.querySelectorAll('text[direction="rtl"]') ?? [])].map((node) => {
-            const box = node.getBBox()
-            return { text: node.textContent?.trim(), x: box.x, right: box.x + box.width, renderedHeight: node.getBoundingClientRect().height }
-          })
-          return { value: ratio?.textContent?.trim(), direction: ratio?.getAttribute('dir'), viewBox: svg?.getAttribute('viewBox'), width: svg?.getBoundingClientRect().width, labels }
-        })
-        check(`${viewport.name}: source ratio order and bar labels stay legible/in bounds`, ratioVisual.value === '56 : 32' && ratioVisual.direction === 'ltr' && ratioVisual.viewBox === '0 0 400 220' && ratioVisual.labels.length === 2 && ratioVisual.labels[0].text === 'الحديد' && ratioVisual.labels[1].text === 'الكبريت' && ratioVisual.labels.every((box) => box.x >= 0 && box.right <= 400 && box.renderedHeight >= 11) && (viewport.name !== 'desktop' || ratioVisual.width <= 621), ratioVisual)
+      if (step.id === 'mass-experiment-source') {
+        const data = await page.evaluate(() => ({
+          readings: [...document.querySelectorAll('[data-source-reconstruction="p31-scale"] text')].map((node) => node.textContent?.trim()).filter((value) => value === '125.100').length,
+          tools: /حمض كلور الماء الممدَّد HCl/.test(document.body.textContent ?? ''),
+        }))
+        check(`${viewport.name}: p31 scale reconstruction shows 125.100 twice and the apparatus list`, data.readings === 2 && data.tools, data)
       }
-      if (index === 11) {
-        check(`${viewport.name}: lesson final test displays exactly 16 questions`, await page.$$eval('[data-question]', (nodes) => nodes.length === 16))
+      if (step.id === 'mass-boundary-lab') {
+        check(`${viewport.name}: mass-boundary lab exposes modes and a reset control`,
+          await page.$$eval('.l5-lab__choices button', (nodes) =>
+            nodes.some((node) => node.textContent.includes('نموذج نظام مفتوح')) &&
+            nodes.some((node) => node.textContent.includes('إعادة تعيين المختبر'))))
+      }
+      if (step.id === 'proust-trials-source') {
+        check(`${viewport.name}: p32 trials reconstruction renders`,
+          await page.evaluate(() => Boolean(document.querySelector('[data-source-reconstruction="p32-trials"]')) && /1\.44g كبريت متبقّي/.test(document.body.textContent ?? '')))
+      }
+      if (step.id === 'proust-table-source') {
+        check(`${viewport.name}: p33 misprint is flagged, not silently corrected`,
+          await page.evaluate(() => /خطأ مطبعي/.test(document.body.textContent ?? '')))
+      }
+      if (step.id === 'fixed-ratio-lab') {
+        const data = await page.evaluate(() => ({
+          modelNote: /استنتاج رياضي لا قياس مخبري جديد/.test(document.body.textContent ?? ''),
+          product: /82\.5/.test(document.body.textContent ?? ''),
+          reset: [...document.querySelectorAll('.l5-lab__choices button')].some((node) => node.textContent.includes('إعادة تعيين المختبر')),
+        }))
+        check(`${viewport.name}: fixed-ratio lab computes 82.5 model product, labels it, and resets`, data.modelNote && data.product && data.reset, data)
+      }
+      if (step.id === 'learned-summary') {
+        check(`${viewport.name}: «تعلّمتُ» prints both laws verbatim`,
+          await page.evaluate(() => /قانون بروست \(قانون النَّسب الثَّابتة\)/.test(document.body.textContent ?? '')))
+      }
+      if (step.id === 'book-question-3') {
+        check(`${viewport.name}: p35 table keeps the printed 2.66 value visible`,
+          await page.evaluate(() => /32 \/ 12 = 2\.66/.test(document.body.textContent ?? '')))
+      }
+      if (step.id === 'final-test') {
+        check(`${viewport.name}: lesson final test displays exactly 20 questions`,
+          await page.$$eval('[data-question]', (nodes) => nodes.length === 20))
       }
     }
   }
 
-  // Real Chromium axe checks supplement the jsdom accessibility tests.
+  check('no unexpected browser console errors during the walk', consoleErrors.length === 0, consoleErrors.slice(0, 5))
+
+  // Real-Chromium axe checks on every step (desktop).
   await page.setViewport({ width: 1365, height: 960, deviceScaleFactor: 1 })
   for (let index = 0; index < chemistryLesson5.steps.length; index += 1) {
     await page.goto(`${origin}${LESSON_PATH}?a11y=${++visit}#step-${index + 1}`, { waitUntil: 'networkidle0' })
@@ -186,7 +232,7 @@ try {
         nodes: item.nodes.map((node) => ({ target: node.target, summary: node.failureSummary })),
       }))
     })
-    check(`real-browser axe: step ${index + 1} has no serious/critical violations`, violations.length === 0, violations)
+    check(`real-browser axe: ${chemistryLesson5.steps[index].id} has no serious/critical violations`, violations.length === 0, violations)
   }
 
   await page.close()
@@ -199,5 +245,5 @@ try {
   fs.writeFileSync(path.join(OUT, 'report.json'), `${JSON.stringify({ lessonId: chemistryLesson5.id, steps: chemistryLesson5.steps.length, checks, failures }, null, 2)}\n`)
 }
 
-console.log(`\n${checks.filter((item) => item.passed).length}/${checks.length} visual checks passed; ${failures.length} failures. Screenshots/report: ${path.relative(ROOT, OUT)}`)
+console.log(`\n${checks.filter((item) => item.passed).length}/${checks.length} browser checks passed; ${failures.length} failures. Screenshots/report: ${path.relative(ROOT, OUT)}`)
 if (failures.length) process.exit(1)

@@ -69,6 +69,7 @@ export default function FixedRatioLab({ reducedMotion }: InteractiveProps) {
         <div className="l5-lab__choices">
           <button type="button" className="button button--quiet" aria-pressed={ratioId === 'iron-sulfur'} onClick={() => chooseRatio('iron-sulfur')}>الحديد والكبريت</button>
           <button type="button" className="button button--quiet" aria-pressed={ratioId === 'lead-sulfur'} onClick={() => chooseRatio('lead-sulfur')}>الرصاص والكبريت</button>
+          <button type="button" className="button button--quiet" onClick={() => { setRatioId('iron-sulfur'); setLeftInput('60'); setRightInput('30'); setUnit('g') }}>إعادة تعيين المختبر</button>
         </div>
       </fieldset>
 

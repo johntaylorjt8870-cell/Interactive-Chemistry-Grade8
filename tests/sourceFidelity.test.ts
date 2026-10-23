@@ -54,7 +54,7 @@ describe('curriculum registry — first verified chemistry lesson', () => {
     expect(getLesson('chemistry', 'structural-chemistry', 'atom-and-element')?.title).toContain('الذرّة والعنصر')
     expect(getLesson('chemistry', 'structural-chemistry', 'chemical-bonds')?.title).toContain('الروابط الكيميائية')
     expect(getLesson('chemistry', 'structural-chemistry', 'chemical-formulas')?.title).toContain('صيغةُ المركّباتِ الكيميائيَّةِ')
-    expect(getLesson('chemistry', 'structural-chemistry', 'mass-and-fixed-proportions')?.title).toContain('انحفاظ الكتلة والنسب الثابتة')
+    expect(getLesson('chemistry', 'structural-chemistry', 'mass-and-fixed-proportions')?.title).toContain('قانونا التفاعل الكيميائي')
     expect(isCurriculumEmpty()).toBe(false)
 
     const lessons = curriculum.chemistry.units.flatMap((unit) => unit.lessons)
