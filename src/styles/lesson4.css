@@ -1,53 +1,83 @@
-/* Real-browser QA found inherited low-contrast microcopy/active indices.
- * Scope every correction to the new lesson, including direct hash links.
- * No earlier lesson, global palette, notation renderer or contact bar changes. */
+/* Lesson 4 — «التفاعلات الكيميائية» (الصفحات 24–29).
+ * Scoped strictly to Lesson 4 (`chem-u1-l4`) so no other lesson, global
+ * palette, notation renderer, or contact bar is altered. */
+
 .lesson-shell[data-lesson-id='chem-u1-l4'] .lesson-outline__button[data-current='true'] .lesson-outline__index {
   background: var(--palette-chem-700);
+  border-color: var(--palette-chem-700);
   color: var(--palette-paper);
 }
-.lesson-shell[data-lesson-id='chem-u1-l4'] .lesson-rail__visited {
+
+.lesson-shell[data-lesson-id='chem-u1-l4'] .lesson-rail__visited,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .final-test__meta,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .interactive-host__caption {
   color: var(--text-secondary);
   opacity: 1;
 }
-.lesson-shell[data-lesson-id='chem-u1-l4'] .final-test__meta {
+
+.lesson-shell[data-lesson-id='chem-u1-l4'] .platform-addition-badge__en,
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .platform-addition-badge__en {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l4'] .step__source-ref-page,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .step__source-ref-item,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .textbook-source__ref,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .eyebrow,
+.teacher-section-page[data-lesson-id='chem-u1-l4'] .eyebrow {
   color: var(--text-secondary);
 }
 
-/* Grid items must be allowed to shrink around an isolated, scrolling chain.
- * Teacher layouts elsewhere remain unchanged; all four lesson links are visible
- * on the new tab rather than hiding the active fourth link off-screen. */
+/* Valid clamp padding for Lesson 4 interactive lab cards (`--space-7` is undefined). */
+.lesson-shell[data-lesson-id='chem-u1-l4'] .lab {
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
+}
+
+/* Keep Arabic progress badges inside Lesson 4 labs RTL-isolated. */
+.lesson-shell[data-lesson-id='chem-u1-l4'] .lab__measurements strong.lab__count {
+  direction: rtl;
+  font-family: var(--font-arabic);
+  font-size: var(--fs-lg);
+  unicode-bidi: isolate;
+}
+
+/* Prevent long `<select>` options in matching questions from causing horizontal overflow on narrow mobile screens. */
+.lesson-shell[data-lesson-id='chem-u1-l4'] .lesson-shell__main,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .step,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .question,
+.lesson-shell[data-lesson-id='chem-u1-l4'] .matching__row {
+  min-inline-size: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l4'] .matching__row select {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  text-overflow: ellipsis;
+}
+
+/* Teacher-area layout scoping for Lesson 4. */
 .teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-answer-list {
   grid-template-columns: minmax(0, 1fr);
 }
+
 .teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-answer {
   min-inline-size: 0;
 }
+
 .teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-lesson-tabs {
   flex-wrap: wrap;
 }
+
 .teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-lesson-tab {
   flex: 1 1 140px;
   min-inline-size: 0;
   max-inline-size: 100%;
   text-align: center;
 }
+
 .teacher-section-page[data-lesson-id='chem-u1-l4'] .teacher-lesson-tab[aria-current='page'] {
   background: var(--palette-chem-700);
   color: var(--palette-paper);
-}
-
-/* Keep small source references readable against the pale lesson surfaces. */
-.lesson-shell[data-lesson-id='chem-u1-l4'] .step__source-ref-page,
-.lesson-shell[data-lesson-id='chem-u1-l4'] .step__source-ref-item,
-.lesson-shell[data-lesson-id='chem-u1-l4'] .textbook-source__ref {
-  color: var(--text-secondary);
-}
-
-/* The inherited tiny English badge uses opacity, which fails contrast against
- * the new teacher-solution panels. Restore the existing strong badge color. */
-.teacher-section-page[data-lesson-id='chem-u1-l4'] .platform-addition-badge__en {
-  opacity: 1;
-}
-.teacher-section-page[data-lesson-id='chem-u1-l4'] .eyebrow {
-  color: var(--text-secondary);
 }

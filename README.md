@@ -70,6 +70,10 @@
 | `magnesium-combustion-lab` | الكيمياء 4 |
 | `word-equation-lab` | الكيمياء 4 |
 | `combustion-air-lab` | الكيمياء 4 |
+| `source-figure-p24-observations` | الكيمياء 4 |
+| `source-figure-p25-magnesium` | الكيمياء 4 |
+| `source-figure-p26-burner` | الكيمياء 4 |
+| `source-figure-p29-q6` | الكيمياء 4 |
 | `lesson5-atom-count-lab` | الكيمياء 5 |
 | `lesson5-mass-boundary-lab` | الكيمياء 5 |
 | `lesson5-fixed-ratio-lab` | الكيمياء 5 |

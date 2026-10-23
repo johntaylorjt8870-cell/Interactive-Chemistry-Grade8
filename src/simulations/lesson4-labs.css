@@ -67,3 +67,66 @@
   .reaction-lab .lab__actions .button { flex: 1 1 160px; }
   .reaction-lab__result { padding: var(--space-3); }
 }
+
+/* Reconstructed source figures for pages 24, 25, 26, and 29 */
+.l4-source-figure {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--surface-base);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  min-inline-size: 0;
+}
+.l4-source-figure__svg {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--radius-sm);
+}
+.l4-fig__card {
+  fill: var(--surface-raised, #ffffff);
+  stroke: var(--border-strong);
+  stroke-width: 1.8;
+}
+.l4-fig__panel-title {
+  fill: var(--text-primary);
+  font-family: var(--font-arabic);
+  font-size: 13px;
+  font-weight: 700;
+}
+.l4-fig__panel-sub {
+  fill: var(--text-secondary);
+  font-family: var(--font-arabic);
+  font-size: 12px;
+  font-weight: 600;
+}
+.l4-fig__red-caption {
+  fill: #b91c1c;
+  font-family: var(--font-arabic);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.l4-fig__q6-label {
+  fill: var(--text-primary);
+  font-family: var(--font-arabic);
+  font-size: 18px;
+  font-weight: 800;
+}
+.l4-source-figure__caption {
+  margin-block-start: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+}
+.l4-source-figure--still *,
+.l4-source-figure--still *::before,
+.l4-source-figure--still *::after {
+  animation: none !important;
+  transition: none !important;
+}
+@media (max-width: 600px) {
+  .l4-source-figure {
+    padding: var(--space-3);
+  }
+}

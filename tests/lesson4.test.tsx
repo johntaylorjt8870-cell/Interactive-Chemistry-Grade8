@@ -117,7 +117,7 @@ describe('Lesson 4 registration, sequence and source audit', () => {
     expect(chemistryLesson4.source.pages.map((page) => page.page)).toEqual(['24', '25', '26', '27', '28', '29'])
     expect(chemistryLesson4.order).toBe(4)
     expect(chemistryLesson4.status).toBe('source-verified')
-    expect(chemistryLesson4.tests?.map((test) => test.id)).toEqual(['chem-u1-l4-book', 'chem-u1-l4-final'])
+    expect(chemistryLesson4.tests?.map((test) => test.id)).toEqual(['chem-u1-l4-book', 'chem-u1-l4-practice', 'chem-u1-l4-final'])
   })
 
   it('passes source and assessment validation, including the 33-source-item container', () => {
@@ -130,9 +130,14 @@ describe('Lesson 4 registration, sequence and source audit', () => {
     expect(pages).toEqual([...pages].sort((a, b) => a - b))
     expect(bookActivitySolutions).toHaveLength(20)
     expect(bookQuestions).toHaveLength(13)
-    const questions = chemistryLesson4.steps.flatMap((step) => step.blocks).flatMap((block) => block.kind === 'question' ? [block.questionId] : [])
-    expect(questions).toEqual(sourceQuestions.map((question) => question.id))
-    expect(new Set(questions).size).toBe(33)
+    const textbookQuestionsInSteps = chemistryLesson4.steps
+      .filter((step) => step.source?.pages.length)
+      .flatMap((step) => step.blocks)
+      .flatMap((block) => block.kind === 'question' ? [block.questionId] : [])
+    expect(textbookQuestionsInSteps).toEqual(sourceQuestions.map((question) => question.id))
+    expect(new Set(textbookQuestionsInSteps).size).toBe(33)
+    const allStepQuestions = chemistryLesson4.steps.flatMap((step) => step.blocks).flatMap((block) => block.kind === 'question' ? [block.questionId] : [])
+    expect(new Set(allStepQuestions).size).toBe(57)
     expect(chemistryLesson4.steps.at(-1)?.kind).toBe('final-test')
   })
 

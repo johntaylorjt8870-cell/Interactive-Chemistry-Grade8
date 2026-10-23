@@ -1,178 +1,849 @@
-import type { FinalTest } from '@/assessment/types'
-import type { ContentBlock, LessonDefinition, LessonStep } from './schema'
-import { bookActivitySolutions, bookQuestions, lesson4Figures } from './chemistryLesson4Questions'
+import type { SourceReference } from '@/data/source'
+import type { ContentBlock, LessonDefinition, LessonStep, TableColumnSpec, TableRowSpec } from './schema'
+import { bookActivitySolutions, bookAssessment, bookQuestions, lesson4Figures } from './chemistryLesson4Book'
+import { lesson4PracticeQuestions, practiceAssessment } from './chemistryLesson4Practice'
 import { finalTest } from './chemistryLesson4Test'
+import { lesson4TeacherGuide } from './chemistryLesson4TeacherGuide'
 
-export { bookActivitySolutions, bookQuestions, finalTest }
-
-/** Source-first implementation with an independent final audit and caption follow-up.
- * The first audit could not re-read the tiny p24 caption at full-page scale; the
- * user-provided crop now verifies it. Figures remain descriptive references,
- * not scans or exact reproductions. See the final source-fidelity audit. */
-const ref = (page: string, item?: string) => ({ page, item })
-const source = (page: string, item: string) => ({ pages: [ref(page, item)], verified: true })
-const quote = (page: string, text: string, item?: string): ContentBlock => ({ kind: 'textbook-verbatim', text, source: ref(page, item) })
-const q = (...ids: string[]): ContentBlock[] => ids.map((questionId) => ({ kind: 'question', questionId }))
-const explanation = (text: string): ContentBlock => ({ kind: 'paragraph', attribution: 'platform', text })
-const word = (reactants: string[], products: string[], condition?: string): ContentBlock => ({ kind: 'word-equation', reactants, products, condition, attribution: 'platform' })
-
-/** Detailed scientific concepts for the independent Lesson 4 Teacher tab. */
-export const lesson4TeacherGuide: ContentBlock[] = [
-  { kind: 'callout', tone: 'method', title: '1. التحول الكيميائي، الملاحظة والاستنتاج — ص 24–25', attribution: 'platform', text: 'جوهر التفاعل هو تغير المواد وتكون مواد جديدة. المتفاعلات مواد البداية، والنواتج المواد المتكونة. نطلب من الطالب أولاً وصف ما يراه، ثم تفسيره: فقاعات في خليط الليمون والبيكربونات، تغير صباغ الثوب بماء جافيل، وتعكر رائق الكلس. كلمة «غالباً» تمنع تعميم ظهور كل العلامات في كل تفاعل؛ مجرد الفقاعات أو تغير اللون خارج سياق معروف لا يكفي وحده لإثبات تفاعل.' },
-  { kind: 'procedure', title: 'توجيه تجربة المغنزيوم — ص25', attribution: 'platform', items: ['نراجع كل أداة: الشريط، الملقط، الموقد، النظارة، والجفنة الخزفية التي تحوي قليلاً من الرمل. لا تختزل شروط السلامة إلى الشريط والموقد.', 'نقرأ التنفيذ المطبوع، مع الإشراف المخبري ومنع التحديق في ضوء المغنزيوم الشديد. لا يحول وجود النظارة التجربة إلى نشاط منزلي آمن.', 'نميز الشريط الفلزي قبل الاحتراق عن أكسيد المغنزيوم الأبيض بعده. المادة الجديدة لا ترجع إلى الشريط بمجرد التبريد أو إعادة الشكل.', 'نستنتج MgO باستخدام تكافؤ المغنزيوم والأكسجين المتساويين من الدروس السابقة، دون أرقام فهرسية أو شحنات للصيغة المتعادلة.'] },
-  { kind: 'callout', tone: 'method', title: '2. المعادلة اللفظية ومواضع المواد — ص 25–28', attribution: 'platform', text: 'المعادلة اللفظية تستخدم أسماء المواد لا الرموز. نقرأ سلسلة التفاعل من اليسار إلى اليمين: المواد المتفاعلة قبل السهم، والناتجة بعده، وعلامة الجمع تجمع المواد على الطرف الواحد. الأسماء العربية تظل مقروءة RTL داخل سلسلة LTR معزولة. «تسخين» فوق سهم المغنزيوم شرط، وليس متفاعلاً أو ناتجاً. الرقم II جزء من اسم كبريتيد الحديد في نشاط الصفحة 26، ولا يحول إلى شحنة في النص.' },
-  word(['المغنزيوم', 'الأكسجين'], ['أكسيد المغنزيوم'], 'تسخين'),
-  { kind: 'callout', tone: 'method', title: '3. الاحتراق والأكسجين: ضبط المتغير — ص26', attribution: 'platform', text: 'الاحتراق تفاعل مادة مع الأكسجين عند درجة حرارة مناسبة؛ لا يقدم المصدر درجة حرارة عددية. موقد بنزن له ثقب يسمح بدخول الهواء فوق الصمام. المتغير المقصود هو دخول الهواء، لا تغيير نوع الوقود ولا اختراع نسبة أكسجين. في الحالة (1) يظهر لهب أزرق وصحن دون سواد؛ في الحالة (2) يضيق الثقب جزئياً، فيظهر لهب أصفر وسخام. قلة الأكسجين تفسر عدم تمام الاحتراق وتوهج دقائق الكربون، ثم ترسبها على الصحن.' },
-  { kind: 'callout', tone: 'note', title: '4. النواتج لا اللون وحده — ص 26–29', attribution: 'platform', text: 'احتراق البوتان التام ينتج ثنائي أكسيد الكربون والماء. عند نقص الأكسجين يمكن أن ينتج أحادي أكسيد الكربون و/أو كربون مع الماء، وقد يوجد ثنائي أكسيد الكربون أيضاً في خليط النواتج. لا يوجد في المصدر تركيب ثابت أو نسبة لهذه النواتج، فلا نفرض ذلك في المحاكاة أو الحل. اللون الأزرق/الأصفر وصف لموقد الوقود في الكتاب، وليس قاعدة لكل مادة: المغنزيوم يحترق بضوء أبيض ولا يعني ذلك سخاماً كربونياً.' },
-  { kind: 'callout', tone: 'warning', title: '5. الغاز المنزلي، CO، والبحث الآمن — ص27', attribution: 'platform', text: 'نفرق بين غاز الوقود (خليط البوتان والبروبان الذي تضاف له رائحة المركبتان) وبين CO المحتمل من الاحتراق غير التام. رائحة الوقود تساعد على اكتشاف تسربه، لكنها لا تكشف CO ولا تثبت غيابه. CO يعيق نقل الأكسجين بالدم؛ تفسر هذه العلاقة الإعياء واضطراب دقات القلب المذكورين. الغاز الثنائي CO₂ مختلف، ويكشف في تجربة الدرس بتعكر رائق الكلس. رغوة الماء والصابون لفحص التسرب ليست هذا الكاشف الكيميائي.' },
-  { kind: 'procedure', title: 'بناء جواب قضية البحث — ص27', attribution: 'platform', items: ['نسجل الظروف: غرفة محكمة الإغلاق ومدفأة وقود وشتاء قارس، لا أرقاماً مفترضة لحجم الغرفة أو مدة التعرض.', 'نرسم علاقة سببية: احتراق يستهلك الأكسجين، وضعف تهوية قد يؤدي إلى نقصه، ثم احتراق غير تام وتراكم CO.', 'نربط الغاز السام بتعطيل نقل الأكسجين، ثم نذكر الاستنتاج الوقائي: تهوية وتجهيز تدفئة سليم، وعدم اعتماد الرائحة أو لون الدخان كضمان سلامة.', 'لا نولد CO لاختبار فرضية؛ البحث مناقشة ومصادر تعليمية آمنة. عند الاشتباه بالخطر يخرج الأشخاص إلى الهواء النقي ويطلبون المساعدة المختصة.'] },
-  { kind: 'callout', tone: 'method', title: '6. تصحيح الإجابات وتقدير فهم الطالب — ص 28–29', attribution: 'platform', text: 'في كل معادلة نسمي مواد البداية، ثم المادة الجديدة، ثم نراجع الطرفين والسهم والشروط المطبوعة فقط. نعالج جميع فروع السؤال الثالث، ونقارن النواتج في السؤال الرابع، ونطلب طريقة ومشاهدة وتفسيراً واستنتاجاً في السؤال الخامس. في السؤال السادس نثبت رقم كل شكل ونحل تصنيف الشكلين وتعليل السخام معاً. الاختبار الجديد مستقل، يقيم بعد تسليم جميع الإجابات فقط؛ كل سؤال له تفسير كامل في تبويب حلول الاختبار.' },
-]
-
-const bookAssessment: FinalTest = {
-  id: 'chem-u1-l4-book', lessonId: 'chem-u1-l4', origin: 'platform', status: 'source-verified',
-  // This is a source-question lookup container, not the 20-question final test.
-  targetQuestionCount: { min: 33, max: 33 }, questions: [...bookActivitySolutions, ...bookQuestions],
+export {
+  bookActivitySolutions,
+  bookAssessment,
+  bookQuestions,
+  lesson4Figures,
+  lesson4PracticeQuestions,
+  practiceAssessment,
+  finalTest,
+  lesson4TeacherGuide,
 }
 
+const ref = (page: string, item?: string, scanId?: string) => ({ page, item, scanId })
+const source = (page: string, item: string, scanId?: string): SourceReference => ({
+  pages: [ref(page, item, scanId)],
+  verified: true,
+})
+
+const verifiedSource: SourceReference = {
+  pages: [
+    ref('24', undefined, 'image-1.png'),
+    ref('25', undefined, 'image-2.png'),
+    ref('26', undefined, 'image-3.png'),
+    ref('27', undefined, 'image-4.png'),
+    ref('28', undefined, 'image-5.png'),
+    ref('29', undefined, 'image-6.png'),
+  ],
+  verified: true,
+  readability: {
+    arabicText: 'clear',
+    latinText: 'clear',
+    equations: 'clear',
+    numbers: 'clear',
+    units: 'clear',
+    tables: 'clear',
+    diagrams: 'clear',
+    experiments: 'clear',
+    questions: 'clear',
+    notes:
+      'تمت المراجعة البصرية الكاملة بتكبير 250% بتاريخ 2026-10-24 على النسخ الست المرفقة في /tmp/arena-coding-uploads/image-1.png إلى image-6.png (الصفحات 24–29): الأهداف الستة، الكلمات المفتاحية، مشاهد ألاحظ وأجيب الأربعة وتعليق الصورة اليمنى الأحمر، تجربة احتراق شريط المغنزيوم وأنشطتها الثلاثة، نشاطا المعادلات اللفظية، تجربة موقد بنزن وصحن الخزف بالحالتين (1) و(2)، صندوق «هل تعلم؟»، صندوق «إضاءة»، قضية البحث، صندوق «تعلّمت»، وأسئلة «أختبر نفسي» الستة بكل فروعها مقروءة بوضوح وموثقة بنداً بنداً في lesson4SourceLedger.ts.',
+  },
+}
+
+/* ---------- Block builders (platform vs textbook explicitly separated) ---------- */
+const quote = (page: string, text: string, item?: string): ContentBlock => ({
+  kind: 'textbook-verbatim',
+  text,
+  source: ref(page, item),
+})
+const bookQuestion = (questionId: string, reveal = true): ContentBlock => ({
+  kind: 'question',
+  questionId,
+  reveal,
+})
+const q = (...ids: string[]): ContentBlock[] => ids.map((id) => bookQuestion(id, true))
+
+const prose = (text: string): ContentBlock => ({ kind: 'paragraph', text, attribution: 'platform' })
+const bullets = (items: string[]): ContentBlock => ({ kind: 'list', items, attribution: 'platform' })
+const note = (title: string, text: string): ContentBlock => ({
+  kind: 'callout',
+  tone: 'note',
+  title,
+  text,
+  attribution: 'platform',
+})
+const method = (title: string, text: string): ContentBlock => ({
+  kind: 'callout',
+  tone: 'method',
+  title,
+  text,
+  attribution: 'platform',
+})
+const warning = (title: string, text: string): ContentBlock => ({
+  kind: 'callout',
+  tone: 'warning',
+  title,
+  text,
+  attribution: 'platform',
+})
+const proc = (title: string, items: string[]): ContentBlock => ({
+  kind: 'procedure',
+  title,
+  items,
+  attribution: 'platform',
+})
+const word = (reactants: string[], products: string[], condition?: string): ContentBlock => ({
+  kind: 'word-equation',
+  reactants,
+  products,
+  condition,
+  attribution: 'platform',
+})
+const chem = (formula: string, caption?: string): ContentBlock => ({
+  kind: 'chemical-formula',
+  formula,
+  caption,
+  attribution: 'platform',
+})
+const tex = (expr: string, caption?: string): ContentBlock => ({
+  kind: 'formula',
+  tex: expr,
+  caption,
+  attribution: 'platform',
+})
+const table = (caption: string, columns: TableColumnSpec[], rows: TableRowSpec[]): ContentBlock => ({
+  kind: 'table',
+  caption,
+  columns,
+  rows,
+  attribution: 'platform',
+})
+const practice = (questionId: string): ContentBlock => ({
+  kind: 'question',
+  questionId,
+  reveal: true,
+})
+
 const steps: LessonStep[] = [
+  /* ============================== الصفحة 24 ============================== */
   {
-    id: 'opening', kind: 'source', title: 'التفاعلات الكيميائية — الأهداف والكلمات المفتاحية', attribution: 'textbook', source: source('24', 'عنوان الدرس، الأهداف والكلمات المفتاحية'),
+    id: 'opening',
+    kind: 'source',
+    title: 'التفاعلات الكيميائية — الأهداف والكلمات المفتاحية',
+    summary: 'مفتتح الدرس الرابع في الصفحة 24: العنوان والأهداف الستة والكلمات المفتاحية الست.',
+    attribution: 'mixed',
+    source: source('24', 'عنوان الدرس، الأهداف والكلمات المفتاحية', 'image-1.png'),
     blocks: [
       quote('24', '4 التفاعلات الكيميائية', 'عنوان الدرس'),
       quote('24', 'الأهداف:'),
-      { kind: 'list', attribution: 'textbook', items: ['يتعرّف التفاعل الكيميائي.', 'يميّز بين المواد المتفاعلة والناتجة.', 'يتعرّف تفاعل الاحتراق.', 'يميّز أنواع تفاعلات الاحتراق.', 'يقارن نواتج الاحتراق التام وغير التام.', 'يعبّر عن التفاعل الكيميائي بمعادلة كيميائية لفظية.'] },
-      quote('24', 'الكلمات المفتاحية: تفاعل كيميائي – مواد متفاعلة – مواد ناتجة – معادلة كيميائية لفظية – احتراق تام – احتراق غير تام.'),
+      {
+        kind: 'list',
+        attribution: 'textbook',
+        items: [
+          'يتعرّف التفاعل الكيميائي.',
+          'يميّز بين المواد المتفاعلة والناتجة.',
+          'يتعرّف تفاعل الاحتراق.',
+          'يميّز أنواع تفاعلات الاحتراق.',
+          'يقارن نواتج الاحتراق التام وغير التام.',
+          'يعبّر عن التفاعل الكيميائي بمعادلة كيميائية لفظية.',
+        ],
+      },
+      quote(
+        '24',
+        'الكلمات المفتاحية: تفاعل كيميائي – مواد متفاعلة – مواد ناتجة – معادلة كيميائية لفظية – احتراق تام – احتراق غير تام.',
+      ),
+      note(
+        'خريطة التعلّم في الدرس الرابع',
+        'في الدروس الثلاثة الأولى تعرّفنا الذرة والعنصر والرابطة والصيغة الكيميائية. في هذا الدرس ننتقل إلى التحول الكيميائي نفسه: متى نحكم أن مواد جديدة قد تكونت؟ كيف نسمّي المتفاعلات والنواتج ونكتب معادلة لفظية مضبوطة الاتجاه؟ وكيف نميّز الاحتراق التام الآمن من الاحتراق غير التام الذي يولّد السخام الأسود وغاز أحادي أكسيد الكربون (CO) السام؟',
+      ),
     ],
   },
+
   {
-    id: 'observe-reactions', kind: 'source', title: 'التفاعل الكيميائي: ألاحظ وأجيب', attribution: 'textbook', source: source('24', 'التفاعل الكيميائي — ألاحظ وأجيب'),
-    blocks: [quote('24', 'التفاعل الكيميائي:'), quote('24', 'ألاحظ وأجيب:'), lesson4Figures.observations,
+    id: 'discovery-changes',
+    kind: 'discovery',
+    title: 'استكشاف تمهيدي: متى يتغيّر الشّكل فقط ومتى تتكوّن مادة جديدة؟',
+    summary: 'التمييز التأسيسي بين التغيّر الفيزيائي والتحوّل الكيميائي قبل قراءة مشاهد المختبر.',
+    attribution: 'platform',
+    blocks: [
+      prose(
+        'قارن في ذهنك بين مشهدين مألوفين: عندما ينصهر مكعب الجليد إلى ماء سائل ثم تعيده إلى المجمّد، يعود جليداً كما كان لأن هوية الماء لم تتبدل؛ هذا تغيّر فيزيائي في الحالة أو الشكل فقط. أمّا عندما يحترق شريط فلزي أو تفور بيكربونات الصوديوم مع قطرات الليمون، فإن الذرات تعيد الارتباط بترتيب جديد لتكوين مواد جديدة بصفات مختلفة لا تعود إلى أصلها بالتبريد البسيط؛ وهذا هو التحوّل الكيميائي (التفاعل الكيميائي).',
+      ),
+      practice('l4-practice-01'),
+    ],
+  },
+
+  {
+    id: 'prerequisites-bridge',
+    kind: 'explanation',
+    title: 'جسر المتطلبات القبلية: الرموز والتكافؤات التي نحتاجها من الدروس 1–3',
+    summary: 'استحضار تكافؤات المغنزيوم والأكسجين والزنك والكبريت والحديد الثنائي لفهم صيغ النواتج وتسميتها.',
+    attribution: 'platform',
+    blocks: [
+      prose(
+        'يطلب منك هذا الدرس في الصفحة 25 استنتاج صيغة «أكسيد المغنزيوم»، ويورد في الصفحة 26 اسم «كبريتيد الحديد II»، وفي الصفحة 27 صيغة «CO». لكي تفهم هذه الأسماء والصيغ فهماً علمياً عميقاً لا حفظاً آلياً، نستحضر هذه المفاتيح الأربعة من جدول تكافؤات الدرس الثالث (ص20):',
+      ),
+      table(
+        'مفاتيح سريعة من الدروس 1–3 نطبقها مباشرة في الدرس الرابع',
+        [
+          { key: 'item', header: 'العنصر أو المركب', rowHeader: true },
+          { key: 'symbol', header: 'الرمز / الصيغة' },
+          { key: 'valence', header: 'التكافؤ المعتمد (ص20)' },
+          { key: 'usage', header: 'أين نستخدمه في الدرس الرابع؟' },
+        ],
+        [
+          {
+            id: 'mg',
+            cells: {
+              item: 'المغنزيوم والأكسجين',
+              symbol: 'Mg و O',
+              valence: '2 لكل منهما',
+              usage: 'استنتاج صيغة أكسيد المغنزيوم MgO بعد اختصار النسبة 2:2 إلى 1:1 (ص25).',
+            },
+          },
+          {
+            id: 'zn',
+            cells: {
+              item: 'الزنك والكبريت',
+              symbol: 'Zn و S',
+              valence: '2 لكل منهما',
+              usage: 'التفريق بين أكسيد الزنك ZnO وكبريتيد الزنك ZnS في تمارين الصفحة 28.',
+            },
+          },
+          {
+            id: 'fe',
+            cells: {
+              item: 'الحديد الثنائي',
+              symbol: 'Fe(II)',
+              valence: '2 (يدل عليه الرقم الروماني II)',
+              usage: 'فهم سبب كتابة الرقم II في «كبريتيد الحديد II» (ص26) وصيغته FeS.',
+            },
+          },
+          {
+            id: 'co',
+            cells: {
+              item: 'أكسيدا الكربون',
+              symbol: 'CO مقابل CO₂',
+              valence: 'أحادي مقابل ثنائي الأكسجين',
+              usage: 'عدم الخلط بين CO السام جداً وثنائي أكسيد الكربون المعكّر لرائق الكلس.',
+            },
+          },
+        ],
+      ),
+      practice('l4-practice-02'),
+    ],
+  },
+
+  {
+    id: 'observe-reactions',
+    kind: 'source',
+    title: 'التفاعل الكيميائي: ألاحظ وأجيب',
+    summary: 'مشاهد الصفحة 24 الثلاثة والأسئلة الأربعة المطبوعة.',
+    attribution: 'mixed',
+    source: source('24', 'التفاعل الكيميائي — ألاحظ وأجيب', 'image-1.png'),
+    blocks: [
+      quote('24', 'التفاعل الكيميائي:'),
+      quote('24', 'ألاحظ وأجيب:'),
+      {
+        kind: 'diagram',
+        diagramId: 'source-figure-p24-observations',
+        title: 'الشكل التخطيطي لمشاهد «ألاحظ وأجيب» الثلاثة (ص24)',
+        description:
+          'إعادة بناء تخطيطية واضحة لترتيب مشاهد الصفحة 24 من اليمين إلى اليسار: فوران بيكربونات الصوديوم مع قطرات حامض الليمون، تعكر رائق الكلس عند إمرار غاز ثنائي أكسيد الكربون، وتغير لون القماش عند سقوط قطرات ماء جافيل.',
+        attribution: 'platform',
+      },
+      lesson4Figures.observations,
       quote('24', 'إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)', 'تعليق الصورة اليمنى'),
       ...q('l4-observe-lemon', 'l4-observe-javel', 'l4-observe-limewater', 'l4-observe-name'),
     ],
   },
+
   {
-    id: 'observation-lab', kind: 'simulation', title: 'مختبر الملاحظة: ماذا تغير؟', attribution: 'platform',
-    summary: 'ثلاثة مشاهد نوعية؛ افصل ما تراه عن تفسيره.',
-    blocks: [explanation('لاحظ أولاً، ثم استنتج. تمثل الرسوم معنى مشاهد الصفحة 24 ولا تعيد رسم صورها الأصلية. لا تقيس أحجاماً أو تركيزات أو زمناً للتفاعل.'), { kind: 'interactive', interactiveId: 'reaction-observation-lab' }],
+    id: 'observation-lab',
+    kind: 'simulation',
+    title: 'مختبر الملاحظة: ماذا تغير؟',
+    summary: 'ثلاثة مشاهد نوعية؛ افصل ما تراه حسياً عن تفسيره الكيميائي.',
+    attribution: 'platform',
+    blocks: [
+      prose(
+        'لاحظ أولاً ما يظهر في كل تجربة، ثم اربطه بتكوّن مادة جديدة. تمثل الرسوم معنى مشاهد الصفحة 24 بصورة تفاعلية منظمة دون افتراض أحجام أو تراكيز أو أزمنة غير مطبوعة.',
+      ),
+      { kind: 'interactive', interactiveId: 'reaction-observation-lab' },
+    ],
   },
+
   {
-    id: 'magnesium-experiment', kind: 'source', title: 'تفاعل احتراق المغنزيوم: أجرب وأستنتج', attribution: 'textbook', source: source('25', 'احتراق المغنزيوم — أدوات التجربة وخطوات التنفيذ'),
-    blocks: [quote('25', 'تفاعل احتراق المغنزيوم:'), quote('25', 'أجرّب وأستنتج:'), quote('25', 'أدوات التجربة: شريط مغنزيوم، ملقط، موقد، نظارات واقية، جفنة خزفية تحوي قليلاً من الرمل.'),
-      quote('25', 'خطوات التنفيذ:'), ...q('l4-mg-observation'), lesson4Figures.magnesium, ...q('l4-mg-q1', 'l4-mg-q2', 'l4-mg-q3')],
+    id: 'reaction-deep-explanation',
+    kind: 'deep-explanation',
+    title: 'فصل المشاهدة عن التفسير وقواعد السلامة في مشاهد الصفحة 24',
+    summary: 'منهجية قراءة الدلائل المخبرية والربط بطريقة الكشف عن غاز ثنائي أكسيد الكربون.',
+    attribution: 'platform',
+    blocks: [
+      proc('كيف يحلل الكيميائي كل مشهد من المشاهد الثلاثة؟', [
+        'المشهد (1) حامض الليمون + بيكربونات الصوديوم: المشاهدة الحسية فوران وفقاعات ورغوة؛ والتفسير انطلاق غاز جديد يدل على تفاعل كيميائي.',
+        'المشهد (2) ماء جافيل + ثياب ملونة: المشاهدة الحسية زوال اللون وظهور بقع أفتح دائمة؛ والتفسير تحول مادة الصباغ كيميائياً إلى مادة جديدة.',
+        'المشهد (3) غاز ثنائي أكسيد الكربون + رائق الكلس الصافي: المشاهدة الحسية تعكّر السائل الشفاف؛ والتفسير تشكّل راسب أبيض صلب جديد، وهو الكشف التجريبي المعتمد لهذا الغاز (السؤال الخامس ص29).',
+      ]),
+      warning(
+        'تنبيه سلامة منزلية ومخبرية',
+        'ماء جافيل مادة مخرّشة ومزيلة للون؛ لا تلمس به الجلد أو العينين، ولا تخلطه مطلقاً بحامض الليمون أو الخل أو أي منظف حمضي لأن خلطهما يطلق غازاً ساماً خطيراً.',
+      ),
+      practice('l4-practice-03'),
+    ],
   },
+
+  /* ============================== الصفحة 25 ============================== */
   {
-    id: 'magnesium-lab', kind: 'simulation', title: 'قبل الاحتراق وأثناءه وبعده', attribution: 'platform', summary: 'تتبع تغير المادة لا مجرد تغير شكلها.',
-    blocks: [{ kind: 'callout', tone: 'warning', attribution: 'platform', title: 'محاكاة تعليمية، لا تجربة منزلية', text: 'تجرى تجربة الشريط في المخبر بإشراف المعلم. لا تحدق في الضوء الشديد، ولا تمسك الشريط باليد، ولا تنفذها من أجل المحاكاة.' }, { kind: 'interactive', interactiveId: 'magnesium-combustion-lab' }],
+    id: 'magnesium-experiment',
+    kind: 'source',
+    title: 'تفاعل احتراق المغنزيوم: أجرب وأستنتج',
+    summary: 'أدوات التجربة وخطوات التنفيذ والأسئلة الثلاثة في الصفحة 25.',
+    attribution: 'mixed',
+    source: source('25', 'احتراق المغنزيوم — أدوات التجربة وخطوات التنفيذ', 'image-2.png'),
+    blocks: [
+      quote('25', 'تفاعل احتراق المغنزيوم:'),
+      quote('25', 'أجرّب وأستنتج:'),
+      quote('25', 'أدوات التجربة: شريط مغنزيوم، ملقط، موقد، نظارات واقية، جفنة خزفية تحوي قليلاً من الرمل.'),
+      quote('25', 'خطوات التنفيذ:'),
+      ...q('l4-mg-observation'),
+      {
+        kind: 'diagram',
+        diagramId: 'source-figure-p25-magnesium',
+        title: 'الشكل التخطيطي لتجربة احتراق شريط المغنزيوم (ص25)',
+        description:
+          'رسم توضيحي يبيّن إمساك شريط المغنزيوم بالملقط فوق الموقد وجفنة الرمل، والوهج الأبيض الساطع والدخان الأبيض، والمسحوق الأبيض الهش (أكسيد المغنزيوم) المتكون بعد التفاعل.',
+        attribution: 'platform',
+      },
+      lesson4Figures.magnesium,
+      ...q('l4-mg-q1', 'l4-mg-q2', 'l4-mg-q3'),
+    ],
   },
+
   {
-    id: 'reaction-definition', kind: 'source', title: 'أستنتج: التفاعل الكيميائي وعلاماته', attribution: 'textbook', source: source('25', 'أستنتج — تعريف التفاعل وما يرافقه'),
-    blocks: [quote('25', 'أستنتج:'), quote('25', 'التفاعل الكيميائي: تحوّل يطرأ على مواد كيميائية (مواد متفاعلة) وتتكون مواد جديدة (مواد ناتجة).'), quote('25', 'غالباً ما يرافق التفاعلات الكيميائية: تغيّر في اللون أو تشكّل راسب أو انطلاق غاز أو نشر حرارة .........')],
+    id: 'magnesium-lab',
+    kind: 'simulation',
+    title: 'قبل الاحتراق وأثناءه وبعده',
+    summary: 'تتبع تغير المادة من فلز المغنزيوم إلى مركب أكسيد المغنزيوم الأبيض.',
+    attribution: 'platform',
+    blocks: [
+      warning(
+        'محاكاة تعليمية، لا تجربة منزلية',
+        'تُجرى تجربة شريط المغنزيوم في المخبر بإشراف المعلم مع النظارة الواقية والملقط وجفنة الرمل. لا تحدق مباشرة في الضوء الأبيض الشديد ولا تمسك الشريط باليد.',
+      ),
+      { kind: 'interactive', interactiveId: 'magnesium-combustion-lab' },
+    ],
   },
+
   {
-    id: 'reactants-explained', kind: 'explanation', title: 'كيف نميز المتفاعلات والنواتج؟', attribution: 'platform',
-    blocks: [explanation('المتفاعلات مواد البداية التي تدخل التفاعل، والنواتج مواد جديدة تتكون منه. في الشريط: المغنزيوم وأكسجين الهواء متفاعلان، والأكسيد الأبيض ناتج. الملقط والنظارة والموقد أدوات؛ والتسخين شرط وليس مادة نضعها بجانب المغنزيوم.'),
-      explanation('نفصل المشاهدة عن التفسير: «ظهرت فقاعات» ملاحظة، و«انطلق غاز أثناء تفاعل» تفسير. «تعكر السائل» ملاحظة، و«تكون راسب» تفسير. يتقوى الحكم بتكون مادة جديدة في سياق التجربة؛ ليس كل تغير لون أو كل فقاعة في أي ظرف دليلاً كافياً وحده.'),
-      { kind: 'callout', tone: 'note', attribution: 'platform', title: 'انتبه إلى «غالباً»', text: 'لا يلزم أن نشاهد كل العلامات في التفاعل نفسه. وعدم وجود فقاعات لا ينفي التفاعل. كذلك لا نقول إن كل التفاعلات مستحيلة العكس؛ المقصود في الشريط أنه لا يرجع إلى حالته الأصلية بمجرد تبريد الأكسيد أو تغيير شكله.' }],
+    id: 'reaction-definition',
+    kind: 'source',
+    title: 'أستنتج: التفاعل الكيميائي وعلاماته',
+    summary: 'التعريف الرسمي للتفاعل الكيميائي والدلائل المرافقة له في الصفحة 25.',
+    attribution: 'mixed',
+    source: source('25', 'أستنتج — تعريف التفاعل وما يرافقه', 'image-2.png'),
+    blocks: [
+      quote('25', 'أستنتج:'),
+      quote('25', 'التفاعل الكيميائي: تحوّل يطرأ على مواد كيميائية (مواد متفاعلة) وتتكون مواد جديدة (مواد ناتجة).'),
+      quote(
+        '25',
+        'غالباً ما يرافق التفاعلات الكيميائية: تغيّر في اللون، أو تشكّل راسب، أو انطلاق غاز، أو نشر حرارة، ..........',
+      ),
+      note(
+        'لماذا قال الكتاب «غالباً» ووضع نقاطاً في نهاية السطر؟',
+        'تعني كلمة «غالباً» وحرف «أو» أنه لا يُشترط اجتماع الدلائل الأربعة كلها في تفاعل واحد؛ فقد يكفي دليل واحد أو أكثر، وتشير النقاط إلى ظواهر أخرى مرافقة مثل انبعاث الضوء الساطع الذي شاهدناه عند احتراق المغنزيوم.',
+      ),
+    ],
   },
+
   {
-    id: 'magnesium-word-activity', kind: 'source', title: 'نشاط: الغاز والناتج والمعادلة اللفظية', attribution: 'textbook', source: source('25', 'نشاط احتراق المغنزيوم — الفروع 1–3'),
-    blocks: [quote('25', 'نشاط: في التجربة السابقة:'), ...q('l4-mg-act1', 'l4-mg-act2', 'l4-mg-act3'),
-      { kind: 'word-equation', attribution: 'textbook', reactants: ['المغنزيوم', '................'], products: ['................'], condition: 'تسخين', reactantRoles: ['(مادة متفاعلة)', '(مادة متفاعلة)'], productRoles: ['(مادة ناتجة)'] }],
+    id: 'roles-comparison',
+    kind: 'comparison',
+    title: 'كيف نميّز المواد المتفاعلة والناتجة عن شروط التفاعل وأدوات التجربة؟',
+    summary: 'جدول فرز منهجي يمنع خلط «التسخين» أو الملقط بالمواد الكيميائية المتفاعلة.',
+    attribution: 'platform',
+    blocks: [
+      prose(
+        'المواد المتفاعلة هي مواد البداية التي تدخل ذراتها في التفاعل، والمواد الناتجة هي المواد الجديدة المتكونة بعده. انتبه جيداً: الطاقة اللازمة لبدء التفاعل (مثل التسخين) وأدوات السلامة ليست مواد متفاعلة!',
+      ),
+      table(
+        'فرز عناصر تجربة احتراق المغنزيوم حسب دورها العلمي',
+        [
+          { key: 'element', header: 'العنصر المذكور في التجربة', rowHeader: true },
+          { key: 'role', header: 'تصنيفه العلمي' },
+          { key: 'place', header: 'موضعه في المعادلة اللفظية' },
+        ],
+        [
+          { id: 'r1', cells: { element: 'شريط المغنزيوم + غاز الأكسجين', role: 'مواد متفاعلة', place: 'تُكتب قبل السهم (يساراً) مفصولة بعلامة (+).' } },
+          { id: 'r2', cells: { element: 'أكسيد المغنزيوم الأبيض', role: 'مادة ناتجة', place: 'تُكتب بعد السهم (يميناً).' } },
+          { id: 'r3', cells: { element: 'التسخين بلهب الموقد', role: 'شرط لبدء التفاعل', place: 'يُكتب فوق السهم ولا يُجمع مع المتفاعلات.' } },
+          { id: 'r4', cells: { element: 'الملقط والنظارة وجفنة الرمل', role: 'أدوات سلامة وتجريب', place: 'لا تُكتب في المعادلة الكيميائية.' } },
+        ],
+      ),
+      practice('l4-practice-04'),
+      practice('l4-practice-05'),
+      practice('l4-practice-06'),
+    ],
   },
+
   {
-    id: 'word-equation-activities', kind: 'source', title: 'نشاط: الحديد والكبريت، وتكون الماء', attribution: 'textbook', source: source('26', 'نشاط المعادلات اللفظية — 1 و2'),
+    id: 'magnesium-word-activity',
+    kind: 'source',
+    title: 'نشاط: في التجربة السابقة (المغنزيوم والأكسجين)',
+    summary: 'البنود الثلاثة ومخطط المعادلة اللفظية في أسفل الصفحة 25.',
+    attribution: 'textbook',
+    source: source('25', 'نشاط — في التجربة السابقة', 'image-2.png'),
+    blocks: [
+      quote('25', 'نشاط: في التجربة السابقة:'),
+      ...q('l4-mg-act1', 'l4-mg-act2', 'l4-mg-act3'),
+      {
+        kind: 'word-equation',
+        attribution: 'textbook',
+        reactants: ['المغنزيوم', '................'],
+        products: ['................'],
+        condition: 'تسخين',
+        reactantRoles: ['(مادة متفاعلة)', '(مادة متفاعلة)'],
+        productRoles: ['(مادة ناتجة)'],
+      },
+    ],
+  },
+
+  {
+    id: 'worked-example-magnesium',
+    kind: 'example',
+    title: 'مثال محلول خطوة بخطوة: استنتاج صيغة MgO وصيغة كبريتيد الحديد II',
+    summary: 'ربط تسمية المركب الثنائي باستنتاج صيغته المتعادلة وتدريب موجَّه.',
+    attribution: 'platform',
+    blocks: [
+      proc('كيف نستنتج صيغة أكسيد المغنزيوم (البند ٢ من نشاط ص25)؟', [
+        'الخطوة 1 — نسمّي المركب الثنائي من اتحاد المغنزيوم بالأكسجين: «أكسيد المغنزيوم».',
+        'الخطوة 2 — نكتب رمز الفلز يساراً Mg (تكافؤه 2) ورمز الأكسجين يميناً O (تكافؤه 2).',
+        'الخطوة 3 — بما أن التكافؤين متساويان (2 و2)، نختصر النسبة إلى أبسط صورة (1 : 1) ولا نكتب الرقم 1 فنحصل على MgO.',
+      ]),
+      chem('MgO', 'صيغة أكسيد المغنزيوم المتعادلة'),
+      tex('\\frac{2}{2} = \\frac{1}{1} \\implies (+2)(1) + (-2)(1) = 0', 'التحقق من التعادل الكهربائي لمركب أكسيد المغنزيوم MgO.'),
+      practice('l4-practice-07'),
+      practice('l4-practice-08'),
+      practice('l4-practice-09'),
+    ],
+  },
+
+  /* ============================== الصفحة 26 ============================== */
+  {
+    id: 'word-equation-activities',
+    kind: 'source',
+    title: 'نشاط: الحديد والكبريت، وتكوّن الماء',
+    summary: 'نشاطا المعادلات اللفظية في مطلع الصفحة 26.',
+    attribution: 'textbook',
+    source: source('26', 'نشاط المعادلات اللفظية — 1 و2', 'image-3.png'),
     blocks: [quote('26', 'نشاط:'), ...q('l4-word-iron', 'l4-word-water')],
   },
+
   {
-    id: 'word-equation-lab', kind: 'activity', title: 'باني المعادلات اللفظية', attribution: 'platform',
-    blocks: [explanation('نكتب أسماء مواد البداية قبل السهم وأسماء المواد الجديدة بعده. علامة الجمع تجمع مواد الطرف نفسه، والسهم يعني «ينتج» ولا يقلب ليتبع اتجاه الفقرة العربية. في هذا النشاط يتغير تركيب البطاقة فعلاً بحسب اختيارك، ويظهر التحقق عند طلبه فقط.'), { kind: 'interactive', interactiveId: 'word-equation-lab' }],
+    id: 'word-equation-method',
+    kind: 'explanation',
+    title: 'قواعد كتابة المعادلة اللفظية وما معنى الرقم الروماني II؟',
+    summary: 'ضبط اتجاه السهم من اليسار إلى اليمين وفهم دلالة II في «كبريتيد الحديد II».',
+    attribution: 'platform',
+    blocks: [
+      proc('القاعدة الذهبية لبناء أي معادلة كيميائية لفظية', [
+        'تُقرأ سلسلة المعادلة في هذا الكتاب من اليسار إلى اليمين: المواد المتفاعلة قبل السهم، والمواد الناتجة بعد السهم.',
+        'علامة (+) بين المتفاعلات تعني «يتفاعل مع»، وعلامة (+) بين النواتج تعني «وينتج معه»، والسهم (→) يعني «يعطي / ينتج عنه».',
+        'توضع شروط التفاعل (مثل: تسخين) فوق السهم عند ذكرها، ولا يُقلب اتجاه السهم ليتبع اتجاه السطر العربي.',
+        'عندما يبدأ الوصف العربي بالناتج مثل «تكوّن الماء من تفاعل غازي الهدروجين والأكسجين»، نضع المتفاعلين (الهدروجين + الأكسجين) يسار السهم والناتج (الماء) يمين السهم.',
+      ]),
+      method(
+        'لماذا كتب الكتاب «كبريتيد الحديد II» بالرقم الروماني؟',
+        'كما تعلمت في جدول تكافؤات الصفحة 20، لعنصر الحديد تكافؤان شائعان هما (2) و(3)، بينما للمغنزيوم والزنك تكافؤ ثابت وحيد (2). لذلك نكتب الرقم الروماني II بعد الحديد للدلالة على أن تكافؤ الحديد في هذا المركب ثنائي (وصيغته FeS)، ولا نحتاج إلى رقم روماني في أكسيد المغنزيوم أو أكسيد الزنك.',
+      ),
+    ],
   },
+
   {
-    id: 'burner-experiment', kind: 'source', title: 'أجرب وأستنتج: الهواء ولهب موقد بنزن', attribution: 'textbook', source: source('26', 'موقد بنزن — الأدوات والتنفيذ والأسئلة الأربعة'),
-    blocks: [quote('26', 'أجرّب وأستنتج:'), quote('26', 'أدوات التجربة: موقد بنزن في المخبر له ثقب فوق الصمام يسمح بدخول الهواء – صحن خزف.'), quote('26', 'خطوات التنفيذ:'),
-      ...q('l4-burner-observe1', 'l4-burner-observe2'), lesson4Figures.burner,
-      ...q('l4-burner-q1', 'l4-burner-q2', 'l4-burner-q3', 'l4-burner-q4')],
+    id: 'worked-example-word-equations',
+    kind: 'example',
+    title: 'أمثلة محلولة وتدريب متدرج على المعادلات اللفظية والتسمية',
+    summary: 'مقارنة تفاعلات الأكسجين والكبريت وتثبيت اتجاه المعادلة اللفظية.',
+    attribution: 'platform',
+    blocks: [
+      word(['الحديد', 'الكبريت'], ['كبريتيد الحديد II']),
+      word(['الهدروجين', 'الأكسجين'], ['الماء']),
+      note(
+        'ربط تمهيدي بالدرس الخامس القادم',
+        'نكتفي في الدرس الرابع بالمعادلات الكيميائية اللفظية كما عرضها الكتاب؛ أما قانون انحفاظ الكتلة وعدد الذرات وموازنة المعادلات فستدرسها بالتفصيل في الدرس الخامس القادم.',
+      ),
+      practice('l4-practice-10'),
+      practice('l4-practice-11'),
+      practice('l4-practice-12'),
+      practice('l4-practice-13'),
+    ],
   },
+
   {
-    id: 'combustion-conclusions', kind: 'source', title: 'أستنتج: الاحتراق التام وغير التام', attribution: 'textbook', source: source('26', 'أستنتج — الاحتراق وأنواعه وشروط الأكسجين'),
-    blocks: [quote('26', 'أستنتج:'), quote('26', 'الاحتراق: هو تفاعل المادة مع الأكسجين عند درجة حرارة مناسبة.'), quote('26', 'تختلف نواتج الاحتراق حسب كمية الهواء (الأكسجين) المتوفرة.'), quote('26', 'الاحتراق نوعان: تام وغير تام.'),
-      { kind: 'list', attribution: 'textbook', ordered: true, items: ['يحدث الاحتراق التام عندما تتوافر كمية كافية من الأكسجين.', 'يحدث الاحتراق غير التام عندما تكون كمية الأكسجين غير كافية.'] }],
+    id: 'word-equation-lab',
+    kind: 'simulation',
+    title: 'باني المعادلات اللفظية (التفاعلات السبعة)',
+    summary: 'ركّب المتفاعلات والنواتج حول السهم للتفاعلات السبعة الواردة في الدرس الرابع.',
+    attribution: 'platform',
+    blocks: [
+      prose(
+        'اختر واحداً من التفاعلات السبعة، وضع أسماء مواد البداية قبل السهم وأسماء المواد الجديدة بعده، ثم اضغط «تحقق من المعادلة» لمراجعة الحل.',
+      ),
+      { kind: 'interactive', interactiveId: 'word-equation-lab' },
+    ],
   },
+
   {
-    id: 'burner-lab', kind: 'simulation', title: 'تحكم بالهواء، وقارن النواتج', attribution: 'platform', summary: 'الحالتان (1) و(2) كما يربطهما المصدر بكمية الأكسجين.',
-    blocks: [{ kind: 'interactive', interactiveId: 'combustion-air-lab' }, explanation('تغير فتحة الهواء كمية الأكسجين المتاحة. في موقد الكتاب، كفاية الأكسجين تعطي احتراقاً تاماً ولهباً أزرق وصحناً دون سواد. النقص يؤدي إلى احتراق غير تام، ولهب أصفر وسخام. المحاكاة نوعية؛ لا تقدم نسبة أكسجين أو حرارة أو زمن ترسب غير وارد في المصدر.')],
+    id: 'burner-experiment',
+    kind: 'source',
+    title: 'أجرب وأستنتج: الهواء ولهب موقد بنزن',
+    summary: 'أدوات وتنفيذ وأسئلة تجربة موقد بنزن وصحن الخزف بالحالتين (1) و(2) في الصفحة 26.',
+    attribution: 'mixed',
+    source: source('26', 'موقد بنزن — الأدوات والتنفيذ والأسئلة الأربعة', 'image-3.png'),
+    blocks: [
+      quote('26', 'أجرّب وأستنتج:'),
+      quote('26', 'أدوات التجربة: موقد بنزن في المخبر له ثقب فوق الصمام يسمح بدخول الهواء – صحن خزف.'),
+      quote('26', 'خطوات التنفيذ:'),
+      ...q('l4-burner-observe1', 'l4-burner-observe2'),
+      {
+        kind: 'diagram',
+        diagramId: 'source-figure-p26-burner',
+        title: 'الشكل التخطيطي لمقارنة الحالتين (1) و(2) في موقد بنزن (ص26)',
+        description:
+          'إعادة بناء تخطيطية لشكل الصفحة 26 بعموديه وصفيه: يميناً الحالة (1) بثقب هواء مفتوح ولهب أزرق وصحن خزف نظيف، ويساراً الحالة (2) بثقب مغلق جزئياً ولهب أصفر وطبقة سوداء على صحن الخزف.',
+        attribution: 'platform',
+      },
+      lesson4Figures.burner,
+      ...q('l4-burner-q1', 'l4-burner-q2', 'l4-burner-q3', 'l4-burner-q4'),
+    ],
   },
+
   {
-    id: 'products-explained', kind: 'explanation', title: 'لماذا تظهر الطبقة السوداء؟', attribution: 'platform',
-    blocks: [explanation('في احتراق البوتان التام ينتج ثنائي أكسيد الكربون والماء. عندما لا يكفي الأكسجين قد يتكون أحادي أكسيد الكربون و/أو الكربون مع الماء؛ وقد يتضمن الخليط أيضاً ثنائي أكسيد الكربون. لا يحدد المصدر نسباً ثابتة للنواتج، لذلك لا نعرضها كأنها قياسات.'),
-      explanation('الطبقة السوداء في تجربة الصحن كربون ترسب كسخام نتيجة عدم تمام احتراق الوقود. ليست غاز CO نفسه ولا CO₂، وليست مادة الصحن وقد تحولت إلى فلز. أما الناتج الأبيض عند احتراق المغنزيوم فهو أكسيد المغنزيوم؛ فلا نخلط بين نوعي التجارب.'),
-      { kind: 'callout', tone: 'note', title: 'لون اللهب وصف لشروط التجربة، لا قانون لكل مادة', attribution: 'platform', text: 'نستعمل المقارنة الأزرق/الأصفر في موقد الوقود المصور في الكتاب. لا نعمم أن كل لهب غير أزرق احتراق غير تام؛ للمغنزيوم مثلاً ضوء أبيض شديد السطوع. نسأل دائماً: ما المادة؟ وما الأكسجين المتاح؟ وما النواتج؟' }],
+    id: 'combustion-conclusions',
+    kind: 'source',
+    title: 'أستنتج: الاحتراق التام وغير التام',
+    summary: 'تعريف الاحتراق وقاعدة تغير نواتجه ونوعاه في أسفل الصفحة 26.',
+    attribution: 'textbook',
+    source: source('26', 'أستنتج — الاحتراق وأنواعه وشروط الأكسجين', 'image-3.png'),
+    blocks: [
+      quote('26', 'أستنتج:'),
+      quote('26', 'الاحتراق: هو تفاعل المادة مع الأكسجين عند درجة حرارة مناسبة.'),
+      quote('26', 'تختلف نواتج الاحتراق حسب كمية الهواء (الأكسجين) المتوفرة.'),
+      quote('26', 'الاحتراق نوعان: تام وغير تام'),
+      {
+        kind: 'list',
+        attribution: 'textbook',
+        ordered: true,
+        items: [
+          'يحدث الاحتراق التام عندما تتوافر كمية كافية من الأكسجين.',
+          'يحدث الاحتراق غير التام عندما تكون كمية الأكسجين غير كافية.',
+        ],
+      },
+    ],
   },
+
   {
-    id: 'household-gas', kind: 'source', title: 'هل تعلم؟! الغاز المنزلي', attribution: 'textbook', source: source('27', 'هل تعلم؟!'),
-    blocks: [quote('27', 'هل تعلم؟!'), quote('27', 'الغاز المنزلي مكوّن من خليط غازي (البوتان والبروبان) لا رائحة له ولا لون يضاف له مادة عضوية (المركبتان) لها رائحة قوية لاكتشاف أي تسرب للغاز. وعند تركيب أسطوانة الغاز استخدم رغوة الماء والصابون للتأكد من وجود تسرب.')],
+    id: 'burner-lab',
+    kind: 'simulation',
+    title: 'تحكم بالهواء، وقارن النواتج',
+    summary: 'بدّل بين الحالتين (1) و(2) لملاحظة أثر فتحة الهواء في لون اللهب وصحن الخزف ونواتج الاحتراق.',
+    attribution: 'platform',
+    blocks: [
+      { kind: 'interactive', interactiveId: 'combustion-air-lab' },
+      prose(
+        'تتحكم فتحة الهواء فوق الصمام بكمية الأكسجين الداخلة إلى الموقد: كفاية الأكسجين في الحالة (1) تعطي احتراقاً تاماً بلهب أزرق وصحن خزف نظيف، بينما يؤدي تضييق الثقب في الحالة (2) إلى نقص الأكسجين وحدوث احتراق غير تام بلهب أصفر وترسب سخام أسود.',
+      ),
+    ],
   },
+
   {
-    id: 'carbon-monoxide', kind: 'source', title: 'إضاءة: أحادي أكسيد الكربون', attribution: 'textbook', source: source('27', 'إضاءة'),
-    blocks: [quote('27', 'إضاءة:'), quote('27', 'غاز أحادي أكسيد الكربون (CO) عديم اللون سام جداً، يتّحد مع كريات الدم الحمراء فيمنعها من نقل الأكسجين ممّا يسبب الإعياء واضطراب دقات القلب.')],
+    id: 'combustion-comparison',
+    kind: 'comparison',
+    title: 'مقارنة شاملة: الاحتراق التام وغير التام لغاز البوتان وتفسير الطبقة السوداء',
+    summary: 'جدول موازنة منظم وتنبيه علمي حول لون اللهب وتدريب تطبيقي من ستة أسئلة.',
+    attribution: 'platform',
+    blocks: [
+      table(
+        'موازنة شاملة بين الحالة (1) والحالة (2) في احتراق الوقود الغازي (البوتان)',
+        [
+          { key: 'aspect', header: 'وجه المقارنة', rowHeader: true },
+          { key: 'complete', header: 'الاحتراق التام — الحالة (1)' },
+          { key: 'incomplete', header: 'الاحتراق غير التام — الحالة (2)' },
+        ],
+        [
+          { id: 'air', cells: { aspect: 'ثقب الهواء وكمية الأكسجين', complete: 'مفتوح — كمية الأكسجين كافية.', incomplete: 'مغلق جزئياً — كمية الأكسجين غير كافية.' } },
+          { id: 'flame', cells: { aspect: 'لون اللهب في الموقد', complete: 'أزرق هادئ.', incomplete: 'أصفر مضيء لتوهج دقائق الكربون.' } },
+          { id: 'dish', cells: { aspect: 'حال صحن الخزف', complete: 'يبقى نظيفاً بلا طبقة سوداء.', incomplete: 'تترسب عليه طبقة سوداء من الكربون (السخام).' } },
+          {
+            id: 'products',
+            cells: {
+              aspect: 'نواتج احتراق البوتان',
+              complete: 'ثنائي أكسيد الكربون + الماء.',
+              incomplete: 'أحادي أكسيد الكربون (CO) السام و/أو الكربون الأسود (السخام) + الماء (وقد يوجد أيضاً ثنائي أكسيد الكربون).',
+            },
+          },
+        ],
+      ),
+      note(
+        'لون اللهب وصف لموقد الوقود، لا قاعدة لكل مادة محترقة',
+        'نستعمل مقارنة اللهب الأزرق بالأصفر في موقد الوقود الكربوني المرسوم في الكتاب؛ أما شريط المغنزيوم فيحترق في الهواء بضوء أبيض شديد السطوع لتكوين أكسيد المغنزيوم الأبيض دون أن يعني ذلك سخاماً كربونياً.',
+      ),
+      practice('l4-practice-14'),
+      practice('l4-practice-15'),
+      practice('l4-practice-16'),
+      practice('l4-practice-17'),
+      practice('l4-practice-18'),
+      practice('l4-practice-19'),
+    ],
   },
+
+  /* ============================== الصفحة 27 ============================== */
   {
-    id: 'research-heaters', kind: 'source', title: 'قضية للبحث: المدافئ والغرف المغلقة', attribution: 'textbook', source: source('27', 'قضية للبحث'),
+    id: 'household-gas',
+    kind: 'source',
+    title: 'هل تعلم؟! الغاز المنزلي وكشف التسرب',
+    summary: 'تركيب الغاز المنزلي ومادة المركبتان وفحص التسرب برغوة الماء والصابون (ص27).',
+    attribution: 'textbook',
+    source: source('27', 'هل تعلم؟!', 'image-4.png'),
+    blocks: [
+      quote('27', 'هل تعلم؟!'),
+      quote(
+        '27',
+        'الغاز المنزلي مكون من خليط غازي (البوتان والبروبان) لا رائحة له ولالون يضاف له مادة عضوية (المركبتان) لها رائحة قوية لإكتشاف أي تسرب للغاز. وعند تركيب أسطوانة الغاز استخدم رغوة الماء والصابون للتأكد من وجود تسرب.',
+      ),
+    ],
+  },
+
+  {
+    id: 'carbon-monoxide',
+    kind: 'source',
+    title: 'إضاءة: أحادي أكسيد الكربون (CO)',
+    summary: 'سمّية غاز أحادي أكسيد الكربون وأثره في كريات الدم الحمراء (ص27).',
+    attribution: 'textbook',
+    source: source('27', 'إضاءة', 'image-4.png'),
+    blocks: [
+      quote('27', 'إضاءة:'),
+      quote(
+        '27',
+        'غاز أحادي أكسيد الكربون (CO) عديم اللون سام جداً. يتّحد مع كريات الدم الحمراء فيمنعها من نقل الأكسجين ممّا يسبّب الإعياء واضطراب دقّات القلب.',
+      ),
+    ],
+  },
+
+  {
+    id: 'research-heaters',
+    kind: 'source',
+    title: 'قضية للبحث: المدافئ والغرف المغلقة',
+    summary: 'قضية البحث في الصفحة 27 حول خطر مدافئ الوقود في الغرف محكمة الإغلاق شتاءً.',
+    attribution: 'textbook',
+    source: source('27', 'قضية للبحث', 'image-4.png'),
     blocks: [quote('27', 'قضية للبحث:'), ...q('l4-research')],
   },
+
   {
-    id: 'research-guidance', kind: 'explanation', title: 'ابن تفسيراً آمناً: من الأكسجين إلى الخطر', attribution: 'platform',
-    blocks: [explanation('ابدأ بالظروف: مدفأة وقود في غرفة محكمة الإغلاق. الاحتراق يستهلك الأكسجين، والتهوية الضعيفة قد تحد تجدد الهواء. مع نقص الأكسجين يحتمل الاحتراق غير التام وتكون CO وتراكمه. هذا الغاز يعيق نقل الأكسجين بالدم؛ لذلك لا تكون المشكلة مجرد دفء زائد أو رائحة مزعجة.'),
-      { kind: 'callout', tone: 'warning', title: 'تمييز اختبارين، وحماية الحياة', attribution: 'platform', text: 'رائحة المركبتان تساعد على اكتشاف تسرب غاز الوقود؛ عدمها لا يضمن غياب CO. رغوة الماء والصابون فحص تسرب، أما رائق الكلس فكاشف CO₂ في تجربة الدرس. لا تجرب توليد غاز سام، ولا تستخدم اللهب لكشف التسرب. عند الاشتباه بخطر الغاز يخرج الأشخاص إلى الهواء النقي ويطلبون المساعدة المختصة؛ وتراعى التهوية وسلامة أجهزة التدفئة وفق تعليمات المختصين.' }],
+    id: 'worked-example-gas-safety',
+    kind: 'example',
+    title: 'تحليل السلامة: التمييز بين الغاز المنزلي وCO وثنائي أكسيد الكربون',
+    summary: 'بناء التفسير السببي لقضية البحث والتمييز بين طرائق الكشف والوقاية وتدريب تطبيقي.',
+    attribution: 'platform',
+    blocks: [
+      chem('CO', 'صيغة غاز أحادي أكسيد الكربون — ذرة كربون واحدة وذرة أكسجين واحدة'),
+      table(
+        'تمييز حاسم بين الغازات الثلاثة وطرائق الكشف والسلامة في الدرس الرابع',
+        [
+          { key: 'gas', header: 'الغاز', rowHeader: true },
+          { key: 'source', header: 'متى نواجهه؟' },
+          { key: 'check', header: 'طريقة الكشف أو الوقاية الصحيحة' },
+        ],
+        [
+          {
+            id: 'lpg',
+            cells: {
+              gas: 'خليط البوتان والبروبان (الغاز المنزلي)',
+              source: 'وقود أسطوانة الغاز قبل احتراقه.',
+              check: 'تُضاف إليه مادة المركبتان ذات الرائحة القوية، ويُفحص موضع الوصل برغوة الماء والصابون لا باللهب.',
+            },
+          },
+          {
+            id: 'co',
+            cells: {
+              gas: 'أحادي أكسيد الكربون (CO)',
+              source: 'ينتج عن الاحتراق غير التام للوقود عند نقص الأكسجين في الغرف المغلقة.',
+              check: 'عديم اللون والرائحة (المركبتان لا يكشفه!)؛ يتحد بكريات الدم الحمراء ويُتقى بالتهوية الدائمة وصيانة المدافئ.',
+            },
+          },
+          {
+            id: 'co2',
+            cells: {
+              gas: 'ثنائي أكسيد الكربون',
+              source: 'ينتج عن الاحتراق التام للوقود وعن تفاعل الكربونة مع حامض الليمون.',
+              check: 'يُكشف عنه تجريبياً بإمراره في رائق الكلس الصافي فيتعكر بتشكل راسب أبيض.',
+            },
+          },
+        ],
+      ),
+      practice('l4-practice-20'),
+      practice('l4-practice-21'),
+      practice('l4-practice-22'),
+      practice('l4-practice-23'),
+      practice('l4-practice-24'),
+    ],
   },
+
   {
-    id: 'learned-summary', kind: 'source', title: 'تعلمت: خلاصة الكتاب', attribution: 'textbook', source: source('27', 'تعلمت — البنود الأربعة ومخطط المعادلة'),
-    blocks: [quote('27', 'تعلّمت:'), quote('27', 'التفاعل الكيميائي: تحوّل يطرأ على مواد كيميائية (مواد متفاعلة) وتتكون مواد جديدة (مواد ناتجة).'), quote('27', 'المعادلة الكيميائية اللفظية.'),
+    id: 'learned-summary',
+    kind: 'source',
+    title: 'تعلمت: خلاصة الكتاب',
+    summary: 'البنود الأربعة ومخطط المعادلة الكيميائية اللفظية في أسفل الصفحة 27.',
+    attribution: 'textbook',
+    source: source('27', 'تعلمت — البنود الأربعة ومخطط المعادلة', 'image-4.png'),
+    blocks: [
+      quote('27', 'تعلّمت:'),
+      quote('27', 'التفاعل الكيميائي: تحوّل يطرأ على مواد كيميائية (مواد متفاعلة) وتتكون مواد جديدة (مواد ناتجة).'),
+      quote('27', 'المعادلة الكيميائية اللفظية.'),
       { kind: 'word-equation', attribution: 'textbook', reactants: ['مواد متفاعلة'], products: ['مواد ناتجة'] },
-      quote('27', 'يحدث الاحتراق التام عندما تكون كمية الأكسجين كافية.'), quote('27', 'يحدث الاحتراق غير التام عندما تكون كمية الأكسجين غير كافية.')],
+      quote('27', 'يحدث الاحتراق التام عندما تكون كمية الأكسجين كافية.'),
+      quote('27', 'يحدث الاحتراق غير التام عندما تكون كمية الأكسجين غير كافية.'),
+    ],
   },
+
   {
-    id: 'book-question-1', kind: 'question', title: 'أختبر نفسي — السؤال الأول', attribution: 'textbook', source: source('28', 'السؤال الأول — الفقرات 1–4'),
-    blocks: [quote('28', 'أختبر نفسي:'), quote('28', 'السؤال الأول: اختر الإجابة الصحيحة لكل مما يأتي:'), ...q('l4-book-mc1', 'l4-book-mc2', 'l4-book-mc3', 'l4-book-mc4')],
+    id: 'misconceptions',
+    kind: 'common-error',
+    title: 'أخطاء شائعة وتصحيحها قبل حل «أختبر نفسي»',
+    summary: 'خمس نقاط تنبيه حاسمة تمنع الوقوع في الأخطاء المتكررة في الامتحانات.',
+    attribution: 'platform',
+    blocks: [
+      bullets([
+        'خطأ شائع (1): كتابة «التسخين» كمادة متفاعلة مع المغنزيوم. الصواب: المتفاعلان هما المغنزيوم والأكسجين، و«تسخين» شرط فوق السهم.',
+        'خطأ شائع (2): عكس المعادلة عند قراءة «تكوّن الماء من...». الصواب: المتفاعلات دائماً قبل السهم والناتج بعده (الهدروجين + الأكسجين → الماء).',
+        'خطأ شائع (3): الخلط بين «أكسيد الزنك» (مع الأكسجين) و«كبريتيد الزنك» (مع الكبريت).',
+        'خطأ شائع (4): اختيار «ثنائي أكسيد الكربون فقط» أو «الماء فقط» في الاحتراق التام للبوتان. الصواب: يتكونان معاً.',
+        'خطأ شائع (5): الاعتقاد أن رائحة المركبتان تكشف غاز CO المنبعث من مدفأة فحم أو حطب في غرفة مغلقة. الصواب: CO عديم اللون والرائحة.',
+      ]),
+    ],
   },
+
+  /* ============================== الصفحة 28 ============================== */
   {
-    id: 'book-question-2', kind: 'question', title: 'السؤال الثاني: أكمل التفاعلات اللفظية', attribution: 'textbook', source: source('28', 'السؤال الثاني — المعادلات الثلاث'),
-    blocks: [quote('28', 'السؤال الثاني: أكمل التفاعلات اللفظية الآتية:'), ...q('l4-book-q2-1', 'l4-book-q2-2', 'l4-book-q2-3')],
+    id: 'book-question-1',
+    kind: 'question',
+    title: 'أختبر نفسي — السؤال الأول',
+    summary: 'أسئلة الاختيار من متعدد الأربعة في الصفحة 28.',
+    attribution: 'textbook',
+    source: source('28', 'السؤال الأول — الفقرات 1–4', 'image-5.png'),
+    blocks: [
+      quote('28', 'أختبر نفسي:'),
+      quote('28', 'السؤال الأول: اختر الإجابة الصحيحة لكل مما يأتي:'),
+      ...q('l4-book-mc1', 'l4-book-mc2', 'l4-book-mc3', 'l4-book-mc4'),
+    ],
   },
+
   {
-    id: 'book-question-3', kind: 'question', title: 'السؤال الثالث: اكتب المعادلات اللفظية', attribution: 'textbook', source: source('28', 'السؤال الثالث — الفروع 1–3'),
-    blocks: [quote('28', 'السؤال الثالث: اكتب المعادلة الكيميائية اللفظية لكل من التفاعلات الآتية:'), ...q('l4-book-q3-1', 'l4-book-q3-2', 'l4-book-q3-3')],
+    id: 'book-question-2',
+    kind: 'question',
+    title: 'السؤال الثاني: أكمل التفاعلات اللفظية',
+    summary: 'إكمال النواتج في التفاعلات اللفظية الثلاثة المطبوعة في الصفحة 28.',
+    attribution: 'textbook',
+    source: source('28', 'السؤال الثاني — المعادلات الثلاث', 'image-5.png'),
+    blocks: [
+      quote('28', 'السؤال الثاني: أكمل التفاعلات اللفظية الآتية:'),
+      ...q('l4-book-q2-1', 'l4-book-q2-2', 'l4-book-q2-3'),
+    ],
   },
+
   {
-    id: 'book-question-4', kind: 'question', title: 'السؤال الرابع: قارن نواتج احتراق البوتان', attribution: 'textbook', source: source('29', 'السؤال الرابع'),
+    id: 'book-question-3',
+    kind: 'question',
+    title: 'السؤال الثالث: اكتب المعادلات اللفظية',
+    summary: 'كتابة المعادلات الكيميائية اللفظية للتفاعلات الثلاثة في أسفل الصفحة 28.',
+    attribution: 'textbook',
+    source: source('28', 'السؤال الثالث — الفروع 1–3', 'image-5.png'),
+    blocks: [
+      quote('28', 'السؤال الثالث: اكتب المعادلة الكيميائية اللفظية لكل من التفاعلات الآتية:'),
+      ...q('l4-book-q3-1', 'l4-book-q3-2', 'l4-book-q3-3'),
+    ],
+  },
+
+  /* ============================== الصفحة 29 ============================== */
+  {
+    id: 'book-question-4',
+    kind: 'question',
+    title: 'السؤال الرابع: قارن نواتج احتراق البوتان',
+    summary: 'الموازنة بين الاحتراق التام والاحتراق غير التام لغاز البوتان من حيث النواتج (ص29).',
+    attribution: 'textbook',
+    source: source('29', 'السؤال الرابع', 'image-6.png'),
     blocks: [quote('29', 'السؤال الرابع:'), ...q('l4-book-q4')],
   },
+
   {
-    id: 'book-question-5', kind: 'question', title: 'السؤال الخامس: الكشف التجريبي عن الغاز', attribution: 'textbook', source: source('29', 'السؤال الخامس'),
+    id: 'book-question-5',
+    kind: 'question',
+    title: 'السؤال الخامس: الكشف التجريبي عن الغاز',
+    summary: 'الكشف التجريبي عن غاز ثنائي أكسيد الكربون برائق الكلس (ص29).',
+    attribution: 'textbook',
+    source: source('29', 'السؤال الخامس', 'image-6.png'),
     blocks: [quote('29', 'السؤال الخامس:'), ...q('l4-book-q5')],
   },
+
   {
-    id: 'book-question-6', kind: 'question', title: 'السؤال السادس: فسر الشكلين والطبقة السوداء', attribution: 'textbook', source: source('29', 'السؤال السادس — الشكلان (1) و(2)'),
-    blocks: [quote('29', 'السؤال السادس:'), ...q('l4-book-q6')],
+    id: 'book-question-6',
+    kind: 'question',
+    title: 'السؤال السادس: فسر الشكلين والطبقة السوداء',
+    summary: 'تمييز الاحتراق في الشكلين (١) و(٢) وتعليل الطبقة السوداء في الشكل (2) بالصفحة 29.',
+    attribution: 'mixed',
+    source: source('29', 'السؤال السادس — الشكلان (1) و(2)', 'image-6.png'),
+    blocks: [
+      quote('29', 'السؤال السادس:'),
+      {
+        kind: 'diagram',
+        diagramId: 'source-figure-p29-q6',
+        title: 'الشكل التخطيطي للشكلين (١) و(٢) في السؤال السادس (ص29)',
+        description:
+          'إعادة بناء تخطيطية للشكلين المطبوعين في السؤال السادس من اليمين إلى اليسار: الشكل (١) موقد غاز منزلي بلهب أزرق، والشكل (٢) موقد بلهب أصفر وصحن خزف فوقه تتشكل تحته طبقة سوداء.',
+        attribution: 'platform',
+      },
+      ...q('l4-book-q6'),
+    ],
   },
+
   {
-    id: 'connected-summary', kind: 'summary', title: 'اربط أفكار الدرس قبل الاختبار', attribution: 'platform',
-    blocks: [{ kind: 'list', attribution: 'platform', items: ['أميز ما يحدث للمادة: التفاعل يكون مواد جديدة، لا مجرد تغيير مكانها.', 'أقرأ المعادلة اللفظية: متفاعلات، علامة جمع إن لزمت، سهم، ثم نواتج؛ التسخين شرط لا مادة.', 'أفسر الاحتراق بوجود الأكسجين ودرجة حرارة مناسبة؛ كفاية الأكسجين تحدد تمامه في ظروف المصدر.', 'أربط الصحن الأسود بالسخام ونقص الأكسجين، وأفرق ذلك عن أكسيد المغنزيوم الأبيض.', 'أفرق CO السام عن CO₂ الذي يكشف بتعكر رائق الكلس، وبين رائحة الوقود وفحص التسرب.', 'أجيب عن جميع أسئلة الاختبار قبل التسليم؛ لا تظهر الإجابات الصحيحة أو النتائج أثناء الحل.'] }],
+    id: 'connected-summary',
+    kind: 'summary',
+    title: 'اربط أفكار الدرس قبل الاختبار الشامل',
+    summary: 'مراجعة مترابطة للأهداف الستة قبل بدء الاختبار الشامل ذي العشرين سؤالاً.',
+    attribution: 'platform',
+    blocks: [
+      bullets([
+        'التفاعل الكيميائي تحول في المواد المتفاعلة يكوّن مواد ناتجة جديدة، وغالباً ما يرافقه تغير لون أو تشكل راسب أو انطلاق غاز أو نشر حرارة.',
+        'في المعادلة اللفظية نكتب أسماء المتفاعلات قبل السهم (يساراً) والنواتج بعده (يميناً)، ونضع «تسخين» فوق السهم بوصفه شرطاً لا مادة متفاعلة.',
+        'الاحتراق تفاعل المادة مع الأكسجين عند درجة حرارة مناسبة: يكون تاماً بوفرة الأكسجين، وغير تام عند نقص الأكسجين.',
+        'الاحتراق التام للبوتان ينتج ثنائي أكسيد الكربون والماء؛ وغير التام ينتج CO السام جداً و/أو الكربون الأسود (السخام) مع الماء.',
+        'يُفحص تسرب الغاز المنزلي برغوة الماء والصابون، ويُكشف ثنائي أكسيد الكربون بتعكر رائق الكلس، ويُتقى خطر CO بالتهوية الدائمة.',
+        'أجب عن جميع أسئلة الاختبار العشرين قبل التسليم؛ تظهر الدرجة والتفسيرات التفصيلية بعد إتمام المحاولة.',
+      ]),
+    ],
   },
+
   {
-    id: 'final-test', kind: 'final-test', title: 'اختبار الدرس الرابع — 20 سؤالاً', attribution: 'platform', testId: finalTest.id,
-    summary: 'اختبار أصلي محدد الإجابات؛ التصحيح بعد اكتمال الحل والتسليم فقط.', blocks: [],
+    id: 'final-test',
+    kind: 'final-test',
+    title: 'اختبار الدرس الرابع — 20 سؤالاً',
+    summary: 'اختبار أصلي محدد الإجابات يغطي الأهداف الستة؛ التصحيح بعد اكتمال الحل والتسليم فقط.',
+    attribution: 'platform',
+    testId: finalTest.id,
+    minutes: 30,
+    blocks: [],
   },
 ]
 
 export const chemistryLesson4: LessonDefinition = {
-  id: 'chem-u1-l4', slug: 'chemical-reactions', title: 'الدرس الرابع — التفاعلات الكيميائية', order: 4, status: 'source-verified',
-  source: {
-    pages: ['24', '25', '26', '27', '28', '29'].map((page) => ref(page)), verified: true,
-    readability: { arabicText: 'clear', latinText: 'clear', equations: 'clear', numbers: 'clear', units: 'clear', tables: 'clear', diagrams: 'partial', experiments: 'clear', questions: 'clear', notes: 'Two source-wording mismatches (p26 procedure; p27 gas-note pronoun) were corrected from the attached pages. A user-provided p24 crop confirms that the red right-photo caption reads exactly «إضافة قطرات ليمون إلى بيكربونات الصوديوم (الكربونة)»; the existing lesson quotation matched it and was retained. The original photograph is not embedded: figure blocks remain descriptive references, not reproduced scans. No measured quantities or tables are printed.' },
-  },
-  summary: 'التفاعل الكيميائي ومواده، المعادلات اللفظية، احتراق المغنزيوم، أثر الأكسجين في الاحتراق التام وغير التام، الغاز المنزلي وخطر أحادي أكسيد الكربون، والكشف عن ثنائي أكسيد الكربون.',
-  steps, tests: [bookAssessment, finalTest],
+  id: 'chem-u1-l4',
+  slug: 'chemical-reactions',
+  title: 'الدرس الرابع — التفاعلات الكيميائية',
+  order: 4,
+  status: 'source-verified',
+  source: verifiedSource,
+  summary:
+    'التفاعل الكيميائي ومواده ودلائله، المعادلات اللفظية وقراءة كبريتيد الحديد II، احتراق شريط المغنزيوم واستنتاج صيغة MgO، أثر كمية الأكسجين في الاحتراق التام وغير التام لغاز البوتان، الغاز المنزلي وخطر أحادي أكسيد الكربون (CO)، والكشف التجريبي عن ثنائي أكسيد الكربون.',
+  steps,
+  tests: [bookAssessment, practiceAssessment, finalTest],
 }
+
+export default chemistryLesson4
