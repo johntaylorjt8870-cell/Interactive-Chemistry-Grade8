@@ -277,7 +277,12 @@ function Block({
       return (
         <ScientificTable
           caption={block.caption}
-          columns={block.columns.map((column) => ({ ...column }))}
+          columns={block.columns.map((column) => ({
+            ...column,
+            // Headers are authored prose: they may name a species (`Na⁺`) and
+            // must get the same structured promotion as every other surface.
+            header: renderFigureCaption(column.header),
+          }))}
           rows={block.rows.map((row) => ({
             id: row.id,
             cells: Object.fromEntries(
@@ -286,7 +291,11 @@ function Block({
             selected: row.selected,
             active: row.active,
           }))}
-          footnote={block.footnote}
+          footnote={
+            block.footnote ? (
+              <ScientificNotationText as="span">{block.footnote}</ScientificNotationText>
+            ) : undefined
+          }
         />
       )
 

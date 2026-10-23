@@ -419,7 +419,9 @@ function MatchingControl({
           <div className="matching__row" key={left.id}>
             <ScientificNotationText as="span" className="matching__left">{left.label}</ScientificNotationText>
             <label className="field field--inline">
-              <span className="visually-hidden">مطابقة {left.label}</span>
+              <span className="visually-hidden">
+                مطابقة <ScientificNotationText as="span">{left.label}</ScientificNotationText>
+              </span>
               <select
                 className="field__select"
                 name={`${groupId}-${left.id}`}
