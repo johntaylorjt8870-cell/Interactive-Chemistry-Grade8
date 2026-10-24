@@ -111,6 +111,20 @@ function normalizeNotation(value) {
   return value.replace(/[₀₁₂₃₄₅₆₇₈₉]/gu, (digit) => String('₀₁₂₃₄₅₆₇₈₉'.indexOf(digit)))
 }
 
+/**
+ * The step definition does not carry an `interactiveId`; the id lives on the
+ * `interactive` content block. Earlier revisions compared `step.interactiveId`
+ * (always undefined), so the lab checks below silently never ran. This helper
+ * reads the real block, keeping the browser walk honest.
+ */
+function interactiveIdOf(step) {
+  return (step.blocks ?? []).find((block) => block.kind === 'interactive')?.interactiveId
+}
+
+function diagramIdsOf(step) {
+  return (step.blocks ?? []).filter((block) => block.kind === 'diagram').map((block) => block.diagramId)
+}
+
 const checks = []
 const failures = []
 function check(name, passed, details = undefined) {
@@ -145,7 +159,7 @@ try {
   page.setDefaultTimeout(15000)
   page.on('pageerror', (error) => failures.push(`browser error: ${error.message}`))
 
-  const screenshotSteps = new Set([0, 1, 5, 6, 7, 12, 13, 14, 19])
+  const screenshotSteps = new Set([0, 1, 4, 5, 7, 8, 10, 16, 18, 21, 29, 32])
   const viewports = [
     { name: 'desktop', width: 1365, height: 960 },
     { name: 'mobile', width: 390, height: 844 },
@@ -239,7 +253,7 @@ try {
       }
 
       // --- Real interaction: the ionic lab must reach the crystal stage. ---
-      if (step.kind === 'simulation' && step.interactiveId === 'ionic-bonding-lab') {
+      if (interactiveIdOf(step) === 'ionic-bonding-lab') {
         const advance = await page.$('.ionic-bond-lab .button--primary')
         check(`${viewport.name}: ionic lab exposes an advance control`, Boolean(advance))
         for (let press = 0; press < 3; press += 1) {
@@ -265,7 +279,7 @@ try {
       }
 
       // --- Real interaction: the covalent lab must switch molecules. ---
-      if (step.kind === 'simulation' && step.interactiveId === 'covalent-bond-lab') {
+      if (interactiveIdOf(step) === 'covalent-bond-lab') {
         const choices = await page.$$('.covalent-bond-lab__choice')
         check(`${viewport.name}: covalent lab lists its molecules`, choices.length >= 3, choices.length)
         const labels = await page.$$eval('.covalent-bond-lab__choice', (nodes) => nodes.map((node) => node.textContent?.trim() ?? ''))
@@ -287,6 +301,117 @@ try {
         )
         const reset = await page.$$eval('.covalent-bond-lab button', (nodes) => nodes.map((node) => node.textContent?.trim() ?? ''))
         check(`${viewport.name}: covalent lab offers a reset control`, reset.some((label) => /إعادة/.test(label)), reset)
+      }
+
+      // --- Educational figures must actually mount, and stay inside the page. ---
+      const figureIds = diagramIdsOf(step)
+      if (figureIds.length) {
+        const figures = await page.evaluate(() =>
+          [...document.querySelectorAll('.l2-figure')].map((figure) => ({
+            diagram: figure.getAttribute('data-diagram'),
+            width: figure.getBoundingClientRect().width,
+            parentWidth: figure.parentElement?.getBoundingClientRect().width ?? null,
+            hasSvg: Boolean(figure.querySelector('svg')),
+            hasLegend: Boolean(figure.querySelector('.l2-figure__legend, .l2-lewis__legend')),
+            captioned: Boolean(figure.querySelector('figcaption')),
+          })),
+        )
+        check(
+          `${viewport.name} / step ${index + 1}: every authored figure mounts`,
+          figures.length === figureIds.length && figureIds.every((id) => figures.some((figure) => figure.diagram === id)),
+          { expected: figureIds, rendered: figures.map((figure) => figure.diagram) },
+        )
+        check(
+          `${viewport.name} / step ${index + 1}: figures draw geometry and a written key`,
+          figures.every((figure) => figure.hasSvg || figure.hasLegend),
+          figures,
+        )
+        check(`${viewport.name} / step ${index + 1}: figures carry their explanatory caption`, figures.every((figure) => figure.captioned))
+        check(
+          `${viewport.name} / step ${index + 1}: figures never exceed their column`,
+          figures.every((figure) => !figure.parentWidth || figure.width <= figure.parentWidth + 1),
+          figures,
+        )
+      }
+
+      // --- Valence counter: answer → feedback → reset. ---
+      if (interactiveIdOf(step) === 'lesson2-valence-counter') {
+        const lab = await page.$('.l2-valence-lab')
+        check(`${viewport.name}: valence counter mounts`, Boolean(lab))
+        const atom = await page.$eval('.l2-valence-lab', (node) => node.getAttribute('data-atom'))
+        check(`${viewport.name}: valence counter starts on the printed Na atom`, atom === 'Na', atom)
+        const buttons = await page.$$('.l2-valence-lab__answers .l2-choice')
+        check(`${viewport.name}: valence counter offers 1–8 answer buttons`, buttons.length === 8, buttons.length)
+        await buttons[0].click()
+        await page.click('.l2-valence-lab .button--primary')
+        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+        const state = await page.evaluate(() => {
+          const node = document.querySelector('.l2-valence-lab')
+          return {
+            state: node?.getAttribute('data-state'),
+            feedback: node?.querySelector('.l2-valence-lab__feedback')?.textContent ?? '',
+          }
+        })
+        check(
+          `${viewport.name}: valence counter marks the correct valence count (1)`,
+          state.state === 'correct' && /إجابة صحيحة/.test(state.feedback),
+          state,
+        )
+        await page.click('.l2-valence-lab .button--quiet')
+        const afterReset = await page.$eval('.l2-valence-lab', (node) => node.getAttribute('data-state'))
+        check(`${viewport.name}: valence counter resets to the unanswered state`, afterReset === 'idle', afterReset)
+      }
+
+      // --- Bond steps: previous / next / reset on the real mechanism. ---
+      if (interactiveIdOf(step) === 'lesson2-bond-steps') {
+        const lab = await page.$('.l2-steps-lab')
+        check(`${viewport.name}: bond-steps lab mounts`, Boolean(lab))
+        const previousDisabled = await page.$eval('.l2-steps-lab .button--quiet', (node) => node.disabled)
+        check(`${viewport.name}: bond-steps disables «السابق» on the first stage`, previousDisabled)
+        for (let press = 0; press < 4; press += 1) {
+          await page.click('.l2-steps-lab .button--primary')
+        }
+        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+        const reached = await page.evaluate(() => {
+          const node = document.querySelector('.l2-steps-lab')
+          return {
+            stage: node?.getAttribute('data-stage'),
+            readouts: [...(node?.querySelectorAll('.l2-steps-lab__counters strong') ?? [])].map((item) => item.textContent),
+          }
+        })
+        check(
+          `${viewport.name}: bond-steps reaches the ion stage with 10/18 electrons`,
+          reached.stage === '4' && reached.readouts.includes('10') && reached.readouts.includes('18'),
+          reached,
+        )
+        await page.click('.l2-steps-lab .button--quiet:last-of-type')
+        const resetStage = await page.$eval('.l2-steps-lab', (node) => node.getAttribute('data-stage'))
+        check(`${viewport.name}: bond-steps resets to the first stage`, resetStage === '0', resetStage)
+      }
+
+      // --- Error spotter: a verdict must explain itself. ---
+      if (interactiveIdOf(step) === 'lesson2-error-spotter') {
+        const lab = await page.$('.l2-spotter-lab')
+        check(`${viewport.name}: error-spotter lab mounts`, Boolean(lab))
+        const count = await page.$$eval('.l2-spotter-lab__item', (nodes) => nodes.length)
+        check(`${viewport.name}: error-spotter lists five statements`, count === 5, count)
+        await page.click('.l2-spotter-lab__item:first-of-type button')
+        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+        const judged = await page.evaluate(() => {
+          const item = document.querySelector('.l2-spotter-lab__item')
+          return {
+            state: item?.getAttribute('data-state'),
+            text: item?.querySelector('.l2-spotter-lab__feedback')?.textContent ?? '',
+          }
+        })
+        check(
+          `${viewport.name}: error-spotter explains the wrong verdict`,
+          judged.state === 'incorrect' && judged.text.includes('11'),
+          judged,
+        )
+        await page.click('.l2-spotter-lab .button--quiet')
+        const cleared = await page.$eval('.l2-spotter-lab', (node) => node.getAttribute('data-answered'))
+        check(`${viewport.name}: error-spotter resets its answers`, cleared === '0', cleared)
       }
 
       if (step.kind === 'final-test') {

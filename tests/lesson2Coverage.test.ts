@@ -88,6 +88,10 @@ describe('lesson 2 source ledger', () => {
       expect(objective.stepIds.length).toBeGreaterThan(0)
       for (const stepId of objective.stepIds) expect(stepIds.has(stepId), `${objective.id} → ${stepId}`).toBe(true)
     }
+    // Page 13 prints exactly four objectives; O5 is a declared platform
+    // objective and must never claim to be a printed one.
+    expect(LESSON2_OBJECTIVES.filter((objective) => objective.origin === 'textbook')).toHaveLength(4)
+    expect(LESSON2_OBJECTIVES.find((objective) => objective.id === 'O5')?.origin).toBe('platform')
     // The four printed objectives of page 13 are preserved verbatim.
     expect(LESSON2_OBJECTIVES.slice(0, 4).map((objective) => objective.printed)).toEqual([
       'يتعرّف الرابطة الكيميائيّة.',
@@ -217,7 +221,9 @@ describe('lesson 2 assessment keys', () => {
     expect(finalTest.lessonId).toBe('chem-u1-l2')
     expect(finalTest.questions).toHaveLength(17)
     expect(countQuestions(finalTest.questions)).toBe(20)
-    expect(practiceAssessment.questions).toHaveLength(20)
+    // The rebuild adds six platform drills (valence counting, density,
+    // charge arithmetic, figure reading, conductivity wording, MgCl₂ ratio).
+    expect(practiceAssessment.questions).toHaveLength(26)
   })
 
   it('marks the authored final-test key as fully correct through the real evaluator', () => {

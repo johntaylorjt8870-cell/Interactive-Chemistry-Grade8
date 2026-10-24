@@ -377,10 +377,12 @@ describe('source fidelity — the printed heading and the questions', () => {
   it('keeps Lessons 1 and 2 at their documented sizes', () => {
     // Lesson 1 was rebuilt on purpose (30 steps, 15-question textbook
     // container, 15-question final test). Lesson 2 was rebuilt on purpose too:
-    // 28 teaching steps, 7 textbook questions of page 17, and the page-13/15/16
-    // activities kept in their own container (see tests/lesson2Coverage.test.ts).
+    // 36 teaching steps (the full educational rebuild adds four figures, three
+    // labs and a post-attempt MgCl₂ review), 7 textbook questions of page 17,
+    // and the page-13/15/16 activities kept in their own container
+    // (see tests/lesson2Coverage.test.ts).
     expect(chemistryLesson1.steps).toHaveLength(30)
-    expect(chemistryLesson2.steps).toHaveLength(28)
+    expect(chemistryLesson2.steps).toHaveLength(36)
     expect(lesson1BookQuestions).toHaveLength(15)
     expect(lesson2BookQuestions).toHaveLength(7)
 
