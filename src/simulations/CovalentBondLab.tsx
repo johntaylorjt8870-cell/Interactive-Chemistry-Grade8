@@ -126,6 +126,18 @@ export default function CovalentBondLab({ reducedMotion }: InteractiveProps) {
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          className="button button--quiet"
+          onClick={() => {
+            setMoleculeId('H2')
+            setView('both')
+            setHighlightShared(false)
+          }}
+          disabled={moleculeId === 'H2' && view === 'both' && !highlightShared}
+        >
+          إعادة الضبط
+        </button>
         <label className="covalent-bond-lab__highlight">
           <input
             type="checkbox"

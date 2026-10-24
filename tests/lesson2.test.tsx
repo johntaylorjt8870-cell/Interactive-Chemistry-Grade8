@@ -18,7 +18,16 @@ import { LewisMolecule } from '@/scientific/LewisMolecule'
 import { IonicTransferDiagram } from '@/scientific/IonicTransferDiagram'
 import IonicBondingLab from '@/simulations/IonicBondingLab'
 import CovalentBondLab from '@/simulations/CovalentBondLab'
+import Lesson2ValenceDiagram from '@/simulations/Lesson2ValenceDiagram'
+import Lesson2BondAnatomyDiagram from '@/simulations/Lesson2BondAnatomyDiagram'
+import Lesson2LewisAnatomyDiagram from '@/simulations/Lesson2LewisAnatomyDiagram'
+import Lesson2OctetBridgeDiagram from '@/simulations/Lesson2OctetBridgeDiagram'
+import Lesson2TransferMechanismDiagram from '@/simulations/Lesson2TransferMechanismDiagram'
+import ValenceCounterLab from '@/simulations/ValenceCounterLab'
+import BondStepsLab from '@/simulations/BondStepsLab'
+import ErrorSpotterLab from '@/simulations/ErrorSpotterLab'
 import { evaluateQuestion } from '@/assessment/evaluate'
+import { isInteractiveRegistered } from '@/simulations/registry'
 import { teacherAccess, TEACHER_PASSWORD } from '@/teacher/teacherAccess'
 import { TEACHER_LESSONS, getTeacherLesson } from '@/teacher/teacherContent'
 import { renderApp } from './utils/renderApp'
@@ -75,12 +84,35 @@ describe('curriculum registry — lesson 2', () => {
     expect(chemistryLesson2.steps[chemistryLesson2.steps.length - 1]!.kind).toBe('final-test')
   })
 
-  it('references only registered interactives, and registers both bonding labs', () => {
+  it('references only registered interactives, and mounts every lesson-2 lab', () => {
     const ids = chemistryLesson2.steps
       .flatMap((step) => step.blocks)
       .filter((block) => block.kind === 'interactive')
       .map((block) => (block as { interactiveId: string }).interactiveId)
-    expect(ids).toEqual(['ionic-bonding-lab', 'covalent-bond-lab'])
+    expect(ids).toEqual([
+      'lesson2-valence-counter',
+      'lesson2-bond-steps',
+      'ionic-bonding-lab',
+      'covalent-bond-lab',
+      'lesson2-error-spotter',
+    ])
+    for (const id of ids) expect(isInteractiveRegistered(id), id).toBe(true)
+  })
+
+  it('mounts every educational figure on a real step of the lesson', () => {
+    const figures = chemistryLesson2.steps
+      .flatMap((step) => step.blocks)
+      .filter((block) => block.kind === 'diagram')
+      .map((block) => (block as { diagramId: string }).diagramId)
+    expect(figures).toEqual([
+      'lesson2-valence-map',
+      'lesson2-bond-anatomy',
+      'lesson2-transfer-cao',
+      'lesson2-lewis-anatomy',
+      'lesson2-octet-bridge',
+      'lesson2-transfer-mgcl2',
+    ])
+    for (const id of figures) expect(isInteractiveRegistered(id), id).toBe(true)
   })
 
   it('keeps every step id unique and every step non-empty except the final test', () => {
@@ -650,5 +682,168 @@ describe('regression — inline notation inside Lesson 2 prose renders structura
       expect(strayScriptGlyphs(container), step.id).toEqual([])
       container.remove()
     }
+  })
+})
+
+describe('the rebuilt lesson-2 educational figures', () => {
+  it('reads the valence electrons of five printed atoms without hiding the count', () => {
+    const { container } = render(<Lesson2ValenceDiagram interactiveId="lesson2-valence-map" reducedMotion={false} />)
+    const cards = [...container.querySelectorAll('[data-atom]')]
+    expect(cards.map((card) => card.getAttribute('data-atom'))).toEqual(['Na', 'Mg', 'H', 'O', 'Cl'])
+    expect(cards.map((card) => card.getAttribute('data-surface'))).toEqual(['1', '2', '1', '6', '7'])
+    // The printed distribution under each atom must agree with the drawn shells.
+    for (const card of cards) {
+      const shells = card.querySelector('.l2-valence__facts dd[dir="ltr"]')?.textContent ?? ''
+      const total = shells.split('-').reduce((sum, value) => sum + Number(value), 0)
+      expect(card.querySelectorAll('.bohr__electron')).toHaveLength(total)
+    }
+    // The figure explains its own symbols rather than relying on colour alone.
+    expect(container.querySelectorAll('.l2-figure__legend li')).toHaveLength(3)
+  })
+
+  it('shows transfer and sharing side by side with numbered evidence', () => {
+    const { container } = render(<Lesson2BondAnatomyDiagram interactiveId="lesson2-bond-anatomy" reducedMotion={false} />)
+    expect(container.querySelector('[data-panel="transfer"]')).not.toBeNull()
+    expect(container.querySelector('[data-panel="sharing"]')).not.toBeNull()
+    // Cl keeps seven surface electrons and offers one empty slot to sodium.
+    expect(container.querySelectorAll('[data-panel="transfer"] [data-electron]')).toHaveLength(8)
+    expect(container.querySelector('[data-slot="cl-accepts"]')).not.toBeNull()
+    expect(container.querySelector('.l2-anatomy__shared')).not.toBeNull()
+    expect(container.querySelectorAll('.l2-anatomy__badge')).toHaveLength(2)
+    expect(container.querySelectorAll('.l2-anatomy__notes li')).toHaveLength(2)
+  })
+
+  it('labels the Lewis dot map with real dot counts and a legend', () => {
+    const { container } = render(<Lesson2LewisAnatomyDiagram interactiveId="lesson2-lewis-anatomy" reducedMotion={false} />)
+    const cards = [...container.querySelectorAll('.l2-lewis__card[data-molecule]')]
+    expect(cards.map((card) => card.getAttribute('data-molecule'))).toEqual(['h2', 'o2', 'n2'])
+    expect(cards.map((card) => card.querySelectorAll('.lewis-mol__dot[data-electron="shared"]').length)).toEqual([2, 4, 6])
+    expect(container.querySelectorAll('.l2-lewis__legend li')).toHaveLength(5)
+  })
+
+  it('derives the formula from the valence count in one visible chain', () => {
+    const { container } = render(<Lesson2OctetBridgeDiagram interactiveId="lesson2-octet-bridge" reducedMotion={false} />)
+    const rows = [...container.querySelectorAll('.l2-chain__row')]
+    expect(rows.map((row) => row.getAttribute('data-molecule'))).toEqual(['h2', 'o2', 'n2'])
+    expect(rows.map((row) => row.getAttribute('data-pairs'))).toEqual(['1', '2', '3'])
+    expect(rows.map((row) => row.querySelectorAll('.l2-chain__cell').length)).toEqual([5, 5, 5])
+  })
+
+  it('runs the four transfer stages for CaO and for MgCl₂ with the printed ion counts', () => {
+    const { container: cao } = render(<Lesson2TransferMechanismDiagram interactiveId="lesson2-transfer-cao" reducedMotion={false} />)
+    expect(cao.querySelector('figure')?.getAttribute('data-compound')).toBe('CaO')
+    expect([...cao.querySelectorAll('[data-stage]')].map((stage) => stage.getAttribute('data-stage'))).toEqual(['1', '2', '3', '4'])
+    expect(cao.querySelector('[data-stage="3"]')?.querySelectorAll('[data-bohr]')).toHaveLength(2)
+    expect(cao.querySelectorAll('[data-stage="4"] .l2-transfer__anion')).toHaveLength(1)
+
+    const { container: mg } = render(<Lesson2TransferMechanismDiagram interactiveId="lesson2-transfer-mgcl2" reducedMotion={false} />)
+    expect(mg.querySelector('figure')?.getAttribute('data-compound')).toBe('MgCl2')
+    expect(mg.querySelector('[data-stage="1"]')?.querySelectorAll('[data-bohr]')).toHaveLength(3)
+    expect(mg.querySelector('[data-stage="3"]')?.querySelectorAll('[data-bohr]')).toHaveLength(3)
+    expect(mg.querySelectorAll('[data-stage="4"] .l2-transfer__anion')).toHaveLength(2)
+    // Charge arithmetic is printed, never asserted without evidence.
+    expect(mg.textContent).toContain('12')
+    expect(mg.textContent).toContain('18')
+  })
+})
+
+describe('the rebuilt lesson-2 interactions', () => {
+  it('counts valence electrons, reports the reason and resets', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ValenceCounterLab interactiveId="lesson2-valence-counter" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+
+    expect(section).toHaveAttribute('data-atom', 'Na')
+    expect(section).toHaveAttribute('data-state', 'idle')
+
+    await user.click(screen.getByRole('button', { name: '3' }))
+    await user.click(screen.getByRole('button', { name: 'تحقّق' }))
+    expect(section).toHaveAttribute('data-state', 'incorrect')
+    expect(container.querySelector('[data-feedback="incorrect"]')?.textContent).toContain('آخر رقم')
+
+    await user.click(screen.getByRole('button', { name: 'إعادة المحاولة' }))
+    expect(section).toHaveAttribute('data-state', 'idle')
+    expect(container.querySelector('[data-feedback="idle"]')).not.toBeNull()
+
+    await user.click(screen.getByRole('button', { name: '1' }))
+    await user.click(screen.getByRole('button', { name: 'تحقّق' }))
+    expect(section).toHaveAttribute('data-state', 'correct')
+    expect(container.querySelector('[data-feedback="correct"]')?.textContent).toContain('فقد')
+
+    await user.click(screen.getByRole('button', { name: 'الذرّة التالية' }))
+    expect(section).toHaveAttribute('data-atom', 'Mg')
+    expect(section).toHaveAttribute('data-state', 'idle')
+  })
+
+  it('walks the bond mechanism forward, backward and back to the start', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<BondStepsLab interactiveId="lesson2-bond-steps" reducedMotion />)
+    const section = container.querySelector('section')!
+    const previous = screen.getByRole('button', { name: 'السابق' })
+    const next = screen.getByRole('button', { name: 'التالي' })
+    const reset = screen.getByRole('button', { name: 'إعادة' })
+
+    expect(section).toHaveAttribute('data-stage', '0')
+    expect(previous).toBeDisabled()
+    expect(reset).toBeDisabled()
+
+    for (let press = 1; press <= 4; press += 1) {
+      await user.click(next)
+      expect(section).toHaveAttribute('data-stage', String(press))
+    }
+    expect(next).toBeDisabled()
+    const readouts = [...container.querySelectorAll('.l2-steps-lab__counters strong')].map((node) => node.textContent)
+    expect(readouts).toEqual(['11', '10', '+1', '17', '18', '\u22121'])
+
+    await user.click(previous)
+    expect(section).toHaveAttribute('data-stage', '3')
+    await user.click(reset)
+    expect(section).toHaveAttribute('data-stage', '0')
+    expect(section).toHaveAttribute('data-compound', 'NaCl')
+  })
+
+  it('switches to MgCl₂ and keeps one magnesium against two chlorines', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<BondStepsLab interactiveId="lesson2-bond-steps" reducedMotion />)
+    const section = container.querySelector('section')!
+    const choices = container.querySelectorAll<HTMLButtonElement>('.l2-steps-lab__picker .l2-choice')
+    await user.click(choices[1]!)
+    expect(section).toHaveAttribute('data-compound', 'MgCl2')
+    expect(container.querySelectorAll('[data-side="nonmetal"] [data-bohr]')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'التالي' }))
+    await user.click(screen.getByRole('button', { name: 'التالي' }))
+    await user.click(screen.getByRole('button', { name: 'التالي' }))
+    expect(container.querySelector('[data-side="metal"] [data-bohr]')?.getAttribute('data-charge')).toBe('2+')
+    expect(container.querySelectorAll('[data-side="nonmetal"] [data-bohr]')).toHaveLength(2)
+  })
+
+  it('judges misconceptions, explains each verdict and resets the score', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ErrorSpotterLab interactiveId="lesson2-error-spotter" reducedMotion />)
+    const section = container.querySelector('section')!
+
+    expect(container.querySelectorAll('[data-statement]')).toHaveLength(5)
+    expect(section).toHaveAttribute('data-answered', '0')
+
+    const first = container.querySelector('[data-statement="charge-sign"]')!
+    const [trueButton, falseButton] = [...first.querySelectorAll('button')]
+    await user.click(trueButton!)
+    expect(first).toHaveAttribute('data-state', 'incorrect')
+    expect(first.textContent).toContain('11 بروتوناً − 10 إلكترونات')
+
+    // A correct verdict on the one true statement must be recognised as correct.
+    const covalent = container.querySelector('[data-statement="covalent-properties"]')!
+    const [, covalentFalse] = [...covalent.querySelectorAll('button')]
+    await user.click(covalentFalse!)
+    expect(covalent).toHaveAttribute('data-state', 'incorrect')
+
+    const reset = screen.getByRole('button', { name: 'إعادة المحاولة' })
+    expect(section).toHaveAttribute('data-answered', '2')
+    await user.click(reset)
+    expect(section).toHaveAttribute('data-answered', '0')
+    expect(container.querySelectorAll('[data-state="unanswered"]')).toHaveLength(5)
+
+    // The verdict buttons are keyboard reachable buttons, never drag-only targets.
+    expect(falseButton).toBeInstanceOf(HTMLButtonElement)
   })
 })

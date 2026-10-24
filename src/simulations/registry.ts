@@ -197,6 +197,78 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     load: () => import('./CovalentBondLab'),
   },
   {
+    id: 'lesson2-valence-map',
+    title: 'إعادة رسم تعليمية: إلكترونات السطح في خمس ذرّات',
+    kind: 'diagram',
+    description:
+      'الشكل نفسه الذي يبنيه الدرس: Na وMg وH وO وCl بتوزيعاتها المطبوعة، وإبراز السوية الأخيرة وحدها، مع مفتاح يفرّق بين النواة والإلكترون الداخلي وإلكترون السطح.',
+    load: () => import('./Lesson2ValenceDiagram'),
+  },
+  {
+    id: 'lesson2-bond-anatomy',
+    title: 'شكل مقارن: انتقال الإلكترون مقابل مشاركته',
+    kind: 'diagram',
+    description:
+      'لوحتان مرقّمتان: في الأولى ينتقل إلكترون الصوديوم إلى الموضع الفارغ عند الكلور، وفي الثانية يبقى زوج الإلكترونات داخل إطار مشترك بين ذرّتي الهيدروجين، مع تصريح بأن الرسم يعرض السطح فقط.',
+    load: () => import('./Lesson2BondAnatomyDiagram'),
+  },
+  {
+    id: 'lesson2-lewis-anatomy',
+    title: 'إعادة رسم تعليمية: كيف يُقرأ تمثيل لويس؟',
+    kind: 'diagram',
+    description:
+      'H₂ وO₂ وN₂ بتمثيل لويس، مع مفتاح للنقطة والزوج والمشترك وغير المشترك ورقم يشرح رتبة الرابطة والتحقّق عند 8 (و2 للهيدروجين).',
+    load: () => import('./Lesson2LewisAnatomyDiagram'),
+  },
+  {
+    id: 'lesson2-octet-bridge',
+    title: 'إعادة رسم تعليمية: من إلكترونات السطح إلى الصيغة',
+    kind: 'diagram',
+    description:
+      'سلسلة من خمس خطوات لكل من H₂ وO₂ وN₂: سطح الذرّة، الناقص للاكتمال، الأزواج المشتركة، رتبة الرابطة، الصيغة — مع تنبيه أن هدف الهيدروجين 2 لا 8.',
+    load: () => import('./Lesson2OctetBridgeDiagram'),
+  },
+  {
+    id: 'lesson2-transfer-cao',
+    title: 'إعادة رسم تعليمية: انتقال إلكترونين في CaO',
+    kind: 'diagram',
+    description:
+      'أربع مراحل لأكسيد الكالسيوم: الذرّات المتعادلة (2-8-8-2 و2-6)، انتقال إلكترونين، الأيونات Ca²⁺ وO²⁻، ثم التجاذب والصيغة المتعادلة.',
+    load: () => import('./Lesson2TransferMechanismDiagram'),
+  },
+  {
+    id: 'lesson2-transfer-mgcl2',
+    title: 'إعادة رسم تعليمية: آلية MgCl₂ بمراحلها الأربع',
+    kind: 'diagram',
+    description:
+      'مراجعة كاملة لسؤال الكتاب الثالث (ص17): توزيعا 12Mg و17Cl، انتقال إلكترونين إلى ذرّتَي كلور، الأيونات Mg²⁺ و2Cl⁻، ثم البلورة المتعادلة بنسبة 1:2.',
+    load: () => import('./Lesson2TransferMechanismDiagram'),
+  },
+  {
+    id: 'lesson2-valence-counter',
+    title: 'مختبر عدّ إلكترونات السطح',
+    kind: 'activity',
+    description:
+      'اختيار ذرّة من ذرّات الدرس، ثم اختيار عدد إلكترونات سطحها والتحقّق منه مع تعليل وميل متوقّع وإعادة ضبط.',
+    load: () => import('./ValenceCounterLab'),
+  },
+  {
+    id: 'lesson2-bond-steps',
+    title: 'منصّة خطوات تكوّن الرابطة الأيونية',
+    kind: 'simulation',
+    description:
+      'NaCl وMgCl₂ وCaO: خمس مراحل مع أزرار السابق والتالي وإعادة، وعدادات بروتونات وإلكترونات وشحنة تتغيّر مع المرحلة.',
+    load: () => import('./BondStepsLab'),
+  },
+  {
+    id: 'lesson2-error-spotter',
+    title: 'مختبر اكتشف الخطأ في الروابط',
+    kind: 'activity',
+    description:
+      'خمس عبارات من الأخطاء الشائعة في الدرس، يحكم الطالب على كل واحدة ثم يرى التصحيح المعلَّل، مع نتيجة وإعادة ضبط.',
+    load: () => import('./ErrorSpotterLab'),
+  },
+  {
     id: 'valence-model-lab',
     title: 'مختبر التكافؤ في النماذج الجزيئية',
     kind: 'simulation',

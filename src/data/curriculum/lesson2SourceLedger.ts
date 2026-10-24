@@ -21,7 +21,16 @@ export type Lesson2ObjectiveId = 'O1' | 'O2' | 'O3' | 'O4' | 'O5'
 
 export type Lesson2Objective = {
   id: Lesson2ObjectiveId
-  /** صياغة الهدف كما طُبع في صفحة 13 (منقولة لا معادة الصياغة). */
+  /**
+   * `textbook` — صياغة الهدف كما طُبعت في صفحة 13 (منقولة لا معادة الصياغة).
+   * `platform` — هدف تقويمي أضافته المنصة، ولم يُطبع في الكتاب؛ صياغته لا
+   * تُنسَب إلى المصدر، ويُعلَن ذلك هنا وفي واجهة الدرس.
+   */
+  origin: 'textbook' | 'platform'
+  /**
+   * صياغة الهدف كما طُبع في صفحة 13 عند `origin: 'textbook'`، أو صياغة
+   * إضافة المنصة المعلَنة عند `origin: 'platform'`.
+   */
   printed: string
   /** جملة واحدة موجّهة إلى الطالب. */
   studentFacing: string
@@ -33,43 +42,92 @@ export type Lesson2Objective = {
 export const LESSON2_OBJECTIVES: Lesson2Objective[] = [
   {
     id: 'O1',
+    origin: 'textbook',
     printed: 'يتعرّف الرابطة الكيميائيّة.',
     studentFacing:
       'أفسّر أن الرابطة الكيميائية قوة تجاذب تربط الذرّات أو الأيونات أو الجزيئات، وأن سبب الارتباط هو الوصول إلى سطح أكثر اكتمالاً.',
     page: '13',
-    stepIds: ['discovery-opening', 'observations-13', 'bond-meaning', 'bond-definition', 'summary'],
+    stepIds: [
+      'discovery-opening',
+      'observations-13',
+      'atoms-and-shells',
+      'valence-counter',
+      'bond-meaning',
+      'bond-definition',
+      'summary',
+    ],
   },
   {
     id: 'O2',
+    origin: 'textbook',
     printed: 'يتعرّف الرابطة الأيونية.',
     studentFacing:
       'أفسّر تكون الرابطة الأيونية بانتقال الإلكترونات من فلزّ إلى لا فلزّ، وأحسب شحنة الأيون وأربط خواص المركّب ببنية البلورة.',
     page: '13',
-    stepIds: ['bond-definition', 'ionic-mechanism', 'ionic-lab', 'ionic-conclude', 'ionic-ratio-example', 'ionic-properties', 'common-errors'],
+    stepIds: [
+      'bond-definition',
+      'bond-anatomy',
+      'ionic-mechanism',
+      'ionic-steps',
+      'ionic-lab',
+      'ionic-conclude',
+      'ionic-ratio-example',
+      'ionic-transfer-variants',
+      'ionic-properties',
+      'ionic-mgcl2-review',
+      'common-errors',
+    ],
   },
   {
     id: 'O3',
+    origin: 'textbook',
     printed: 'يتعرّف الرابطة المشتركة.',
     studentFacing:
       'أشرح المشاركة بزوج إلكترونات أو أكثر بين لا فلزّين، وأحدّد رتبة الرابطة من عدد الأزواج المشتركة.',
     page: '13',
-    stepIds: ['covalent-figure', 'covalent-meaning', 'covalent-lab', 'covalent-items-16', 'covalent-conclude', 'octet-reasoning'],
+    stepIds: [
+      'covalent-figure',
+      'covalent-meaning',
+      'covalent-lab',
+      'covalent-items-16',
+      'covalent-conclude',
+      'octet-bridge',
+      'octet-reasoning',
+    ],
   },
   {
     id: 'O4',
+    origin: 'textbook',
     printed: 'يرسم تمثيل لويس لبعض الجزيئات ذات رابطة مشتركة.',
     studentFacing:
       'أرسم تمثيل لويس لجزيء مشترك خطوة بخطوة: أعدّ إلكترونات السطح، أحسب الأزواج المشتركة، أوزّع الأزواج غير المشتركة، ثم أتحقّق من الثمانية.',
     page: '13',
-    stepIds: ['lewis-worked-example', 'covalent-meaning', 'covalent-lab', 'book-check-2', 'book-check-3'],
+    stepIds: [
+      'lewis-worked-example',
+      'covalent-meaning',
+      'covalent-lab',
+      'octet-bridge',
+      'book-check-2',
+      'book-check-3',
+    ],
   },
   {
     id: 'O5',
-    printed: 'يتعرّف الرابطة المشتركة.',
+    // صفحة 13 تطبع أربعة أهداف فقط (O1–O4)؛ هذا هدف تقويمي من إضافة المنصة
+    // يخدم المقارنة بين النوعين، ولا يجوز نسب صياغته إلى الكتاب.
+    origin: 'platform',
+    printed: 'هدف من إضافة المنصة (لم يُطبع في ص13): التمييز بين الرابطة الأيونية والرابطة المشتركة.',
     studentFacing:
       'أميّز المركّب الأيوني من المشترك بموقع عنصريه في الجدول (فلزّ/لا فلزّ) وبآلية الارتباط، لا بحفظ قائمة أسماء.',
     page: '13',
-    stepIds: ['bond-compare', 'research-case', 'book-check-3', 'summary'],
+    stepIds: [
+      'bond-compare',
+      'research-case',
+      'ionic-mgcl2-review',
+      'error-spotter',
+      'book-check-3',
+      'summary',
+    ],
   },
 ]
 
@@ -163,12 +221,47 @@ export const LESSON2_LEDGER: Lesson2LedgerItem[] = [
     id: 'p13-activity',
     page: '13',
     kind: 'activity',
-    locator: 'ألاحظ وأجيب',
-    title: 'بنود النشاط الثلاثة: التسمية، تحديد الذرّات، التساؤل عن الرابط',
+    locator: 'ألاحظ وأجيب (عنوان النشاط)',
+    title: 'عنوان النشاط «ألاحظ وأجيب»',
     excerpt:
-      'أُسمّي المواد المعبّر عنها بالرموز أسفل كل من الصور السّابقة. أُحدّد الذرّات التي تتكوّن منها كلّ مادّة... أتساءل ما الذي يربط ذرّات كلّ مادّة مع بعضها؟',
+      'ألاحظ وأجيب:',
     implementedBy: ['observations-13'],
-    questionIds: ['l2-act-name', 'l2-act-atoms', 'l2-act-bind'],
+    status: 'implemented',
+  },
+  {
+    id: 'p13-activity-1',
+    page: '13',
+    kind: 'activity',
+    locator: 'ألاحظ وأجيب — البند 1',
+    title: 'تسمية المواد المعبّر عنها برموزها',
+    excerpt:
+      'أُسمّي المواد المعبّر عنها بالرموز أسفل كل من الصور السّابقة.',
+    implementedBy: ['observations-13'],
+    questionIds: ['l2-act-name'],
+    status: 'implemented',
+  },
+  {
+    id: 'p13-activity-2',
+    page: '13',
+    kind: 'activity',
+    locator: 'ألاحظ وأجيب — البند 2',
+    title: 'تحديد الذرّات المكوّنة لكل مادة',
+    excerpt:
+      'أُحدّد الذرّات التي تتكوّن منها كلّ مادّة من تلك الموادّ في الصّور السّابقة.',
+    implementedBy: ['observations-13'],
+    questionIds: ['l2-act-atoms'],
+    status: 'implemented',
+  },
+  {
+    id: 'p13-activity-3',
+    page: '13',
+    kind: 'activity',
+    locator: 'ألاحظ وأجيب — البند 3',
+    title: 'التساؤل عمّا يربط ذرّات المادة',
+    excerpt:
+      'أتساءل ما الذي يربط ذرّات كلّ مادّة مع بعضها؟ لتبقى متماسكة أو متكتّلة.',
+    implementedBy: ['observations-13'],
+    questionIds: ['l2-act-bind'],
     status: 'implemented',
   },
 
@@ -220,9 +313,20 @@ export const LESSON2_LEDGER: Lesson2LedgerItem[] = [
     locator: 'شكل انتقال الإلكترون',
     title: 'خمس مراحل: Na ثم Cl ثم Na⁺ وCl⁻ ثم بلورة NaCl، مع سهم انتقال الإلكترون',
     excerpt: 'Na — Cl — Na⁺ — Cl⁻ — NaCl',
-    implementedBy: ['bond-definition', 'ionic-lab'],
+    implementedBy: ['bond-definition', 'ionic-steps', 'ionic-lab'],
     status: 'reconstructed',
     note: 'أُعيد بناء الشكل كمكوّن SVG (IonicTransferDiagram) وكمحاكاة تفاعلية؛ الأعداد 11 و17 و10 و18 والسويات الثلاث/اثنتين محفوظة كما في الصورة.',
+  },
+  {
+    id: 'p14-activity-instruction',
+    page: '14',
+    kind: 'heading',
+    locator: 'تعليمات نشاط الملاحظة',
+    title: '«أُلاحِظُ التوزّع الإلكتروني لذرّتي الصوديوم والكلور»',
+    excerpt:
+      'أُلاحِظُ التوزّع الإلكتروني لذرّتي الصّوديوم والكلور:',
+    implementedBy: ['bond-definition', 'atoms-and-shells'],
+    status: 'implemented',
   },
   {
     id: 'p14-octet-text',
@@ -239,11 +343,23 @@ export const LESSON2_LEDGER: Lesson2LedgerItem[] = [
     id: 'p14-ionic-bullets',
     page: '14',
     kind: 'paragraph',
-    locator: 'البندان التوضيحيان',
-    title: 'انتقال الإلكترون وتكوّن الأيونين وبلورة NaCl المتعادلة، وتسمية التجاذب رابطة أيونية',
+    locator: 'البند الأول (الانتقال وتكوّن الأيونين)',
+    title: 'فقد الصوديوم إلكتروناً واحداً واكتساب الكلور إياه، وتحقيق قاعدة الثمانية لكليهما',
     excerpt:
-      'عند ارتباط الصّوديوم مع الكلور تفقد ذرّة الصّوديوم إلكترونًا واحدًا متحوّلةً إلى أيون الصّوديوم Na⁺ بينما تكسب ذرّة الكلور ذلك الإلكترون متحوّلةً إلى أيون الكلوريد Cl⁻... وهذا التجاذب الكهربائي السّاكن يسمّى الرابطة الأيونيّة.',
-    implementedBy: ['bond-definition'],
+      'عند ارتباط الصّوديوم مع الكلور تفقد ذرّة الصّوديوم إلكترونًا واحدًا متحوّلةً إلى أيون الصّوديوم Na⁺ بينما تكسب ذرّة الكلور ذلك الإلكترون متحوّلةً إلى أيون الكلوريد Cl⁻ وتتحقّق بذلك قاعدة الثمانية لكليهما.',
+    implementedBy: ['bond-definition', 'ionic-mechanism', 'ionic-steps'],
+    questionIds: ['l2-practice-5'],
+    status: 'implemented',
+  },
+  {
+    id: 'p14-ionic-bullets-2',
+    page: '14',
+    kind: 'paragraph',
+    locator: 'البند الثاني (التجاذب والبلورة)',
+    title: 'تجاذب الأيونات وتكوّن بلورات NaCl المتعادلة، وتسمية التجاذب رابطة أيونية',
+    excerpt:
+      'تتجاذب أيونات الصّوديوم الموجبة Na⁺ مع أيونات الكلور السّالبة Cl⁻ لتشكيل جزيئات كلوريد الصّوديوم على شكل بلورات صلبة NaCl (ملح الطعام) المتعادل كهربائيًا. وهذا التجاذب الكهربائي السّاكن يسمّى الرابطة الأيونيّة.',
+    implementedBy: ['bond-definition', 'ionic-conclude', 'ionic-steps', 'ionic-lab'],
     status: 'implemented',
   },
 
@@ -266,7 +382,7 @@ export const LESSON2_LEDGER: Lesson2LedgerItem[] = [
     title: 'خواص المركّبات ذات الرابطة الأيونية',
     excerpt:
       'المركبات ذات الرابطة الأيونية صلبة في الدرجة العادية من الحرارة، ولا تنقل التيار الكهربائي في حالتها الصلبة بينما محاليلها ومصاهيرها تنقل التيار الكهربائي ودرجات غليانها وانصهارها مرتفعة.',
-    implementedBy: ['ionic-conclude', 'ionic-properties'],
+    implementedBy: ['ionic-conclude', 'ionic-properties', 'ionic-steps'],
     status: 'implemented',
   },
   {
@@ -297,7 +413,7 @@ export const LESSON2_LEDGER: Lesson2LedgerItem[] = [
     title: 'H₂ وO₂ وN₂ بتمثيل لويس يساراً والنموذج الكروي–العصوي يميناً',
     excerpt:
       'H₂: زوج مشترك واحد بلا أزواج غير مشتركة. O₂: 2×2 نقاط مشتركة، ولكل O زوجان غير مشتركين (خارجي + أسفل). N₂: 6 نقاط مشتركة (عمودان × 3 صفوف)، ولكل N زوج خارجي واحد.',
-    implementedBy: ['covalent-figure', 'covalent-lab'],
+    implementedBy: ['covalent-figure', 'covalent-lab', 'covalent-meaning', 'octet-bridge'],
     status: 'reconstructed',
     note: 'أُعيد بناء الشكل بمكوّن LewisMolecule (نقاط DOM حقيقية) من خريطة نقاط قُرئت من الصورة، والنموذج الكروي مرسوم بنفس عدد الخطوط والأقراص.',
   },
@@ -319,12 +435,59 @@ export const LESSON2_LEDGER: Lesson2LedgerItem[] = [
     id: 'p16-activity-rest',
     page: '16',
     kind: 'activity',
-    locator: 'بنود النشاط 1–4',
-    title: 'أزواج الأكسجين والنيتروجين، ثم المقارنة والاستنتاج وفق قاعدة الثمانية',
+    locator: 'بنود النشاط (العنوان)',
+    title: 'بقية نشاط «أُلاحِظُ وأستنتجُ» على الصفحة 16',
     excerpt:
-      'أُحدّد عدد أزواج الإلكترونات المشتركة بين ذرّتي الأكسجين... أُقارن بين عدد الأزواج الإلكترونات المشتركة في كل جزيء... أُفسّر اختلاف عدد الأزواج المشتركة...',
+      'أُحدّد عدد أزواج الإلكترونات المشتركة… أُقارن… أُفسّر…',
     implementedBy: ['covalent-items-16'],
-    questionIds: ['l2-act-o2', 'l2-act-n2', 'l2-act-compare', 'l2-act-octet'],
+    status: 'implemented',
+  },
+  {
+    id: 'p16-activity-o2',
+    page: '16',
+    kind: 'activity',
+    locator: 'البند 1 (الأكسجين)',
+    title: 'أزواج الأكسجين المشتركة والسطح بعد الترابط وتمثيل الرابطة المضاعفة',
+    excerpt:
+      'أُحدّد عدد أزواج الإلكترونات المشتركة بين ذرّتي الأكسجين. أُحدّد عدد الإلكترونات السطحيّة لكلّ من ذرّتي الأكسجين بعد الترابط. أمثّل الزوجين المشتركين برابطة مضاعفة بين ذرّتي الأكسجين.',
+    implementedBy: ['covalent-items-16', 'covalent-lab'],
+    questionIds: ['l2-act-o2'],
+    status: 'implemented',
+  },
+  {
+    id: 'p16-activity-n2',
+    page: '16',
+    kind: 'activity',
+    locator: 'البند 2 (النيتروجين)',
+    title: 'أزواج النيتروجين المشتركة والسطح بعد الترابط وتمثيل الرابطة الثلاثية',
+    excerpt:
+      'أُحدّد عدد أزواج الإلكترونات المشتركة بين ذرّتي النيتروجين. أُحدّد عدد الإلكترونات السطحيّة لكل من ذرّتي النيتروجين بعد الترابط. أمثّل الأزواج الثلاثة المشتركة برابطة ثلاثيّة بين ذرّتي النيتروجين.',
+    implementedBy: ['covalent-items-16', 'covalent-lab', 'octet-bridge'],
+    questionIds: ['l2-act-n2'],
+    status: 'implemented',
+  },
+  {
+    id: 'p16-activity-compare',
+    page: '16',
+    kind: 'activity',
+    locator: 'البند 3 (المقارنة)',
+    title: 'المقارنة بين أعداد الأزواج المشتركة والاستنتاج',
+    excerpt:
+      'أُقارن بين عدد الأزواج الإلكترونات المشتركة في كل جزيء من الجزيئات السابقة. ماذا أستنتج؟',
+    implementedBy: ['covalent-items-16', 'octet-bridge'],
+    questionIds: ['l2-act-compare'],
+    status: 'implemented',
+  },
+  {
+    id: 'p16-activity-octet',
+    page: '16',
+    kind: 'activity',
+    locator: 'البند 4 (التفسير)',
+    title: 'تفسير اختلاف الأزواج وفق قاعدة الثمانية',
+    excerpt:
+      'أُفسّر اختلاف عدد الأزواج المشتركة بين أنواع الجزيئات السّابقة وذلك وفق قاعدة الثمانية.',
+    implementedBy: ['covalent-items-16', 'octet-reasoning'],
+    questionIds: ['l2-act-octet'],
     status: 'implemented',
   },
   {
@@ -355,19 +518,63 @@ export const LESSON2_LEDGER: Lesson2LedgerItem[] = [
     title: 'بحث نوع الرابطة في NH₃ وH₂O وCH₄ وCaO وAlCl₃ مع أعدادها الذرية',
     excerpt:
       'ابحث مع مدرّسك عن نوع الروابط الكيميائيّة بين ذرّات كل من الجزيئات الآتية: غاز النشادر (NH₃)، الماء (H₂O)، غاز الميتان (CH₄)، أكسيد الكالسيوم (CaO)، كلوريد الألمنيوم (AlCl₃). حيث: ₁₃Al، ₂₀Ca، ₆C، ₁H، ₈O، ₇N، ₁₇Cl.',
-    implementedBy: ['research-case'],
+    implementedBy: ['research-case', 'ionic-transfer-variants', 'atoms-and-shells'],
     questionIds: ['l2-act-research'],
+    status: 'implemented',
+  },
+  {
+    id: 'p16-research-numbers',
+    page: '16',
+    kind: 'fact',
+    locator: 'سطر «حيث» بعد أسماء المركّبات',
+    title: 'الأعداد الذرّية السبعة المطبوعة: 13Al و20Ca و6C و1H و8O و7N و17Cl',
+    excerpt:
+      'حيث: ₁₃Al، ₂₀Ca، ₆C، ₁H، ₈O، ₇N، ₁₇Cl.',
+    implementedBy: ['research-case', 'ionic-transfer-variants', 'atoms-and-shells'],
     status: 'implemented',
   },
   {
     id: 'p16-learn-box',
     page: '16',
     kind: 'summary',
-    locator: 'تعلّمُ',
-    title: 'خلاصة الكتاب في ثلاثة تعريفات',
+    locator: 'صندوق «تعلّمُ» (العنوان)',
+    title: 'عنوان صندوق الخلاصة',
     excerpt:
-      'الرابطة الكيميائيّة: هي القوّة التي تجذب الذرّات أو الأيونات أو الجزيئات إلى بعضها البعض. الرابطة الأيونية: هي قوة تجاذب كهربائيّة ساكنة بين أيون موجب وأيون سالب. الرابطة المشتركة: هي اشتراك ذرّتين بزوج من الإلكترونات أو أكثر.',
+      'تعلّمُ:',
     implementedBy: ['learn-box'],
+    status: 'implemented',
+  },
+  {
+    id: 'p16-learn-line-1',
+    page: '16',
+    kind: 'definition',
+    locator: 'السطر الأول',
+    title: 'تعريف الرابطة الكيميائية',
+    excerpt:
+      'الرابطة الكيميائيّة: هي القوّة التي تجذب الذرّات أو الأيونات أو الجزيئات إلى بعضها البعض.',
+    implementedBy: ['learn-box', 'summary'],
+    status: 'implemented',
+  },
+  {
+    id: 'p16-learn-line-2',
+    page: '16',
+    kind: 'definition',
+    locator: 'السطر الثاني',
+    title: 'تعريف الرابطة الأيونية',
+    excerpt:
+      'الرابطة الأيونية: هي قوة تجاذب كهربائيّة ساكنة بين أيون موجب وأيون سالب.',
+    implementedBy: ['learn-box', 'summary'],
+    status: 'implemented',
+  },
+  {
+    id: 'p16-learn-line-3',
+    page: '16',
+    kind: 'definition',
+    locator: 'السطر الثالث',
+    title: 'تعريف الرابطة المشتركة',
+    excerpt:
+      'الرابطة المشتركة: هي اشتراك ذرّتين بزوج من الإلكترونات أو أكثر.',
+    implementedBy: ['learn-box', 'summary'],
     status: 'implemented',
   },
 
@@ -412,7 +619,7 @@ export const LESSON2_LEDGER: Lesson2LedgerItem[] = [
     locator: 'السؤال الثالث',
     title: 'رسم آلية الرابطة الأيونية في MgCl₂ بتمثيل لويس',
     excerpt: 'وضّح بالرسم وفق تمثيل لويس آليّة تشكّل الرابطة الأيونيّة في جزيء كلوريد المغنزيوم MgCl₂. علماً أنّ (₁₂Mg، ₁₇Cl).',
-    implementedBy: ['book-check-2'],
+    implementedBy: ['book-check-2', 'ionic-steps', 'ionic-mgcl2-review'],
     questionIds: ['l2-book-q3'],
     status: 'implemented',
   },

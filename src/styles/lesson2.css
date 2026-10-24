@@ -42,3 +42,660 @@
   overflow-x: auto;
   overscroll-behavior-inline: contain;
 }
+
+/* ============================================================================
+   Lesson 2 rebuild — educational figures and step labs (Pages 13–17)
+   ----------------------------------------------------------------------------
+   Scoped to lesson 2 surfaces by the `l2-` prefix. Every figure is a real DOM
+   structure, never a bitmap: Arabic labels stay in HTML (bidi-safe) while SVG
+   carries geometry, element symbols and numbered markers only.
+   ========================================================================= */
+
+.l2-figure {
+  margin: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  min-inline-size: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.l2-figure__header { display: grid; gap: var(--space-2); }
+
+.l2-figure__eyebrow {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  color: var(--palette-chem-700);
+  letter-spacing: 0.01em;
+}
+
+.l2-figure__title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  line-height: var(--lh-snug);
+  color: var(--text-strong);
+}
+
+.l2-figure__lead {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.l2-figure__legend {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-canvas);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.l2-figure__legend li { display: flex; align-items: flex-start; gap: var(--space-3); }
+.l2-figure__legend strong { color: var(--text-primary); }
+
+.l2-figure__caption {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+  border-block-start: 1px solid var(--border-hairline);
+  padding-block-start: var(--space-3);
+}
+.l2-figure__caption p { margin: 0; }
+
+/* --- Legend swatches: differ by shape and size, not only by colour -------- */
+.l2-legend__nucleus,
+.l2-legend__inner,
+.l2-legend__valence {
+  flex: 0 0 auto;
+  display: inline-block;
+  margin-block-start: 0.35em;
+  border-radius: 50%;
+}
+.l2-legend__nucleus { inline-size: 12px; block-size: 12px; background: var(--palette-chem-support-600); }
+.l2-legend__inner { inline-size: 7px; block-size: 7px; background: var(--status-info-text); }
+.l2-legend__valence {
+  inline-size: 10px;
+  block-size: 10px;
+  background: var(--palette-chem-600);
+  box-shadow: 0 0 0 2.5px var(--palette-chem-100), 0 0 0 3.5px var(--palette-chem-600);
+}
+
+.l2-observation-index {
+  flex: 0 0 auto;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--palette-chem-100);
+  color: var(--palette-chem-700);
+  font-family: var(--font-latin);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xs);
+  border: 1px solid var(--palette-chem-300);
+}
+
+/* --- Valence map ---------------------------------------------------------- */
+.l2-valence__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.l2-valence__card {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-canvas);
+  min-inline-size: 0;
+}
+
+.l2-valence__symbol {
+  margin: 0;
+  font-family: var(--font-latin);
+  font-size: var(--fs-md);
+  color: var(--text-strong);
+}
+
+.l2-valence__facts {
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+  inline-size: 100%;
+  font-size: var(--fs-2xs);
+  text-align: center;
+}
+.l2-valence__facts div { display: grid; gap: 2px; }
+.l2-valence__facts dt { color: var(--text-muted); }
+.l2-valence__facts dd { margin: 0; color: var(--text-primary); line-height: var(--lh-normal); }
+.l2-valence__facts strong { font-size: var(--fs-md); color: var(--palette-chem-700); }
+
+.l2-valence__source {
+  margin: 0;
+  font-size: var(--fs-3xs);
+  color: var(--text-muted);
+}
+
+/* --- Bond anatomy (transfer vs sharing) ----------------------------------- */
+.l2-anatomy__canvas { display: grid; gap: var(--space-2); min-inline-size: 0; }
+
+.l2-anatomy__svg {
+  inline-size: 100%;
+  block-size: auto;
+  max-block-size: 260px;
+  background: var(--surface-canvas);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+}
+
+.l2-anatomy__nucleus { fill: var(--palette-chem-support-600); }
+.l2-anatomy__shell { fill: none; stroke: var(--border-strong); stroke-width: 2; }
+.l2-anatomy__dot { fill: var(--status-info-text); }
+.l2-anatomy__dot--valence { fill: var(--palette-chem-600); }
+.l2-anatomy__dot--halo { fill: none; stroke: var(--palette-chem-600); stroke-width: 2; stroke-dasharray: 3 3; }
+.l2-anatomy__slot { fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-dasharray: 4 4; }
+.l2-anatomy__shared { fill: none; stroke: var(--palette-chem-700); stroke-width: 2; stroke-dasharray: 5 4; }
+.l2-anatomy__arrow { fill: none; stroke: var(--palette-chem-700); stroke-width: 3; stroke-linecap: round; }
+.l2-anatomy__arrow-head { fill: var(--palette-chem-700); }
+.l2-anatomy__divider { stroke: var(--border-soft); stroke-width: 1.5; stroke-dasharray: 6 6; }
+.l2-anatomy__symbol { font: 700 13px var(--font-latin); fill: var(--text-inverse); }
+.l2-anatomy__caption { font: 600 13px var(--font-latin); fill: var(--text-secondary); }
+.l2-anatomy__badge circle { fill: var(--palette-chem-700); }
+.l2-anatomy__badge text { font: 700 13px var(--font-latin); fill: var(--palette-paper); }
+
+.l2-anatomy__scope {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  line-height: var(--lh-relaxed);
+}
+
+.l2-anatomy__notes {
+  margin: 0;
+  padding-inline-start: var(--space-5);
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+.l2-anatomy__notes strong { color: var(--palette-chem-700); }
+.l2-anatomy__notes em { color: var(--text-primary); font-style: normal; font-weight: var(--fw-semibold); }
+
+/* --- Lewis anatomy -------------------------------------------------------- */
+.l2-lewis__legend {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-canvas);
+  font-size: var(--fs-2xs);
+  color: var(--text-secondary);
+}
+.l2-lewis__legend li { display: flex; align-items: center; gap: var(--space-3); }
+
+.l2-legend__marker {
+  flex: 0 0 auto;
+  inline-size: 22px;
+  block-size: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border-soft);
+  background:
+    radial-gradient(circle at 30% 50%, var(--status-info-text) 2.2px, transparent 2.6px),
+    radial-gradient(circle at 70% 50%, var(--status-info-text) 2.2px, transparent 2.6px);
+}
+.l2-legend__marker--shared {
+  background:
+    radial-gradient(circle at 30% 50%, var(--palette-chem-700) 2.2px, transparent 2.6px),
+    radial-gradient(circle at 70% 50%, var(--palette-chem-700) 2.2px, transparent 2.6px);
+  border-color: var(--palette-chem-300);
+}
+.l2-legend__marker--lone {
+  background:
+    radial-gradient(circle at 50% 30%, var(--status-info-text) 2.2px, transparent 2.6px),
+    radial-gradient(circle at 50% 70%, var(--status-info-text) 2.2px, transparent 2.6px);
+  border-style: dashed;
+}
+.l2-legend__marker--order {
+  background: repeating-linear-gradient(90deg, var(--palette-chem-700) 0 5px, transparent 5px 8px);
+  border: 0;
+  block-size: 6px;
+}
+
+.l2-lewis__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.l2-lewis__card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-canvas);
+  min-inline-size: 0;
+}
+
+.l2-lewis__card-head { display: flex; align-items: center; gap: var(--space-2); }
+.l2-lewis__card-head h5 { margin: 0; font-size: var(--fs-sm); color: var(--text-strong); }
+
+.l2-lewis__figure {
+  display: grid;
+  place-items: center;
+  padding-block: var(--space-2);
+  overflow-x: auto;
+  min-inline-size: 0;
+}
+
+.l2-lewis__facts {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+  font-size: var(--fs-2xs);
+}
+.l2-lewis__facts div { display: flex; justify-content: space-between; gap: var(--space-2); border-block-end: 1px dotted var(--border-soft); padding-block: 2px; }
+.l2-lewis__facts dt { color: var(--text-muted); }
+.l2-lewis__facts dd { margin: 0; font-weight: var(--fw-semibold); color: var(--text-primary); }
+
+.l2-lewis__observe {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+.l2-lewis__observe strong { color: var(--palette-chem-700); }
+
+/* --- Octet bridge chain --------------------------------------------------- */
+.l2-chain {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  overflow-x: auto;
+}
+
+.l2-chain__head,
+.l2-chain__row {
+  display: grid;
+  grid-template-columns: 64px repeat(5, minmax(96px, 1fr));
+  gap: var(--space-2);
+  align-items: stretch;
+  min-inline-size: 560px;
+}
+
+.l2-chain__head { font-size: var(--fs-3xs); color: var(--text-muted); font-weight: var(--fw-semibold); }
+.l2-chain__head span { text-align: center; }
+
+.l2-chain__atom {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  border-radius: var(--radius-xs);
+  background: var(--palette-chem-100);
+  color: var(--palette-chem-700);
+  font-weight: var(--fw-bold);
+  font-family: var(--font-latin);
+}
+.l2-chain__atom small { font-size: var(--fs-3xs); color: var(--text-secondary); font-weight: var(--fw-regular); }
+
+.l2-chain__cell {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  padding: var(--space-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xs);
+  background: var(--surface-canvas);
+  font-size: var(--fs-xs);
+  color: var(--text-primary);
+}
+.l2-chain__cell small { font-size: var(--fs-3xs); color: var(--text-muted); }
+.l2-chain__cell--result { background: var(--palette-chem-tint); border-color: var(--palette-chem-300); }
+.l2-chain__cell--formula { background: var(--surface-raised); border-color: var(--palette-chem-300); }
+.l2-chain__aside {
+  font-family: var(--font-latin);
+  font-style: normal;
+  font-size: var(--fs-3xs);
+  color: var(--text-secondary);
+}
+
+/* --- Transfer mechanism stages ------------------------------------------- */
+.l2-transfer__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+
+.l2-transfer__stage--charge { grid-column: 1 / -1; }
+.l2-transfer__stage--charge .l2-transfer__lattice {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+}
+.l2-transfer__stage {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-canvas);
+  min-inline-size: 0;
+}
+
+.l2-transfer__head { display: flex; align-items: center; gap: var(--space-2); }
+.l2-transfer__head h5 { margin: 0; font-size: var(--fs-sm); color: var(--text-strong); }
+
+.l2-transfer__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+/* Two chlorine atoms sit one above the other, so the mechanism stays inside a
+   phone-width column instead of wrapping the arrow onto its own line. */
+.l2-transfer__atoms {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: center;
+}
+.l2-transfer__row--motion { gap: var(--space-1); }
+.l2-transfer__row svg { max-inline-size: 100%; block-size: auto; }
+.l2-transfer__plus { font-size: var(--fs-md); color: var(--text-muted); }
+
+.l2-transfer__arrow { display: grid; justify-items: center; gap: 2px; }
+.l2-transfer__arrow svg { fill: none; stroke: var(--palette-chem-700); stroke-width: 2; stroke-linecap: round; }
+.l2-transfer__arrow svg path:last-child { fill: var(--palette-chem-700); }
+.l2-transfer__arrow-label { font-size: var(--fs-3xs); color: var(--palette-chem-700); font-weight: var(--fw-semibold); }
+
+.l2-transfer__facts { margin: 0; display: grid; gap: var(--space-2); font-size: var(--fs-2xs); }
+.l2-transfer__facts div { display: grid; gap: 2px; }
+.l2-transfer__facts dt { font-weight: var(--fw-semibold); color: var(--text-primary); }
+.l2-transfer__facts dd { margin: 0; color: var(--text-secondary); line-height: var(--lh-relaxed); }
+
+.l2-transfer__big {
+  margin: 0;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-primary);
+  background: var(--palette-chem-tint);
+  border-radius: var(--radius-xs);
+  padding: var(--space-2) var(--space-3);
+}
+
+.l2-transfer__note {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+  border-inline-start: 2px solid var(--palette-chem-300);
+  padding-inline-start: var(--space-2);
+}
+
+.l2-transfer__lattice { display: grid; gap: var(--space-2); justify-items: center; }
+.l2-transfer__lattice svg { inline-size: 100%; max-inline-size: 240px; block-size: auto; }
+.l2-transfer__cation { fill: var(--palette-chem-500); stroke: var(--palette-chem-700); stroke-width: 2; }
+.l2-transfer__anion { fill: var(--palette-chem-support-300); stroke: var(--palette-chem-support-600); stroke-width: 2; }
+.l2-transfer__sign { font: 700 16px var(--font-latin); fill: var(--text-strong); }
+.l2-transfer__formula { display: grid; justify-items: center; gap: var(--space-1); text-align: center; }
+.l2-transfer__formula p { margin: 0; font-size: var(--fs-2xs); color: var(--text-secondary); line-height: var(--lh-relaxed); }
+
+/* --- Shared choice buttons used by the two new labs ----------------------- */
+.l2-choice {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-family: var(--font-latin);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  min-inline-size: 2.5rem;
+}
+.l2-choice:hover:not(:disabled) { border-color: var(--palette-chem-600); }
+.l2-choice[aria-pressed='true'] {
+  background: var(--palette-chem-100);
+  border-color: var(--palette-chem-600);
+  color: var(--palette-chem-700);
+}
+.l2-choice:disabled { opacity: 0.55; cursor: not-allowed; }
+.l2-choice--number { font-family: var(--font-latin); font-size: var(--fs-md); min-inline-size: 2.75rem; }
+
+/* --- Valence counter lab -------------------------------------------------- */
+.l2-valence-lab__picker,
+.l2-steps-lab__picker { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.l2-valence-lab__body {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.l2-valence-lab__figure { display: grid; justify-items: center; gap: var(--space-2); }
+.l2-valence-lab__figure-note {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.l2-valence-lab__panel { display: grid; gap: var(--space-3); min-inline-size: 0; }
+.l2-valence-lab__prompt { margin: 0; font-size: var(--fs-sm); line-height: var(--lh-relaxed); color: var(--text-primary); }
+.l2-valence-lab__answers { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.l2-valence-lab .lab__actions { margin-block: 0; }
+
+.l2-valence-lab__config {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+.l2-valence-lab__config-value {
+  display: inline-block;
+  margin-inline-start: var(--space-2);
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-canvas);
+  border: 1px solid var(--border-soft);
+  font-family: var(--font-latin);
+  color: var(--text-primary);
+}
+
+.l2-valence-lab__feedback {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border-strong);
+  background: var(--surface-canvas);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+.l2-valence-lab__feedback p { margin: 0; }
+.l2-valence-lab__feedback[data-feedback='correct'] {
+  background: var(--status-success-bg);
+  border-color: var(--status-success-border);
+  color: var(--status-success-text);
+}
+.l2-valence-lab__feedback[data-feedback='incorrect'] {
+  background: var(--status-warning-bg);
+  border-color: var(--status-warning-border);
+  color: var(--status-warning-text);
+}
+
+/* --- Bond steps lab ------------------------------------------------------- */
+.l2-steps-lab__timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-2);
+}
+.l2-steps-lab__timeline li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-2xs);
+  color: var(--text-secondary);
+  line-height: var(--lh-normal);
+}
+.l2-steps-lab__timeline li[data-done] { color: var(--text-primary); }
+.l2-steps-lab__timeline li[data-active] {
+  border-color: var(--palette-chem-600);
+  background: var(--palette-chem-tint);
+  color: var(--palette-chem-700);
+  font-weight: var(--fw-semibold);
+}
+
+.l2-steps-lab__scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-canvas);
+  border: 1px solid var(--border-hairline);
+  min-inline-size: 0;
+}
+.l2-steps-lab__group { display: flex; align-items: center; gap: var(--space-2); }
+.l2-steps-lab__group--multi { flex-wrap: wrap; justify-content: center; }
+
+.l2-steps-lab__transfer {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  transition: color var(--dur-slow) var(--ease-standard);
+}
+/* Inactive stages stay legible: the de-emphasis is a colour change on an
+   already high-contrast token, never a low-opacity layer (axe contrast). */
+.l2-steps-lab__transfer svg { stroke: var(--border-strong); }
+.l2-steps-lab__transfer svg path:last-child { fill: var(--border-strong); }
+.l2-steps-lab__transfer-label { color: var(--text-secondary); }
+.l2-steps-lab__transfer.is-active svg { stroke: var(--palette-chem-700); }
+.l2-steps-lab__transfer.is-active svg path:last-child { fill: var(--palette-chem-700); }
+.l2-steps-lab__transfer.is-active .l2-steps-lab__transfer-label { color: var(--palette-chem-700); }
+.l2-steps-lab__transfer svg { fill: none; stroke-width: 2; stroke-linecap: round; }
+.l2-steps-lab__transfer-label { font-family: var(--font-latin); font-size: var(--fs-2xs); font-weight: var(--fw-semibold); }
+
+.l2-steps-lab__counters { margin-block: var(--space-4) 0; }
+
+.l2-steps-lab__explain {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-start: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--palette-chem-300);
+  border-radius: var(--radius-sm);
+  background: var(--palette-chem-tint);
+}
+.l2-steps-lab__explain-title { margin: 0; font-size: var(--fs-sm); color: var(--palette-chem-700); }
+.l2-steps-lab__explain p { margin: 0; font-size: var(--fs-xs); line-height: var(--lh-relaxed); color: var(--text-primary); }
+
+.l2-steps-lab__formula { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.l2-steps-lab__formula span { font-size: var(--fs-2xs); color: var(--text-secondary); }
+
+.l2-steps-lab__ions {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-2xs);
+  color: var(--text-secondary);
+}
+
+/* --- Error spotter lab ---------------------------------------------------- */
+.l2-spotter-lab__intro {
+  margin: 0;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.l2-spotter-lab__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.l2-spotter-lab__item {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-base);
+}
+.l2-spotter-lab__item[data-state='correct'] { border-color: var(--status-success-border); }
+.l2-spotter-lab__item[data-state='incorrect'] { border-color: var(--status-warning-border); }
+
+.l2-spotter-lab__claim { display: flex; align-items: flex-start; gap: var(--space-3); }
+.l2-spotter-lab__claim p { margin: 0; font-size: var(--fs-sm); line-height: var(--lh-relaxed); color: var(--text-primary); }
+.l2-spotter-lab__actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.l2-spotter-lab__feedback {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+.l2-spotter-lab__feedback p { margin: 0; }
+.l2-spotter-lab__verdict[data-verdict='correct'] { color: var(--status-success-text); }
+.l2-spotter-lab__verdict[data-verdict='incorrect'] { color: var(--status-warning-text); }
+.l2-spotter-lab__waiting { color: var(--text-muted); font-style: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  .l2-steps-lab__transfer { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .l2-figure { padding: var(--space-4); }
+  .l2-valence-lab__body { grid-template-columns: minmax(0, 1fr); }
+  .l2-valence__grid { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
+  .l2-lewis__cards { grid-template-columns: minmax(0, 1fr); }
+  .l2-transfer__grid { grid-template-columns: minmax(0, 1fr); }
+  .l2-anatomy__svg { max-block-size: 200px; }
+  .l2-steps-lab__scene { gap: var(--space-2); padding: var(--space-3); }
+  .l2-chain__head { display: none; }
+  .l2-chain__row {
+    grid-template-columns: 48px minmax(0, 1fr);
+    min-inline-size: 0;
+  }
+  .l2-chain__cell { justify-items: start; text-align: start; }
+  .l2-spotter-lab__item { padding: var(--space-3); }
+  .l2-choice { font-size: var(--fs-xs); }
+}
