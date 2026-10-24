@@ -43,6 +43,69 @@ describe('post-PR #29 RTL & scientific-notation regressions', () => {
 
       expect(scienceRuns).toEqual(['1', '10g', '1.56g', '11.56g'])
     })
+
+    it('preserves ordinary Arabic prose, units, ranges, colons, sentence periods, and symbol pairs without unintended splitting or over-merging', () => {
+      expect(
+        splitScientificRuns('(1 – 2 – 3 – 4 – 5 – 6 – 7) (K, L, M, N, O, P, Q)').filter((r) => r.kind === 'science'),
+      ).toEqual([
+        { kind: 'science', value: '1 – 2 – 3 – 4 – 5 – 6 – 7', notation: 'range' },
+        { kind: 'science', value: 'K, L, M, N, O, P, Q', notation: 'expression' },
+      ])
+
+      expect(
+        splitScientificRuns('1–7 (K, L, M, N, O, P, Q) وسعتها 2(n)²').filter((r) => r.kind === 'science'),
+      ).toEqual([
+        { kind: 'science', value: '1–7', notation: 'range' },
+        { kind: 'science', value: 'K, L, M, N, O, P, Q', notation: 'expression' },
+        { kind: 'science', value: '2(n)²' },
+      ])
+
+      // Unclosed `(` before Arabic text must never be swallowed into an expression run.
+      expect(
+        splitScientificRuns('بنسبة 1:1 (MgO وZnO وFeS)')
+          .filter((r) => r.kind === 'science')
+          .map((r) => r.value),
+      ).toEqual(['1:1', 'MgO', 'ZnO', 'FeS'])
+
+      expect(
+        splitScientificRuns('K⁺ (19, 2-8-8-1, فقدان إلكترون واحد, 1+)').filter((r) => r.kind === 'science'),
+      ).toEqual([
+        { kind: 'science', value: 'K⁺', notation: 'charge' },
+        { kind: 'science', value: '19' },
+        { kind: 'science', value: '2-8-8-1', notation: 'electron-configuration' },
+        { kind: 'science', value: '1+' },
+      ])
+
+      // Prose step/list colons and sentence-ending `. ` must not merge across Arabic clause boundaries.
+      expect(
+        splitScientificRuns('الخطوة 1: K تأخذ 2 ثم نضرب في 2: 2 × 9 = 18 والتجربة (1): 10 g')
+          .filter((r) => r.kind === 'science')
+          .map((r) => r.value),
+      ).toEqual(['1', 'K', '2', '2', '2 × 9 = 18', '1', '10 g'])
+
+      expect(
+        splitScientificRuns('4) النيوترونات = A − Z. 5) الإلكترونات في Al³⁺ | O²⁻. 2. الصيغة')
+          .filter((r) => r.kind === 'science')
+          .map((r) => r.value),
+      ).toEqual(['4', 'A − Z', '5', 'Al³⁺ | O²⁻', '2'])
+
+      // Slash symbol pairs, symbol ranges, ISO dates, formula lists, and plain measurements stay intact.
+      expect(
+        splitScientificRuns('مقارنة Pb/S وCaO/HCl في السويات K–O بتاريخ (تنقيح 4 — 2026-10-23)')
+          .filter((r) => r.kind === 'science')
+          .map((r) => r.value),
+      ).toEqual(['Pb/S', 'CaO/HCl', 'K–O', '4', '2026-10-23'])
+
+      expect(
+        splitScientificRuns('درجة الحرارة 25 °C والكتلة المولية 44 g/mol وعدد أفوغادرو 6.02×10²³ mol⁻¹').filter(
+          (r) => r.kind === 'science',
+        ),
+      ).toEqual([
+        { kind: 'science', value: '25 °C' },
+        { kind: 'science', value: '44 g/mol' },
+        { kind: 'science', value: '6.02×10²³ mol⁻¹' },
+      ])
+    })
   })
 
   describe('ScientificNotationText promotes structured notation without reversing compound equations', () => {

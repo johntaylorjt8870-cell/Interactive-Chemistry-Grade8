@@ -54,8 +54,8 @@ const SCIENTIFIC_RUN = new RegExp(
   [
     String.raw`(?:[${SCRIPT_GLYPHS}]+[A-Z][a-z]?)`,
     String.raw`(?:(?:${IDENT_EXT}\d*[+\-−]|${NUMBER}[+\-−])(?![\dA-Za-z]))`,
-    String.raw`(?:(?:=\s?|[+\-−±])?${NUMBER}${EXPONENT}(?:\s?${UNIT})?)`,
-    String.raw`(?:(?:${IDENT_EXT}|\(${IDENT_EXT}\))(?:[A-Za-z0-9_'’.\-·()${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}]*[A-Za-z0-9)${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}])?)`,
+    String.raw`(?:(?:=\s?|[+\-−±])?${NUMBER}${EXPONENT}(?:\s?${UNIT})?(?!\())`,
+    String.raw`(?:(?:[0-9]+\(${IDENT_EXT}\)|${IDENT_EXT}|\(${IDENT_EXT}\))(?:[A-Za-z0-9_'’.\-·/()${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}]*[A-Za-z0-9)${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}])?)`,
   ].join('|'),
   'gu',
 )
@@ -105,28 +105,34 @@ function trimBalancedSpan(raw: string): { offset: number; value: string } {
       }
     }
 
-    // Check overall balance inside [start, end).
-    let depth = 0
+    // Check overall balance inside [start, end) using an explicit stack of open `(`.
+    const openStack: number[] = []
     let unmatchedCloseAt = -1
     for (let i = start; i < end; i += 1) {
-      if (raw[i] === '(') depth += 1
+      if (raw[i] === '(') openStack.push(i)
       else if (raw[i] === ')') {
-        if (depth === 0) {
+        if (openStack.length === 0) {
           unmatchedCloseAt = i
           break
         }
-        depth -= 1
+        openStack.pop()
       }
     }
 
-    if (unmatchedCloseAt !== -1 && raw[end - 1] === ')') {
-      end -= 1
+    if (unmatchedCloseAt !== -1) {
+      end = unmatchedCloseAt
       while (end > start && /\s/.test(raw[end - 1]!)) end -= 1
       continue
     }
-    if (depth > 0 && raw[start] === '(') {
-      start += 1
-      while (start < end && /\s/.test(raw[start]!)) start += 1
+    if (openStack.length > 0) {
+      const firstUnmatchedOpen = openStack[0]!
+      if (firstUnmatchedOpen === start) {
+        start += 1
+        while (start < end && /\s/.test(raw[start]!)) start += 1
+      } else {
+        end = firstUnmatchedOpen
+        while (end > start && /\s/.test(raw[end - 1]!)) end -= 1
+      }
       continue
     }
     break
@@ -280,18 +286,25 @@ const NUMERIC_HYPHEN_SEQUENCE_PATTERN = new RegExp(`^${NUMERIC_HYPHEN_SEQUENCE}$
 /** `e⁻`, `2e⁻`, `Cl⁻`, `Na⁺`, `Ca²⁺`, `O²⁻`, `Al³⁺`, `SO₄²⁻` — one species. */
 const CHARGE_NOTATION_PARTS = String.raw`(?<![A-Za-z${SCRIPT_GLYPHS}${CHARGE_GLYPHS}])(\d+)?([A-Za-z][A-Za-z0-9${SUBSCRIPT_DIGITS}]*)([${SUPERSCRIPT_DIGITS}]*)([${CHARGE_GLYPHS}])(?![${SUPERSCRIPT_DIGITS}])`
 
-/** `18–23`, `1 – 2 – 3 – 4 – 5 – 6 – 7` — an en/em-dash numeric range or sequence. */
-const NUMERIC_RANGE_SOURCE = String.raw`\d+(?:[.,]\d+)?(?:\s?[–—]\s?\d+(?:[.,]\d+)?)+`
+/** `18–23`, `1 – 2 – 3 – 4 – 5 – 6 – 7`, `K–O` — an en/em-dash numeric or symbol range. */
+const NUMERIC_RANGE_SOURCE = String.raw`(?:\d+(?:[.,]\d+)?(?:\s?[–—]\s?\d+(?:[.,]\d+)?)+(?![\d]|[.,]\d|-\d)|(?<![A-Za-z0-9${SCRIPT_GLYPHS}])[A-Z][a-z]?[–—][A-Z][a-z]?(?![A-Za-z0-9(${SCRIPT_GLYPHS}]))`
 
 /**
  * Widest candidate span for a complete symbolic/mathematical relation, ratio,
  * fraction, reaction chain, or Latin symbol list (`Ca = 2-8-8-2`, `1/1860`,
  * `56:32`, `H₃PO₄ → 3H⁺ + PO₄³⁻`, `K, L, M, N, O, P, Q`).
+ *
+ * Parentheses inside an expression must be balanced (`trimBalancedSpan`), dots
+ * must be decimal/hydrate/ellipsis (`1.56`, `(......)`) rather than sentence
+ * endings (`. `), and colons must be compact ratios (`56:32`, `Fe(III):3`),
+ * symmetric numeric ratios (`1 : 2`), or uppercase symbol labels (`Na: K(2)`).
  */
-const EXPRESSION_SOURCE = String.raw`[A-Za-z0-9(+\-−${SCRIPT_GLYPHS}][A-Za-z0-9\s.,:;|()=≈≠≤≥→⟶⇌⇒+\-−×÷·±√/%°^${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}]*(?:[A-Za-z0-9)²³%°${SCRIPT_GLYPHS}${CHARGE_GLYPHS}]|[A-Za-z0-9][+\-−])`
+const EXPR_COLON = String.raw`(?::(?=[A-Za-z0-9(])|(?<=\d)\s:\s(?=\d)|(?<=(?<![A-Za-z0-9${SCRIPT_GLYPHS}${CHARGE_GLYPHS})])[A-Z][a-z]?):\s(?=[0-9(+\-−]|[KLMNOPQ]\())`
+const EXPR_DOT = String.raw`(?:\.{2,}|\.(?=[A-Za-z0-9]))`
+const EXPRESSION_SOURCE = String.raw`(?<![–—A-Za-z0-9])[A-Za-z0-9(+\-−${SCRIPT_GLYPHS}](?:[A-Za-z0-9\s,;()|—=≈≠≤≥→⟶⇌⇒+\-−×÷·±√/%°^${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}]|${EXPR_COLON}|${EXPR_DOT})*(?:[A-Za-z0-9)²³%°${SCRIPT_GLYPHS}${CHARGE_GLYPHS}]|[A-Za-z0-9][+\-−])`
 
 const EXPRESSION_RELATION =
-  /[=≈≠≤≥→⟶⇌⇒|]|\s[+\-−×÷±]\s|[A-Za-z0-9)]\s*:\s*[A-Za-z0-9(+\-−]|(?:\d|[⁰¹²³⁴⁵⁶⁷⁸⁹])\s*\/\s*[A-Za-z0-9(]|[A-Za-z0-9)]\s*\/\s*\d|[A-Za-z0-9)]\s*,\s*[A-Za-z0-9(]|÷/u
+  /[=≈≠≤≥→⟶⇌|]|(?:[+\-−]\d|[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻)])\s*⇒\s*[A-Za-z0-9(+\-−]|\s[+\-−×÷±]\s|[A-Za-z0-9)]:[A-Za-z0-9(]|\d+\s:\s\d+|(?<![A-Za-z0-9⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉)])[A-Z][a-z]?:\s+(?:[0-9(+\-−]|[KLMNOPQ]\()|(?:\d|[⁰¹²³⁴⁵⁶⁷⁸⁹])\s*\/\s*[A-Za-z0-9(]|[A-Za-z0-9)]\s*\/\s*\d|[A-Za-z)]\s*,\s*[A-Za-z(]|[A-Za-z0-9₀₁₂₃₄₅₆₇₈₉)]\s*—\s*[A-Za-z(]|÷/u
 
 const SCIENTIFIC_EXPONENT_AT_TIMES = /^×\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+)/u
 
@@ -324,8 +337,15 @@ type PriorityRule = {
 
 const PRIORITY_RULES: PriorityRule[] = [
   {
-    // Claim complete relations/equations FIRST so inner `2-8-8-2` or `3H⁺`
-    // tokens never split `Ca = 2-8-8-2` or `H₃PO₄ → 3H⁺ + PO₄³⁻` apart.
+    // Numeric and symbol ranges (`18–23`, `1 – 2 – 3 – 4 – 5 – 6 – 7`, `K–O`)
+    // claim en/em-dash spans first so adjacent parenthesized lists never steal
+    // their trailing endpoint.
+    pattern: new RegExp(NUMERIC_RANGE_SOURCE, 'gu'),
+    resolve: (value) => ({ kind: 'science', value, notation: 'range' }),
+  },
+  {
+    // Claim complete relations/equations before inner `2-8-8-2` or `3H⁺`
+    // tokens so `Ca = 2-8-8-2` and `H₃PO₄ → 3H⁺ + PO₄³⁻` stay one LTR isolate.
     pattern: new RegExp(EXPRESSION_SOURCE, 'gu'),
     trimBalanced: true,
     resolve: (value) =>
@@ -341,11 +361,6 @@ const PRIORITY_RULES: PriorityRule[] = [
     pattern: new RegExp(CHARGE_NOTATION_PARTS, 'gu'),
     resolve: (value) =>
       parseCompactCharge(value) === null ? null : { kind: 'science', value, notation: 'charge' },
-  },
-  {
-    // Numeric ranges and en-dash sequences (`18–23`, `1 – 2 – 3 – 4 – 5 – 6 – 7`).
-    pattern: new RegExp(NUMERIC_RANGE_SOURCE, 'gu'),
-    resolve: (value) => ({ kind: 'science', value, notation: 'range' }),
   },
 ]
 
@@ -370,13 +385,20 @@ function collectPrioritySpans(input: string): PrioritySpan[] {
         rule.pattern.lastIndex += 1
         continue
       }
+      const rawEnd = match.index + raw.length
       const { offset, value } = rule.trimBalanced ? trimBalancedSpan(raw) : { offset: 0, value: raw }
       if (!value) continue
       const start = match.index + offset
       const end = start + value.length
-      if (overlaps(start, end)) continue
+      if (overlaps(start, end)) {
+        if (end < rawEnd) rule.pattern.lastIndex = Math.max(match.index + 1, end)
+        continue
+      }
       const run = rule.resolve(value)
-      if (run === null) continue
+      if (run === null) {
+        if (end < rawEnd) rule.pattern.lastIndex = Math.max(match.index + 1, end)
+        continue
+      }
       spans.push({ start, end, run })
       rule.pattern.lastIndex = end
     }
