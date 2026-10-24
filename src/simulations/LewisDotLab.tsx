@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ElectronConfiguration, LewisStructure, type LewisPosition } from '@/scientific'
+import { ElectronConfiguration, LewisStructure, ScientificNotationText, type LewisPosition } from '@/scientific'
 import type { InteractiveProps } from './registry'
 import './lesson1-labs.css'
 
@@ -234,11 +234,17 @@ export default function LewisDotLab({ reducedMotion }: InteractiveProps) {
 
       {checked ? (
         <p className="lewis-lab__feedback" data-state={complete ? 'correct' : 'wrong'} role="status">
-          {complete
-            ? `صحيح: ${element.symbol} لها ${valence} إلكتروناً في السوية الأخيرة، وعدد نقاطك ${placed}، وكل جهة لا تحمل أكثر من إلكترونين بعد أن أخذت كل جهة نقطتها الأولى.`
-            : ruleIssue
-              ? ruleIssue
-              : `عدد النقاط غير مطابق بعد: تحتاج ${valence} نقطة، ووضعت ${placed}. راجع التوزيع ${distribution.join('-')} وعدّ إلكترونات السوية الأخيرة فقط.`}
+          {complete ? (
+            `صحيح: ${element.symbol} لها ${valence} إلكتروناً في السوية الأخيرة، وعدد نقاطك ${placed}، وكل جهة لا تحمل أكثر من إلكترونين بعد أن أخذت كل جهة نقطتها الأولى.`
+          ) : ruleIssue ? (
+            ruleIssue
+          ) : (
+            <>
+              {`عدد النقاط غير مطابق بعد: تحتاج ${valence} نقطة، ووضعت ${placed}. راجع التوزيع `}
+              <ElectronConfiguration value={distribution.join('-')} />
+              {' وعدّ إلكترونات السوية الأخيرة فقط.'}
+            </>
+          )}
         </p>
       ) : null}
 
@@ -256,8 +262,10 @@ export default function LewisDotLab({ reducedMotion }: InteractiveProps) {
       ) : null}
 
       <p className="lab__conclusion">
-        <strong>الخلاصة:</strong> عدد النقاط في تمثيل لويس يساوي عدد إلكترونات السوية الأخيرة، لا العدد الكلي
-        للإلكترونات. فالكربون (2-4) له أربع نقاط، والأرغون (2-8-8) له ثماني نقاط، والليثيوم (2-1) له نقطة واحدة.
+        <strong>الخلاصة:</strong>{' '}
+        <ScientificNotationText>
+          عدد النقاط في تمثيل لويس يساوي عدد إلكترونات السوية الأخيرة، لا العدد الكلي للإلكترونات. فالكربون (2-4) له أربع نقاط، والأرغون (2-8-8) له ثماني نقاط، والليثيوم (2-1) له نقطة واحدة.
+        </ScientificNotationText>
       </p>
       <p className="lab__note">
         النموذج يطبق قاعدة الكتاب في هذا الدرس: K تتسع لإلكترونين، وكل سوية تالية بحد أقصى ثمانية إلكترونات، مع

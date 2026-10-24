@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ElectronConfiguration, ChargeNotation, IonNotation, ScientificNotationText } from '@/scientific'
+import { ElectronConfiguration, ChargeNotation, IonNotation, Sci, ScientificNotationText } from '@/scientific'
 import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
@@ -65,9 +65,9 @@ export default function IonFormationLab({ reducedMotion }: InteractiveProps) {
         </div>
 
         <div className="ion-process__arrow" aria-live="polite">
-          <span aria-hidden="true">
-            <ScientificNotationText>{direction < 0 ? '⟶ e⁻' : 'e⁻ ⟶'}</ScientificNotationText>
-          </span>
+          <Sci variant="plain" aria-hidden="true">
+            {direction < 0 ? <>⟶ <ChargeNotation source="e⁻" /></> : <><ChargeNotation source="e⁻" /> ⟶</>}
+          </Sci>
           <strong>{direction < 0 ? 'فقد إلكترون' : 'اكتساب إلكترون'}</strong>
           <RtlRun as="small">
             {moved} من {Math.abs(example.transfer)}
@@ -90,7 +90,7 @@ export default function IonFormationLab({ reducedMotion }: InteractiveProps) {
       <div className="lab__measurements">
         <div><span>البروتونات (+)</span><strong>{example.protons}</strong></div>
         <div><span>الإلكترونات (−)</span><strong>{electrons}</strong></div>
-        <div><span>المجموع الجبري</span><strong>{netCharge > 0 ? `+${netCharge}` : netCharge < 0 ? `−${Math.abs(netCharge)}` : '0'}</strong></div>
+        <div><span>المجموع الجبري</span><strong><Sci variant="plain">{netCharge > 0 ? `+${netCharge}` : netCharge < 0 ? `−${Math.abs(netCharge)}` : '0'}</Sci></strong></div>
       </div>
       <p className="lab__conclusion"><strong>الاستنتاج:</strong> {completed ? direction < 0 ? `فقدت ذرّة ${example.name} شحنة سالبة؛ فأصبح عدد البروتونات أكبر من عدد الإلكترونات وتكوّن أيون موجب.` : `اكتسبت ذرّة ${example.name} شحنة سالبة؛ فأصبح عدد الإلكترونات أكبر من عدد البروتونات وتكوّن أيون سالب.` : 'عدد البروتونات لا يتغير عند تشكّل الأيون. انقل الإلكترون ولاحظ كيف يتغير الفرق بين الشحنات.'}</p>
     </section>

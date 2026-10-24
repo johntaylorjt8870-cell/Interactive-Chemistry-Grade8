@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { BohrAtom, ChemicalFormula, IonNotation, MathFormula, Sci } from '@/scientific'
+import { BohrAtom, ChargeNotation, ChemicalFormula, IonNotation, MathFormula, Sci, ScientificNotationText } from '@/scientific'
+import { chargeGlyph, formulaToUnicode, normalizeCharge } from '@/utils/scientificText'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -78,9 +79,8 @@ function chargeReadout(charge: number): string {
 }
 
 function signedCharge(charge: string): string {
-  if (charge === '+') return '+1'
-  if (charge === '-') return '−1'
-  return charge.replace('-', '−')
+  const normalized = normalizeCharge(charge)
+  return `${chargeGlyph(normalized.sign)}${normalized.magnitude || '1'}`
 }
 
 export default function BondStepsLab({ reducedMotion }: InteractiveProps) {
@@ -163,7 +163,7 @@ export default function BondStepsLab({ reducedMotion }: InteractiveProps) {
             <path d="M86 5 L 104 13 L 86 21" />
           </svg>
           <span className="l2-steps-lab__transfer-label">
-            {metal.moved} e⁻
+            <ChargeNotation source={`${metal.moved}e⁻`} size="sm" />
           </span>
         </div>
 
@@ -183,28 +183,28 @@ export default function BondStepsLab({ reducedMotion }: InteractiveProps) {
 
       <div className="lab__measurements l2-steps-lab__counters">
         <div>
-          <span>{metal.symbol}: البروتونات</span>
-          <strong>{metal.atomicNumber}</strong>
+          <span><Sci variant="plain">{metal.symbol}</Sci>: البروتونات</span>
+          <strong dir="ltr">{metal.atomicNumber}</strong>
         </div>
         <div>
-          <span>{metal.symbol}: الإلكترونات</span>
-          <strong>{metalElectrons}</strong>
+          <span><Sci variant="plain">{metal.symbol}</Sci>: الإلكترونات</span>
+          <strong dir="ltr">{metalElectrons}</strong>
         </div>
         <div>
-          <span>{metal.symbol}: الشحنة</span>
-          <strong>{chargeReadout(metalCharge)}</strong>
+          <span><Sci variant="plain">{metal.symbol}</Sci>: الشحنة</span>
+          <strong dir="ltr">{chargeReadout(metalCharge)}</strong>
         </div>
         <div>
-          <span>{nonmetal.symbol}: البروتونات</span>
-          <strong>{nonmetal.atomicNumber}</strong>
+          <span><Sci variant="plain">{nonmetal.symbol}</Sci>: البروتونات</span>
+          <strong dir="ltr">{nonmetal.atomicNumber}</strong>
         </div>
         <div>
-          <span>{nonmetal.symbol}: الإلكترونات</span>
-          <strong>{nonmetalElectrons}</strong>
+          <span><Sci variant="plain">{nonmetal.symbol}</Sci>: الإلكترونات</span>
+          <strong dir="ltr">{nonmetalElectrons}</strong>
         </div>
         <div>
-          <span>{nonmetal.symbol}: الشحنة</span>
-          <strong>{chargeReadout(nonmetalCharge)}</strong>
+          <span><Sci variant="plain">{nonmetal.symbol}</Sci>: الشحنة</span>
+          <strong dir="ltr">{chargeReadout(nonmetalCharge)}</strong>
         </div>
       </div>
 
@@ -229,12 +229,12 @@ export default function BondStepsLab({ reducedMotion }: InteractiveProps) {
         <h4 className="l2-steps-lab__explain-title">
           المرحلة {stage + 1}: {STAGE_TITLES[stage]}
         </h4>
-        <p>{STAGE_TEXT[stage](compound)}</p>
+        <p><ScientificNotationText>{STAGE_TEXT[stage](compound)}</ScientificNotationText></p>
         {stage === 4 ? (
           <p className="l2-steps-lab__formula">
             <ChemicalFormula formula={compound.formula} size="md" />
             <span>
-              نسبة الأيونات <Sci variant="plain">{compound.ratio}</Sci> · مجموع الشحنات:{' '}
+              نسبة الأيونات <Sci variant="textual">{compound.ratio}</Sci> · مجموع الشحنات:{' '}
               <MathFormula
                 tex={`(${signedCharge(metal.charge).replace('−', '-')}) + ${nonmetal.count} \\times (${signedCharge(nonmetal.charge).replace('−', '-')}) = 0`}
                 label={`مجموع شحنة أيون ${metal.symbol} وشحنات ${nonmetal.count} من أيون ${nonmetal.symbol} يساوي صفراً`}
@@ -247,14 +247,16 @@ export default function BondStepsLab({ reducedMotion }: InteractiveProps) {
       <p className="lab__conclusion">
         <strong>المفتاح الثابت في المركّبات الثلاثة:</strong> البروتونات لا تتغيّر أبداً، والإلكترونات
         وحدها تنتقل، والشحنة تُحسب بالطرح: الشحنة = عدد البروتونات − عدد الإلكترونات. في{' '}
-        {compound.name} تكون النسبة {compound.ratio} بين الأيونين حتى يكون المجموع صفراً.
+        {compound.name} تكون النسبة <Sci variant="textual">{compound.ratio}</Sci> بين الأيونين حتى يكون المجموع صفراً.
       </p>
 
       <p className="l2-steps-lab__ions" aria-hidden="true">
-        <IonNotation formula={metal.symbol} charge={metal.charge} size="sm" />
-        <span>+</span>
-        <IonNotation formula={nonmetal.symbol} charge={nonmetal.charge} size="sm" />
-        <span>بنسبة {compound.ratio}</span>
+        <Sci variant="plain">
+          <IonNotation formula={metal.symbol} charge={metal.charge} size="sm" />
+          {' + '}
+          <IonNotation formula={nonmetal.symbol} charge={nonmetal.charge} size="sm" />
+        </Sci>
+        <span>بنسبة <Sci variant="textual">{compound.ratio}</Sci></span>
       </p>
     </section>
   )
@@ -270,5 +272,5 @@ const STAGE_TEXT: Array<(compound: Compound) => string> = [
   (compound) =>
     `الأيونات الناتجة: ${compound.metal.symbol} فقد إلكترونات فصار موجباً، و${compound.nonmetal.symbol} اكتسب فصار سالباً. الأعداد الجديدة: ${compound.metal.atomicNumber} − ${totalElectrons(compound.metal.ionShells)} و${compound.nonmetal.atomicNumber} − ${totalElectrons(compound.nonmetal.ionShells)}؛ وكلٌّ منهما سطحه مكتمل.`,
   (compound) =>
-    `الأيون الموجب والسالبة يتجاذبان كهربائياً تجاذباً ساكناً، فيتراصّان بنسبة ${compound.ratio} وتتكوّن بلورة ${compound.formula} المتعادلة كهربائياً. هذه القوة هي الرابطة الأيونية.`,
+    `الأيون الموجب والسالبة يتجاذبان كهربائياً تجاذباً ساكناً، فيتراصّان بنسبة ${compound.ratio} وتتكوّن بلورة ${formulaToUnicode(compound.formula)} المتعادلة كهربائياً. هذه القوة هي الرابطة الأيونية.`,
 ]

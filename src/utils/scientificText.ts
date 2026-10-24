@@ -27,19 +27,11 @@ const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
 const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
 const CHARGE_GLYPHS = '⁺⁻'
 const SCRIPT_GLYPHS = `${SUBSCRIPT_DIGITS}${SUPERSCRIPT_DIGITS}`
-/** Latin identifier carrying its own scripts, e.g. `Cl₂`, `H₂O`, `CaCO₃`. */
-const IDENT_EXT = String.raw`[A-Za-z][A-Za-z0-9_'’.\-${SCRIPT_GLYPHS}]*`
-/**
- * A complete mathematical or symbolic run that must read as ONE left-to-right
- * unit inside Arabic prose. Splitting it into several isolates would let the
- * RTL paragraph reorder its pieces, so the run starts at a letter/digit, spans
- * formula glyphs, and ends on a meaningful character (never on a stray space
- * or operator). Arabic text and Arabic punctuation are not in the class, so
- * prose always terminates the run.
- */
-const MATH_RUN = String.raw`[A-Za-z0-9](?:[A-Za-z0-9\s=+\-−–—×÷·±√/()%°²³${SCRIPT_GLYPHS}${CHARGE_GLYPHS}'’._]*[A-Za-z0-9)²³${SCRIPT_GLYPHS}])?`
+const COMBINING_MARKS = '\u0300-\u036f'
+/** Latin identifier carrying its own scripts or combining marks, e.g. `Cl₂`, `H₂O`, `C̈a`. */
+const IDENT_EXT = String.raw`[A-Za-z][A-Za-z0-9_'’.\-${SCRIPT_GLYPHS}${COMBINING_MARKS}]*`
 /** Scientific notation such as 6.02×10²³ or 3.2 x 10^-4 */
-const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺²³⁴⁵⁶⁷⁸⁹]+))?`
+const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+))?`
 
 /**
  * A hyphen-joined numeric sequence: `2-8-8`, `2-8-18-8`, `2-8-8-2`.
@@ -49,27 +41,99 @@ const EXPONENT = String.raw`(?:[×x*]\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺²³⁴⁵
 const NUMERIC_HYPHEN_SEQUENCE = String.raw`\d+(?:[-\u2212]\d+)+`
 
 /**
- * Tokens that must be bidi-isolated (rendered LTR) inside Arabic prose:
+ * Tokens that must be bidi-isolated (rendered LTR) inside Arabic prose after
+ * `PRIORITY_RULES` has already claimed equations, ranges, distributions, and
+ * Unicode-superscript charges:
  *
- *  0. a hyphen-joined numeric sequence — `2-8-8`, never `2` + `-8` + `-8`
- *  1. a value with an optional scientific exponent and optional unit
- *     — `5 g`, `25 °C`, `6.02×10²³ mol⁻¹`
- *  2. a Latin word or identifier, optionally chained into a short expression
- *     — `H₂O`, `Cl₂`, `Ca²⁺`
- *
- * Arabic text never matches these classes, so prose is always preserved
- * verbatim; only Latin/technical runs are lifted out of the RTL flow.
+ *  0. compact nuclides with leading script digits — `¹⁶O`, `²³₁₁Na`, `₁₃Al`
+ *  1. trailing-sign textbook charges / ASCII ions — `2+`, `2−`, `Mg2+`, `Ca2+`
+ *  2. signed or unsigned values with optional exponent and unit — `5 g`, `25 °C`, `6.02×10²³ mol⁻¹`
+ *  3. Latin/symbolic identifiers with optional parenthesized groups — `H₂O`, `Ca(OH)₂`, `g·mol⁻¹`, `C̈a`
  */
 const SCIENTIFIC_RUN = new RegExp(
   [
-    String.raw`(?:${NUMERIC_HYPHEN_SEQUENCE})`,
-    String.raw`(?:${NUMBER}${EXPONENT}(?:\s?${UNIT})?)`,
-    String.raw`(?:${MATH_RUN})`,
-    String.raw`(?:${IDENT_EXT}(?:(?:\s?[=+\-−×÷·]\s?)[A-Za-z0-9_'’.\-₀₁₂₃₄₅₆₇₈⁰¹²³⁴⁵⁶⁸⁹]+)*)`,
-    String.raw`(?:[=+\-−×÷·]\s?${NUMBER})`,
+    String.raw`(?:[${SCRIPT_GLYPHS}]+[A-Z][a-z]?)`,
+    String.raw`(?:(?:${IDENT_EXT}\d*[+\-−]|${NUMBER}[+\-−])(?![\dA-Za-z]))`,
+    String.raw`(?:(?:=\s?|[+\-−±])?${NUMBER}${EXPONENT}(?:\s?${UNIT})?)`,
+    String.raw`(?:(?:${IDENT_EXT}|\(${IDENT_EXT}\))(?:[A-Za-z0-9_'’.\-·()${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}]*[A-Za-z0-9)${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}])?)`,
   ].join('|'),
   'gu',
 )
+
+/**
+ * Trims outer prose parentheses wrapping an entire span (`(1/1860)` → `1/1860`)
+ * and strips any unbalanced leading `(` or trailing `)` (`Q)` → `Q`), while
+ * keeping internal or multi-group parentheses intact (`Ca(OH)2`, `Fe(III):3`,
+ * `Na: K(2), L(8), M(1)`, `(+3)(2) + (−2)(3) = 0`).
+ */
+function trimBalancedSpan(raw: string): { offset: number; value: string } {
+  let start = 0
+  let end = raw.length
+
+  while (start < end) {
+    // Sentence punctuation at the end of a span (`H₂O.`) belongs to prose.
+    if (/[.,;:]/.test(raw[end - 1]!)) {
+      end -= 1
+      while (end > start && /\s/.test(raw[end - 1]!)) end -= 1
+      continue
+    }
+
+    // Strip outer wrapping `( ... )` only when index `start` closes at `end - 1`.
+    if (raw[start] === '(' && raw[end - 1] === ')') {
+      let depth = 0
+      let closesAtEnd = true
+      for (let i = start; i < end; i += 1) {
+        if (raw[i] === '(') depth += 1
+        else if (raw[i] === ')') {
+          depth -= 1
+          if (depth === 0 && i < end - 1) {
+            closesAtEnd = false
+            break
+          }
+          if (depth < 0) {
+            closesAtEnd = false
+            break
+          }
+        }
+      }
+      if (closesAtEnd && depth === 0) {
+        start += 1
+        end -= 1
+        while (start < end && /\s/.test(raw[start]!)) start += 1
+        while (end > start && /\s/.test(raw[end - 1]!)) end -= 1
+        continue
+      }
+    }
+
+    // Check overall balance inside [start, end).
+    let depth = 0
+    let unmatchedCloseAt = -1
+    for (let i = start; i < end; i += 1) {
+      if (raw[i] === '(') depth += 1
+      else if (raw[i] === ')') {
+        if (depth === 0) {
+          unmatchedCloseAt = i
+          break
+        }
+        depth -= 1
+      }
+    }
+
+    if (unmatchedCloseAt !== -1 && raw[end - 1] === ')') {
+      end -= 1
+      while (end > start && /\s/.test(raw[end - 1]!)) end -= 1
+      continue
+    }
+    if (depth > 0 && raw[start] === '(') {
+      start += 1
+      while (start < end && /\s/.test(raw[start]!)) start += 1
+      continue
+    }
+    break
+  }
+
+  return { offset: start, value: raw.slice(start, end) }
+}
 
 /**
  * Builds a science run. Hyphen-joined numeric sequences that read as shell
@@ -91,17 +155,22 @@ function splitGenericRuns(input: string): ScientificRun[] {
   let match: RegExpExecArray | null
 
   while ((match = SCIENTIFIC_RUN.exec(input)) !== null) {
-    const [value] = match
-    if (!value) {
+    const [raw] = match
+    if (!raw) {
       // Defensive: never allow a zero-length match to spin the loop forever.
       SCIENTIFIC_RUN.lastIndex += 1
       continue
     }
-    if (match.index > cursor) {
-      runs.push({ kind: 'prose', value: input.slice(cursor, match.index) })
+    const { offset, value } = trimBalancedSpan(raw)
+    if (!value) continue
+    const actualStart = match.index + offset
+    const actualEnd = actualStart + value.length
+    if (actualStart > cursor) {
+      runs.push({ kind: 'prose', value: input.slice(cursor, actualStart) })
     }
     runs.push(scienceRun(value))
-    cursor = match.index + value.length
+    cursor = actualEnd
+    SCIENTIFIC_RUN.lastIndex = actualEnd
   }
 
   if (cursor < input.length) {
@@ -211,56 +280,72 @@ const NUMERIC_HYPHEN_SEQUENCE_PATTERN = new RegExp(`^${NUMERIC_HYPHEN_SEQUENCE}$
 /** `e⁻`, `2e⁻`, `Cl⁻`, `Na⁺`, `Ca²⁺`, `O²⁻`, `Al³⁺`, `SO₄²⁻` — one species. */
 const CHARGE_NOTATION_PARTS = String.raw`(?<![A-Za-z${SCRIPT_GLYPHS}${CHARGE_GLYPHS}])(\d+)?([A-Za-z][A-Za-z0-9${SUBSCRIPT_DIGITS}]*)([${SUPERSCRIPT_DIGITS}]*)([${CHARGE_GLYPHS}])(?![${SUPERSCRIPT_DIGITS}])`
 
-/** `18–23`, `18 – 23` — a page or figure range, never two separate numbers. */
-const NUMERIC_RANGE_SOURCE = String.raw`\d+(?:[.,]\d+)?\s?[–—]\s?\d+(?:[.,]\d+)?`
-
-/** Widest candidate span for a relation: `2 + 3 = 5`, `(+3)(2) + (−2)(3) = 0`. */
-const EXPRESSION_SOURCE = String.raw`[A-Za-z0-9(+\-−][A-Za-z0-9\s.()=+\-−–—×÷·±√/%°${SCRIPT_GLYPHS}${CHARGE_GLYPHS}]*[A-Za-z0-9)²³${SCRIPT_GLYPHS}]`
+/** `18–23`, `1 – 2 – 3 – 4 – 5 – 6 – 7` — an en/em-dash numeric range or sequence. */
+const NUMERIC_RANGE_SOURCE = String.raw`\d+(?:[.,]\d+)?(?:\s?[–—]\s?\d+(?:[.,]\d+)?)+`
 
 /**
- * A candidate is only an equation when it carries a relation (`=`) or a spaced
- * operator. That keeps `25 °C`, `6.02×10²³ mol⁻¹` and `44 g/mol` on the
- * measurement path, where the value-then-unit order is already guaranteed.
+ * Widest candidate span for a complete symbolic/mathematical relation, ratio,
+ * fraction, reaction chain, or Latin symbol list (`Ca = 2-8-8-2`, `1/1860`,
+ * `56:32`, `H₃PO₄ → 3H⁺ + PO₄³⁻`, `K, L, M, N, O, P, Q`).
  */
-const EXPRESSION_RELATION = /=|\s[+\-−×÷±]\s/
+const EXPRESSION_SOURCE = String.raw`[A-Za-z0-9(+\-−${SCRIPT_GLYPHS}][A-Za-z0-9\s.,:;|()=≈≠≤≥→⟶⇌⇒+\-−×÷·±√/%°^${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}]*(?:[A-Za-z0-9)²³%°${SCRIPT_GLYPHS}${CHARGE_GLYPHS}]|[A-Za-z0-9][+\-−])`
 
-/** True when the run is one complete arithmetic or scientific relation. */
+const EXPRESSION_RELATION =
+  /[=≈≠≤≥→⟶⇌⇒|]|\s[+\-−×÷±]\s|[A-Za-z0-9)]\s*:\s*[A-Za-z0-9(+\-−]|(?:\d|[⁰¹²³⁴⁵⁶⁷⁸⁹])\s*\/\s*[A-Za-z0-9(]|[A-Za-z0-9)]\s*\/\s*\d|[A-Za-z0-9)]\s*,\s*[A-Za-z0-9(]|÷/u
+
+const SCIENTIFIC_EXPONENT_AT_TIMES = /^×\s?10\s?(?:\^?[-+−]?\d+|[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+)/u
+
+/**
+ * True when the run is one complete arithmetic, ratio, chemical-reaction, or
+ * symbolic relation. Measurements (`25 °C`, `6.02×10²³ mol⁻¹`, `44 g/mol`) do
+ * not match, keeping them on the plain measurement path.
+ */
 export function isMathExpression(value: string): boolean {
   const candidate = value.trim()
-  if (!/\d/.test(candidate)) return false
+  if (!/[A-Za-z0-9]/.test(candidate)) return false
   if (/[\u0600-\u06ff]/.test(candidate)) return false
-  return EXPRESSION_RELATION.test(candidate)
+  // Bare operators without operands on both sides are not expressions.
+  if (/^[=≈≠≤≥→⟶⇌⇒|:.,+\-−×÷±/\s]+$/u.test(candidate)) return false
+  if (EXPRESSION_RELATION.test(candidate)) return true
+  // Unspaced multiplication such as `2×2` (excluding `6.02×10²³` exponents).
+  let idx = candidate.indexOf('×')
+  while (idx !== -1) {
+    if (!SCIENTIFIC_EXPONENT_AT_TIMES.test(candidate.slice(idx))) return true
+    idx = candidate.indexOf('×', idx + 1)
+  }
+  return false
 }
 
 type PriorityRule = {
   pattern: RegExp
+  trimBalanced?: boolean
   resolve: (value: string) => ScientificRun | null
 }
 
 const PRIORITY_RULES: PriorityRule[] = [
   {
-    // A hyphen-joined numeric sequence (`2-8-8`, `4-2`) keeps its existing rule.
+    // Claim complete relations/equations FIRST so inner `2-8-8-2` or `3H⁺`
+    // tokens never split `Ca = 2-8-8-2` or `H₃PO₄ → 3H⁺ + PO₄³⁻` apart.
+    pattern: new RegExp(EXPRESSION_SOURCE, 'gu'),
+    trimBalanced: true,
+    resolve: (value) =>
+      isMathExpression(value) ? { kind: 'science', value, notation: 'expression' } : null,
+  },
+  {
+    // Standalone hyphen-joined numeric sequences (`2-8-8`, `4-2`).
     pattern: new RegExp(NUMERIC_HYPHEN_SEQUENCE, 'gu'),
     resolve: (value) => scienceRun(value),
   },
   {
-    // A charge-bearing token is promoted to real superscript markup, so `e⁻`,
-    // `Cl⁻` and `Ca²⁺` never leave a raw sign loose in the RTL prose.
+    // Standalone charge-bearing tokens (`e⁻`, `2e⁻`, `Cl⁻`, `Ca²⁺`, `SO₄²⁻`).
     pattern: new RegExp(CHARGE_NOTATION_PARTS, 'gu'),
     resolve: (value) =>
       parseCompactCharge(value) === null ? null : { kind: 'science', value, notation: 'charge' },
   },
   {
-    // A range such as `18–23` is one value: the dash stays inside the isolate,
-    // otherwise the two numbers can be reordered around it.
+    // Numeric ranges and en-dash sequences (`18–23`, `1 – 2 – 3 – 4 – 5 – 6 – 7`).
     pattern: new RegExp(NUMERIC_RANGE_SOURCE, 'gu'),
     resolve: (value) => ({ kind: 'science', value, notation: 'range' }),
-  },
-  {
-    // A relation is one LTR isolate, never a chain of `2` + `+ 3` + `= 5`.
-    pattern: new RegExp(EXPRESSION_SOURCE, 'gu'),
-    resolve: (value) =>
-      isMathExpression(value) ? { kind: 'science', value, notation: 'expression' } : null,
   },
 ]
 
@@ -279,18 +364,21 @@ function collectPrioritySpans(input: string): PrioritySpan[] {
     rule.pattern.lastIndex = 0
     let match: RegExpExecArray | null
     while ((match = rule.pattern.exec(input)) !== null) {
-      const value = match[0]
-      if (!value) {
+      const raw = match[0]
+      if (!raw) {
         // Defensive: never allow a zero-length match to spin the loop forever.
         rule.pattern.lastIndex += 1
         continue
       }
-      const start = match.index
+      const { offset, value } = rule.trimBalanced ? trimBalancedSpan(raw) : { offset: 0, value: raw }
+      if (!value) continue
+      const start = match.index + offset
       const end = start + value.length
       if (overlaps(start, end)) continue
       const run = rule.resolve(value)
       if (run === null) continue
       spans.push({ start, end, run })
+      rule.pattern.lastIndex = end
     }
   }
 

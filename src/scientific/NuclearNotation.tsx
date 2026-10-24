@@ -16,15 +16,16 @@ function scriptDigitsToPlain(value: string, alphabet: string): string {
 export function parseCompactNuclearNotation(value: string): {
   symbol: string
   massNumber?: string
-  atomicNumber: string
+  atomicNumber?: string
 } | null {
-  const match = value.trim().match(/^([⁰¹²³⁴⁵⁶⁷⁸⁹]+)?([₀₁₂₃₄₅₆₇₈₉]+)([A-Z][a-z]?)$/u)
+  const match = value.trim().match(/^([⁰¹²³⁴⁵⁶⁷⁸⁹]+)?([₀₁₂₃₄₅₆₇₈₉]+)?([A-Z][a-z]?)$/u)
   if (!match) return null
-  const [, mass = '', atomic, symbol] = match
+  const [, mass = '', atomic = '', symbol] = match
+  if (!mass && !atomic) return null
   return {
     symbol: symbol!,
     ...(mass ? { massNumber: scriptDigitsToPlain(mass, SUPERSCRIPT_DIGITS) } : {}),
-    atomicNumber: scriptDigitsToPlain(atomic!, SUBSCRIPT_DIGITS),
+    ...(atomic ? { atomicNumber: scriptDigitsToPlain(atomic, SUBSCRIPT_DIGITS) } : {}),
   }
 }
 

@@ -1,4 +1,4 @@
-import { LewisMolecule, MathFormula } from '@/scientific'
+import { LewisMolecule, MathFormula, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -151,13 +151,14 @@ export default function Lesson2LewisAnatomyDiagram({ interactiveId }: Interactiv
         <p>
           <strong>لماذا هذا الرسم دليل؟</strong> لأن الأعداد في البطاقة تُقرأ من الشكل نفسه ولا
           تحتاج حفظاً: عدّ النقاط بين الرمزين، ثم عدّ الأزواج على الأطراف، ثم تحقّق من العلاقة
-          <MathFormula tex="E_{shared} + 2 \\times P_{lone} = E_{surface}" label="الإلكترونات المشتركة زائد إلكترونا كل زوج غير مشترك يساوي إلكترونات سطح الذرة" />.
+          <MathFormula tex="E_{shared} + 2 \times P_{lone} = E_{surface}" label="الإلكترونات المشتركة زائد إلكترونا كل زوج غير مشترك يساوي إلكترونات سطح الذرة" />.
           الهيدروجين وحده هدفه 2، لأن سويتَه الأولى تتّسع لإلكترونين.
         </p>
         <p>
-          <strong>قاعدة التحويل إلى صيغة:</strong> عدد الأزواج المشتركة هو ما يحدّد كيف نكتب
-          الرابطة (خط واحد أو خطان أو ثلاثة خطوط). أمّا الصيغة نفسها فتُكتب بعدد الذرّات، لا بعدد
-          الخطوط؛ ولهذا يبقى كلٌّ من H₂ وO₂ وN₂ مكتوباً برمزين مهما اختلفت رتبة الرابطة.
+          <strong>قاعدة التحويل إلى صيغة:</strong>{' '}
+          <ScientificNotationText>
+            عدد الأزواج المشتركة هو ما يحدّد كيف نكتب الرابطة (خط واحد أو خطان أو ثلاثة خطوط). أمّا الصيغة نفسها فتُكتب بعدد الذرّات، لا بعدد الخطوط؛ ولهذا يبقى كلٌّ من H₂ وO₂ وN₂ مكتوباً برمزين مهما اختلفت رتبة الرابطة.
+          </ScientificNotationText>
         </p>
       </figcaption>
     </figure>

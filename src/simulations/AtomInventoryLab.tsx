@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChargeValue, ElectronConfiguration, IonNotation, MathFormula, NuclearNotation, Sci } from '@/scientific'
+import { ChargeValue, ElectronConfiguration, IonNotation, MathFormula, NuclearNotation, Sci, ScientificNotationText } from '@/scientific'
 import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 import './lesson1-labs.css'
@@ -187,7 +187,7 @@ export default function AtomInventoryLab(_props: InteractiveProps) {
             className="button button--quiet button--small"
             onClick={() => selectPreset(preset.particle)}
           >
-            {preset.label}
+            <ScientificNotationText>{preset.label}</ScientificNotationText>
           </button>
         ))}
       </div>
@@ -295,7 +295,9 @@ export default function AtomInventoryLab(_props: InteractiveProps) {
 
       <div className="challenge-panel">
         <div className="challenge-panel__head">
-          <p className="prediction-panel__title">تحدٍّ: اضبط الجسيم ليصبح «{target.label}»</p>
+          <p className="prediction-panel__title">
+            تحدٍّ: اضبط الجسيم ليصبح «<ScientificNotationText>{target.label}</ScientificNotationText>»
+          </p>
           <button
             type="button"
             className="button button--quiet button--small"

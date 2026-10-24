@@ -178,7 +178,9 @@ function ExactInput({ question, response, onChange, readOnly }: InputProps) {
   return (
     <label className="ta-field">
       <span className="ta-field__label">
-        الإجابة{spec.inputHint ? ` (مثال: ${spec.inputHint})` : ''}
+        <ScientificNotationText>
+          {`الإجابة${spec.inputHint ? ` (مثال: ${spec.inputHint})` : ''}`}
+        </ScientificNotationText>
       </span>
       <input
         className="ta-input"

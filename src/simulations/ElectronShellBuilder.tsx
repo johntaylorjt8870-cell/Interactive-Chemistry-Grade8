@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ElectronConfiguration } from '@/scientific'
+import { ElectronConfiguration, Sci, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 import './lesson1-labs.css'
 
@@ -106,7 +106,7 @@ export default function ElectronShellBuilder({ reducedMotion }: InteractiveProps
           + إلكترون
         </button>
         <button type="button" className="button button--quiet" onClick={() => setElectrons(11)}>
-          إعادة الضبط (Na = 11)
+          <ScientificNotationText>إعادة الضبط (Na = 11)</ScientificNotationText>
         </button>
       </div>
 
@@ -118,7 +118,7 @@ export default function ElectronShellBuilder({ reducedMotion }: InteractiveProps
             className="button button--quiet button--small"
             onClick={() => setElectrons(preset.electrons)}
           >
-            {preset.label}
+            <Sci variant="plain">{preset.label}</Sci>
           </button>
         ))}
       </div>
@@ -141,7 +141,7 @@ export default function ElectronShellBuilder({ reducedMotion }: InteractiveProps
       </div>
 
       <table className="capacity-table">
-        <caption>مقارنة: السعة النظرية y = 2(n)² مقابل الإشغال في أمثلة الكتاب</caption>
+        <caption><ScientificNotationText>مقارنة: السعة النظرية y = 2(n)² مقابل الإشغال في أمثلة الكتاب</ScientificNotationText></caption>
         <thead>
           <tr>
             <th scope="col">السوية</th>

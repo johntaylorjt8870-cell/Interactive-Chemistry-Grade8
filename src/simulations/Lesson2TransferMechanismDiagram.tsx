@@ -1,4 +1,5 @@
-import { BohrAtom, ChemicalFormula, IonNotation, MathFormula } from '@/scientific'
+import { BohrAtom, ChemicalFormula, ElectronConfiguration, IonNotation, MathFormula, Sci } from '@/scientific'
+import { chargeGlyph, normalizeCharge } from '@/utils/scientificText'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -101,9 +102,8 @@ function electronsIn(shells: number[]): number {
 }
 
 function formatCharge(charge: string): string {
-  if (charge === '-') return '−1'
-  if (charge === '+') return '+1'
-  return charge.replace('-', '−')
+  const normalized = normalizeCharge(charge)
+  return `${chargeGlyph(normalized.sign)}${normalized.magnitude || '1'}`
 }
 
 export default function Lesson2TransferMechanismDiagram({ interactiveId }: InteractiveProps) {
@@ -120,7 +120,7 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
     <figure className="l2-figure" data-diagram={interactiveId} data-compound={spec.formula}>
       <header className="l2-figure__header">
         <p className="l2-figure__eyebrow">
-          شكل توضيحي من إضافة المنصة · {spec.name} <span dir="ltr">({spec.formula})</span>
+          شكل توضيحي من إضافة المنصة · {spec.name} <Sci variant="plain">(<ChemicalFormula formula={spec.formula} size="sm" />)</Sci>
         </p>
         <h4 className="l2-figure__title">آلية الرابطة الأيونية في أربع مراحل: {spec.name}</h4>
         <p className="l2-figure__lead">{spec.statement}</p>
@@ -155,19 +155,23 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
           <dl className="l2-transfer__facts">
             <div>
               <dt>
-                {metal.symbol} (Z = {metal.atomicNumber})
+                <Sci variant="plain">
+                  {metal.symbol} (Z = {metal.atomicNumber})
+                </Sci>
               </dt>
               <dd>
-                التوزيع <span dir="ltr">{metal.shells.join('-')}</span> · الإلكترونات {metalElectrons} ·
+                التوزيع <ElectronConfiguration value={metal.shells.join('-')} /> · الإلكترونات {metalElectrons} ·
                 الشحنة 0
               </dd>
             </div>
             <div>
               <dt>
-                {nonmetal.symbol} (Z = {nonmetal.atomicNumber}) × {nonmetal.count}
+                <Sci variant="plain">
+                  {nonmetal.symbol} (Z = {nonmetal.atomicNumber}) × {nonmetal.count}
+                </Sci>
               </dt>
               <dd>
-                التوزيع <span dir="ltr">{nonmetal.shells.join('-')}</span> · الإلكترونات{' '}
+                التوزيع <ElectronConfiguration value={nonmetal.shells.join('-')} /> · الإلكترونات{' '}
                 {nonmetalElectrons} · الشحنة 0
               </dd>
             </div>
@@ -258,7 +262,9 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
             </div>
             <div>
               <dt>
-                <IonNotation formula={nonmetal.symbol} charge={nonmetal.charge} size="sm" /> × {nonmetal.count}
+                <Sci variant="plain">
+                  <IonNotation formula={nonmetal.symbol} charge={nonmetal.charge} size="sm" /> × {nonmetal.count}
+                </Sci>
               </dt>
               <dd>
                 <MathFormula
@@ -296,15 +302,15 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
               } حوله بنسبة ${spec.ratio}`}
             >
               <circle className="l2-transfer__cation" cx={110} cy={60} r={22} />
-              <text className="l2-transfer__sign" x={110} y={67} textAnchor="middle">
-                {metal.charge}
+              <text className="l2-transfer__sign" x={110} y={67} textAnchor="middle" direction="ltr" unicodeBidi="isolate">
+                {formatCharge(metal.charge)}
               </text>
               {Array.from({ length: nonmetal.count }, (_unused, index) => {
                 const anionY = nonmetal.count > 1 ? (index === 0 ? 30 : 90) : 60
                 return (
                   <g key={index}>
                     <circle className="l2-transfer__anion" cx={172} cy={anionY} r={26} />
-                    <text className="l2-transfer__sign" x={172} y={anionY + 7} textAnchor="middle">
+                    <text className="l2-transfer__sign" x={172} y={anionY + 7} textAnchor="middle" direction="ltr" unicodeBidi="isolate">
                       {formatCharge(nonmetal.charge)}
                     </text>
                   </g>
@@ -314,7 +320,7 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
             <div className="l2-transfer__formula">
               <ChemicalFormula formula={spec.formula} size="lg" />
               <p>
-                نسبة الأيونات {spec.ratio} · المجموع الجبري للشحنات يساوي صفراً لأن{' '}
+                نسبة الأيونات <Sci variant="textual">{spec.ratio}</Sci> · المجموع الجبري للشحنات يساوي صفراً لأن{' '}
                 <MathFormula
                   tex={`(${formatCharge(metal.charge).replace('−', '-')}) + ${nonmetal.count} \\times (${formatCharge(nonmetal.charge).replace('−', '-')}) = 0`}
                   label={`مجموع شحنة أيون ${metal.symbol} وشحنات ${nonmetal.count} من أيون ${nonmetal.symbol} يساوي صفراً`}

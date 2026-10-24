@@ -169,9 +169,9 @@ export function QuestionView({
           <div className="fill-blank">
             {segments.map((segment, segmentIndex) =>
               segment.type === 'text' ? (
-                <span key={segmentIndex} className="fill-blank__text">
+                <ScientificNotationText key={segmentIndex} as="span" className="fill-blank__text">
                   {segment.value}
-                </span>
+                </ScientificNotationText>
               ) : (
                 <FillBlankInput
                   key={segment.value}
@@ -316,7 +316,11 @@ function FillBlankInput({
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
-      {solution ? <span className="fill-blank__solution">{solution}</span> : null}
+      {solution ? (
+        <ScientificNotationText as="span" className="fill-blank__solution">
+          {solution}
+        </ScientificNotationText>
+      ) : null}
     </span>
   )
 }

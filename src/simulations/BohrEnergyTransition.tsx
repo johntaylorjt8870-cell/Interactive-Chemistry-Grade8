@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChargeNotation, MathFormula } from '@/scientific'
+import { ChargeNotation, MathFormula, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -225,9 +225,10 @@ export default function BohrEnergyTransition({ reducedMotion }: InteractiveProps
         السويات نفسها محددة.
       </p>
       <p className="lab__note">
-        <strong>حدود النموذج:</strong> قيم الطاقة (‎−13.6/n²‎ eV) والطول الموجي محسوبة من نموذج بور لذرّة
-        الهيدروجين، وهي إثراء من المنصة وليست مطبوعة في الكتاب. الكتاب يذكر القاعدة النوعية فقط: الطاقة المتبادلة
-        تساوي الفرق بين السويتين. أما سعة السوية فمحسوبة من قانون الكتاب y = 2(n)².
+        <strong>حدود النموذج:</strong>{' '}
+        <ScientificNotationText>
+          قيم الطاقة (−13.6/n² eV) والطول الموجي محسوبة من نموذج بور لذرّة الهيدروجين، وهي إثراء من المنصة وليست مطبوعة في الكتاب. الكتاب يذكر القاعدة النوعية فقط: الطاقة المتبادلة تساوي الفرق بين السويتين. أما سعة السوية فمحسوبة من قانون الكتاب y = 2(n)².
+        </ScientificNotationText>
       </p>
     </section>
   )

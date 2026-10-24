@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { MathFormula, ScientificNotationText } from '@/scientific'
+import { MathFormula, Sci, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 import './lesson1-labs.css'
 
@@ -65,13 +65,13 @@ export default function ShellCapacityLab(_props: InteractiveProps) {
       <header className="lab__header">
         <div>
           <p className="lab__phase">إضافة من المنصة · نموذج القانون</p>
-          <h3 id="capacity-lab-title">سعة السوية الرئيسية: y = 2(n)²</h3>
+          <h3 id="capacity-lab-title"><ScientificNotationText>سعة السوية الرئيسية: y = 2(n)²</ScientificNotationText></h3>
         </div>
         <div className="capacity-lab__reading" aria-live="polite">
           <span>
-            السوية {level.letter} · n = {level.n}
+            السوية {level.letter} · <Sci variant="plain">n = {level.n}</Sci>
           </span>
-          <strong>y = {capacity}</strong>
+          <strong><Sci variant="plain">y = {capacity}</Sci></strong>
         </div>
       </header>
 
@@ -122,8 +122,10 @@ export default function ShellCapacityLab(_props: InteractiveProps) {
 
       <div className="capacity-note">
         <p>
-          <strong>قاعدة مطبوعة إضافية:</strong> لا تحوي السوية الأخيرة في هذه التوزيعات أكثر من ثمانية إلكترونات،
-          حتى لو كانت سعتها النظرية أكبر. لذلك يُكتب الكالسيوم 2-8-8-2 لا 2-8-10.
+          <strong>قاعدة مطبوعة إضافية:</strong>{' '}
+          <ScientificNotationText>
+            لا تحوي السوية الأخيرة في هذه التوزيعات أكثر من ثمانية إلكترونات، حتى لو كانت سعتها النظرية أكبر. لذلك يُكتب الكالسيوم 2-8-8-2 لا 2-8-10.
+          </ScientificNotationText>
         </p>
       </div>
 
@@ -135,7 +137,9 @@ export default function ShellCapacityLab(_props: InteractiveProps) {
             return (
               <label key={letter} className="capacity-check__field" data-state={checked ? (result.correct ? 'correct' : 'wrong') : undefined}>
                 <span>
-                  {letter} · n = {LEVELS.find((item) => item.letter === letter)!.n}
+                  <Sci variant="plain">
+                    {letter} · n = {LEVELS.find((item) => item.letter === letter)!.n}
+                  </Sci>
                 </span>
                 <input
                   type="number"
