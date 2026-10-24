@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { MathFormula } from '@/scientific'
+import { MathFormula, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 import './lesson1-labs.css'
 
@@ -179,23 +179,23 @@ export default function ShellCapacityLab(_props: InteractiveProps) {
         </div>
         {checked ? (
           <p className="prediction-panel__result" data-state={allCorrect ? 'correct' : 'wrong'} role="status">
-            {allCorrect
+            <ScientificNotationText>{allCorrect
               ? 'ممتاز: M = 18 وN = 32 وO = 50. لاحظ السرعة: كلما زاد n زادت السعة بمقدار يتناسب مع مربع n.'
-              : 'ليست كل القيم صحيحة بعد. احسب المربع أولاً ثم اضربه في 2: M = 2 × 9، N = 2 × 16، O = 2 × 25.'}
+              : 'ليست كل القيم صحيحة بعد. احسب المربع أولاً ثم اضربه في 2: M = 2 × 9، N = 2 × 16، O = 2 × 25.'}</ScientificNotationText>
           </p>
         ) : null}
       </div>
 
       <p className="lab__conclusion">
-        <strong>الخلاصة:</strong> السعة العظمى تتبع y = 2(n)². والقيم المطبوعة في جدول الكتاب: K = 2، L = 8،
-        M = 18، N = 32، O = 50. وهذه سعة نظرية، لا عدد الإلكترونات الفعلي في كل ذرة.
+        <strong>الخلاصة:</strong> السعة العظمى تتبع <MathFormula tex="y = 2(n)^2" />. والقيم المطبوعة في جدول الكتاب:
+        {' '}<ScientificNotationText>K = 2، L = 8، M = 18، N = 32، O = 50</ScientificNotationText>. وهذه سعة نظرية، لا عدد الإلكترونات الفعلي في كل ذرة.
       </p>
 
       {/* A model limitation is content, not motion: it is shown to every
           student, including those who ask for reduced motion. */}
       <p className="lab__note">
-        النموذج يطبّق القانون المطبوع حتى n = 7. أما التوزيع الفعلي للذرات في هذا الدرس فيتوقف عند قاعدة «السوية
-        الأخيرة لا تزيد على ثمانية»، والأمثلة المطبوعة لا تتجاوز العدد الذري 20.
+        <ScientificNotationText>النموذج يطبّق القانون المطبوع حتى n = 7. أما التوزيع الفعلي للذرات في هذا الدرس فيتوقف عند قاعدة «السوية
+        الأخيرة لا تزيد على ثمانية»، والأمثلة المطبوعة لا تتجاوز العدد الذري 20.</ScientificNotationText>
       </p>
     </section>
   )

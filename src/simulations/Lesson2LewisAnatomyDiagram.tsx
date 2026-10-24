@@ -1,4 +1,4 @@
-import { LewisMolecule } from '@/scientific'
+import { LewisMolecule, MathFormula } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -132,7 +132,10 @@ export default function Lesson2LewisAnatomyDiagram({ interactiveId }: Interactiv
               <div>
                 <dt>التحقّق: سطح كل ذرّة</dt>
                 <dd>
-                  {card.sharedElectrons + card.lonePairs * 2} = {card.target}
+                  <MathFormula
+                    tex={`${card.sharedElectrons + card.lonePairs * 2} = ${card.target}`}
+                    label={`${card.sharedElectrons} إلكترونات مشتركة و${card.lonePairs} أزواج غير مشتركة، المجموع ${card.target}`}
+                  />
                 </dd>
               </div>
             </dl>
@@ -147,9 +150,9 @@ export default function Lesson2LewisAnatomyDiagram({ interactiveId }: Interactiv
       <figcaption className="l2-figure__caption">
         <p>
           <strong>لماذا هذا الرسم دليل؟</strong> لأن الأعداد في البطاقة تُقرأ من الشكل نفسه ولا
-          تحتاج حفظاً: عدّ النقاط بين الرمزين، ثم عدّ الأزواج على الأطراف، ثم تحقّق أن
-          (المشترك + 2 × عدد الأزواج غير المشتركة) = سطح الذرّة. الهيدروجين وحده هدفه 2، لأن
-          سويتَه الأولى تتّسع لإلكترونين.
+          تحتاج حفظاً: عدّ النقاط بين الرمزين، ثم عدّ الأزواج على الأطراف، ثم تحقّق من العلاقة
+          <MathFormula tex="E_{shared} + 2 \\times P_{lone} = E_{surface}" label="الإلكترونات المشتركة زائد إلكترونا كل زوج غير مشترك يساوي إلكترونات سطح الذرة" />.
+          الهيدروجين وحده هدفه 2، لأن سويتَه الأولى تتّسع لإلكترونين.
         </p>
         <p>
           <strong>قاعدة التحويل إلى صيغة:</strong> عدد الأزواج المشتركة هو ما يحدّد كيف نكتب

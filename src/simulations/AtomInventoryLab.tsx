@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChargeValue, ElectronConfiguration, IonNotation, NuclearNotation } from '@/scientific'
+import { ChargeValue, ElectronConfiguration, IonNotation, MathFormula, NuclearNotation, Sci } from '@/scientific'
 import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 import './lesson1-labs.css'
@@ -198,11 +198,11 @@ export default function AtomInventoryLab(_props: InteractiveProps) {
           <strong>{particle.protons}</strong>
         </div>
         <div>
-          <span>العدد الكتلي A = Z + N</span>
+          <span>العدد الكتلي <Sci variant="plain">A = Z + N</Sci></span>
           <strong>{massNumber}</strong>
         </div>
         <div>
-          <span>النيوترونات = A − Z</span>
+          <span>النيوترونات = <Sci variant="plain">A - Z</Sci></span>
           <strong>{particle.neutrons}</strong>
         </div>
         <div>
@@ -276,13 +276,19 @@ export default function AtomInventoryLab(_props: InteractiveProps) {
         </div>
         {predictionResult === 'correct' ? (
           <p className="prediction-panel__result" data-state="correct" role="status">
-            توقّعك صحيح. الشحنة = {particle.protons} − {particle.electrons} ={' '}
-            <ChargeValue value={chargeText} />، لذلك الجسيم {kindLabel}.
+            توقّعك صحيح. حساب الشحنة:
+            {' '}<MathFormula
+              tex={`${particle.protons} - ${particle.electrons} = ${chargeText.replace('−', '-')}`}
+              label={`${particle.protons} بروتوناً ناقص ${particle.electrons} إلكترونات يساوي الشحنة ${chargeText}`}
+            />؛ لذلك الجسيم {kindLabel}.
           </p>
         ) : predictionResult === 'wrong' ? (
           <p className="prediction-panel__result" data-state="wrong" role="status">
-            راجع الحساب: الشحنة = البروتونات − الإلكترونات = {particle.protons} − {particle.electrons} ={' '}
-            <ChargeValue value={chargeText} />. النوع الصحيح: {kindLabel}.
+            راجع الحساب: الشحنة = البروتونات − الإلكترونات:
+            {' '}<MathFormula
+              tex={`${particle.protons} - ${particle.electrons} = ${chargeText.replace('−', '-')}`}
+              label={`${particle.protons} بروتوناً ناقص ${particle.electrons} إلكترونات يساوي الشحنة ${chargeText}`}
+            />. النوع الصحيح: {kindLabel}.
           </p>
         ) : null}
       </div>

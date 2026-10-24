@@ -55,6 +55,8 @@ export function MathFormula({ tex, display = 'inline', className, label }: MathF
         className={`${classes} math-formula--invalid`}
         data-math-error="true"
         title={label ?? tex}
+        dir="ltr"
+        data-math={display}
         tabIndex={display === 'block' ? 0 : undefined}
       >
         <Sci variant="textual">{tex}</Sci>

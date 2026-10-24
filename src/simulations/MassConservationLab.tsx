@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import { ScientificDiagram, ScientificNotationText } from '@/scientific'
+import { MathFormula, Sci, ScientificDiagram, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 import { calculateOpenSystemMass, formatModelMass } from './lesson5Models'
 import './lesson5-labs.css'
@@ -116,7 +116,7 @@ export default function MassConservationLab({ reducedMotion }: InteractiveProps)
           </div>
 
           <p className="l5-lab__status" role="status" aria-live="polite">
-            {mode === 'closed'
+            <ScientificNotationText>{mode === 'closed'
               ? closedReady
                 ? `ناتج حسابي للنظام المغلق: مجموع الكتلة قبل التفاعل ${formatModelMass(initialMass!)} ${unit}، وبعده ${formatModelMass(initialMass!)} ${unit}.`
                 : 'أدخل قيمة كتلة غير سالبة لإظهار نتيجة النموذج المغلق.'
@@ -124,14 +124,18 @@ export default function MassConservationLab({ reducedMotion }: InteractiveProps)
                 ? 'كتلة المادة المغادرة لا يمكن أن تتجاوز الكتلة الابتدائية في هذا النموذج؛ راجع القيم.'
                 : openReady
                   ? `ناتج النموذج: ما بقي داخل الوعاء ${formatModelMass(openResult.insideMass)} ${unit}؛ ومع إضافة الكتلة التي عبرت الحد ${formatModelMass(openResult.accountedTotal)} ${unit}.`
-                  : 'أدخل الكتلة الابتدائية وكتلة المادة المغادرة لإظهار الحساب.'}
+                  : 'أدخل الكتلة الابتدائية وكتلة المادة المغادرة لإظهار الحساب.'}</ScientificNotationText>
           </p>
           <p className="l5-lab__note">
             كل قراءة هنا ناتج نموذج حسابي من مدخلاتك وقانون انحفاظ الكتلة، وليست قراءة ميزان أو نتيجة تجربة كتابية. في النظام المفتوح قد تختلف كتلة ما بقي على الميزان إذا خرجت مادة؛ نحسب المادة المغادرة عند توسيع حدود النظام.
           </p>
           {mode === 'open' && openReady ? (
             <p className="l5-lab__note" dir="rtl">
-              فحص النموذج: {formatModelMass(openResult.insideMass)} + {formatModelMass(openResult.escapedMass)} = {formatModelMass(openResult.accountedTotal)} {unit}.
+              فحص النموذج:
+              {' '}<MathFormula
+                tex={`${formatModelMass(openResult.insideMass)} + ${formatModelMass(openResult.escapedMass)} = ${formatModelMass(openResult.accountedTotal)}`}
+                label={`${formatModelMass(openResult.insideMass)} زائد ${formatModelMass(openResult.escapedMass)} يساوي ${formatModelMass(openResult.accountedTotal)}`}
+              />{' '}<Sci variant="plain">{unit}</Sci>.
             </p>
           ) : null}
         </>
