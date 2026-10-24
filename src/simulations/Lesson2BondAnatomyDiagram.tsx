@@ -40,11 +40,13 @@ export default function Lesson2BondAnatomyDiagram({ interactiveId }: Interactive
         </p>
       </header>
 
-      <div className="l2-anatomy__canvas">
+      {/* Two separate figures, not one wide one: each panel keeps a real font
+          size on a phone instead of being scaled down to half width. */}
+      <div className="l2-anatomy__panels">
         <svg
-          viewBox="0 0 700 236"
+          viewBox="0 0 340 236"
           role="img"
-          aria-label="مقارنة: في الرابطة الأيونية ينتقل إلكترون من سطح الصوديوم إلى سطح الكلور، ثم يتجاذب الأيونان. وفي الرابطة المشتركة يبقى زوج إلكترونات بين ذرّتي الهيدروجين."
+          aria-label="الانتقال: يترك إلكترون سطح الصوديوم ذرّته وينتقل إلى الموضع الفارغ في سطح الكلور."
           className="l2-anatomy__svg"
         >
           <defs>
@@ -53,8 +55,8 @@ export default function Lesson2BondAnatomyDiagram({ interactiveId }: Interactive
             </marker>
           </defs>
 
-          {/* ------------------------- اللوحة ١: الانتقال (يمين) ------------------------- */}
-          <g data-panel="transfer">
+          {/* ------------------------- اللوحة ١: الانتقال ------------------------- */}
+          <g data-panel="transfer" transform="translate(-340 0)">
             <circle className="l2-anatomy__nucleus" cx={440} cy={118} r={NUCLEUS} />
             <text className="l2-anatomy__symbol" x={440} y={123} textAnchor="middle">
               Na
@@ -94,7 +96,15 @@ export default function Lesson2BondAnatomyDiagram({ interactiveId }: Interactive
             </text>
           </g>
 
-          {/* ------------------------ اللوحة ٢: المشاركة (يسار) ------------------------ */}
+        </svg>
+
+        <svg
+          viewBox="0 0 340 236"
+          role="img"
+          aria-label="المشاركة: يبقى زوج الإلكترونات بين ذرّتي الهيدروجين داخل إطار واحد، فيجذب النواتين معاً."
+          className="l2-anatomy__svg"
+        >
+          {/* ------------------------ اللوحة ٢: المشاركة ------------------------ */}
           <g data-panel="sharing">
             <circle className="l2-anatomy__nucleus" cx={120} cy={118} r={NUCLEUS} />
             <text className="l2-anatomy__symbol" x={120} y={123} textAnchor="middle">
@@ -124,8 +134,10 @@ export default function Lesson2BondAnatomyDiagram({ interactiveId }: Interactive
             </text>
           </g>
 
-          <line className="l2-anatomy__divider" x1={340} y1={30} x2={340} y2={210} />
         </svg>
+      </div>
+
+      <div className="l2-anatomy__canvas">
         <p className="l2-anatomy__scope">
           الرسم يبيّن <strong>السطح الإلكتروني فقط</strong> (النواة والسوية الأخيرة)؛ السويات
           الداخلية محذوفة لتوضيح الحركة، وليست غائبة عن الذرّة.

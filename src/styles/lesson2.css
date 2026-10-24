@@ -193,6 +193,12 @@
 
 /* --- Bond anatomy (transfer vs sharing) ----------------------------------- */
 .l2-anatomy__canvas { display: grid; gap: var(--space-2); min-inline-size: 0; }
+.l2-anatomy__panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
 
 .l2-anatomy__svg {
   inline-size: 100%;
@@ -688,14 +694,20 @@
   .l2-valence__grid { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
   .l2-lewis__cards { grid-template-columns: minmax(0, 1fr); }
   .l2-transfer__grid { grid-template-columns: minmax(0, 1fr); }
-  .l2-anatomy__svg { max-block-size: 200px; }
+  .l2-anatomy__panels { grid-template-columns: minmax(0, 1fr); }
+  .l2-anatomy__svg { max-block-size: 260px; }
   .l2-steps-lab__scene { gap: var(--space-2); padding: var(--space-3); }
   .l2-chain__head { display: none; }
+  /* Three columns instead of one: the six-cell chain reads as two short rows
+     per molecule rather than a six-screen column on a phone. */
   .l2-chain__row {
-    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-columns: 44px repeat(2, minmax(0, 1fr));
     min-inline-size: 0;
   }
-  .l2-chain__cell { justify-items: start; text-align: start; }
+  .l2-chain__atom { grid-row: span 2; }
+  .l2-chain__cell { justify-items: center; text-align: center; }
+  /* The formula closes the molecule on a full-width line of its own. */
+  .l2-chain__cell--formula { grid-column: 2 / -1; }
   .l2-spotter-lab__item { padding: var(--space-3); }
   .l2-choice { font-size: var(--fs-xs); }
 }
