@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Sci } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -259,15 +260,15 @@ export default function RutherfordScattering({ reducedMotion }: InteractiveProps
         </div>
         <div>
           <span>أُطلقت فعلاً</span>
-          <strong>{shown.length} / {count}</strong>
+          <strong><Sci variant="plain">{shown.length} / {count}</Sci></strong>
         </div>
       </div>
 
       <div className="capacity-note">
         <p>
           <strong>نتوقع من النموذج هندسياً:</strong> نسبة الارتداد ≈ (نصف قطر النواة ÷ نصف قطر الذرة)² ={' '}
-          {(expectedRebound * 100).toFixed(2)}%، ونسبة الانحراف حتى ضعف نصف القطر ≈{' '}
-          {(expectedDeflected * 100).toFixed(2)}%. النموذج يضع النواة مكبّرة لتبقى مرئية؛ في الذرة الحقيقية تكون
+          <Sci variant="plain">{(expectedRebound * 100).toFixed(2)}%</Sci>، ونسبة الانحراف حتى ضعف نصف القطر ≈{' '}
+          <Sci variant="plain">{(expectedDeflected * 100).toFixed(2)}%</Sci>. النموذج يضع النواة مكبّرة لتبقى مرئية؛ في الذرة الحقيقية تكون
           النواة أصغر من ذلك بمقادير كبيرة، ولهذا تكون نسبة الارتداد في التجربة الحقيقية أقل بكثير.
         </p>
       </div>

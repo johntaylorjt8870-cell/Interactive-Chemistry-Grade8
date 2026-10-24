@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChemicalEquation, ChemicalFormula, ChargeNotation, IonNotation } from '@/scientific'
+import { ChemicalEquation, ChemicalFormula, ChargeNotation, ElectronConfiguration, IonNotation } from '@/scientific'
 import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
@@ -127,7 +127,7 @@ export default function IonEquationLab({ reducedMotion }: InteractiveProps) {
           </span>
           <strong dir="ltr">{equation.symbol}</strong>
           <span>{protons} بروتوناً = {protons} إلكتروناً</span>
-          <span>التوزع: {equation.distributionBefore}</span>
+          <span>التوزع: <ElectronConfiguration value={equation.distributionBefore} /></span>
           <div className="ion-equation-lab__shell" aria-label={`إلكترونات السوية الأخيرة: ${electronsNow}`}>
             {Array.from({ length: VALENCE_ELECTRONS[equation.id] }, (_, index) => (
               <span
@@ -171,7 +171,7 @@ export default function IonEquationLab({ reducedMotion }: InteractiveProps) {
             </span>
           )}
           <span>{protons} بروتوناً، {protons + electronsDelta} إلكتروناً</span>
-          <span>التوزع: {complete ? equation.distributionAfter : equation.distributionBefore}</span>
+          <span>التوزع: <ElectronConfiguration value={complete ? equation.distributionAfter : equation.distributionBefore} /></span>
           <span>
             الشحنة الكلية: <bdi dir="ltr">{chargeLabel}</bdi>
           </span>

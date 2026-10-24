@@ -59,9 +59,9 @@ export function ScientificShowcase() {
         <article className="showcase-card">
           <h3 className="showcase-card__title">الكسور والأسس والجذور</h3>
           <div className="showcase-row">
-            <MathFormula tex="\\frac{1}{2}" />
+            <MathFormula tex="\frac{1}{2}" />
             <MathFormula tex="y = 2(n)^{2}" />
-            <MathFormula tex="\\sqrt{2}" />
+            <MathFormula tex="\sqrt{2}" />
           </div>
           <MathFormula tex="y = 2(n)^{2}" display="block" />
         </article>
@@ -94,7 +94,7 @@ export function ScientificShowcase() {
             <dt>شحنة موجبة</dt>
             <dd>
               <ChargeValue value="+2" size="lg" />
-              <span className="showcase-inline-note">لا تُكتب 2+</span>
+              <span className="showcase-inline-note"><ScientificText>لا تُكتب 2+</ScientificText></span>
             </dd>
           </dl>
         </article>
