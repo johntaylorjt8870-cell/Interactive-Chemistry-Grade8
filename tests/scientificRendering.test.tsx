@@ -373,6 +373,8 @@ describe('MathFormula — KaTeX', () => {
     const { container } = render(<MathFormula tex="\frac{1}{" display="block" />)
     const formula = container.querySelector('.math-formula')!
     expect(formula.getAttribute('data-math-error')).toBe('true')
+    expect(formula.getAttribute('dir')).toBe('ltr')
+    expect(formula.getAttribute('data-math')).toBe('block')
     expect(formula.getAttribute('tabindex')).toBe('0')
   })
 
@@ -381,6 +383,8 @@ describe('MathFormula — KaTeX', () => {
     const formula = container.querySelector('.math-formula')!
 
     expect(formula.getAttribute('data-math-error')).toBe('true')
+    expect(formula.getAttribute('dir')).toBe('ltr')
+    expect(formula.getAttribute('data-math')).toBe('inline')
     expect(formula.textContent).toContain('\\frac{1}{')
   })
 })

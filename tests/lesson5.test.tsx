@@ -266,6 +266,10 @@ describe('Formula, mass-boundary and fixed-ratio scientific models', () => {
     expect(screen.getByRole('status')).toHaveTextContent('ما بقي داخل الوعاء 55 g')
     expect(screen.getByRole('status')).toHaveTextContent('الكتلة التي عبرت الحد 60 g')
     expect(container.textContent).toContain('ناتج النموذج')
+    const massCheck = container.querySelector('.l5-lab__note .math-formula')!
+    expect(massCheck).toHaveAttribute('dir', 'ltr')
+    expect(massCheck.querySelector('.katex')).not.toBeNull()
+    expect(massCheck).not.toHaveAttribute('data-math-error')
   })
 
   it('checks formula counts interactively and applies the iron/sulfur and lead/sulfur ratios', async () => {

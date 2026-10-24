@@ -224,6 +224,8 @@ describe('lesson 3 simulations — kinetic learning', () => {
     expect(section).toHaveAttribute('data-bonds-formed', '2')
     expect(container.querySelectorAll('.valence-lab__shared-pair')).toHaveLength(2)
     expect(within(section).getByRole('status').textContent).toContain('تكافؤه في الماء = 2')
+    const completedValence = container.querySelector('.valence-lab__status [dir="ltr"]')!
+    expect(completedValence.textContent).toBe('= 2')
   })
 
   it('switches molecules and reports their valences (CH₄ = 4, NH₃ = 3)', async () => {
@@ -273,6 +275,10 @@ describe('lesson 3 simulations — kinetic learning', () => {
     expect(within(section).getByText(/لماذا القوس حول الجذر؟/)).toBeInTheDocument()
     expect(container.querySelector('.chem-formula')).not.toBeNull()
     expect(section.textContent).toContain('2 : 3')
+    const equations = [...section.querySelectorAll('.math-formula')]
+    expect(equations).toHaveLength(3)
+    expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
+    expect(equations.every((equation) => equation.querySelector('.katex') && !equation.hasAttribute('data-math-error'))).toBe(true)
   })
 
   it('shows no parentheses verdict when the radical occurs once (NaOH)', async () => {

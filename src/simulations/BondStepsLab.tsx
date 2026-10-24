@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BohrAtom, ChemicalFormula, IonNotation } from '@/scientific'
+import { BohrAtom, ChemicalFormula, IonNotation, MathFormula, Sci } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -234,10 +234,11 @@ export default function BondStepsLab({ reducedMotion }: InteractiveProps) {
           <p className="l2-steps-lab__formula">
             <ChemicalFormula formula={compound.formula} size="md" />
             <span>
-              نسبة الأيونات {compound.ratio} · مجموع الشحنات:{' '}
-              <span dir="ltr">
-                ({signedCharge(metal.charge)}) + {nonmetal.count} × ({signedCharge(nonmetal.charge)}) = 0
-              </span>
+              نسبة الأيونات <Sci variant="plain">{compound.ratio}</Sci> · مجموع الشحنات:{' '}
+              <MathFormula
+                tex={`(${signedCharge(metal.charge).replace('−', '-')}) + ${nonmetal.count} \\times (${signedCharge(nonmetal.charge).replace('−', '-')}) = 0`}
+                label={`مجموع شحنة أيون ${metal.symbol} وشحنات ${nonmetal.count} من أيون ${nonmetal.symbol} يساوي صفراً`}
+              />
             </span>
           </p>
         ) : null}

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChemicalFormula } from '@/scientific'
+import { ChemicalFormula, MathFormula } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -89,7 +89,7 @@ export default function FormulaBuilderLab({ reducedMotion }: InteractiveProps) {
   const cationCount = phase === 'ions' ? 0 : lowestCommonMultiple(cation.charge, anion.charge) / cation.charge
   const anionCount = phase === 'ions' ? 0 : lowestCommonMultiple(cation.charge, anion.charge) / anion.charge
   const total = cationCount + anionCount
-  const balanceEquation = `(+${cation.charge})×${cationCount} + (−${anion.charge})×${anionCount} = 0`
+  const balanceEquationTex = `\\left(+${cation.charge}\\right) \\times ${cationCount} + \\left(-${anion.charge}\\right) \\times ${anionCount} = 0`
   const formula = formulaText(cation, anion, cationCount, anionCount)
   const needsParentheses = anion.radical && anionCount > 1
 
@@ -181,7 +181,9 @@ export default function FormulaBuilderLab({ reducedMotion }: InteractiveProps) {
           <h4>الخطوة 2: أحقّقُ التعادلَ الكهربائيَّ</h4>
           {ready ? (
             <>
-              <p className="formula-builder-lab__balance" dir="ltr">{balanceEquation}</p>
+              <p className="formula-builder-lab__balance">
+                <MathFormula tex={balanceEquationTex} label="المجموع الجبري لشحنات الأيونات يساوي صفراً" />
+              </p>
               <div className="formula-builder-lab__tiles" aria-label={`أيونات لازمة: ${cationCount} موجبة و${anionCount} سالبة`}>
                 {tiles.slice(0, visibleTiles).map((tile) => (
                   <span
@@ -203,8 +205,14 @@ export default function FormulaBuilderLab({ reducedMotion }: InteractiveProps) {
                 </div>
               ) : (
                 <p className="formula-builder-lab__verdict" aria-live="polite">
-                  ✅ تعادلت الشحنة: {cationCount} × (+{cation.charge}) = {cationCount * cation.charge} و{' '}
-                  {anionCount} × (−{anion.charge}) = −{anionCount * anion.charge}؛ والمجموع صفر.
+                  ✅ تعادلت الشحنة: <MathFormula
+                    tex={`${cationCount} \\times (+${cation.charge}) = +${cationCount * cation.charge}`}
+                    label={`${cationCount} من الأيون الموجب، شحنة كل منها ${cation.charge} موجباً`}
+                  />، و{' '}
+                  <MathFormula
+                    tex={`${anionCount} \\times (-${anion.charge}) = -${anionCount * anion.charge}`}
+                    label={`${anionCount} من الأيون السالب، شحنة كل منها ${anion.charge} سالباً`}
+                  />؛ والمجموع صفر.
                 </p>
               )}
             </>

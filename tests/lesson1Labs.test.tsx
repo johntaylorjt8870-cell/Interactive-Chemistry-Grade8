@@ -84,7 +84,9 @@ describe('shell capacity lab', () => {
     await user.type(fields.O, '50')
     await user.click(screen.getByRole('button', { name: 'تحقّق من إجاباتي' }))
 
-    expect(screen.getByText(/M = 18 وN = 32 وO = 50/)).toBeInTheDocument()
+    expect(document.querySelector('.prediction-panel__result')).toHaveTextContent('M = 18 وN = 32 وO = 50')
+    const formulaRuns = document.querySelectorAll('.prediction-panel__result [dir="ltr"][data-notation="expression"]')
+    expect(formulaRuns).toHaveLength(3)
   })
 })
 
@@ -97,7 +99,7 @@ describe('atom inventory lab', () => {
     // The conclusion is the prediction target, so it is hidden until the check.
     expect(screen.getByText('نوع الجسيم').parentElement).toHaveTextContent('بانتظار توقّعك')
     expect(screen.getByText('الرمز الأيوني').parentElement).toHaveTextContent('يُكشف بعد التحقق')
-    expect(screen.getByText('العدد الكتلي A = Z + N').parentElement).toHaveTextContent('23')
+    expect(document.querySelector('.lab__measurements > div:nth-of-type(2)')).toHaveTextContent('العدد الكتلي A = Z + N23')
 
     await user.click(screen.getByRole('button', { name: 'ذرّة متعادلة' }))
     await user.click(screen.getByRole('button', { name: 'تحقّق من توقّعي' }))

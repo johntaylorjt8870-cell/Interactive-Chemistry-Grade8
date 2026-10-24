@@ -719,6 +719,10 @@ describe('the rebuilt lesson-2 educational figures', () => {
     expect(cards.map((card) => card.getAttribute('data-molecule'))).toEqual(['h2', 'o2', 'n2'])
     expect(cards.map((card) => card.querySelectorAll('.lewis-mol__dot[data-electron="shared"]').length)).toEqual([2, 4, 6])
     expect(container.querySelectorAll('.l2-lewis__legend li')).toHaveLength(5)
+    const equations = [...container.querySelectorAll('.math-formula')]
+    expect(equations).toHaveLength(4)
+    expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
+    expect(equations.every((equation) => equation.querySelector('.katex') && !equation.hasAttribute('data-math-error'))).toBe(true)
   })
 
   it('derives the formula from the valence count in one visible chain', () => {
@@ -727,6 +731,21 @@ describe('the rebuilt lesson-2 educational figures', () => {
     expect(rows.map((row) => row.getAttribute('data-molecule'))).toEqual(['h2', 'o2', 'n2'])
     expect(rows.map((row) => row.getAttribute('data-pairs'))).toEqual(['1', '2', '3'])
     expect(rows.map((row) => row.querySelectorAll('.l2-chain__cell').length)).toEqual([5, 5, 5])
+  })
+
+  it('isolates every arithmetic check as one LTR KaTeX expression', () => {
+    const { container } = render(<Lesson2OctetBridgeDiagram interactiveId="lesson2-octet-bridge" reducedMotion={false} />)
+    const rows = [...container.querySelectorAll('.l2-chain__row')]
+
+    expect(container.querySelectorAll('.l2-chain__cell--result .math-formula[dir="ltr"]')).toHaveLength(6)
+    expect(container.querySelectorAll('.l2-chain__cell .math-formula[data-math="inline"]')).toHaveLength(9)
+    for (const row of rows) {
+      const equations = [...row.querySelectorAll('.math-formula')]
+      expect(equations).toHaveLength(3)
+      expect(equations.every((equation) => equation.querySelector('.katex'))).toBe(true)
+      expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
+      expect(equations.every((equation) => equation.getAttribute('data-math-error') !== 'true')).toBe(true)
+    }
   })
 
   it('runs the four transfer stages for CaO and for MgCl₂ with the printed ion counts', () => {
@@ -741,6 +760,11 @@ describe('the rebuilt lesson-2 educational figures', () => {
     expect(mg.querySelector('[data-stage="1"]')?.querySelectorAll('[data-bohr]')).toHaveLength(3)
     expect(mg.querySelector('[data-stage="3"]')?.querySelectorAll('[data-bohr]')).toHaveLength(3)
     expect(mg.querySelectorAll('[data-stage="4"] .l2-transfer__anion')).toHaveLength(2)
+    // Every charge relation is one KaTeX LTR isolate; no raw mixed-direction equation.
+    const equations = [...mg.querySelectorAll('.math-formula')]
+    expect(equations.length).toBeGreaterThanOrEqual(4)
+    expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
+    expect(equations.every((equation) => equation.querySelector('.katex') && !equation.hasAttribute('data-math-error'))).toBe(true)
     // Charge arithmetic is printed, never asserted without evidence.
     expect(mg.textContent).toContain('12')
     expect(mg.textContent).toContain('18')
@@ -792,6 +816,10 @@ describe('the rebuilt lesson-2 interactions', () => {
       expect(section).toHaveAttribute('data-stage', String(press))
     }
     expect(next).toBeDisabled()
+    const equation = container.querySelector('.l2-steps-lab__formula .math-formula')!
+    expect(equation).toHaveAttribute('dir', 'ltr')
+    expect(equation.querySelector('.katex')).not.toBeNull()
+    expect(equation).not.toHaveAttribute('data-math-error')
     const readouts = [...container.querySelectorAll('.l2-steps-lab__counters strong')].map((node) => node.textContent)
     expect(readouts).toEqual(['11', '10', '+1', '17', '18', '\u22121'])
 

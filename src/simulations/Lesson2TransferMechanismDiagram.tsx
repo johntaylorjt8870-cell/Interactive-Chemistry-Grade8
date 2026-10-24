@@ -1,4 +1,4 @@
-import { BohrAtom, ChemicalFormula, IonNotation } from '@/scientific'
+import { BohrAtom, ChemicalFormula, IonNotation, MathFormula } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -250,7 +250,10 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
                 <IonNotation formula={metal.symbol} charge={metal.charge} size="sm" />
               </dt>
               <dd>
-                {metal.atomicNumber} بروتون − {metalIonElectrons} إلكترون = {formatCharge(metal.charge)}
+                <MathFormula
+                  tex={`${metal.atomicNumber} - ${metalIonElectrons} = ${formatCharge(metal.charge).replace('−', '-')}`}
+                  label={`${metal.atomicNumber} بروتوناً ناقص ${metalIonElectrons} إلكترونات يساوي شحنة الأيون ${formatCharge(metal.charge)}`}
+                />
               </dd>
             </div>
             <div>
@@ -258,8 +261,10 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
                 <IonNotation formula={nonmetal.symbol} charge={nonmetal.charge} size="sm" /> × {nonmetal.count}
               </dt>
               <dd>
-                {nonmetal.atomicNumber} بروتون − {nonmetalIonElectrons} إلكترون ={' '}
-                {formatCharge(nonmetal.charge)}
+                <MathFormula
+                  tex={`${nonmetal.atomicNumber} - ${nonmetalIonElectrons} = ${formatCharge(nonmetal.charge).replace('−', '-')}`}
+                  label={`${nonmetal.atomicNumber} بروتوناً ناقص ${nonmetalIonElectrons} إلكترونات يساوي شحنة الأيون ${formatCharge(nonmetal.charge)}`}
+                />
               </dd>
             </div>
           </dl>
@@ -309,10 +314,11 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
             <div className="l2-transfer__formula">
               <ChemicalFormula formula={spec.formula} size="lg" />
               <p>
-                نسبة الأيونات {spec.ratio} · المجموع الجبري للشحنات = صفر لأن{' '}
-                <span dir="ltr">
-                  ({formatCharge(metal.charge)}) + {nonmetal.count} × ({formatCharge(nonmetal.charge)}) = 0
-                </span>
+                نسبة الأيونات {spec.ratio} · المجموع الجبري للشحنات يساوي صفراً لأن{' '}
+                <MathFormula
+                  tex={`(${formatCharge(metal.charge).replace('−', '-')}) + ${nonmetal.count} \\times (${formatCharge(nonmetal.charge).replace('−', '-')}) = 0`}
+                  label={`مجموع شحنة أيون ${metal.symbol} وشحنات ${nonmetal.count} من أيون ${nonmetal.symbol} يساوي صفراً`}
+                />
               </p>
             </div>
           </div>
@@ -327,11 +333,11 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
         <p>
           <strong>لماذا نبدأ بالعدد الذري؟</strong> لأنه يحدّد عدد البروتونات، وهو الذي لا يتغيّر
           أبداً أثناء الرابطة. أمّا الإلكترونات فهي التي تنتقل، فتُحسب الشحنة دائماً بالطرح:
-          الشحنة = البروتونات − الإلكترونات. لهذا يكون {metal.symbol}{' '}
-          <span dir="ltr">
-            {metal.atomicNumber} − {metalIonElectrons}
-          </span>{' '}
-          = {formatCharge(metal.charge)}.
+          الشحنة = البروتونات − الإلكترونات. لذلك تُظهر الأعدادُ للأيون {metal.symbol}:
+          {' '}<MathFormula
+            tex={`${metal.atomicNumber} - ${metalIonElectrons} = ${formatCharge(metal.charge).replace('−', '-')}`}
+            label={`${metal.atomicNumber} ناقص ${metalIonElectrons} يساوي ${formatCharge(metal.charge)}`}
+          />.
         </p>
         <p>
           <strong>المرجع:</strong> الأعداد الذرّية مطبوعة في صفحة {spec.printedOn} من الكتاب،

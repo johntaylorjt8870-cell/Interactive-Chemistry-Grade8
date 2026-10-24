@@ -1,4 +1,4 @@
-import { ChemicalFormula } from '@/scientific'
+import { ChemicalFormula, MathFormula } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -72,16 +72,19 @@ export default function Lesson2OctetBridgeDiagram({ interactiveId }: Interactive
             <span className="l2-chain__cell" role="cell">
               <small>الناقص للاكتمال</small>
               <strong>
-                {row.target} − {row.surface} = {row.missing}
+                <MathFormula tex={`${row.target} - ${row.surface} = ${row.missing}`} label={`${row.target} ناقص ${row.surface} يساوي ${row.missing}`} />
               </strong>
             </span>
             <span className="l2-chain__cell l2-chain__cell--result" role="cell">
               <small>الأزواج المشتركة</small>
               <strong>
-                {row.missing} إلكتروناً من كل ذرّة = {row.pairs}
+                <MathFormula
+                  tex={`${row.missing} = ${row.pairs}`}
+                  label={`${row.missing} إلكترونات ناقصة من كل ذرّة تساوي ${row.pairs} أزواج مشتركة`}
+                />
               </strong>
-              <em className="l2-chain__aside" dir="ltr">
-                {row.pairs} × 2 = {row.pairs * 2}
+              <em className="l2-chain__aside">
+                <MathFormula tex={`${row.pairs} \\times 2 = ${row.pairs * 2}`} label={`${row.pairs} أزواج، إلكترونان في كل زوج`} />
               </em>
             </span>
             <span className="l2-chain__cell l2-chain__cell--result" role="cell">
@@ -121,7 +124,7 @@ export default function Lesson2OctetBridgeDiagram({ interactiveId }: Interactive
         </p>
         <p>
           <strong>لماذا الهيدروجين مختلف؟</strong> لأن سويتَه الأولى تتّسع لإلكترونين فقط، فهدفه
-          2 لا 8. ولهذا يكون الناقص عنده 2 − 1 = 1، لا 8 − 1 = 7. لو استخدمت 8 لكل الذرّات
+          2 لا 8. ولهذا يكون الناقص عنده <MathFormula tex="2 - 1 = 1" />, لا <MathFormula tex="8 - 1 = 7" />. لو استخدمت 8 لكل الذرّات
           لحصلت على سبعة أزواج مشتركة في H₂، وهذا مستحيل: كل ذرّة تملك إلكتروناً واحداً فقط.
         </p>
       </figcaption>

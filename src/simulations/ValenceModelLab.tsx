@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChemicalFormula } from '@/scientific'
+import { ChemicalFormula, ScientificNotationText } from '@/scientific'
 import { RtlRun } from '@/components/BidiText'
 import type { InteractiveProps } from './registry'
 
@@ -216,7 +216,9 @@ export default function ValenceModelLab({ reducedMotion }: InteractiveProps) {
         </svg>
 
         <div className="valence-lab__panel">
-          <p className="valence-lab__status" role="status" aria-live="polite">{statusMessage}</p>
+          <p className="valence-lab__status" role="status" aria-live="polite">
+            <ScientificNotationText>{statusMessage}</ScientificNotationText>
+          </p>
           <div className="lab__actions">
             <button
               type="button"
@@ -267,7 +269,8 @@ export default function ValenceModelLab({ reducedMotion }: InteractiveProps) {
       </div>
 
       <p className="lab__conclusion" aria-live="polite">
-        <strong>الاستنتاج:</strong> {complete ? molecule.completion : 'أكمل الروابط واحداً تلو الآخر ولاحظ أن عدد الروابط هو ما يحدد التكافؤ، لا عدد إلكترونات السطح.'}
+        <strong>الاستنتاج:</strong>{' '}
+        <ScientificNotationText>{complete ? molecule.completion : 'أكمل الروابط واحداً تلو الآخر ولاحظ أن عدد الروابط هو ما يحدد التكافؤ، لا عدد إلكترونات السطح.'}</ScientificNotationText>
       </p>
     </section>
   )
