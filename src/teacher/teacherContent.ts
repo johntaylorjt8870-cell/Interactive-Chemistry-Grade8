@@ -31,6 +31,12 @@ import {
   finalTest as lesson5FinalTest,
   lesson5TeacherGuide,
 } from '@/data/curriculum/chemistryLesson5'
+import {
+  bookActivitySolutions as lesson6Activities,
+  bookQuestions as lesson6Questions,
+  finalTest as lesson6FinalTest,
+  lesson6TeacherGuide,
+} from '@/data/curriculum/chemistryLesson6'
 
 /**
  * Teacher-area content registry.
@@ -103,6 +109,16 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     bookQuestions: [...lesson5Activities, ...lesson5Questions],
     finalTest: lesson5FinalTest,
     conceptBlocks: lesson5TeacherGuide,
+  },
+  {
+    lessonId: 'chem-u1-l6',
+    label: 'الدرس السادس — كيمياء: المعادلة الكيميائيّة',
+    pages: 'الصفحات 36–39',
+    bookNote:
+      'شرح مفصل للمفاهيم وسجل مصدر كامل (34 مدخلاً)، وحلول سؤالَي «أتساءل» وتجربة الزّنك مع حمض كلور الماء والنشاطات الثلاثة (13 بنداً)، وحلول «أختبر نفسي» بسؤاليه السبع وحدات (7 وحدات)، مع التمييز الصريح بين ملاحظات الكتاب المطبوعة والتنبيهات المخبرية للمنصة. اختبار هذا الدرس مستقل من 20 سؤالاً؛ لا يوجد بنك منفصل له.',
+    bookQuestions: [...lesson6Activities, ...lesson6Questions],
+    finalTest: lesson6FinalTest,
+    conceptBlocks: lesson6TeacherGuide,
   },
 ]
 

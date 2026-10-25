@@ -1,0 +1,81 @@
+{
+  "lessonId": "chem-u1-l6",
+  "title": "المعادلة الكيميائيّة",
+  "pages": ["36", "37", "38", "39"],
+  "sourceImageAvailability": "Four official Grade 8 Chemistry textbook page scans (pp. 36–39: image-1.png through image-4.png) were supplied and audited directly on 2026-10-25. Following repository policy, bitmap scans are not stored in Git; every printed element is traced in src/data/curriculum/lesson6SourceLedger.ts.",
+  "ledger": "src/data/curriculum/lesson6SourceLedger.ts — 34 entries: 32 implemented, 1 reconstructed, 1 decorative, 0 unresolved.",
+  "items": [
+    {
+      "id": "p36-lesson-title",
+      "page": "36",
+      "stepId": "entry-source",
+      "kind": "heading-objectives-keywords",
+      "questionIds": [],
+      "coverage": "Printed title «6 المعادلة الكيميائيّة», the exact printed heading «الأهداف:» with its four learning objectives (O1–O4), and the exact printed heading «الكلمات المفتاحية:» («المعادلة الكيميائيّة الموزونة – دلالات الرّموز.») are reproduced verbatim without adding unprinted introductory sentences inside textbook-verbatim blocks."
+    },
+    {
+      "id": "p36-wonder-questions",
+      "page": "36",
+      "stepId": "entry-source",
+      "kind": "intro-and-wonder",
+      "questionIds": ["l6-p36-wonder-1", "l6-p36-wonder-2"],
+      "coverage": "The introductory iron-rebar rusting sentence and both «أتساءل :» prompts are reproduced verbatim; the rusting rebar photograph is documented honestly via reference card book-l6-p36-rust-bars (status: decorative)."
+    },
+    {
+      "id": "p37-experiment",
+      "page": "37",
+      "stepId": "experiment-zinc-hcl-source",
+      "kind": "experiment-and-figure",
+      "questionIds": ["l6-p37-exp-step2", "l6-p37-exp-step3"],
+      "coverage": "Section heading «كتابة المعادلة الكيميائيّة:», «أجرب وأستنتج :» apparatus list, and all three numbered procedure steps are reproduced verbatim. The test-tube figure is reconstructed as SVG (source-figure-p37-zinc-hcl) preserving the three printed labels («زنك», «حمض كلور», «H₂») and the lit match flame; platform lab notes (such as the hydrogen pop sound) are explicitly separated from printed text."
+    },
+    {
+      "id": "p37-observe-and-state-table",
+      "page": "37",
+      "stepId": "observe-and-state-table-source",
+      "kind": "table-and-equations",
+      "questionIds": ["l6-p37-obs-word", "l6-p37-obs-states"],
+      "coverage": "All four «أُلاحظُ وأستنتِجُ :» bullets, the five-row physical-state/condition table (s, ℓ, aq, g, Δ), the printed LTR word equation, and the unbalanced symbolic equation Zn(s) + HCl(aq) → ZnCl2(aq) + H2(g) are reproduced faithfully."
+    },
+    {
+      "id": "p37-p38-zinc-balancing",
+      "page": "37-38",
+      "stepId": "zinc-balancing-source",
+      "kind": "atom-count-blanks-and-table",
+      "questionIds": ["l6-p37-bal-zn", "l6-p37-bal-cl", "l6-p37-bal-h", "l6-p38-bal-hcl-coeff"],
+      "coverage": "The three atom-count fill-in prompts on p. 37, the HCl coefficient prompt on p. 38, the balanced Zn + 2HCl equation, and the three-row verification table (Zn: 1/1, Cl: 2/2, H: 2/2) are implemented with interactive checks."
+    },
+    {
+      "id": "p38-conclude-and-worked-example",
+      "page": "38",
+      "stepId": "conclude-equation-source / worked-example-al-hcl-source",
+      "kind": "conclusion-and-worked-example",
+      "questionIds": [],
+      "coverage": "Both «أستنتج :» bullets and the exact printed lines and all six symbolic equations of «تطبيق محلول :» (initial skeleton Al(s)+HCl(aq) → AlCl3(aq)+H2(g), the four printed intermediate coefficient-balancing equations including 3HCl and 2×3HCl, and the final balanced equation 2Al(s)+6HCl(aq) → 2AlCl3(aq)+3H2(g)) plus its printed word equation are reproduced verbatim, strictly separated from platform pedagogical commentary in worked-example-al-hcl-explained."
+    },
+    {
+      "id": "p39-activities-and-learned",
+      "page": "39",
+      "stepId": "activity-p39-source / learned-box-source",
+      "kind": "activities-and-summary",
+      "questionIds": ["l6-p39-act-1", "l6-p39-act-2", "l6-p39-act-3"],
+      "coverage": "All three «نشاط :» items (C + O2, Na + ZnSO4, Al + S) and all three «تعلّمتُ :» bullets are reproduced verbatim. Activity 2 includes an explicit platform scientific note clarifying that free metallic Na reacts vigorously with water in real aqueous solutions."
+    },
+    {
+      "id": "p39-self-test",
+      "page": "39",
+      "stepId": "self-test-q1-source / self-test-q2-source",
+      "kind": "self-test",
+      "questionIds": [
+        "l6-book-q1-1",
+        "l6-book-q1-2",
+        "l6-book-q1-3",
+        "l6-book-q2-1",
+        "l6-book-q2-2",
+        "l6-book-q2-3",
+        "l6-book-q2-4"
+      ],
+      "coverage": "All seven «أختبر نفسي :» items (Question 1: 3 word-to-balanced-equation items; Question 2: 4 equation-balancing items) are reproduced in exact reading order with interactive controls, full step-by-step platform solutions, and explicit platform scientific/safety notes on the theoretical aqueous-sodium items (Na + CH3COOH(aq) and Na + CuSO4(aq))."
+    }
+  ]
+}

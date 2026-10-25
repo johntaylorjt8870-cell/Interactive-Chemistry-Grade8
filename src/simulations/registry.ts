@@ -313,6 +313,62 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     description: 'اختيار أيونين وتحقيق التعادل الكهربائي وكتابة الصيغة مع قوس الجذر عند التكرار.',
     load: () => import('./FormulaBuilderLab'),
   },
+  {
+    id: 'source-figure-p37-zinc-hcl',
+    title: 'إعادة بناء: تجربة تفاعل الزّنك مع محلول حمض كلور الماء (ص37)',
+    kind: 'diagram',
+    description: 'أنبوب الاختبار في صفحة 37 بوسومه المطبوعة (زنك، حمض كلور، H₂) وفقاعات الغاز المشتعل بعود الثقاب.',
+    load: () => import('./Lesson6ZincHclDiagram'),
+  },
+  {
+    id: 'lesson6-equation-anatomy',
+    title: 'شكل تأسيسي: تشريح المعادلة الكيميائيّة الموزونة',
+    kind: 'diagram',
+    description: 'تفكيك المعادلة الكيميائية إلى متفاعلات وسهم ونواتج ومعامل أمامي ودليل ذري سفلي ورمز حالة فيزيائية.',
+    load: () => import('./Lesson6EquationAnatomyDiagram'),
+  },
+  {
+    id: 'lesson6-state-symbols-guide',
+    title: 'شكل توضيحي: رموز الحالة الفيزيائيّة وشرط التسخين',
+    kind: 'diagram',
+    description: 'مقارنة بصرية بين الحالات الأربعة (s) و(l) و(aq) و(g) أسفل يمين الصيغة، ورمز التسخين Δ فوق السهم.',
+    load: () => import('./Lesson6StateSymbolsDiagram'),
+  },
+  {
+    id: 'lesson6-coefficient-vs-subscript',
+    title: 'شكل مقارن: المعامل الأمامي مقابل الرقم السفلي',
+    kind: 'diagram',
+    description: 'مقارنة بصرية تثبت أن وضع المعامل 2 قبل HCl يحفظ هوية المادة، بينما تغيير الأرقام السفلية يحرّفها.',
+    load: () => import('./Lesson6CoeffVsSubscriptDiagram'),
+  },
+  {
+    id: 'lesson6-zinc-hcl-lab',
+    title: 'مختبر تفاعل الزّنك مع محلول حمض كلور الماء الممدّد',
+    kind: 'experiment',
+    description: 'تنفيذ مراحل تجربة ص37 افتراضياً، وفصل الملاحظة الحسية عن التفسير العلمي، وربطها بالمعادلة الموزونة.',
+    load: () => import('./ZincHclExperimentLab'),
+  },
+  {
+    id: 'lesson6-equation-balancer-lab',
+    title: 'مختبر موازنة المعادلات الكيميائيّة التفاعلي',
+    kind: 'simulation',
+    description: 'ضبط معاملات ست معادلات متدرّجة ومراقبة ميزان الذرات الفوري والتحقق من أبسط نسبة عددية صحيحة.',
+    load: () => import('./EquationBalancerLab'),
+  },
+  {
+    id: 'lesson6-word-to-symbol-lab',
+    title: 'باني المعادلة الرمزية الموزونة من الوصف اللفظي',
+    kind: 'activity',
+    description: 'تحويل الوصف اللفظي للتفاعل على ثلاث مراحل: اختيار الصيغ الصحيحة، ثم الحالات الفيزيائية، ثم الموازنة.',
+    load: () => import('./WordToSymbolBuilderLab'),
+  },
+  {
+    id: 'lesson6-error-spotter',
+    title: 'مختبر اكتشف الخطأ في المعادلات الكيميائيّة',
+    kind: 'activity',
+    description: 'ست حالات تشخيصية للأخطاء الشائعة في الصيغ ورموز الحالات الفيزيائية والمعاملات مع تغذية راجعة معلّلة.',
+    load: () => import('./Lesson6ErrorSpotterLab'),
+  },
 ]
 
 const registry = new Map<string, InteractiveDefinition>(

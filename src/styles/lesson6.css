@@ -1,0 +1,973 @@
+/* Lesson 6 — «المعادلة الكيميائيّة» (الصفحات 36–39).
+   Strictly scoped to `chem-u1-l6` and `.l6-*` surfaces so nothing here can
+   alter Lessons 1–5 or shared components. */
+
+.lesson-shell[data-lesson-id='chem-u1-l6'] .lesson-outline__button[data-current='true'] .lesson-outline__index {
+  background: var(--palette-chem-700);
+  border-color: var(--palette-chem-700);
+  color: var(--palette-paper);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l6'] .lesson-rail__visited,
+.lesson-shell[data-lesson-id='chem-u1-l6'] .final-test__meta,
+.lesson-shell[data-lesson-id='chem-u1-l6'] .platform-addition-badge__en,
+.lesson-shell[data-lesson-id='chem-u1-l6'] .interactive-host__caption,
+.lesson-shell[data-lesson-id='chem-u1-l6'] .sci--textual[data-sci='isolated'],
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .platform-addition-badge__en,
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .sci--textual[data-sci='isolated'],
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .eyebrow {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l6'] .lab {
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l6'] [data-math='block'],
+.teacher-section-page[data-lesson-id='chem-u1-l6'] [data-math='block'],
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .formula-block,
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .word-equation-scroll,
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .teacher-answer__result {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l6'] .matching__row {
+  flex-wrap: wrap;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l6'] .matching__row select {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .teacher-answer-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .teacher-answer {
+  min-inline-size: 0;
+}
+
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .teacher-lesson-tabs {
+  flex-wrap: wrap;
+}
+
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .teacher-lesson-tab {
+  flex: 1 1 140px;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  text-align: center;
+}
+
+.teacher-section-page[data-lesson-id='chem-u1-l6'] .teacher-lesson-tab[aria-current='page'] {
+  background: var(--palette-chem-700);
+  color: var(--palette-paper);
+}
+
+/* ============================================================================
+   Lesson 6 Figures (`.l6-figure`)
+   ========================================================================= */
+
+.l6-figure {
+  margin: 0;
+  padding: clamp(var(--space-4), 2.5vw, var(--space-5));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  display: grid;
+  gap: var(--space-4);
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.l6-figure__header {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.l6-figure__eyebrow {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+}
+
+.l6-figure__title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  color: var(--text-strong);
+}
+
+.l6-figure__lead {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.l6-figure__caption {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.l6-source-figure__svg {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 38rem;
+  block-size: auto;
+  margin-inline: auto;
+}
+
+.l6-svg-panel {
+  fill: var(--surface-sunken);
+  stroke: var(--border-soft);
+  stroke-width: 1.5;
+}
+
+.l6-svg-box {
+  fill: var(--surface-sunken);
+  stroke: var(--border-soft);
+  stroke-width: 1.4;
+}
+
+.l6-svg-box--warn {
+  stroke: #dc2626;
+  stroke-dasharray: 4 3;
+}
+
+.l6-svg-pointer {
+  stroke: var(--text-strong);
+  stroke-width: 1.8;
+}
+
+.l6-svg-tag {
+  fill: var(--surface-raised);
+  stroke: var(--border-soft);
+  stroke-width: 1.4;
+}
+
+.l6-svg-arabic {
+  font-family: var(--font-arabic);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-strong);
+}
+
+.l6-svg-latin {
+  font-family: var(--font-latin);
+  font-size: 16px;
+  font-weight: 700;
+  fill: var(--text-strong);
+}
+
+.l6-svg-atom-txt {
+  font-family: var(--font-latin);
+  font-size: 13px;
+  font-weight: 700;
+  fill: #0f172a;
+}
+
+.l6-svg-dots--solid {
+  fill: #0ea5e9;
+  stroke: #0369a1;
+  stroke-width: 1.5;
+}
+
+.l6-svg-dots--liquid {
+  fill: #0284c7;
+  stroke: #075985;
+  stroke-width: 1.3;
+}
+
+.l6-svg-dots--solute {
+  fill: #f59e0b;
+  stroke: #b45309;
+  stroke-width: 1.4;
+}
+
+.l6-svg-dots--gas {
+  fill: #10b981;
+  stroke: #047857;
+  stroke-width: 1.4;
+}
+
+/* --- Equation Anatomy ----------------------------------------------------- */
+
+.l6-anatomy__showcase {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-soft);
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.l6-anatomy__legend-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}
+
+.l6-pill {
+  padding: 0.28rem 0.72rem;
+  border-radius: 999px;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  color: var(--text-strong);
+}
+
+.l6-anatomy__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr));
+  gap: var(--space-3);
+}
+
+.l6-anatomy__card {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.l6-anatomy__badge {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--text-secondary);
+}
+
+.l6-anatomy__card-title {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--text-strong);
+}
+
+.l6-anatomy__example {
+  margin: 0;
+  padding: 0.35rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  font-weight: var(--fw-semibold);
+  color: var(--text-strong);
+}
+
+.l6-anatomy__text,
+.l6-anatomy__rule {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* --- State Symbols Guide -------------------------------------------------- */
+
+.l6-states__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr));
+  gap: var(--space-3);
+}
+
+.l6-states__card {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.l6-states__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.l6-states__symbol {
+  font-family: var(--font-latin);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  color: var(--text-strong);
+}
+
+.l6-states__title {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--text-strong);
+}
+
+.l6-states__origin {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.l6-states__mini-svg {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.l6-states__examples,
+.l6-states__note {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.l6-states__delta-banner {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.l6-states__delta-title {
+  margin: 0 0 var(--space-1) 0;
+  font-size: var(--fs-md);
+  color: var(--text-strong);
+}
+
+.l6-states__delta-body {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+/* --- Coefficient vs Subscript Comparison ---------------------------------- */
+
+.l6-compare-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-4);
+}
+
+.l6-compare-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-soft);
+  background: var(--surface-sunken);
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.l6-compare-card--valid {
+  border-color: #16a34a;
+}
+
+.l6-compare-card--invalid {
+  border-color: #dc2626;
+}
+
+.l6-compare-card__status {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.l6-compare-card__title {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--text-strong);
+}
+
+.l6-compare-card__svg {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 16rem;
+  block-size: auto;
+  margin-inline: auto;
+}
+
+.l6-compare-card__body {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+/* ============================================================================
+   Lesson 6 Interactive Labs (`.l6-lab`)
+   ========================================================================= */
+
+.l6-lab {
+  display: grid;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.l6-lab__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.l6-lab__counter {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-soft);
+  color: var(--text-strong);
+}
+
+.l6-lab__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* --- Zinc + HCl Virtual Experiment ---------------------------------------- */
+
+.l6-exp__layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.l6-exp__visual {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+}
+
+.l6-exp__svg {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 23rem;
+  block-size: auto;
+}
+
+.l6-exp__step-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}
+
+.l6-exp__details {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.l6-exp__stage-title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  color: var(--text-strong);
+}
+
+.l6-exp__cards {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.l6-exp__card {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+}
+
+.l6-exp__card p {
+  margin: 0;
+  line-height: 1.65;
+}
+
+.l6-exp__card-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+  margin-block-end: var(--space-1) !important;
+}
+
+.l6-exp__invariants {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  border: 1px dashed var(--border-soft);
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.l6-exp__invariants p {
+  margin: 0;
+}
+
+.l6-exp__equations {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-soft);
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.l6-exp__eq-note {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* --- Equation Balancer Lab ------------------------------------------------ */
+
+.l6-balancer__selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.l6-balancer__choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: start;
+}
+
+.l6-balancer__level {
+  font-size: var(--fs-xs);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.12);
+}
+
+.l6-balancer__equation-box {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-soft);
+  min-inline-size: 0;
+}
+
+.l6-balancer__sides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-3);
+}
+
+.l6-balancer__fieldset {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+  min-inline-size: 0;
+}
+
+.l6-balancer__fieldset legend {
+  padding-inline: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.l6-balancer__species-list {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
+}
+
+.l6-balancer__control-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+}
+
+.l6-balancer__species-meta {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.l6-balancer__formula-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+}
+
+.l6-balancer__state {
+  font-family: var(--font-latin);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.l6-balancer__arabic-name {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.l6-balancer__stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.l6-stepper-btn {
+  min-inline-size: 2.35rem;
+  padding-inline: 0.5rem;
+  font-weight: var(--fw-bold);
+}
+
+.l6-balancer__coeff-value {
+  min-inline-size: 1.6rem;
+  text-align: center;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.l6-balancer__inventory {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.l6-balancer__inventory-title {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--text-strong);
+}
+
+.l6-balancer__rows {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.l6-balancer__row {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.l6-balancer__row--ok {
+  border-inline-start: 4px solid #16a34a;
+}
+
+.l6-balancer__row--diff {
+  border-inline-start: 4px solid #d97706;
+}
+
+.l6-balancer__row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.l6-balancer__el-symbol {
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-md);
+  color: var(--text-strong);
+}
+
+.l6-balancer__el-status {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+}
+
+.l6-balancer__bars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--space-2);
+}
+
+.l6-balancer__bar-group {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr 1.8rem;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-xs);
+}
+
+.l6-balancer__bar-label {
+  color: var(--text-secondary);
+}
+
+.l6-balancer__bar-track {
+  block-size: 0.65rem;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+}
+
+.l6-balancer__bar-fill {
+  block-size: 100%;
+  border-radius: 999px;
+  transition: inline-size 180ms ease;
+}
+
+.l6-lab--still .l6-balancer__bar-fill {
+  transition: none;
+}
+
+.l6-balancer__bar-fill--left {
+  background: #0284c7;
+}
+
+.l6-balancer__bar-fill--right {
+  background: #0d9488;
+}
+
+.l6-balancer__count {
+  text-align: end;
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.l6-balancer__verdict {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+}
+
+.l6-balancer__verdict p {
+  margin: 0;
+  line-height: 1.65;
+}
+
+.l6-balancer__verdict--success {
+  border-color: #16a34a;
+}
+
+.l6-balancer__verdict--warn {
+  border-color: #d97706;
+}
+
+.l6-balancer__simplify-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* --- Word-to-Symbol Builder ----------------------------------------------- */
+
+.l6-builder__header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.l6-builder__prompt {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-soft);
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.l6-builder__desc {
+  margin: 0;
+  line-height: 1.65;
+}
+
+.l6-builder__stage {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.l6-builder__stage-title {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--text-strong);
+}
+
+.l6-builder__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.l6-builder__options--stacked {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.l6-builder__option {
+  justify-content: flex-start;
+  text-align: start;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  overflow-x: auto;
+}
+
+.l6-builder__option--eq {
+  justify-content: center;
+  padding-block: var(--space-3);
+}
+
+.l6-builder__feedback {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+}
+
+.l6-builder__feedback--ok {
+  border-inline-start: 4px solid #16a34a;
+}
+
+.l6-builder__feedback--err {
+  border-inline-start: 4px solid #dc2626;
+}
+
+/* --- Error Spotter -------------------------------------------------------- */
+
+.l6-spotter__intro {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.l6-spotter__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.l6-spotter__item {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.l6-spotter__head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.l6-spotter__num {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  color: var(--text-secondary);
+}
+
+.l6-spotter__claim {
+  margin: 0;
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+  line-height: 1.65;
+}
+
+.l6-spotter__eq {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  min-inline-size: 0;
+}
+
+.l6-spotter__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.l6-spotter__feedback {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  display: grid;
+  gap: var(--space-1);
+}
+
+.l6-spotter__feedback--ok {
+  border-inline-start: 4px solid #16a34a;
+}
+
+.l6-spotter__feedback--err {
+  border-inline-start: 4px solid #dc2626;
+}
+
+.l6-spotter__verdict,
+.l6-spotter__correction {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+}
+
+.l6-lab__safety-note {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  border-inline-start: 4px solid #d97706;
+  color: var(--text-strong);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+

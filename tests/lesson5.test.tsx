@@ -131,7 +131,7 @@ describe('Lesson 5 curriculum registration, source coverage and solution set', (
     expect(chemistryLesson5.status).toBe('source-verified')
     expect(chemistryLesson5.source.pages.map((page) => page.page)).toEqual(['30', '31', '32', '33', '34', '35'])
     expect(getUnit('chemistry', 'structural-chemistry')?.lessons.map((lesson) => lesson.id)).toEqual([
-      'chem-u1-l1', 'chem-u1-l2', 'chem-u1-l3', 'chem-u1-l4', 'chem-u1-l5',
+      'chem-u1-l1', 'chem-u1-l2', 'chem-u1-l3', 'chem-u1-l4', 'chem-u1-l5', 'chem-u1-l6',
     ])
     expect(chemistryLesson5.tests?.map((test) => test.id)).toEqual(['chem-u1-l5-book', 'chem-u1-l5-practice', 'chem-u1-l5-final'])
     expect(chemistryLesson5.tests?.some((test) => test.id.includes('unit'))).toBe(false)

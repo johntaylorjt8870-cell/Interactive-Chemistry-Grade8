@@ -396,7 +396,7 @@ try {
     await page.type('input[type="password"]', password)
     await clickText(page, 'دخول مساحة المعلم')
     await page.waitForSelector('.teacher-answer')
-    check('five registered Teacher lesson tabs; Lesson 4 guide + all 33 source solutions', (await page.$$('.teacher-lesson-tab')).length === 5 && Boolean(await page.$('.teacher-concept-guide')) && (await page.$$('.teacher-answer')).length === 33)
+    check('six registered Teacher lesson tabs; Lesson 4 guide + all 33 source solutions', (await page.$$('.teacher-lesson-tab')).length === 6 && Boolean(await page.$('.teacher-concept-guide')) && (await page.$$('.teacher-answer')).length === 33)
     check('Teacher guide page ranges stay as single LTR isolates', await page.$$eval('.teacher-concept-guide .sci[dir="ltr"]', (nodes) => ['24–25', '25–28', '26–29', '28–29'].every((range) => nodes.some((node) => node.textContent === range))))
     check('Teacher tab links to full separate-bank solutions', await page.$eval('a[href$="/test-area/chem-u1-l4/solutions"]', (node) => node.textContent.includes('الحلول المفصلة')))
     await accessibility(page, 'Teacher Lesson 4 source solutions')
