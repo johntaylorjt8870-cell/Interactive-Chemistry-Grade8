@@ -73,13 +73,21 @@
   white-space: nowrap;
 }
 
+/*
+   The divisor is the scale IN FORCE, not the default scale: the two may differ
+   because a component may override `--script-scale` (see
+   `.nuclear-notation__charge` and `.bohr__label-charge`). `em` on
+   `vertical-align` resolves against the element's own font-size, which is
+   `--script-scale` of the symbol, so dividing the token by the same effective
+   scale cancels it and leaves exactly `--sci-sup-raise` of the symbol.
+*/
 .sci-sup {
-  vertical-align: calc(var(--sci-sup-raise) / var(--sci-sup-scale));
+  vertical-align: calc(var(--sci-sup-raise) / var(--script-scale, var(--sci-sup-scale)));
 }
 
 .sci-sub {
   font-size: calc(var(--script-scale, var(--sci-sub-scale)) * 1em);
-  vertical-align: calc(-1 * var(--sci-sub-drop) / var(--sci-sub-scale));
+  vertical-align: calc(-1 * var(--sci-sub-drop) / var(--script-scale, var(--sci-sub-scale)));
 }
 
 /* --- Formulae ------------------------------------------------------------- */
