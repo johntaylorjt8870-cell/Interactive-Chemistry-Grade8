@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "verify:dist": "node scripts/verify-dist.mjs",
     "verify:badges": "node scripts/verify-badge-rendering.mjs",
+    "verify:charges": "node scripts/verify-charge-notation.mjs",
     "verify": "npm run typecheck && npm run build && npm run verify:dist && npm test",
     "verify:lesson1": "node scripts/verify-lesson1-rendering.mjs",
     "verify:lesson2": "node scripts/verify-lesson2-rendering.mjs",

@@ -280,30 +280,75 @@ describe('charge notation — every authored spelling becomes a real superscript
   })
 })
 
-describe('superscript raise — the markup is actually lifted off the baseline', () => {
+describe('the raise contract — one owner, stated against the symbol', () => {
   const scientificCss = readProjectFile('src/styles/scientific.css')
   const tokensCss = readProjectFile('src/styles/tokens.css')
 
-  it('raises every shared <sup> from design tokens', () => {
-    // The symptom the platform reported — a sign sitting on the normal baseline
-    // — is what a missing raise token or a lost `position: relative` produces,
-    // even when the DOM is right. Both halves are asserted here.
-    const scriptBlock = scientificCss.match(/\.sci-sup,\s*\.sci-sub\s*\{[^}]*\}/s)?.[0] ?? ''
-    expect(scriptBlock).toContain('position: relative')
+  /** Every declaration block whose selector list mentions `selector`. */
+  function blocksOf(css: string, selector: string): string[] {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    return [...css.matchAll(new RegExp(`${escaped}[^{}]*\\{([^}]*)\\}`, 'g'))].map((m) => m[1]!)
+  }
 
-    // Match the standalone rules (`…,\n.sci-sub {` shares a block, so the
-    // offset property is what identifies the rule that positions the script).
-    const supBlock = scientificCss.match(/\.sci-sup\s*\{[^}]*top:[^}]*\}/s)?.[0] ?? ''
-    expect(supBlock).toContain('top: calc(-1 * var(--sci-sup-raise))')
+  it('gives a charge exactly one owner for its vertical position', () => {
+    // A sign sitting on the normal baseline is what a missing or duplicated
+    // raise produces, even when the DOM is right. Two owners is the failure
+    // mode that kept recurring: a component rule and the shared rule each moved
+    // the charge, and whichever won the cascade decided the result.
+    const raiseOwners = scientificCss.split(/\n\}/).filter((chunk) =>
+      /vertical-align/.test(chunk) && !/vertical-align:\s*(?:baseline|middle|text-bottom)/.test(chunk),
+    )
+    expect(raiseOwners.length, 'exactly one rule may raise a script').toBeGreaterThan(0)
+    for (const owner of raiseOwners) {
+      expect(owner, 'only the shared script rules may set a raise').toMatch(/\.sci-(?:sup|sub)\s*\{/)
+    }
+  })
 
-    const subBlock = scientificCss.match(/\.sci-sub\s*\{[^}]*bottom:[^}]*\}/s)?.[0] ?? ''
-    expect(subBlock).toContain('bottom: var(--sci-sub-drop)')
+  it('states the raise in em of the symbol and divides by the scale', () => {
+    // `em` on `vertical-align` resolves against the element's own font-size, so
+    // the token is divided by the scale. Without the division the raise is a
+    // fraction of an already-shrunk <sup>, which is why the same species used to
+    // sit at a different height in every badge.
+    expect(blocksOf(scientificCss, '.sci-sup').join('\n')).toMatch(
+      /vertical-align:\s*calc\(var\(--sci-sup-raise\)\s*\/\s*var\(--sci-sup-scale\)\)/,
+    )
+    expect(blocksOf(scientificCss, '.sci-sub').join('\n')).toMatch(
+      /vertical-align:\s*calc\(-1\s*\*\s*var\(--sci-sub-drop\)\s*\/\s*var\(--sci-sub-scale\)\)/,
+    )
+    expect(tokensCss, 'the scale must be unitless to be divided by').toMatch(
+      /--sci-sup-scale:\s*[\d.]+;/,
+    )
+    expect(tokensCss, 'the raise is a length against a font').toMatch(/--sci-sup-raise:\s*[\d.]+em;/)
+    expect(tokensCss).toMatch(/--sci-sub-drop:\s*[\d.]+em;/)
+    expect(tokensCss).toMatch(/--sci-sub-scale:\s*[\d.]+;/)
+  })
 
-    // The tokens the rules depend on must exist, or `calc()` resolves to
-    // nothing and the script returns to the baseline.
-    expect(tokensCss).toMatch(/--sci-sup-raise:\s*[\d.]+em/)
-    expect(tokensCss).toMatch(/--sci-sub-drop:\s*-?[\d.]+em/)
-    expect(tokensCss).toMatch(/--sci-sup-size:\s*[\d.]+em/)
+  it('never paints a script outside its own box', () => {
+    // `position: relative` + `top` moved the glyph away from the box that
+    // describes it. Every bounding box taken from such an element describes
+    // the wrong rectangle, which is exactly how a visually broken page could
+    // pass a geometry assertion.
+    const scriptBlocks = [
+      ...blocksOf(scientificCss, '.sci-sup'),
+      ...blocksOf(scientificCss, '.sci-sub'),
+    ].join('\n')
+    expect(scriptBlocks).not.toMatch(/position:\s*(?:relative|absolute|fixed|sticky)/)
+    expect(scriptBlocks).not.toMatch(/transform:/)
+    expect(scriptBlocks).not.toMatch(/(?:^|[;{\s])(?:top|bottom|inset):/m)
+  })
+
+  it('keeps the script box zero-height so it can never add a line', () => {
+    // A zero-height inline box cannot grow the line box, so a raised charge
+    // cannot become a second line inside any container.
+    const scriptBlocks = [
+      ...blocksOf(scientificCss, '.sci-sup'),
+      ...blocksOf(scientificCss, '.sci-sub'),
+    ]
+    const declared = scriptBlocks
+      .map((block) => block.match(/line-height:\s*([\d.]+)/)?.[1])
+      .filter(Boolean)
+    expect(declared.length, 'the zero-height script box must be declared').toBeGreaterThan(0)
+    expect(declared.every((value) => Number(value) === 0)).toBe(true)
   })
 
   it('gives every charge component a shared <sup> element', () => {
