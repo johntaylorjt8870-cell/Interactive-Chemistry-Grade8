@@ -18,12 +18,14 @@ name: CI
 # the same pipeline the deployment runs has already passed on the PR head.
 #
 # The `rendering` job adds the real-Chromium checks that jsdom cannot cover.
-# It is deliberately limited to the two highest-value, bounded-cost checks:
-# `verify:badges` (shared scientific-notation geometry used by every lesson)
-# and `verify:lesson6` (full lesson walk + axe). The lesson 1-5 rendering
-# scripts each walk every step across multiple viewports with per-step axe
-# runs (minutes each), so they remain one-command local checks
-# (`npm run verify:lesson<N>`) instead of multiplying every PR's cost.
+# It is deliberately limited to the highest-value, bounded-cost checks:
+# `verify:charges` (the shared scientific-notation contract — one inline
+# notation unit and one baseline raise for every charge), `verify:badges`
+# (interactive badge centring and geometry) and `verify:lesson6` (full lesson
+# walk + axe). The lesson 1-5 rendering scripts each walk every step across
+# multiple viewports with per-step axe runs (minutes each), so they remain
+# one-command local checks (`npm run verify:lesson<N>`) instead of multiplying
+# every PR's cost.
 # The browser harness is installed pinned with `--no-save`, matching the
 # scripts' documented on-demand model, so the ~70 MB Chromium binary stays
 # out of the project's dependencies and lockfile.
@@ -72,7 +74,7 @@ jobs:
         run: npm test
 
   rendering:
-    name: Chromium rendering (badges + lesson 6)
+    name: Chromium rendering (badges, charges + lesson 6)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -101,6 +103,9 @@ jobs:
 
       - name: Verify badge rendering (shared scientific notation)
         run: npm run verify:badges
+
+      - name: Verify charge notation (shared scientific-notation contract)
+        run: npm run verify:charges
 
       - name: Verify lesson 6 rendering
         run: npm run verify:lesson6
