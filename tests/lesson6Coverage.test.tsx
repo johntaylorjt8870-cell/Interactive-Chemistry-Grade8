@@ -157,7 +157,7 @@ describe('Lesson 6 — 29-entry source ledger & objective alignment (pp. 36–39
     expect([...assessedObjectives].sort()).toEqual(['O1', 'O2', 'O3', 'O4', 'O5'])
   })
 
-  it('enforces scientific/source fidelity notes on p37 step 3 and p39 activity 2', () => {
+  it('enforces scientific/source fidelity notes on p37 step 3 and all p39 aqueous-sodium items', () => {
     const p37Step3 = bookActivitySolutions.find((q) => q.id === 'l6-p37-exp-step3')!
     expect(p37Step3.type).toBe('short-answer')
     if (p37Step3.type === 'short-answer') {
@@ -171,6 +171,116 @@ describe('Lesson 6 — 29-entry source ledger & objective alignment (pp. 36–39
     const p39Extra = JSON.stringify(p39Act2.solutionBlocks)
     expect(p39Extra).toContain('تفاعل شديد وعنيف للصوديوم')
     expect(p39Extra).toContain('ماء المحلول')
+
+    const q1Item3 = bookQuestions.find((q) => q.id === 'l6-book-q1-3')!
+    const q1Item3Extra = JSON.stringify(q1Item3.solutionBlocks)
+    expect(q1Item3Extra).toContain('تمريناً نظرياً')
+    expect(q1Item3Extra).toContain('لا يُعدّ تجربة مدرسية اعتيادية آمنة')
+
+    const q2Item2 = bookQuestions.find((q) => q.id === 'l6-book-q2-2')!
+    expect(q2Item2.type).toBe('fill-blank')
+    if (q2Item2.type === 'fill-blank') {
+      expect(q2Item2.blanks.map((b) => b.acceptedAnswers[0])).toEqual(['2', '1', '1', '1'])
+    }
+    const q2Item2Extra = JSON.stringify(q2Item2.solutionBlocks)
+    expect(q2Item2Extra).toContain('تفاعل عنيف للصوديوم مع ماء المحلول')
+    expect(q2Item2Extra).toContain('ليست هذه المعادلة تعليمةً لإجراء تجربة مخبرية')
+
+    const q2Review = chemistryLesson6.steps.find((s) => s.id === 'self-test-q2-review')!
+    const q2ReviewWarnings = q2Review.blocks.filter(
+      (b): b is Extract<ContentBlock, { kind: 'callout' }> => b.kind === 'callout' && b.tone === 'warning',
+    )
+    expect(q2ReviewWarnings.length).toBeGreaterThanOrEqual(1)
+    expect(q2ReviewWarnings[0]!.attribution).toBe('platform')
+    expect(q2ReviewWarnings[0]!.text).toContain('CuSO₄(aq)')
+    expect(q2ReviewWarnings[0]!.text).toContain('ماء المحلول')
+
+    const guideText = JSON.stringify(lesson6TeacherGuide)
+    expect(guideText).toContain('ZnSO₄(aq)')
+    expect(guideText).toContain('CuSO₄(aq)')
+    expect(guideText).toContain('CH₃COOH(aq)')
+  })
+
+  it('keeps textbook-verbatim blocks free of paraphrased platform prose and preserves p36 headers + p38 intermediate equations', () => {
+    const allVerbatim = chemistryLesson6.steps.flatMap((step) =>
+      step.blocks
+        .filter((b): b is Extract<ContentBlock, { kind: 'textbook-verbatim' }> => b.kind === 'textbook-verbatim')
+        .map((b) => ({ stepId: step.id, text: b.text })),
+    )
+
+    const forbiddenParaphrases = [
+      'أهداف التّعلّم:',
+      'من المتوقّع في نهاية هذا الدّرس',
+      'كلمات مفتاحيّة:',
+      'المطلوب:',
+      '3- موازنة المعادلة:',
+      'نلاحظ أنّ عدد ذرّات الألمنيوم متساوية',
+    ]
+    for (const item of allVerbatim) {
+      for (const phrase of forbiddenParaphrases) {
+        expect(item.text, `${item.stepId} must not attribute "${phrase}" to textbook`).not.toContain(phrase)
+      }
+    }
+
+    // Exact p36 headings in entry-source
+    const entryStep = chemistryLesson6.steps.find((s) => s.id === 'entry-source')!
+    const entryVerbatim = entryStep.blocks
+      .filter((b): b is Extract<ContentBlock, { kind: 'textbook-verbatim' }> => b.kind === 'textbook-verbatim')
+      .map((b) => b.text)
+    expect(entryVerbatim.some((t) => t.startsWith('الأهداف:\n- يميّزُ'))).toBe(true)
+    expect(entryVerbatim).toContain('الكلمات المفتاحية: المعادلة الكيميائيّة الموزونة – دلالات الرّموز.')
+
+    // Exact p37 table order (s, ℓ, aq, g, Δ) and p38 verification table order (Zn, Cl, H)
+    const p37Step = chemistryLesson6.steps.find((s) => s.id === 'observe-and-state-table-source')!
+    const p37Table = p37Step.blocks.find(
+      (b): b is Extract<ContentBlock, { kind: 'table' }> => b.kind === 'table',
+    )!
+    expect(p37Table.rows.map((r) => r.cells.symbol)).toEqual(['s', 'ℓ', 'aq', 'g', 'Δ'])
+
+    const p38ZincStep = chemistryLesson6.steps.find((s) => s.id === 'zinc-balancing-source')!
+    const p38Table = p38ZincStep.blocks.find(
+      (b): b is Extract<ContentBlock, { kind: 'table' }> => b.kind === 'table',
+    )!
+    expect(p38Table.rows.map((r) => r.cells.atom)).toEqual(['Zn', 'Cl', 'H'])
+
+    // Exact p38 worked example: all 6 symbolic equations in exact printed order without altering subscripts
+    const workedStep = chemistryLesson6.steps.find((s) => s.id === 'worked-example-al-hcl-source')!
+    const workedFormulas = workedStep.blocks.filter(
+      (b): b is Extract<ContentBlock, { kind: 'formula' }> => b.kind === 'formula',
+    )
+    expect(workedFormulas).toHaveLength(6)
+    expect(workedFormulas.every((f) => f.attribution === 'textbook')).toBe(true)
+    expect(workedFormulas.map((f) => f.tex)).toEqual([
+      '\\mathrm{Al}_{(s)} + \\mathrm{HCl}_{(aq)} \\longrightarrow \\mathrm{AlCl}_{3(aq)} + \\mathrm{H}_{2(g)}',
+      '\\mathrm{Al}_{(s)} + 3\\mathrm{HCl}_{(aq)} \\longrightarrow \\mathrm{AlCl}_{3(aq)} + \\mathrm{H}_{2(g)}',
+      '\\mathrm{Al}_{(s)} + 2\\times 3\\mathrm{HCl}_{(aq)} \\longrightarrow \\mathrm{AlCl}_{3(aq)} + 3\\mathrm{H}_{2(g)}',
+      '\\mathrm{Al}_{(s)} + 2\\times 3\\mathrm{HCl}_{(aq)} \\longrightarrow 2\\mathrm{AlCl}_{3(aq)} + 3\\mathrm{H}_{2(g)}',
+      '2\\mathrm{Al}_{(s)} + 2\\times 3\\mathrm{HCl}_{(aq)} \\longrightarrow 2\\mathrm{AlCl}_{3(aq)} + 3\\mathrm{H}_{2(g)}',
+      '2\\mathrm{Al}_{(s)} + 6\\mathrm{HCl}_{(aq)} \\longrightarrow 2\\mathrm{AlCl}_{3(aq)} + 3\\mathrm{H}_{2(g)}',
+    ])
+    for (const f of workedFormulas) {
+      expect(f.tex).toContain('\\mathrm{AlCl}_{3(aq)}')
+      expect(f.tex).toContain('\\mathrm{H}_{2(g)}')
+    }
+    const platformNotesInWorked = workedStep.blocks.filter(
+      (b): b is Extract<ContentBlock, { kind: 'callout' }> => b.kind === 'callout',
+    )
+    expect(platformNotesInWorked).toHaveLength(1)
+    expect(platformNotesInWorked[0]!.attribution).toBe('platform')
+  })
+
+  it('never frames metallic sodium reactions in aqueous media as routine safe school experiments in lab models', () => {
+    const naZn = BALANCER_REACTIONS.find((r) => r.id === 'na-znso4')!
+    expect(naZn.scientificNote).toBeTruthy()
+    expect(naZn.scientificNote).toContain('تدريب نظري')
+    expect(naZn.scientificNote).toContain('ماء المحلول')
+
+    const naAcetic = WORD_TO_SYMBOL_SCENARIOS.find((s) => s.id === 'na-acetic')!
+    expect(naAcetic.scientificNote).toBeTruthy()
+    expect(naAcetic.scientificNote).toContain('لا كتجربة مدرسية اعتيادية')
+    const serialized = JSON.stringify(naAcetic)
+    expect(serialized).not.toContain('في التفاعل المخبرية')
+    expect(serialized).not.toContain('في شروط التجربة')
   })
 })
 

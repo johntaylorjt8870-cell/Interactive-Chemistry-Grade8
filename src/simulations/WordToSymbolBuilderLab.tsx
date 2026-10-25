@@ -83,6 +83,11 @@ export default function WordToSymbolBuilderLab({ interactiveId, reducedMotion }:
           products={[...scenario.wordProducts]}
           condition={scenario.condition}
         />
+        {scenario.scientificNote && (
+          <p className="l6-lab__safety-note" data-safety-note={scenario.id}>
+            <ScientificNotationText>{scenario.scientificNote}</ScientificNotationText>
+          </p>
+        )}
       </div>
 
       {/* Stage 1: Formulas */}

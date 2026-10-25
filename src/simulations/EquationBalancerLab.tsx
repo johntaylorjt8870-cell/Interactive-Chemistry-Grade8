@@ -105,6 +105,12 @@ export default function EquationBalancerLab({ interactiveId, reducedMotion }: In
         />
       </div>
 
+      {reaction.scientificNote && (
+        <p className="l6-lab__safety-note" data-safety-note={reaction.id}>
+          <ScientificNotationText>{reaction.scientificNote}</ScientificNotationText>
+        </p>
+      )}
+
       <div className="l6-balancer__sides">
         <fieldset className="l6-balancer__fieldset">
           <legend>معاملات المواد المتفاعلة (الطرف الأول — يسار السهم)</legend>

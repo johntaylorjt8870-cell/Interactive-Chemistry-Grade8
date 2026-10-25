@@ -40,6 +40,8 @@ export type BalancerReaction = {
   }
   /** Pedagogical strategy note shown to guide the student. */
   strategyTip: string
+  /** Optional platform scientific/safety caveat for theoretical textbook reactions. */
+  scientificNote?: string
 }
 
 export type ElementBalanceRow = {
@@ -189,7 +191,7 @@ export const BALANCER_REACTIONS: readonly BalancerReaction[] = [
   },
   {
     id: 'na-znso4',
-    title: 'الصوديوم مع محلول كبريتات الزنك (نشاط ص39)',
+    title: 'الصوديوم مع محلول كبريتات الزنك (تمرين نظري — ص39)',
     level: 'متوسط',
     elements: ['Na', 'Zn', 'S', 'O'],
     reactants: [
@@ -198,10 +200,12 @@ export const BALANCER_REACTIONS: readonly BalancerReaction[] = [
     ],
     products: [
       { formula: 'Na2SO4', texFormula: '\\mathrm{Na}_{2}\\mathrm{SO}_{4}', state: 'aq', arabicName: 'محلول كبريتات الصوديوم', atoms: { Na: 2, S: 1, O: 4 } },
-      { formula: 'Zn', texFormula: '\\mathrm{Zn}', state: 's', arabicName: 'راسب الزنك الصلب', atoms: { Zn: 1 } },
+      { formula: 'Zn', texFormula: '\\mathrm{Zn}', state: 's', arabicName: 'الزنك الصلب (نظرياً وفق نص التمرين)', atoms: { Zn: 1 } },
     ],
     targetCoefficients: { reactants: [2, 1], products: [1, 1] },
     strategyTip: 'لاحظ أن جذر الكبريتات SO₄ (ذرة S وأربع ذرات O) انتقل كما هو دون تفكّك! وازن ذرات الصوديوم Na فقط.',
+    scientificNote:
+      'تنبيه علمي ومخبري (إضافة من المنصة): هذه المعادلة تدريب نظري على موازنة الذرات وفق نص نشاط ص39، وليست تعليمةً لتجربة مدرسية؛ فالصوديوم الفلزي الحر يتفاعل بعنف شديد مع ماء المحلول مطلقاً غاز الهدروجين وحرارة عالية بدلاً من ترسيب الزنك بهدوء.',
   },
   {
     id: 'al-hcl',
@@ -261,6 +265,8 @@ export type WordToSymbolScenario = {
   id: string
   title: string
   description: string
+  /** Optional platform scientific/safety caveat for theoretical textbook scenarios. */
+  scientificNote?: string
   wordReactants: readonly string[]
   wordProducts: readonly string[]
   condition?: string
@@ -428,8 +434,11 @@ export const WORD_TO_SYMBOL_SCENARIOS: readonly WordToSymbolScenario[] = [
   },
   {
     id: 'na-acetic',
-    title: 'تفاعل قطعة صوديوم مع حمض الخل',
-    description: 'تتفاعل قطعة صوديوم مع محلول حمض الخل فينتج محلول خلات الصوديوم وينطلق غاز الهدروجين.',
+    title: 'تفاعل قطعة صوديوم مع حمض الخل (تمرين نظري — ص39)',
+    description:
+      'تمرين كتابي نظري في ص39: نعبّر بالرموز والصيغ عن التفاعل الموصوف بين قطعة صوديوم ومحلول حمض الخل لإنتاج محلول خلات الصوديوم وانطلاق غاز الهدروجين.',
+    scientificNote:
+      'تنبيه علمي وسلامة مخبرية (إضافة من المنصة): يتفاعل الصوديوم الفلزي الحر بعنف شديد وحرارة عالية مع الماء والمحاليل الحمضية المائية مطلقاً غاز الهدروجين القابل للاشتعال؛ لذا يُقدَّم هذا المثال كتفسير وتدريب نظري على الصيغ والموازنة لا كتجربة مدرسية اعتيادية.',
     wordReactants: ['قطعة صوديوم', 'حمض الخل'],
     wordProducts: ['خلات الصوديوم', 'غاز الهدروجين'],
     formulaChoices: [
@@ -457,19 +466,19 @@ export const WORD_TO_SYMBOL_SCENARIOS: readonly WordToSymbolScenario[] = [
         id: 's1',
         label: 'Na(s) + CH₃COOH(aq) → CH₃COONa(aq) + H₂(g)',
         isCorrect: true,
-        feedback: 'صحيح! قطعة الصوديوم صلبة (s)، ومحلول حمض الخل وخلات الصوديوم محلولان مائيان (aq)، والهدروجين المنطلق غاز (g).',
+        feedback: 'صحيح وفق معطيات التمرين النظري! قطعة الصوديوم صلبة (s)، ومحلول حمض الخل وخلات الصوديوم محلولان مائيان (aq)، والهدروجين المنطلق غاز (g).',
       },
       {
         id: 's2',
         label: 'Na(s) + CH₃COOH(s) → CH₃COONa(s) + H₂(l)',
         isCorrect: false,
-        feedback: 'غير صحيح: الهدروجين المنطلق غاز (g) لا سائل، وحمض الخل وملحه في التفاعل المخبرية محلولان (aq).',
+        feedback: 'غير صحيح: الهدروجين المنطلق غاز (g) لا سائل، وحمض الخل وملحه في هذا التمرين المائي محلولان مائيان (aq).',
       },
       {
         id: 's3',
         label: 'Na(aq) + CH₃COOH(g) → CH₃COONa(aq) + H₂(g)',
         isCorrect: false,
-        feedback: 'غير صحيح: «قطعة صوديوم» فلزّ صلب (s) وليست محلولاً، وحمض الخل ليس غازاً في شروط التجربة.',
+        feedback: 'غير صحيح: «قطعة صوديوم» فلزّ صلب (s) وليست محلولاً، وحمض الخل الموصوف في التمرين محلول مائي (aq) لا غاز.',
       },
     ],
     balancedChoices: [

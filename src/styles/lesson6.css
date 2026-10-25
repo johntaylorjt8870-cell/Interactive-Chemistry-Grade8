@@ -958,3 +958,16 @@
   font-size: var(--fs-sm);
   line-height: 1.65;
 }
+
+.l6-lab__safety-note {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  border-inline-start: 4px solid #d97706;
+  color: var(--text-strong);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+

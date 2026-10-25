@@ -261,10 +261,23 @@ try {
       if (step.id === 'entry-source') {
         const text = await page.evaluate(() => document.body.textContent ?? '')
         check(
-          `${viewport.name}: entry-source shows printed title, 4 objectives, keywords, and p36 reference`,
+          `${viewport.name}: entry-source shows verbatim printed headings («الأهداف:» & «الكلمات المفتاحية:»)`,
           /المعادلة الكيميائيّة/.test(text) &&
+            /الأهداف:/.test(text) &&
             /يوازنُ المعادلة الكيميائيّة/.test(text) &&
-            /كلمات مفتاحيّة/.test(text),
+            /الكلمات المفتاحية:/.test(text) &&
+            !/أهداف التّعلّم:/.test(text),
+        )
+      }
+      if (step.id === 'worked-example-al-hcl-source') {
+        const data = await page.evaluate(() => ({
+          formulaCount: document.querySelectorAll('[data-math="block"]').length,
+          hasIntermediate: /أوازنُ ذرّات الكلور من جديد:/.test(document.body.textContent ?? ''),
+        }))
+        check(
+          `${viewport.name}: worked-example-al-hcl-source renders all 6 printed equations + verbatim labels`,
+          data.formulaCount === 6 && data.hasIntermediate,
+          data,
         )
       }
       if (step.id === 'foundation-reaction-anatomy') {
@@ -349,6 +362,13 @@ try {
           `${viewport.name}: «تعلّمتُ» prints all 3 textbook summary bullets`,
           /قانوني التفاعلات الكيميائيّة/.test(text) &&
             /بجعل عدد ذرّات كل عنصر متساوية في طرفي المعادلة/.test(text),
+        )
+      }
+      if (step.id === 'self-test-q2-review') {
+        const text = await page.evaluate(() => document.body.textContent ?? '')
+        check(
+          `${viewport.name}: self-test-q2-review displays platform warning for Na + CuSO4(aq)`,
+          /تفاعل عنيف للصوديوم مع ماء المحلول/.test(text),
         )
       }
       if (step.id === 'final-test') {

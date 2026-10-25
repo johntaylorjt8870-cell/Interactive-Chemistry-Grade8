@@ -292,9 +292,15 @@ describe('Lesson 6 interactive labs and diagrams — student action -> observati
     expect(screen.getByRole('status')).toHaveTextContent(/جميع المعاملات تقبل القسمة على 2/)
     await user.click(screen.getByRole('button', { name: /تبسيط المعاملات بالقسمة على 2/ }))
     expect(screen.getByRole('status')).toHaveTextContent(/أحسنت! المعادلة موزونة في أبسط نسبة عددية صحيحة/)
+
+    // Selecting the theoretical Na + ZnSO4 reaction renders an explicit aqueous-sodium warning
+    await user.click(screen.getByRole('button', { name: /الصوديوم مع محلول كبريتات الزنك/ }))
+    const safetyNote = document.querySelector('[data-safety-note="na-znso4"]')
+    expect(safetyNote).not.toBeNull()
+    expect(safetyNote?.textContent).toMatch(/يتفاعل بعنف شديد مع ماء المحلول/)
   })
 
-  it('guides the student through all 3 stages of WordToSymbolBuilderLab', async () => {
+  it('guides the student through all 3 stages of WordToSymbolBuilderLab and displays safety note on Na + CH3COOH', async () => {
     const user = userEvent.setup()
     render(<WordToSymbolBuilderLab interactiveId="lesson6-word-to-symbol-lab" reducedMotion />)
 
@@ -321,6 +327,12 @@ describe('Lesson 6 interactive labs and diagrams — student action -> observati
     const stage3Buttons = stage3Heading.closest('div')!.querySelectorAll('button')
     await user.click(stage3Buttons[1]!) // 2Al(s) + 3S(s) -> Al2S3(s)
     expect(screen.getByText('أنجزت 3 من 3 مراحل')).toBeInTheDocument()
+
+    // Switching to scenario 3 (Na + CH3COOH) surfaces the platform safety note
+    await user.click(screen.getByRole('button', { name: /تفاعل قطعة صوديوم مع حمض الخل/ }))
+    const naAceticNote = document.querySelector('[data-safety-note="na-acetic"]')
+    expect(naAceticNote).not.toBeNull()
+    expect(naAceticNote?.textContent).toMatch(/لا كتجربة مدرسية اعتيادية/)
   })
 
   it('evaluates student verdicts in Lesson6ErrorSpotterLab and reveals scientific corrections', async () => {
