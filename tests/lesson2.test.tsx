@@ -22,6 +22,7 @@ import Lesson2ValenceDiagram from '@/simulations/Lesson2ValenceDiagram'
 import Lesson2IonBalanceDiagram from '@/simulations/Lesson2IonBalanceDiagram'
 import Lesson2BondAnatomyDiagram from '@/simulations/Lesson2BondAnatomyDiagram'
 import Lesson2LewisAnatomyDiagram from '@/simulations/Lesson2LewisAnatomyDiagram'
+import Lesson2HeteroLewisDiagram from '@/simulations/Lesson2HeteroLewisDiagram'
 import Lesson2OctetBridgeDiagram from '@/simulations/Lesson2OctetBridgeDiagram'
 import Lesson2TransferMechanismDiagram from '@/simulations/Lesson2TransferMechanismDiagram'
 import ValenceCounterLab from '@/simulations/ValenceCounterLab'
@@ -112,6 +113,7 @@ describe('curriculum registry — lesson 2', () => {
       'lesson2-ion-balance',
       'lesson2-transfer-cao',
       'lesson2-lewis-anatomy',
+      'lesson2-hetero-lewis',
       'lesson2-octet-bridge',
       'lesson2-bond-anatomy',
       'lesson2-transfer-mgcl2',
@@ -745,6 +747,34 @@ describe('the rebuilt lesson-2 educational figures', () => {
     expect(equations).toHaveLength(4)
     expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
     expect(equations.every((equation) => equation.querySelector('.katex') && !equation.hasAttribute('data-math-error'))).toBe(true)
+    // Verify each card renders the actual addition check (2 + 0 = 2, 4 + 4 = 8, 6 + 2 = 8) rather than pre-summed 8 = 8.
+    const visibleMath = cards.map((card) => card.querySelector('.katex-html')?.textContent ?? '')
+    expect(visibleMath[0]).toContain('2+0=2')
+    expect(visibleMath[1]).toContain('4+4=8')
+    expect(visibleMath[2]).toContain('6+2=8')
+    expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
+  it('draws accurate Lewis dot and bond structures for heteronuclear H2O and HCl', () => {
+    const { container } = render(<Lesson2HeteroLewisDiagram interactiveId="lesson2-hetero-lewis" reducedMotion={false} />)
+    const h2oDots = container.querySelector('[data-hetero-molecule="H2O"] .l2-hetero-lewis__dots')!
+    const hclDots = container.querySelector('[data-hetero-molecule="HCl"] .l2-hetero-lewis__dots')!
+
+    expect(h2oDots.querySelectorAll('.lewis-mol__dot[data-electron="shared"]')).toHaveLength(4)
+    expect(h2oDots.querySelectorAll('.lewis-mol__dot[data-electron="lone"]')).toHaveLength(4)
+    expect(h2oDots.querySelector('[data-atom="O"]')?.getAttribute('data-lone-pairs')).toBe('2')
+    expect([...h2oDots.querySelectorAll('[data-atom="H"]')].map((el) => el.getAttribute('data-lone-pairs'))).toEqual(['0', '0'])
+
+    expect(hclDots.querySelectorAll('.lewis-mol__dot[data-electron="shared"]')).toHaveLength(2)
+    expect(hclDots.querySelectorAll('.lewis-mol__dot[data-electron="lone"]')).toHaveLength(6)
+    expect(hclDots.querySelector('[data-atom="Cl"]')?.getAttribute('data-lone-pairs')).toBe('3')
+    expect(hclDots.querySelector('[data-atom="H"]')?.getAttribute('data-lone-pairs')).toBe('0')
+
+    const equations = [...container.querySelectorAll('.math-formula')]
+    expect(equations).toHaveLength(6)
+    expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
+    expect(equations.every((equation) => equation.querySelector('.katex') && !equation.hasAttribute('data-math-error'))).toBe(true)
+    expect(strayScriptGlyphs(container)).toEqual([])
   })
 
   it('derives the formula from the valence count in one visible chain', () => {

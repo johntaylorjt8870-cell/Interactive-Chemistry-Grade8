@@ -237,6 +237,14 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     load: () => import('./Lesson2LewisAnatomyDiagram'),
   },
   {
+    id: 'lesson2-hetero-lewis',
+    title: 'شكل تعليمي: تمثيل لويس لجزيئات مختلفة الذرّات (H₂O وHCl)',
+    kind: 'diagram',
+    description:
+      'تمثيل لويس النقطي والخطي لجزيء الماء H₂O (زوجان مشتركان وزوجان غير مشتركين على O) وجزيء كلوريد الهيدروجين HCl (زوج مشترك وثلاثة أزواج غير مشتركة على Cl) مع التحقّق الحسابي لكل ذرّة.',
+    load: () => import('./Lesson2HeteroLewisDiagram'),
+  },
+  {
     id: 'lesson2-octet-bridge',
     title: 'إعادة رسم تعليمية: من إلكترونات السطح إلى الصيغة',
     kind: 'diagram',

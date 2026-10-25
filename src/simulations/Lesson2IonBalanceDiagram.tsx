@@ -1,4 +1,4 @@
-import { BohrAtom, ElectronConfiguration, IonNotation, MathFormula, Sci } from '@/scientific'
+import { BohrAtom, ElectronConfiguration, IonNotation, MathFormula, Sci, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -133,7 +133,9 @@ export default function Lesson2IonBalanceDiagram({ interactiveId }: InteractiveP
               </div>
             </dl>
 
-            <p className="l2-ion-balance__note">{card.note}</p>
+            <p className="l2-ion-balance__note">
+              <ScientificNotationText>{card.note}</ScientificNotationText>
+            </p>
           </article>
         ))}
       </div>

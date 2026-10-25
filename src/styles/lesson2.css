@@ -881,6 +881,48 @@
 .l2-spotter-lab__verdict[data-verdict='incorrect'] { color: var(--status-warning-text); }
 .l2-spotter-lab__waiting { color: var(--text-muted); font-style: normal; }
 
+/* --- Heteronuclear Lewis diagram (H2O & HCl) ------------------------------ */
+.l2-hetero-lewis__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.l2-hetero-lewis__card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.l2-hetero-lewis__card .l2-lewis__facts dt {
+  color: var(--text-secondary);
+}
+
+.l2-hetero-lewis__stage {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+}
+
+.l2-hetero-lewis__equiv {
+  font-size: var(--fs-md);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.l2-hetero-lewis__bond-line {
+  display: inline-block;
+  inline-size: 1.35rem;
+  block-size: 3px;
+  border-radius: 999px;
+  background: var(--accent-primary, var(--text-strong));
+}
+
 @media (prefers-reduced-motion: reduce) {
   .l2-steps-lab__transfer { transition: none; }
 }
@@ -892,6 +934,7 @@
   .l2-behavior-lab__atoms { grid-template-columns: minmax(0, 1fr); }
   .l2-valence__grid { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
   .l2-lewis__cards { grid-template-columns: minmax(0, 1fr); }
+  .l2-hetero-lewis__grid { grid-template-columns: minmax(0, 1fr); }
   .l2-transfer__grid { grid-template-columns: minmax(0, 1fr); }
   .l2-anatomy__panels { grid-template-columns: minmax(0, 1fr); }
   .l2-anatomy__svg { max-block-size: 260px; }

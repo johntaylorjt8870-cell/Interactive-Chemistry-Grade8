@@ -159,7 +159,7 @@ try {
   page.setDefaultTimeout(15000)
   page.on('pageerror', (error) => failures.push(`browser error: ${error.message}`))
 
-  const screenshotSteps = new Set([0, 3, 5, 7, 8, 10, 11, 16, 17, 19, 20, 23, 27, 28, 31, 34])
+  const screenshotSteps = new Set([0, 3, 5, 7, 8, 10, 11, 16, 17, 19, 20, 21, 23, 27, 28, 31, 34])
   const viewports = [
     { name: 'laptop-1440', width: 1440, height: 900 },
     { name: 'desktop', width: 1365, height: 960 },

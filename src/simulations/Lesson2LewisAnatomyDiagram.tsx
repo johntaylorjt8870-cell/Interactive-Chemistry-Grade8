@@ -1,4 +1,4 @@
-import { LewisMolecule, MathFormula, ScientificNotationText } from '@/scientific'
+import { ChemicalFormula, LewisMolecule, MathFormula, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -101,7 +101,7 @@ export default function Lesson2LewisAnatomyDiagram({ interactiveId }: Interactiv
                 {index + 1}
               </span>
               <h5>
-                الجزيء <span dir="ltr">{card.symbol}₂</span>
+                الجزيء <ChemicalFormula formula={`${card.symbol}2`} size="sm" />
               </h5>
             </header>
 
@@ -133,8 +133,8 @@ export default function Lesson2LewisAnatomyDiagram({ interactiveId }: Interactiv
                 <dt>التحقّق: سطح كل ذرّة</dt>
                 <dd>
                   <MathFormula
-                    tex={`${card.sharedElectrons + card.lonePairs * 2} = ${card.target}`}
-                    label={`${card.sharedElectrons} إلكترونات مشتركة و${card.lonePairs} أزواج غير مشتركة، المجموع ${card.target}`}
+                    tex={`${card.sharedElectrons} + ${card.lonePairs * 2} = ${card.target}`}
+                    label={`${card.sharedElectrons} إلكترونات مشتركة زائد ${card.lonePairs * 2} إلكترونات غير مشتركة يساوي ${card.target}`}
                   />
                 </dd>
               </div>
@@ -151,7 +151,7 @@ export default function Lesson2LewisAnatomyDiagram({ interactiveId }: Interactiv
         <p>
           <strong>لماذا هذا الرسم دليل؟</strong> لأن الأعداد في البطاقة تُقرأ من الشكل نفسه ولا
           تحتاج حفظاً: عدّ النقاط بين الرمزين، ثم عدّ الأزواج على الأطراف، ثم تحقّق من العلاقة
-          <MathFormula tex="E_{shared} + 2 \times P_{lone} = E_{surface}" label="الإلكترونات المشتركة زائد إلكترونا كل زوج غير مشترك يساوي إلكترونات سطح الذرة" />.
+          <MathFormula tex="E_{\text{shared}} + 2 \times P_{\text{lone}} = E_{\text{surface}}" label="الإلكترونات المشتركة زائد إلكترونا كل زوج غير مشترك يساوي إلكترونات سطح الذرة" />.
           الهيدروجين وحده هدفه 2، لأن سويتَه الأولى تتّسع لإلكترونين.
         </p>
         <p>
