@@ -12,6 +12,7 @@ import { chemistryLesson2 } from './chemistryLesson2'
 import { chemistryLesson3 } from './chemistryLesson3'
 import { chemistryLesson4 } from './chemistryLesson4'
 import { chemistryLesson5 } from './chemistryLesson5'
+import { chemistryLesson6 } from './chemistryLesson6'
 
 /* ============================================================================
    Curriculum registry
@@ -19,7 +20,7 @@ import { chemistryLesson5 } from './chemistryLesson5'
    The single place where curriculum structure is declared.
 
    Currently registered content (all `source-verified`):
-   - Chemistry — unit 1 «الكيمياء البنيوية»: lessons 1–5 (pages 3–35).
+   - Chemistry — unit 1 «الكيمياء البنيوية»: lessons 1–6 (pages 3–39).
    The unit is still open: further lessons may be added only after their
    textbook pages are supplied and read. This file is the only file that
    should change when new content is added, and the validators in
@@ -46,8 +47,15 @@ const CHEMISTRY: SubjectDefinition = {
       title: 'الوحدة الأولى — الكيمياء البنيوية',
       order: 1,
       status: 'source-verified',
-      source: { pages: Array.from({ length: 33 }, (_, index) => ({ page: String(index + 3) })), verified: true },
-      lessons: [chemistryLesson1, chemistryLesson2, chemistryLesson3, chemistryLesson4, chemistryLesson5],
+      source: { pages: Array.from({ length: 37 }, (_, index) => ({ page: String(index + 3) })), verified: true },
+      lessons: [
+        chemistryLesson1,
+        chemistryLesson2,
+        chemistryLesson3,
+        chemistryLesson4,
+        chemistryLesson5,
+        chemistryLesson6,
+      ],
     },
   ],
 }

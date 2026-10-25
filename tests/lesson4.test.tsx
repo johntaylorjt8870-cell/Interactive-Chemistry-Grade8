@@ -113,7 +113,7 @@ beforeEach(() => { localStorage.clear(); sessionStorage.clear(); teacherAccess.l
 describe('Lesson 4 registration, sequence and source audit', () => {
   it('keeps lesson 4 registered before the fifth verified lesson without adding a unit test', () => {
     expect(getLesson('chemistry', 'structural-chemistry', 'chemical-reactions')).toBe(chemistryLesson4)
-    expect(getUnit('chemistry', 'structural-chemistry')?.lessons.map((lesson) => lesson.id)).toEqual(['chem-u1-l1', 'chem-u1-l2', 'chem-u1-l3', 'chem-u1-l4', 'chem-u1-l5'])
+    expect(getUnit('chemistry', 'structural-chemistry')?.lessons.map((lesson) => lesson.id)).toEqual(['chem-u1-l1', 'chem-u1-l2', 'chem-u1-l3', 'chem-u1-l4', 'chem-u1-l5', 'chem-u1-l6'])
     expect(chemistryLesson4.source.pages.map((page) => page.page)).toEqual(['24', '25', '26', '27', '28', '29'])
     expect(chemistryLesson4.order).toBe(4)
     expect(chemistryLesson4.status).toBe('source-verified')
