@@ -289,6 +289,8 @@ describe('RTL and BIDI — mixed runs are isolated, never inherited', () => {
     ],
     ['src/simulations/IonFormationLab.tsx', ['{moved} من {Math.abs(example.transfer)}']],
     ['src/simulations/ValenceModelLab.tsx', ['{formed} من {molecule.bonds}']],
+    ['src/simulations/ElementBehaviorLab.tsx', ['الزوج {pairIndex + 1} من {PAIRS.length}']],
+    ['src/simulations/ErrorSpotterLab.tsx', ['أجبت عن {answered} من {STATEMENTS.length} عبارات']],
   ]
 
   it.each(COUNTER_SITES)('isolates every counter in %s', (file, fragments) => {
@@ -376,13 +378,12 @@ describe('source fidelity — the printed heading and the questions', () => {
 
   it('keeps Lessons 1 and 2 at their documented sizes', () => {
     // Lesson 1 was rebuilt on purpose (30 steps, 15-question textbook
-    // container, 15-question final test). Lesson 2 was rebuilt on purpose too:
-    // 36 teaching steps (the full educational rebuild adds four figures, three
-    // labs and a post-attempt MgCl₂ review), 7 textbook questions of page 17,
-    // and the page-13/15/16 activities kept in their own container
-    // (see tests/lesson2Coverage.test.ts).
+    // container, 15-question final test). Lesson 2 is self-contained at
+    // 38 steps (adding atom/ion/metal/nonmetal foundations + partner-behavior
+    // lab while removing referral/duplicate steps), 7 textbook questions of
+    // page 17, and the page-13/15/16 activities in their own container.
     expect(chemistryLesson1.steps).toHaveLength(30)
-    expect(chemistryLesson2.steps).toHaveLength(36)
+    expect(chemistryLesson2.steps).toHaveLength(38)
     expect(lesson1BookQuestions).toHaveLength(15)
     expect(lesson2BookQuestions).toHaveLength(7)
 

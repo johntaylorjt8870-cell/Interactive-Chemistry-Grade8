@@ -19,11 +19,14 @@ import { IonicTransferDiagram } from '@/scientific/IonicTransferDiagram'
 import IonicBondingLab from '@/simulations/IonicBondingLab'
 import CovalentBondLab from '@/simulations/CovalentBondLab'
 import Lesson2ValenceDiagram from '@/simulations/Lesson2ValenceDiagram'
+import Lesson2IonBalanceDiagram from '@/simulations/Lesson2IonBalanceDiagram'
 import Lesson2BondAnatomyDiagram from '@/simulations/Lesson2BondAnatomyDiagram'
 import Lesson2LewisAnatomyDiagram from '@/simulations/Lesson2LewisAnatomyDiagram'
+import Lesson2HeteroLewisDiagram from '@/simulations/Lesson2HeteroLewisDiagram'
 import Lesson2OctetBridgeDiagram from '@/simulations/Lesson2OctetBridgeDiagram'
 import Lesson2TransferMechanismDiagram from '@/simulations/Lesson2TransferMechanismDiagram'
 import ValenceCounterLab from '@/simulations/ValenceCounterLab'
+import ElementBehaviorLab from '@/simulations/ElementBehaviorLab'
 import BondStepsLab from '@/simulations/BondStepsLab'
 import ErrorSpotterLab from '@/simulations/ErrorSpotterLab'
 import { evaluateQuestion } from '@/assessment/evaluate'
@@ -91,8 +94,9 @@ describe('curriculum registry — lesson 2', () => {
       .map((block) => (block as { interactiveId: string }).interactiveId)
     expect(ids).toEqual([
       'lesson2-valence-counter',
-      'lesson2-bond-steps',
+      'lesson2-element-behavior-lab',
       'ionic-bonding-lab',
+      'lesson2-bond-steps',
       'covalent-bond-lab',
       'lesson2-error-spotter',
     ])
@@ -106,10 +110,12 @@ describe('curriculum registry — lesson 2', () => {
       .map((block) => (block as { diagramId: string }).diagramId)
     expect(figures).toEqual([
       'lesson2-valence-map',
-      'lesson2-bond-anatomy',
+      'lesson2-ion-balance',
       'lesson2-transfer-cao',
       'lesson2-lewis-anatomy',
+      'lesson2-hetero-lewis',
       'lesson2-octet-bridge',
+      'lesson2-bond-anatomy',
       'lesson2-transfer-mgcl2',
     ])
     for (const id of figures) expect(isInteractiveRegistered(id), id).toBe(true)
@@ -208,11 +214,16 @@ describe('verbatim fidelity of the printed material', () => {
   })
 
   it('stores no bidi control characters in the lesson data', () => {
-    const file = readFileSync('src/data/curriculum/chemistryLesson2.ts', 'utf8')
-    const bookFile = readFileSync('src/data/curriculum/chemistryLesson2Book.ts', 'utf8')
+    const files = [
+      'src/data/curriculum/chemistryLesson2.ts',
+      'src/data/curriculum/chemistryLesson2Book.ts',
+      'src/data/curriculum/chemistryLesson2Practice.ts',
+      'src/data/curriculum/chemistryLesson2Test.ts',
+    ]
     const pattern = /[\u200e\u200f\u202a-\u202e\u2066-\u2069]/u
-    expect(file).not.toMatch(pattern)
-    expect(bookFile).not.toMatch(pattern)
+    for (const file of files) {
+      expect(readFileSync(file, 'utf8'), file).not.toMatch(pattern)
+    }
   })
 })
 
@@ -701,6 +712,19 @@ describe('the rebuilt lesson-2 educational figures', () => {
     expect(container.querySelectorAll('.l2-figure__legend li')).toHaveLength(3)
   })
 
+  it('contrasts neutral atom, positive ion and negative ion visually and algebraically', () => {
+    const { container } = render(<Lesson2IonBalanceDiagram interactiveId="lesson2-ion-balance" reducedMotion={false} />)
+    const cards = [...container.querySelectorAll('[data-particle-card]')]
+    expect(cards.map((card) => card.getAttribute('data-particle-card'))).toEqual(['neutral-na', 'cation-na', 'anion-cl'])
+    expect(cards.map((card) => card.querySelectorAll('.bohr__electron').length)).toEqual([11, 10, 18])
+    const equations = [...container.querySelectorAll('.math-formula')]
+    expect(equations).toHaveLength(3)
+    expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
+    expect(equations.every((equation) => equation.querySelector('.katex') && !equation.hasAttribute('data-math-error'))).toBe(true)
+    expect(container.querySelectorAll('.l2-figure__legend li')).toHaveLength(3)
+    expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
   it('shows transfer and sharing side by side with numbered evidence', () => {
     const { container } = render(<Lesson2BondAnatomyDiagram interactiveId="lesson2-bond-anatomy" reducedMotion={false} />)
     expect(container.querySelector('[data-panel="transfer"]')).not.toBeNull()
@@ -723,6 +747,34 @@ describe('the rebuilt lesson-2 educational figures', () => {
     expect(equations).toHaveLength(4)
     expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
     expect(equations.every((equation) => equation.querySelector('.katex') && !equation.hasAttribute('data-math-error'))).toBe(true)
+    // Verify each card renders the actual addition check (2 + 0 = 2, 4 + 4 = 8, 6 + 2 = 8) rather than pre-summed 8 = 8.
+    const visibleMath = cards.map((card) => card.querySelector('.katex-html')?.textContent ?? '')
+    expect(visibleMath[0]).toContain('2+0=2')
+    expect(visibleMath[1]).toContain('4+4=8')
+    expect(visibleMath[2]).toContain('6+2=8')
+    expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
+  it('draws accurate Lewis dot and bond structures for heteronuclear H2O and HCl', () => {
+    const { container } = render(<Lesson2HeteroLewisDiagram interactiveId="lesson2-hetero-lewis" reducedMotion={false} />)
+    const h2oDots = container.querySelector('[data-hetero-molecule="H2O"] .l2-hetero-lewis__dots')!
+    const hclDots = container.querySelector('[data-hetero-molecule="HCl"] .l2-hetero-lewis__dots')!
+
+    expect(h2oDots.querySelectorAll('.lewis-mol__dot[data-electron="shared"]')).toHaveLength(4)
+    expect(h2oDots.querySelectorAll('.lewis-mol__dot[data-electron="lone"]')).toHaveLength(4)
+    expect(h2oDots.querySelector('[data-atom="O"]')?.getAttribute('data-lone-pairs')).toBe('2')
+    expect([...h2oDots.querySelectorAll('[data-atom="H"]')].map((el) => el.getAttribute('data-lone-pairs'))).toEqual(['0', '0'])
+
+    expect(hclDots.querySelectorAll('.lewis-mol__dot[data-electron="shared"]')).toHaveLength(2)
+    expect(hclDots.querySelectorAll('.lewis-mol__dot[data-electron="lone"]')).toHaveLength(6)
+    expect(hclDots.querySelector('[data-atom="Cl"]')?.getAttribute('data-lone-pairs')).toBe('3')
+    expect(hclDots.querySelector('[data-atom="H"]')?.getAttribute('data-lone-pairs')).toBe('0')
+
+    const equations = [...container.querySelectorAll('.math-formula')]
+    expect(equations).toHaveLength(6)
+    expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
+    expect(equations.every((equation) => equation.querySelector('.katex') && !equation.hasAttribute('data-math-error'))).toBe(true)
+    expect(strayScriptGlyphs(container)).toEqual([])
   })
 
   it('derives the formula from the valence count in one visible chain', () => {
@@ -737,11 +789,11 @@ describe('the rebuilt lesson-2 educational figures', () => {
     const { container } = render(<Lesson2OctetBridgeDiagram interactiveId="lesson2-octet-bridge" reducedMotion={false} />)
     const rows = [...container.querySelectorAll('.l2-chain__row')]
 
-    expect(container.querySelectorAll('.l2-chain__cell--result .math-formula[dir="ltr"]')).toHaveLength(6)
-    expect(container.querySelectorAll('.l2-chain__cell .math-formula[data-math="inline"]')).toHaveLength(9)
+    expect(container.querySelectorAll('.l2-chain__cell--result .math-formula[dir="ltr"]')).toHaveLength(3)
+    expect(container.querySelectorAll('.l2-chain__cell .math-formula[data-math="inline"]')).toHaveLength(6)
     for (const row of rows) {
       const equations = [...row.querySelectorAll('.math-formula')]
-      expect(equations).toHaveLength(3)
+      expect(equations).toHaveLength(2)
       expect(equations.every((equation) => equation.querySelector('.katex'))).toBe(true)
       expect(equations.every((equation) => equation.getAttribute('dir') === 'ltr')).toBe(true)
       expect(equations.every((equation) => equation.getAttribute('data-math-error') !== 'true')).toBe(true)
@@ -799,6 +851,38 @@ describe('the rebuilt lesson-2 interactions', () => {
     expect(section).toHaveAttribute('data-state', 'idle')
   })
 
+  it('deduces partner-dependent behavior across metal+nonmetal and nonmetal+nonmetal pairs', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<ElementBehaviorLab interactiveId="lesson2-element-behavior-lab" reducedMotion={false} />)
+    const section = container.querySelector('section')!
+
+    expect(section).toHaveAttribute('data-pair', 'na-cl')
+    expect(section).toHaveAttribute('data-state', 'idle')
+
+    await user.click(screen.getByRole('button', { name: 'لا فلزّ مع لا فلزّ' }))
+    await user.click(screen.getByRole('button', { name: /مشاركة أزواج إلكترونات/ }))
+    await user.click(screen.getByRole('button', { name: 'تحقّق' }))
+    expect(section).toHaveAttribute('data-state', 'incorrect')
+
+    await user.click(screen.getByRole('button', { name: 'إعادة المحاولة' }))
+    expect(section).toHaveAttribute('data-state', 'idle')
+
+    await user.click(screen.getByRole('button', { name: 'فلزّ مع لا فلزّ' }))
+    await user.click(screen.getByRole('button', { name: /انتقال إلكترونات وتكوّن أيونات/ }))
+    await user.click(screen.getByRole('button', { name: 'تحقّق' }))
+    expect(section).toHaveAttribute('data-state', 'correct')
+
+    // Switch to Cl + Cl to prove the same chlorine shares when paired with a non-metal.
+    await user.click(screen.getByRole('button', { name: /Cl \+ Cl/ }))
+    expect(section).toHaveAttribute('data-pair', 'cl-cl')
+    expect(section).toHaveAttribute('data-state', 'idle')
+    await user.click(screen.getByRole('button', { name: 'لا فلزّ مع لا فلزّ' }))
+    await user.click(screen.getByRole('button', { name: /مشاركة أزواج إلكترونات/ }))
+    await user.click(screen.getByRole('button', { name: 'تحقّق' }))
+    expect(section).toHaveAttribute('data-state', 'correct')
+    expect(strayScriptGlyphs(container)).toEqual([])
+  })
+
   it('walks the bond mechanism forward, backward and back to the start', async () => {
     const user = userEvent.setup()
     const { container } = render(<BondStepsLab interactiveId="lesson2-bond-steps" reducedMotion />)
@@ -850,7 +934,7 @@ describe('the rebuilt lesson-2 interactions', () => {
     const { container } = render(<ErrorSpotterLab interactiveId="lesson2-error-spotter" reducedMotion />)
     const section = container.querySelector('section')!
 
-    expect(container.querySelectorAll('[data-statement]')).toHaveLength(5)
+    expect(container.querySelectorAll('[data-statement]')).toHaveLength(6)
     expect(section).toHaveAttribute('data-answered', '0')
 
     const first = container.querySelector('[data-statement="charge-sign"]')!
@@ -865,13 +949,20 @@ describe('the rebuilt lesson-2 interactions', () => {
     await user.click(covalentFalse!)
     expect(covalent).toHaveAttribute('data-state', 'incorrect')
 
+    // The partner-dependent non-metal statement is false and must be marked correct when judged false.
+    const nonmetal = container.querySelector('[data-statement="nonmetal-always-gains"]')!
+    const [, nonmetalFalse] = [...nonmetal.querySelectorAll('button')]
+    await user.click(nonmetalFalse!)
+    expect(nonmetal).toHaveAttribute('data-state', 'correct')
+
     const reset = screen.getByRole('button', { name: 'إعادة المحاولة' })
-    expect(section).toHaveAttribute('data-answered', '2')
+    expect(section).toHaveAttribute('data-answered', '3')
     await user.click(reset)
     expect(section).toHaveAttribute('data-answered', '0')
-    expect(container.querySelectorAll('[data-state="unanswered"]')).toHaveLength(5)
+    expect(container.querySelectorAll('[data-state="unanswered"]')).toHaveLength(6)
 
     // The verdict buttons are keyboard reachable buttons, never drag-only targets.
     expect(falseButton).toBeInstanceOf(HTMLButtonElement)
+    expect(strayScriptGlyphs(container)).toEqual([])
   })
 })

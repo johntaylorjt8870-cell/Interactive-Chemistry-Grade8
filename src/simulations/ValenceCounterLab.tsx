@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BohrAtom } from '@/scientific'
+import { BohrAtom, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -29,10 +29,22 @@ const ATOMS: AtomSpec[] = [
 ]
 
 function tendencyFor(surface: number, symbol: string): string {
-  if (symbol === 'H') return 'تميل إلى المشاركة بإلكترونها الوحيد، لأن سويتها الأولى تكتمل بإلكترونين.'
-  if (surface <= 2) return 'تميل إلى فقد إلكترونات سطحها والتحوّل إلى أيون موجب.'
-  if (surface >= 6) return 'تميل إلى اكتساب إلكترونات لتكمل الثمانية وتصبح أيوناً سالباً.'
-  return 'تميل إلى المشاركة بأزواج إلكترونات، لا إلى الفقد أو الاكتساب الكامل.'
+  if (symbol === 'H') {
+    return 'الهيدروجين لا فلزّ؛ سويته الأولى تكتمل بإلكترونين فقط، لذلك يميل إلى المشاركة بإلكترونه الوحيد ولا يفقد إلكترونه لتكوين بلورة أيونية كالفلزّات.'
+  }
+  if (symbol === 'Al') {
+    return 'الألمنيوم فلزّ يحمل 3 إلكترونات تكافؤ فوق سوية مكتملة (2-8-3)؛ عند ارتباطه بلا فلزّ مثل الكلور (AlCl₃) يفقد إلكتروناته الثلاثة ليكوّن أيون Al³⁺.'
+  }
+  if (surface <= 2) {
+    return 'هذه ذرّة فلزّ ذات إلكترونات تكافؤ قليلة فوق سوية مكتملة؛ عند لقائها لا فلزّاً تميل إلى فقد إلكترونات سطحها والتحوّل إلى أيون موجب.'
+  }
+  if (symbol === 'N') {
+    return 'النيتروجين لا فلزّ ينقص سطحه 3 إلكترونات للوصول إلى 8؛ يشارك بثلاثة أزواج في جزيء N₂ (أو مع لا فلزّات أخرى مثل NH₃)، وقد يكتسب مع فلزّات نشطة.'
+  }
+  if (symbol === 'O') {
+    return 'الأكسجين لا فلزّ ينقص سطحه إلكترونان للوصول إلى 8؛ يكتسبهما عند ارتباطه بفلزّ (مثل MgO وCaO) أو يشارك بزوجين عند ارتباطه بلا فلزّ (مثل O₂ وH₂O).'
+  }
+  return 'الكلور لا فلزّ ينقص سطحه إلكترون واحد للوصول إلى 8؛ يكتسبه من فلزّ (مثل NaCl وMgCl₂) أو يشارك بزوج إلكترونات مع لا فلزّ آخر (مثل Cl₂ وHCl).'
 }
 
 export default function ValenceCounterLab({ interactiveId }: InteractiveProps) {
@@ -167,7 +179,9 @@ export default function ValenceCounterLab({ interactiveId }: InteractiveProps) {
                   <span dir="ltr">{atom.shells.join('-')}</span> تحمل {surface} إلكترون
                   {surface > 1 ? 'ات' : ''}، وهذا هو عدد إلكترونات السطح.
                 </p>
-                <p>{tendencyFor(surface, atom.symbol)}</p>
+                <p>
+                  <ScientificNotationText>{tendencyFor(surface, atom.symbol)}</ScientificNotationText>
+                </p>
               </>
             ) : (
               <>

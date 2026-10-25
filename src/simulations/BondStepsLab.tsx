@@ -272,5 +272,5 @@ const STAGE_TEXT: Array<(compound: Compound) => string> = [
   (compound) =>
     `الأيونات الناتجة: ${compound.metal.symbol} فقد إلكترونات فصار موجباً، و${compound.nonmetal.symbol} اكتسب فصار سالباً. الأعداد الجديدة: ${compound.metal.atomicNumber} − ${totalElectrons(compound.metal.ionShells)} و${compound.nonmetal.atomicNumber} − ${totalElectrons(compound.nonmetal.ionShells)}؛ وكلٌّ منهما سطحه مكتمل.`,
   (compound) =>
-    `الأيون الموجب والسالبة يتجاذبان كهربائياً تجاذباً ساكناً، فيتراصّان بنسبة ${compound.ratio} وتتكوّن بلورة ${formulaToUnicode(compound.formula)} المتعادلة كهربائياً. هذه القوة هي الرابطة الأيونية.`,
+    `الأيون الموجب والأيون السالب يتجاذبان كهربائياً تجاذباً ساكناً، فيتراصّان بنسبة ${compound.ratio} وتتكوّن بلورة ${formulaToUnicode(compound.formula)} المتعادلة كهربائياً. هذه القوة هي الرابطة الأيونية.`,
 ]

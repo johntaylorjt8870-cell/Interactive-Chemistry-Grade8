@@ -159,8 +159,9 @@ try {
   page.setDefaultTimeout(15000)
   page.on('pageerror', (error) => failures.push(`browser error: ${error.message}`))
 
-  const screenshotSteps = new Set([0, 1, 4, 5, 7, 8, 10, 16, 18, 21, 29, 32])
+  const screenshotSteps = new Set([0, 3, 5, 7, 8, 10, 11, 16, 17, 19, 20, 21, 23, 27, 28, 31, 34])
   const viewports = [
+    { name: 'laptop-1440', width: 1440, height: 900 },
     { name: 'desktop', width: 1365, height: 960 },
     { name: 'mobile', width: 390, height: 844 },
   ]
@@ -250,6 +251,12 @@ try {
           path: path.join(OUT, `${viewport.name}-step-${String(index + 1).padStart(2, '0')}.png`),
           fullPage: false,
         })
+        const figureNode = await page.$('.l2-figure')
+        if (figureNode) {
+          await figureNode.screenshot({
+            path: path.join(OUT, `${viewport.name}-step-${String(index + 1).padStart(2, '0')}-figure.png`),
+          })
+        }
       }
 
       // --- Real interaction: the ionic lab must reach the crystal stage. ---
@@ -389,12 +396,41 @@ try {
         check(`${viewport.name}: bond-steps resets to the first stage`, resetStage === '0', resetStage)
       }
 
+      // --- Element behavior lab: partner-dependent classification + reset. ---
+      if (interactiveIdOf(step) === 'lesson2-element-behavior-lab') {
+        const lab = await page.$('.l2-behavior-lab')
+        check(`${viewport.name}: element-behavior lab mounts`, Boolean(lab))
+        const pair = await page.$eval('.l2-behavior-lab', (node) => node.getAttribute('data-pair'))
+        check(`${viewport.name}: element-behavior lab starts on Na+Cl`, pair === 'na-cl', pair)
+        const groups = await page.$$('.l2-behavior-lab__question-group')
+        check(`${viewport.name}: element-behavior lab exposes two reasoning groups`, groups.length === 2, groups.length)
+        await page.click('.l2-behavior-lab__question-group:first-of-type .l2-choice:first-of-type')
+        await page.click('.l2-behavior-lab__question-group:last-of-type .l2-choice:first-of-type')
+        await page.click('.l2-behavior-lab .button--primary')
+        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+        const state = await page.evaluate(() => {
+          const node = document.querySelector('.l2-behavior-lab')
+          return {
+            state: node?.getAttribute('data-state'),
+            feedback: node?.querySelector('.l2-behavior-lab__feedback')?.textContent ?? '',
+          }
+        })
+        check(
+          `${viewport.name}: element-behavior lab validates Na+Cl as metal+nonmetal ionic transfer`,
+          state.state === 'correct' && /NaCl/.test(state.feedback),
+          state,
+        )
+        await page.click('.l2-behavior-lab .button--quiet')
+        const afterReset = await page.$eval('.l2-behavior-lab', (node) => node.getAttribute('data-state'))
+        check(`${viewport.name}: element-behavior lab resets cleanly`, afterReset === 'idle', afterReset)
+      }
+
       // --- Error spotter: a verdict must explain itself. ---
       if (interactiveIdOf(step) === 'lesson2-error-spotter') {
         const lab = await page.$('.l2-spotter-lab')
         check(`${viewport.name}: error-spotter lab mounts`, Boolean(lab))
         const count = await page.$$eval('.l2-spotter-lab__item', (nodes) => nodes.length)
-        check(`${viewport.name}: error-spotter lists five statements`, count === 5, count)
+        check(`${viewport.name}: error-spotter lists six statements`, count === 6, count)
         await page.click('.l2-spotter-lab__item:first-of-type button')
         await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
         const judged = await page.evaluate(() => {

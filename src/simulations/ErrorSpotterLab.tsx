@@ -1,13 +1,15 @@
 import { useState } from 'react'
+import { RtlRun } from '@/components/BidiText'
+import { ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
    مختبر «اكتشف الخطأ» — إضافة من المنصة
    ----------------------------------------------------------------------------
-   خمس عبارات مأخوذة من الأخطاء التي يرصدها الدرس فعلاً (إشارة الأيون، نطاق
-   تمثيل لويس، معنى الرابطة المضاعفة، خواص المركّبات). الطالب يحكم على كل عبارة
-   بنفسه، ثم يرى التصحيح معلَّلاً. العبارة الرابعة صحيحة عن قصد، حتى لا يتعلّم
-   الطالب أن «كل عبارة خطأ».
+   ست عبارات مأخوذة من الأخطاء التي يرصدها الدرس فعلاً (إشارة الأيون، نطاق
+   تمثيل لويس، معنى الرابطة المضاعفة، خواص المركّبات، وسلوك اللافلزّ مع الشريك).
+   الطالب يحكم على كل عبارة بنفسه، ثم يرى التصحيح معلَّلاً. العبارة الرابعة صحيحة
+   عن قصد، حتى لا يتعلّم الطالب أن «كل عبارة خطأ».
    ========================================================================= */
 
 type Statement = {
@@ -59,6 +61,14 @@ const STATEMENTS: Statement[] = [
     verdict: 'خطأ في التعميم.',
     correction:
       'الكتاب يقول: لا ينقله في الحالة الصلبة، بينما محاليله ومصاهيره تنقله. السبب أن الأيونات مثبّتة في البلورة الصلبة، وتتحرّر عند الصهر أو الذوبان.',
+  },
+  {
+    id: 'nonmetal-always-gains',
+    claim: 'بما أن الأكسجين (توزيعه 2-6) لا فلزّ، فهو يكتسب إلكترونين ويتحوّل إلى أيون سالب في جميع مركّباته حتى في O₂ وH₂O.',
+    isTrue: false,
+    verdict: 'خطأ في التعميم وإغفال الطرف المقابل.',
+    correction:
+      'سلوك اللافلزّ يتوقّف على الذرّة المقابلة: مع الفلزّات (مثل MgO وCaO) يكتسب الأكسجين إلكترونين ويكوّن أيون O²⁻، أمّا مع اللافلزّات (مثل O₂ وH₂O) فلا توجد ذرّة تفقد إلكتروناتها، فيتشارك أزواج الإلكترونات برابطة مشتركة دون تكوين أيونات.',
   },
 ]
 
@@ -114,7 +124,9 @@ export default function ErrorSpotterLab({ interactiveId }: InteractiveProps) {
                 <span className="l2-observation-index" aria-hidden="true">
                   {index + 1}
                 </span>
-                <p>{statement.claim}</p>
+                <p>
+                  <ScientificNotationText>{statement.claim}</ScientificNotationText>
+                </p>
               </div>
 
               <div className="l2-spotter-lab__actions" role="group" aria-label={`احكم على العبارة ${index + 1}`}>
@@ -144,7 +156,9 @@ export default function ErrorSpotterLab({ interactiveId }: InteractiveProps) {
                     <p className="l2-spotter-lab__verdict" data-verdict={isRight ? 'correct' : 'incorrect'}>
                       <strong>{isRight ? 'حكمك صحيح.' : 'حكمك غير دقيق.'}</strong> {statement.verdict}
                     </p>
-                    <p>{statement.correction}</p>
+                    <p>
+                      <ScientificNotationText>{statement.correction}</ScientificNotationText>
+                    </p>
                   </>
                 ) : (
                   <p className="l2-spotter-lab__waiting">التصحيح يظهر بعد اختيارك.</p>
@@ -156,9 +170,11 @@ export default function ErrorSpotterLab({ interactiveId }: InteractiveProps) {
       </ul>
 
       <p className="lab__conclusion" aria-live="polite">
-        <strong>نتيجتك:</strong> أجبت عن {answered} من {STATEMENTS.length} عبارات، وأصبت في{' '}
-        {correctCount}. والهدف ليس النتيجة وحدها: أعد قراءة تصحيح كل عبارة أخطأت فيها، فالخطأ
-        المتكرّر في الاختبار هو نفسه هنا.
+        <strong>نتيجتك:</strong>{' '}
+        <RtlRun>
+          أجبت عن {answered} من {STATEMENTS.length} عبارات، وأصبت في {correctCount}.
+        </RtlRun>{' '}
+        والهدف ليس النتيجة وحدها: أعد قراءة تصحيح كل عبارة أخطأت فيها، فالخطأ المتكرّر في الاختبار هو نفسه هنا.
       </p>
     </section>
   )
