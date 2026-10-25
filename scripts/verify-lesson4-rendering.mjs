@@ -21,6 +21,10 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const BASE = '/Interactive-Chemistry-Grade8'
 const OUT = path.join(ROOT, 'artifacts/lesson4/browser')
 const DIST = path.join(ROOT, 'dist')
+if (!fs.existsSync(path.join(DIST, 'index.html'))) {
+  console.error('No production build found. Run `npm run build` first.')
+  process.exit(2)
+}
 fs.mkdirSync(OUT, { recursive: true })
 
 // Read the real authored data, not a second hardcoded answer key. All imports

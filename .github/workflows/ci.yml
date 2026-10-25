@@ -16,9 +16,21 @@ name: CI
 #
 # The step order mirrors deploy-pages.yml exactly, so a green check here means
 # the same pipeline the deployment runs has already passed on the PR head.
+#
+# The `rendering` job adds the real-Chromium checks that jsdom cannot cover.
+# It is deliberately limited to the two highest-value, bounded-cost checks:
+# `verify:badges` (shared scientific-notation geometry used by every lesson)
+# and `verify:lesson6` (full lesson walk + axe). The lesson 1-5 rendering
+# scripts each walk every step across multiple viewports with per-step axe
+# runs (minutes each), so they remain one-command local checks
+# (`npm run verify:lesson<N>`) instead of multiplying every PR's cost.
+# The browser harness is installed pinned with `--no-save`, matching the
+# scripts' documented on-demand model, so the ~70 MB Chromium binary stays
+# out of the project's dependencies and lockfile.
 
 on:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -58,3 +70,48 @@ jobs:
       # order enforced by tests/deployment.test.ts for the Pages workflow.
       - name: Run tests
         run: npm test
+
+  rendering:
+    name: Chromium rendering (badges + lesson 6)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Optional browser harness for the rendering scripts. Pinned to the
+      # exact versions verified locally; `--no-save` keeps them out of
+      # package.json and package-lock.json (see the note at the top).
+      - name: Install optional Chromium harness (pinned, not saved)
+        run: npm install --no-save puppeteer-core@25.16.0 @sparticuz/chromium@153.0.0
+
+      # `npm run build` already runs the TypeScript compiler (`tsc -b`), so
+      # no separate typecheck step is needed in this job.
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Verify badge rendering (shared scientific notation)
+        run: npm run verify:badges
+
+      - name: Verify lesson 6 rendering
+        run: npm run verify:lesson6
+
+      # Screenshots and JSON reports are the evidence needed to debug a
+      # rendering failure; keep them only when this job fails.
+      - name: Upload rendering artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendering-artifacts
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 7

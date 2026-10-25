@@ -5,7 +5,7 @@
  * plus Teacher Area tab 6 (book solutions + final-test solutions),
  * prefers-reduced-motion check, and real-browser axe-core checks on every step.
  *
- * Run `npm run build && node scripts/verify-lesson6-rendering.mjs`.
+ * Run `npm run build && npm run verify:lesson6`.
  * Writes ignored screenshots and JSON report to `artifacts/lesson6/browser/`.
  */
 import http from 'node:http'
