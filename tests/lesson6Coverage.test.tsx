@@ -15,6 +15,7 @@ import {
   LESSON6_OBJECTIVES,
   computeLedgerCoverage,
 } from '@/data/curriculum/lesson6SourceLedger'
+import { LESSON6_NA_CUSO4_SAFETY_WARNING } from '@/data/curriculum/chemistryLesson6Book'
 import {
   BALANCER_REACTIONS,
   LESSON6_ERROR_CASES,
@@ -182,9 +183,20 @@ describe('Lesson 6 — 29-entry source ledger & objective alignment (pp. 36–39
     if (q2Item2.type === 'fill-blank') {
       expect(q2Item2.blanks.map((b) => b.acceptedAnswers[0])).toEqual(['2', '1', '1', '1'])
     }
-    const q2Item2Extra = JSON.stringify(q2Item2.solutionBlocks)
-    expect(q2Item2Extra).toContain('تفاعل عنيف للصوديوم مع ماء المحلول')
-    expect(q2Item2Extra).toContain('ليست هذه المعادلة تعليمةً لإجراء تجربة مخبرية')
+    expect(q2Item2.explanation).toContain(LESSON6_NA_CUSO4_SAFETY_WARNING)
+    expect(q2Item2.explanation).toContain('إضافة من المنصة')
+    const q2Item2WarningBlock = q2Item2.solutionBlocks?.find(
+      (b): b is Extract<ContentBlock, { kind: 'callout' }> => b.kind === 'callout' && b.tone === 'warning',
+    )
+    expect(q2Item2WarningBlock).toBeDefined()
+    expect(q2Item2WarningBlock?.attribution).toBe('platform')
+    expect(q2Item2WarningBlock?.text).toBe(LESSON6_NA_CUSO4_SAFETY_WARNING)
+
+    // Other Q2 items remain unaffected by the sodium warning
+    for (const otherId of ['l6-book-q2-1', 'l6-book-q2-3', 'l6-book-q2-4']) {
+      const other = bookQuestions.find((q) => q.id === otherId)!
+      expect(other.explanation).not.toContain('الصوديوم')
+    }
 
     const q2Review = chemistryLesson6.steps.find((s) => s.id === 'self-test-q2-review')!
     const q2ReviewWarnings = q2Review.blocks.filter(
@@ -192,8 +204,7 @@ describe('Lesson 6 — 29-entry source ledger & objective alignment (pp. 36–39
     )
     expect(q2ReviewWarnings.length).toBeGreaterThanOrEqual(1)
     expect(q2ReviewWarnings[0]!.attribution).toBe('platform')
-    expect(q2ReviewWarnings[0]!.text).toContain('CuSO₄(aq)')
-    expect(q2ReviewWarnings[0]!.text).toContain('ماء المحلول')
+    expect(q2ReviewWarnings[0]!.text).toBe(LESSON6_NA_CUSO4_SAFETY_WARNING)
 
     const guideText = JSON.stringify(lesson6TeacherGuide)
     expect(guideText).toContain('ZnSO₄(aq)')

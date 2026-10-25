@@ -364,6 +364,50 @@ try {
             /بجعل عدد ذرّات كل عنصر متساوية في طرفي المعادلة/.test(text),
         )
       }
+      if (step.id === 'self-test-q2-source') {
+        const inlineData = await page.evaluate(async () => {
+          const card = document.querySelector('[data-question="l6-book-q2-2"]')
+          const inputs = [...(card?.querySelectorAll('input') ?? [])]
+          const vals = ['2', '1', '1', '1']
+          const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
+          inputs.forEach((inp, idx) => {
+            setter.call(inp, vals[idx] ?? '1')
+            inp.dispatchEvent(new Event('input', { bubbles: true }))
+            inp.dispatchEvent(new Event('change', { bubbles: true }))
+          })
+          await new Promise((r) => setTimeout(r, 60))
+          const selfCheck = document.querySelector('[data-self-check="l6-book-q2-2"]')
+          selfCheck?.querySelector('summary')?.click()
+          await new Promise((r) => setTimeout(r, 60))
+          const body = selfCheck?.querySelector('.question__reveal-body')
+          const rect = body?.getBoundingClientRect()
+          return {
+            opened: Boolean(selfCheck?.querySelector('details')?.open),
+            hasWarning:
+              Boolean(body?.textContent?.includes('تفاعل عنيف للصوديوم مع ماء المحلول')) &&
+              Boolean(body?.textContent?.includes('ليست هذه المعادلة تعليمةً لإجراء تجربة مخبرية')),
+            width: rect ? Math.round(rect.width) : 0,
+            height: rect ? Math.round(rect.height) : 0,
+            scrollWidth: body?.scrollWidth ?? 0,
+            clientWidth: body?.clientWidth ?? 0,
+            scrollHeight: body?.scrollHeight ?? 0,
+            clientHeight: body?.clientHeight ?? 0,
+            docWidth: document.documentElement.scrollWidth,
+            viewport: window.innerWidth,
+          }
+        })
+        check(
+          `${viewport.name}: l6-book-q2-2 inline dropdown reveals Na + CuSO4(aq) safety warning without clipping or overflow`,
+          inlineData.opened &&
+            inlineData.hasWarning &&
+            inlineData.width > 0 &&
+            inlineData.height > 0 &&
+            inlineData.docWidth <= inlineData.viewport + 1 &&
+            inlineData.scrollWidth <= inlineData.clientWidth + 2 &&
+            inlineData.scrollHeight <= inlineData.clientHeight + 2,
+          inlineData,
+        )
+      }
       if (step.id === 'self-test-q2-review') {
         const text = await page.evaluate(() => document.body.textContent ?? '')
         check(

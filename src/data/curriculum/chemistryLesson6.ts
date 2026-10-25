@@ -1,6 +1,7 @@
 import type { SourceReference } from '@/data/source'
 import type { ContentBlock, LessonDefinition, LessonStep, TableColumnSpec, TableRowSpec } from './schema'
 import {
+  LESSON6_NA_CUSO4_SAFETY_WARNING,
   bookActivitySolutions,
   bookAssessment,
   bookQuestions,
@@ -1081,7 +1082,7 @@ const steps: LessonStep[] = [
       ),
       warning(
         'تنبيه علمي ومخبري مهمّ حول المعادلة (2) — إضافة من المنصة',
-        'موازنة معادلة نظرية في تمرين كتابي لا تعني أن التفاعل يجري بهذه الصورة البسيطة عند خلط المواد فعلياً في الماء؛ فوضع فلز الصوديوم الحر Na(s) في محلول كبريتات النحاس المائي CuSO₄(aq) يؤدّي عملياً إلى تفاعل عنيف للصوديوم مع ماء المحلول نفسه (مطلقاً غاز الهدروجين وحرارة عالية)، لذا فإن هذه المعادلة تدريب نظري على موازنة الذرات وليست تعليمةً لتجربة مخبرية.',
+        LESSON6_NA_CUSO4_SAFETY_WARNING,
       ),
       tex(
         '2\\mathrm{KClO}_{3(s)} \\xrightarrow{\\Delta} 2\\mathrm{KCl}_{(s)} + 3\\mathrm{O}_{2(g)}',

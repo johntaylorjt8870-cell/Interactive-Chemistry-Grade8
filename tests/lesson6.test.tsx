@@ -421,6 +421,39 @@ describe('Lesson 6 route, Teacher Area tab, and axe-core accessibility', () => {
     await screen.findByText(/إعادة بناء تخطيطية من المنصة لشكل الكتاب/)
   })
 
+  it('reveals the platform sodium safety warning inside l6-book-q2-2 inline dropdown without affecting sibling questions', async () => {
+    const user = userEvent.setup()
+    const stepIndex = chemistryLesson6.steps.findIndex((s) => s.id === 'self-test-q2-source') + 1
+    window.location.hash = `#step-${stepIndex}`
+    const { container } = renderApp(PATH)
+
+    // Before answering, inline explanation dropdowns are locked behind the attempt hint
+    expect(container.querySelector('[data-self-check="l6-book-q2-2"] details')).toBeNull()
+    expect(container.textContent).not.toContain('تفاعل عنيف للصوديوم مع ماء المحلول')
+
+    // Answer l6-book-q2-2 (Na + CuSO4(aq)) and expand "راجع إجابتك مع الشرح"
+    const q2Item2 = bookQuestions.find((q) => q.id === 'l6-book-q2-2')!
+    await answerDomQuestion(user, container, q2Item2)
+    const q2SelfCheck = container.querySelector('[data-self-check="l6-book-q2-2"]') as HTMLElement
+    const q2Summary = within(q2SelfCheck).getByText('راجع إجابتك مع الشرح')
+    await user.click(q2Summary)
+
+    const q2RevealBody = q2SelfCheck.querySelector('.question__reveal-body')
+    expect(q2RevealBody).not.toBeNull()
+    expect(q2RevealBody?.textContent).toContain('ملاحظة علمية مخبرية (إضافة من المنصة)')
+    expect(q2RevealBody?.textContent).toContain('تفاعل عنيف للصوديوم مع ماء المحلول')
+    expect(q2RevealBody?.textContent).toContain('ليست هذه المعادلة تعليمةً لإجراء تجربة مخبرية')
+
+    // Sibling question l6-book-q2-1 (Mg + O2 -> MgO) keeps its normal inline explanation with no sodium text
+    const q2Item1 = bookQuestions.find((q) => q.id === 'l6-book-q2-1')!
+    await answerDomQuestion(user, container, q2Item1)
+    const q1SelfCheck = container.querySelector('[data-self-check="l6-book-q2-1"]') as HTMLElement
+    await user.click(within(q1SelfCheck).getByText('راجع إجابتك مع الشرح'))
+    const q1RevealBody = q1SelfCheck.querySelector('.question__reveal-body')
+    expect(q1RevealBody?.textContent).toContain('2Mg(s) + O2(g) → 2MgO(s)')
+    expect(q1RevealBody?.textContent).not.toContain('الصوديوم')
+  })
+
   it('passes axe-core with zero serious or critical violations across all 8 Lesson 6 visuals & labs', async () => {
     const components = [
       Lesson6ZincHclDiagram,
