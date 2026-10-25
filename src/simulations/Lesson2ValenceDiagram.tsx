@@ -23,11 +23,11 @@ type AtomSpec = {
 }
 
 const ATOMS: AtomSpec[] = [
-  { symbol: 'Na', shells: [2, 8, 1], surface: 1, tendency: 'تفقد إلكتروناً واحداً', printedOn: '14' },
-  { symbol: 'Mg', shells: [2, 8, 2], surface: 2, tendency: 'تفقد إلكترونين', printedOn: '17' },
-  { symbol: 'H', shells: [1], surface: 1, tendency: 'تشارك بإلكترونها الوحيد', printedOn: '15' },
-  { symbol: 'O', shells: [2, 6], surface: 6, tendency: 'تكتسب إلكترونين', printedOn: '15' },
-  { symbol: 'Cl', shells: [2, 8, 7], surface: 7, tendency: 'تكتسب إلكتروناً واحداً', printedOn: '14' },
+  { symbol: 'Na', shells: [2, 8, 1], surface: 1, tendency: 'فلزّ: تفقد إلكتروناً واحداً مع اللافلزّات', printedOn: '14' },
+  { symbol: 'Mg', shells: [2, 8, 2], surface: 2, tendency: 'فلزّ: تفقد إلكترونين مع اللافلزّات', printedOn: '17' },
+  { symbol: 'H', shells: [1], surface: 1, tendency: 'لا فلزّ: تشارك بإلكترونها لتكمل السوية الأولى (2)', printedOn: '15' },
+  { symbol: 'O', shells: [2, 6], surface: 6, tendency: 'لا فلزّ: تحتاج 2 (تكتسب مع فلزّ أو تشارك مع لا فلزّ)', printedOn: '15' },
+  { symbol: 'Cl', shells: [2, 8, 7], surface: 7, tendency: 'لا فلزّ: تحتاج 1 (تكتسب مع فلزّ أو تشارك مع لا فلزّ)', printedOn: '14' },
 ]
 
 export default function Lesson2ValenceDiagram({ interactiveId }: InteractiveProps) {
@@ -35,11 +35,11 @@ export default function Lesson2ValenceDiagram({ interactiveId }: InteractiveProp
     <figure className="l2-figure" data-diagram={interactiveId} data-interactive-id={interactiveId}>
       <header className="l2-figure__header">
         <p className="l2-figure__eyebrow">شكل توضيحي من إضافة المنصة · يعتمد على توزيعات الكتاب</p>
-        <h4 className="l2-figure__title">ما الذي يحدّد ميل الذرّة إلى الارتباط؟</h4>
+        <h4 className="l2-figure__title">ما الذي يحدّد سلوك الذرّة عند الارتباط؟</h4>
         <p className="l2-figure__lead">
           أمامك خمس ذرّات من صفحات الدرس، مرسومة كما يرسمها الكتاب: نواة في المركز وسويات
-          إلكترونية حولها. النقطة المميّزة هي <strong>إلكترون السطح</strong>، وهو وحده الذي
-          يدخل في الرابطة.
+          إلكترونية حولها. النقطة المميّزة هي <strong>إلكترون السطح (إلكترون التكافؤ)</strong>،
+          وهو وحده الذي يدخل في الرابطة تبعاً لنوع العنصر والذرّة المقابلة.
         </p>
       </header>
 

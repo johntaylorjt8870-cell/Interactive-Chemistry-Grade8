@@ -1,4 +1,4 @@
-import { ChemicalFormula, MathFormula } from '@/scientific'
+import { ChemicalFormula, MathFormula, ScientificNotationText } from '@/scientific'
 import type { InteractiveProps } from './registry'
 
 /* ============================================================================
@@ -39,11 +39,13 @@ export default function Lesson2OctetBridgeDiagram({ interactiveId }: Interactive
   return (
     <figure className="l2-figure" data-diagram={interactiveId} data-interactive-id={interactiveId}>
       <header className="l2-figure__header">
-        <p className="l2-figure__eyebrow">شكل توضيحي من إضافة المنصة · يحوّل العدّ إلى صيغة</p>
-        <h4 className="l2-figure__title">من إلكترونات السطح إلى الصيغة: سلسلة واحدة تتكرّر</h4>
+        <p className="l2-figure__eyebrow">شكل توضيحي من إضافة المنصة · قراءة جزيئات الصفحة 15 ثنائية الذرّة المتماثلة</p>
+        <h4 className="l2-figure__title">
+          <ScientificNotationText>من إلكترونات السطح إلى تمثيل لويس فالصيغة في H₂ وO₂ وN₂</ScientificNotationText>
+        </h4>
         <p className="l2-figure__lead">
-          كل زوج مشترك يوفّر إلكترونين. فإذا عرفتَ كم ينقص سطح الذرّة، عرفتَ عدد الأزواج، وعرفت
-          رتبة الرابطة. الصيغة لا تُحفظ؛ هي نتيجة هذه السلسلة.
+          في الجزيئات ثنائية الذرّة المتماثلة المرسومة في الصفحة 15، تتساوى الذرّتان في النقص، فتساهم كل
+          ذرّة بعدد الإلكترونات الناقصة نفسها ليتكوّن بينهما زوج مشترك أو زوجان أو ثلاثة أزواج.
         </p>
       </header>
 
@@ -77,14 +79,12 @@ export default function Lesson2OctetBridgeDiagram({ interactiveId }: Interactive
             </span>
             <span className="l2-chain__cell l2-chain__cell--result" role="cell">
               <small>الأزواج المشتركة</small>
-              <strong>
-                <MathFormula
-                  tex={`${row.missing} = ${row.pairs}`}
-                  label={`${row.missing} إلكترونات ناقصة من كل ذرّة تساوي ${row.pairs} أزواج مشتركة`}
-                />
-              </strong>
+              <strong>{row.pairs}</strong>
               <em className="l2-chain__aside">
-                <MathFormula tex={`${row.pairs} \\times 2 = ${row.pairs * 2}`} label={`${row.pairs} أزواج، إلكترونان في كل زوج`} />
+                <MathFormula
+                  tex={`${row.pairs} \\times 2 = ${row.pairs * 2}\\text{ e}^-`}
+                  label={`${row.pairs} أزواج، إلكترونان في كل زوج يساوي ${row.pairs * 2} إلكترونات مشتركة`}
+                />
               </em>
             </span>
             <span className="l2-chain__cell l2-chain__cell--result" role="cell">
@@ -116,16 +116,13 @@ export default function Lesson2OctetBridgeDiagram({ interactiveId }: Interactive
 
       <figcaption className="l2-figure__caption">
         <p>
-          <strong>اقرأ السلسلة بالاتجاه نفسه في كل صف:</strong> السطح يتحدّد من التوزيع، والناقص
-          يتحدّد من سعة السوية الأخيرة، ثم تساهم كل ذرّة بعدد الإلكترونات الناقصة نفسها. وكل
-          إلكترون تساهم به يجد إلكتروناً مقابلًا من الذرّة الأخرى، فيتكوّن زوج مشترك. لذلك يساوي
-          عددُ الأزواج عددَ الإلكترونات الناقصة، ويكون مجموع الإلكترونات المشتركة ضعف هذا العدد:
-          2 في H₂، و4 في O₂، و6 في N₂.
+          <strong>اقرأ السلسلة بالاتجاه نفسه في كل صف:</strong>{' '}
+          <ScientificNotationText>
+            في الجزيئات المتماثلة (H₂ وO₂ وN₂) يتحدّد السطح من التوزيع، ويتحدّد الناقص من سعة السوية الأخيرة، ثم تقدّم كل ذرّة إلكتروناتها الناقصة فتلتقي بإلكترونات الذرّة المماثلة، فيتكوّن زوج مشترك مقابل كل إلكترون ناقص، ويكون مجموع الإلكترونات المشتركة ضعف عدد الأزواج: 2 في H₂، و4 في O₂، و6 في N₂.
+          </ScientificNotationText>
         </p>
         <p>
-          <strong>لماذا الهيدروجين مختلف؟</strong> لأن سويتَه الأولى تتّسع لإلكترونين فقط، فهدفه
-          2 لا 8. ولهذا يكون الناقص عنده <MathFormula tex="2 - 1 = 1" />, لا <MathFormula tex="8 - 1 = 7" />. لو استخدمت 8 لكل الذرّات
-          لحصلت على سبعة أزواج مشتركة في H₂، وهذا مستحيل: كل ذرّة تملك إلكتروناً واحداً فقط.
+          <strong>نطاق هذا الجدول وحدود قاعدته:</strong> الهيدروجين هدفه 2 لا 8 لأن سويته الأولى تتّسع لإلكترونين فقط، لذا يكون الناقص <MathFormula tex="2 - 1 = 1" /> لا <MathFormula tex="8 - 1 = 7" />. كما أن مطابقة «عدد الأزواج بين الذرّتين = ما ينقص الذرّة الواحدة» تخصّ <strong>ذرّتين متماثلتين ترتبطان معاً</strong>؛ أمّا في الجزيئات متعدّدة الذرّات غير المتماثلة (مثل <ChemicalFormula formula="H2O" size="sm" /> أو <ChemicalFormula formula="CH4" size="sm" />) فنرسم تمثيل لويس ونتحقّق من اكتمال سطح كل ذرّة على حدة بدلاً من تطبيق معادلة آلية.
         </p>
       </figcaption>
     </figure>

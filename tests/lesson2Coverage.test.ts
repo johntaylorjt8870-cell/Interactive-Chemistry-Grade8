@@ -221,9 +221,10 @@ describe('lesson 2 assessment keys', () => {
     expect(finalTest.lessonId).toBe('chem-u1-l2')
     expect(finalTest.questions).toHaveLength(17)
     expect(countQuestions(finalTest.questions)).toBe(20)
-    // The rebuild adds six platform drills (valence counting, density,
-    // charge arithmetic, figure reading, conductivity wording, MgCl₂ ratio).
-    expect(practiceAssessment.questions).toHaveLength(26)
+    // Self-contained Lesson 2 carries 34 graduated platform drills covering
+    // atom foundations, ions, metals/nonmetals, partner-dependent bonding,
+    // 1:1 & 2:1 ionic ratios, Lewis drawing, and transfer to unseen elements.
+    expect(practiceAssessment.questions).toHaveLength(34)
   })
 
   it('marks the authored final-test key as fully correct through the real evaluator', () => {
@@ -291,14 +292,18 @@ describe('lesson 2 assessment keys', () => {
 })
 
 describe('lesson 2 scientific notation integrity', () => {
-  const texBlocks = allBlocks.filter(
+  const solutionBlocks = [...textbookQuestions, ...finalTest.questions].flatMap((q) => q.solutionBlocks ?? [])
+  const texBlocks = [...allBlocks, ...solutionBlocks].filter(
     (block): block is Extract<ContentBlock, { kind: 'formula' }> => block.kind === 'formula',
   )
 
-  it('compiles every authored TeX formula with KaTeX', () => {
+  it('compiles every authored TeX formula with KaTeX in strict mode (no Arabic inside TeX)', () => {
     expect(texBlocks.length).toBeGreaterThan(3)
     for (const block of texBlocks) {
-      expect(() => katex.renderToString(block.tex, { throwOnError: true, displayMode: true, trust: false }), block.tex).not.toThrow()
+      expect(
+        () => katex.renderToString(block.tex, { throwOnError: true, displayMode: true, trust: false, strict: 'error' }),
+        block.tex,
+      ).not.toThrow()
     }
   })
 

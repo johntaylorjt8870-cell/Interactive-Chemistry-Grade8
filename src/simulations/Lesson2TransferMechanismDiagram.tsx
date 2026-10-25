@@ -190,9 +190,9 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
             <h5 id={`l2-transfer-${spec.formula}-2`}>انتقال الإلكترونات</h5>
           </header>
           <div className="l2-transfer__row l2-transfer__row--motion" dir="ltr">
-            <BohrAtom symbol={metal.symbol} shells={metal.shells} size={104} highlightValence />
+            <BohrAtom symbol={metal.symbol} shells={metal.shells} size={90} highlightValence />
             <span className="l2-transfer__arrow" aria-hidden="true">
-              <svg viewBox="0 0 120 26" width="120" height="26" focusable="false">
+              <svg viewBox="0 0 120 26" width="76" height="20" focusable="false">
                 <path d="M4 13 H 96" />
                 <path d="M86 5 L 104 13 L 86 21" />
               </svg>
@@ -202,7 +202,7 @@ export default function Lesson2TransferMechanismDiagram({ interactiveId }: Inter
             </span>
             <span className="l2-transfer__atoms" data-count={nonmetal.count}>
               {Array.from({ length: nonmetal.count }, (_unused, index) => (
-                <BohrAtom key={index} symbol={nonmetal.symbol} shells={nonmetal.shells} size={104} highlightValence />
+                <BohrAtom key={index} symbol={nonmetal.symbol} shells={nonmetal.shells} size={90} highlightValence />
               ))}
             </span>
           </div>

@@ -30,6 +30,13 @@
   color: var(--text-secondary);
 }
 
+/* `.lab` in shared components.css references `--space-7`, which is undefined in
+   tokens.css, causing computed padding to fall back to 0 unless restored per
+   lesson (matching lesson3.css / lesson4.css). Scoped strictly to Lesson 2. */
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lab {
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
+}
+
 /* The Lewis figure is wide by nature (a dot diagram beside its name). On a
    phone it scrolls inside its own frame rather than widening the page. */
 .lesson-shell[data-lesson-id='chem-u1-l2'] .lewis-mol,
@@ -490,6 +497,196 @@
 }
 .l2-choice:disabled { opacity: 0.55; cursor: not-allowed; }
 .l2-choice--number { font-family: var(--font-latin); font-size: var(--fs-md); min-inline-size: 2.75rem; }
+.l2-choice--wide {
+  font-family: inherit;
+  border-radius: var(--radius-sm);
+  text-align: start;
+  line-height: var(--lh-normal);
+}
+
+/* --- Ion balance foundational diagram ------------------------------------- */
+.l2-ion-balance__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-3);
+}
+
+.l2-ion-balance__card {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-canvas);
+  min-inline-size: 0;
+}
+
+.l2-ion-balance__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.l2-ion-balance__badge {
+  margin: 0;
+  font-size: var(--fs-3xs);
+  font-weight: var(--fw-semibold);
+  color: var(--palette-chem-700);
+}
+
+.l2-ion-balance__title {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-strong);
+  line-height: var(--lh-snug);
+}
+
+.l2-ion-balance__atom {
+  display: grid;
+  place-items: center;
+  padding-block: var(--space-1);
+}
+
+.l2-ion-balance__facts {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+  font-size: var(--fs-2xs);
+}
+.l2-ion-balance__facts div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: 3px;
+  border-block-end: 1px dotted var(--border-soft);
+}
+.l2-ion-balance__facts dt { color: var(--text-secondary); }
+.l2-ion-balance__facts dd {
+  margin: 0;
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.l2-ion-balance__note {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+  border-inline-start: 2px solid var(--palette-chem-300);
+  padding-inline-start: var(--space-2);
+}
+
+/* --- Element behavior deduction lab --------------------------------------- */
+.l2-behavior-lab__picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.l2-behavior-lab__status {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.l2-behavior-lab__atoms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-block: var(--space-3);
+}
+
+.l2-behavior-lab__atom-card {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-canvas);
+  min-inline-size: 0;
+}
+
+.l2-behavior-lab__atom-meta {
+  inline-size: 100%;
+  display: grid;
+  gap: var(--space-2);
+}
+.l2-behavior-lab__atom-meta h4 {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-strong);
+  text-align: center;
+}
+.l2-behavior-lab__atom-meta dl {
+  margin: 0;
+  display: grid;
+  gap: 3px;
+  font-size: var(--fs-2xs);
+}
+.l2-behavior-lab__atom-meta dl div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  border-block-end: 1px dotted var(--border-soft);
+  padding-block: 2px;
+}
+.l2-behavior-lab__atom-meta dt { color: var(--text-secondary); }
+.l2-behavior-lab__atom-meta dd { margin: 0; color: var(--text-primary); }
+
+.l2-behavior-lab__questions {
+  display: grid;
+  gap: var(--space-3);
+  margin-block-end: var(--space-3);
+}
+
+.l2-behavior-lab__question-group {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.l2-behavior-lab__step-label {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.l2-behavior-lab__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.l2-behavior-lab__feedback {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-start: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border-strong);
+  background: var(--surface-canvas);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+.l2-behavior-lab__feedback p { margin: 0; }
+.l2-behavior-lab__feedback[data-feedback='correct'] {
+  background: var(--status-success-bg);
+  border-color: var(--status-success-border);
+  color: var(--status-success-text);
+}
+.l2-behavior-lab__feedback[data-feedback='incorrect'] {
+  background: var(--status-warning-bg);
+  border-color: var(--status-warning-border);
+  color: var(--status-warning-text);
+}
+.l2-behavior-lab__contrast {
+  font-weight: var(--fw-semibold);
+}
 
 /* --- Valence counter lab -------------------------------------------------- */
 .l2-valence-lab__picker,
@@ -691,6 +888,8 @@
 @media (max-width: 720px) {
   .l2-figure { padding: var(--space-4); }
   .l2-valence-lab__body { grid-template-columns: minmax(0, 1fr); }
+  .l2-ion-balance__grid { grid-template-columns: minmax(0, 1fr); }
+  .l2-behavior-lab__atoms { grid-template-columns: minmax(0, 1fr); }
   .l2-valence__grid { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
   .l2-lewis__cards { grid-template-columns: minmax(0, 1fr); }
   .l2-transfer__grid { grid-template-columns: minmax(0, 1fr); }

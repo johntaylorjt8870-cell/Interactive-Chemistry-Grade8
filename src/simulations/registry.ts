@@ -197,6 +197,22 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     load: () => import('./CovalentBondLab'),
   },
   {
+    id: 'lesson2-ion-balance',
+    title: 'شكل تأسيسي: الذرّة المتعادلة والأيون الموجب والأيون السالب',
+    kind: 'diagram',
+    description:
+      'مقارنة بصرية وحسابية لذرّة الصوديوم المتعادلة وأيون الصوديوم الموجب وأيون الكلوريد السالب، مع ثبات عدد البروتونات وحساب الشحنة الكلية.',
+    load: () => import('./Lesson2IonBalanceDiagram'),
+  },
+  {
+    id: 'lesson2-element-behavior-lab',
+    title: 'مختبر استنتاج سلوك الذرّات ونوع الرابطة',
+    kind: 'activity',
+    description:
+      'استنتاج تصنيف العنصرين (فلزّ/لا فلزّ) ومصير إلكترونات التكافؤ (انتقال أيوني أو مشاركة تساهمية) عبر خمسة أزواج تكشف دور الطرف المقابل واستثناء الهيدروجين.',
+    load: () => import('./ElementBehaviorLab'),
+  },
+  {
     id: 'lesson2-valence-map',
     title: 'إعادة رسم تعليمية: إلكترونات السطح في خمس ذرّات',
     kind: 'diagram',
@@ -265,7 +281,7 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     title: 'مختبر اكتشف الخطأ في الروابط',
     kind: 'activity',
     description:
-      'خمس عبارات من الأخطاء الشائعة في الدرس، يحكم الطالب على كل واحدة ثم يرى التصحيح المعلَّل، مع نتيجة وإعادة ضبط.',
+      'ست عبارات من الأخطاء الشائعة في الدرس، يحكم الطالب على كل واحدة ثم يرى التصحيح المعلَّل، مع نتيجة وإعادة ضبط.',
     load: () => import('./ErrorSpotterLab'),
   },
   {
