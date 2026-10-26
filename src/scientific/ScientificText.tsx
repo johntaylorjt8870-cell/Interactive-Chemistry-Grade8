@@ -1,7 +1,12 @@
 import type { CSSProperties, ElementType, ReactNode } from 'react'
-import { splitScientificRuns, type ScientificNotation } from '@/utils/scientificText'
+import {
+  parseCompactNuclideCharge,
+  splitScientificRuns,
+  type ScientificNotation,
+} from '@/utils/scientificText'
 import { ElectronConfiguration } from './ElectronConfiguration'
 import { ChargeNotation } from './ChargeNotation'
+import { NuclearNotation } from './NuclearNotation'
 
 /* ============================================================================
    ScientificText — the bidi boundary of the whole platform.
@@ -130,6 +135,25 @@ export function ScientificText<T extends ElementType = 'span'>({
         // Unicode superscript glyphs it was authored with.
         if (run.notation === 'charge') {
           return <ChargeNotation key={index} source={run.value} size="sm" />
+        }
+        // A nuclide that carries a charge (`²³₁₁Na⁺`) is a nuclear notation
+        // with a REAL superscript charge: the numbers stay on the symbol's left
+        // and the charge is raised at its upper right, so the RTL flow can
+        // never put the sign in front of the nuclide.
+        if (run.notation === 'nuclide-charge') {
+          const nuclide = parseCompactNuclideCharge(run.value)
+          if (nuclide) {
+            return (
+              <NuclearNotation
+                key={index}
+                symbol={nuclide.symbol}
+                massNumber={nuclide.massNumber}
+                atomicNumber={nuclide.atomicNumber}
+                charge={`${nuclide.magnitude}${nuclide.sign}`}
+                size="sm"
+              />
+            )
+          }
         }
         // Electron configurations get one structured isolate instead of a
         // chain of separate runs the RTL paragraph could reorder.

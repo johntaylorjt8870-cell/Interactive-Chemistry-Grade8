@@ -930,6 +930,349 @@ window.__measureSymbolRaises = function (symbolSelector, chargeSelector) {
       offContract.map((r) => `${r.text}=${r.raiseEm}em/${r.position}/${r.top}/${r.display}`).join(' | '),
     )
 
+    /* ---------------------------------------------------------------------
+     * 5. Charge ORDERING and PLACEMENT, measured in the shipped build.
+     *
+     *     The contract the reader sees:
+     *       · the magnitude is to the LEFT of the sign inside one superscript;
+     *       · the whole superscript is at the symbol's UPPER RIGHT;
+     *       · the charge is above the symbol's baseline and does not overlap
+     *         the symbol's ink;
+     *       · a subscript stays below the baseline while the charge stays high.
+     *
+     *     Specimens are CLONES of the ions the showcase really renders, with the
+     *     body/charge text set to each species in the required table: the markup
+     *     and classes are the production ones, so the geometry below is the
+     *     geometry the stylesheet produces for that species. The sulfate is
+     *     measured on the LIVE specimen, because its subscript is part of the
+     *     case.
+     * ------------------------------------------------------------------- */
+    const ionPage = await openPage('/', null)
+    const ION_SPECIMENS = [
+      { body: 'Na', magnitude: '', sign: '+', label: 'Na+' },
+      { body: 'Ca', magnitude: '2', sign: '+', label: 'Ca2+' },
+      { body: 'Cl', magnitude: '', sign: '\u2212', label: 'Cl-' },
+      { body: 'O', magnitude: '2', sign: '\u2212', label: 'O2-' },
+      { body: 'Fe', magnitude: '3', sign: '+', label: 'Fe3+' },
+    ]
+
+    const rackBuilt = await ionPage.evaluate((specimens) => {
+      const template = document.querySelector('.ion-notation')
+      if (!template) return false
+      const host = document.createElement('div')
+      host.id = 'ion-rack'
+      host.style.cssText =
+        'position:absolute;left:0;top:0;z-index:999999;background:#fff;padding:18px 22px;' +
+        'display:flex;gap:26px;align-items:flex-end;direction:ltr;font-size:24px;color:#0d1b2a'
+      for (const specimen of specimens) {
+        const clone = template.cloneNode(true)
+        clone.setAttribute('data-specimen', specimen.label)
+        const body = clone.querySelector('.ion-notation__body')
+        if (body) body.textContent = specimen.body
+        const run = clone.querySelector('.ion-notation__charge-run')
+        if (run) {
+          run.textContent = ''
+          if (specimen.magnitude) {
+            const magnitude = document.createElement('span')
+            magnitude.className = 'ion-notation__magnitude'
+            magnitude.textContent = specimen.magnitude
+            run.appendChild(magnitude)
+          }
+          const sign = document.createElement('span')
+          sign.className = 'ion-notation__sign'
+          sign.textContent = specimen.sign
+          run.appendChild(sign)
+        }
+        host.appendChild(clone)
+      }
+      document.body.appendChild(host)
+      return true
+    }, ION_SPECIMENS)
+    check('ion ordering rack: built from a rendered ion-notation', rackBuilt === true)
+
+    const GEOMETRY_PROBE = `
+window.__chargeGeometry = function (selector) {
+  const host = document.querySelector(selector)
+  if (!host) return null
+  const baselineOf = (element) => {
+    const probe = document.createElement('span')
+    probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'
+    element.insertBefore(probe, element.firstChild)
+    const y = probe.getBoundingClientRect().bottom
+    probe.remove()
+    return y
+  }
+  const notation = host.matches('.ion-notation, .charge-notation, .chem-formula')
+    ? host
+    : host.querySelector('.ion-notation, .charge-notation, .chem-formula')
+  const charge = notation.querySelector('.sci-sup')
+  const body = notation.querySelector(
+    '.ion-notation__body, .charge-notation__body, .chem-formula__element, .nuclear-notation__symbol',
+  )
+  const magnitude = charge.querySelector('[class$="magnitude"]')
+  const sign = charge.querySelector('[class$="sign"]')
+  const subscript = notation.querySelector('sub')
+
+  const symbolFont = parseFloat(getComputedStyle(body).fontSize)
+  const bodyBox = body.getBoundingClientRect()
+  const chargeBox = charge.getBoundingClientRect()
+  const magnitudeBox = magnitude ? magnitude.getBoundingClientRect() : null
+  const signBox = sign.getBoundingClientRect()
+
+  // Where the glyphs are, not just where the boxes are: an inline-block probe
+  // inside each element reports the baseline that element is laid out on.
+  const bodyBaseline = baselineOf(body)
+  const chargeBaseline = baselineOf(charge)
+
+  return {
+    text: notation.textContent.trim(),
+    chargeTag: charge.tagName.toLowerCase(),
+    chargePosition: getComputedStyle(charge).position,
+    display: getComputedStyle(notation).display,
+    magnitudeText: magnitude ? magnitude.textContent : '',
+    signText: sign.textContent,
+    magnitudeLeftOfSign: magnitudeBox ? magnitudeBox.right <= signBox.left + 0.5 : null,
+    chargeRightOfBody: chargeBox.left >= bodyBox.right - 1,
+    chargeOverlapsBody: chargeBox.left < bodyBox.right - 1,
+    gapEm: +Math.max(0, chargeBox.left - bodyBox.right).toFixed(4) / symbolFont,
+    raiseEm: +((bodyBaseline - chargeBaseline) / symbolFont).toFixed(4),
+    // Higher on the page is a SMALLER y. "Upper band" is stated against the
+    // symbol's BASELINE rather than its box centre, because an inline box
+    // carries ascender and descender space that no glyph fills: the charge's box
+    // must end at least 0.1em ABOVE the baseline, and its centre must sit above
+    // the symbol box's centre by at least 0.15em.
+    chargeAboveSymbolMid:
+      chargeBox.bottom <= bodyBaseline - symbolFont * 0.1 &&
+      (chargeBox.top + chargeBox.bottom) / 2 <=
+        (bodyBox.top + bodyBox.bottom) / 2 - symbolFont * 0.15,
+    chargeAboveBaseline: chargeBaseline < bodyBaseline,
+    chargeBottomEmAboveBaseline: +((bodyBaseline - chargeBox.bottom) / symbolFont).toFixed(4),
+    subscriptBelowBaseline: subscript ? baselineOf(subscript) > bodyBaseline : null,
+    symbolFont,
+    chargeFont: parseFloat(getComputedStyle(charge).fontSize),
+  }
+}
+`
+    await ionPage.evaluate(GEOMETRY_PROBE)
+
+    for (const specimen of ION_SPECIMENS) {
+      const g = await ionPage.evaluate(
+        (label) => window.__chargeGeometry('#ion-rack [data-specimen="' + label + '"]'),
+        specimen.label,
+      )
+      if (!g) {
+        check(`ordering ${specimen.label}: specimen rendered`, false, 'not found')
+        continue
+      }
+      check(`ordering ${specimen.label}: the charge is a real <sup>`, g.chargeTag === 'sup', g.chargeTag)
+      check(
+        `ordering ${specimen.label}: raise is a baseline offset, not a paint offset`,
+        g.chargePosition === 'static',
+        g.chargePosition,
+      )
+      check(
+        `ordering ${specimen.label}: magnitude is visually LEFT of the sign`,
+        g.magnitudeText === '' ? g.magnitudeLeftOfSign === null : g.magnitudeLeftOfSign === true,
+        `${JSON.stringify(g.magnitudeText)}${g.signText}: ${g.magnitudeLeftOfSign}`,
+      )
+      check(
+        `ordering ${specimen.label}: the sign is the RIGHT half of the charge`,
+        g.text === `${specimen.body}${specimen.magnitude}${specimen.sign}`,
+        JSON.stringify(g.text),
+      )
+      check(
+        `placement ${specimen.label}: charge at the upper right of the symbol`,
+        g.chargeRightOfBody && !g.chargeOverlapsBody,
+        `rightOfBody=${g.chargeRightOfBody} overlap=${g.chargeOverlapsBody} gap=${g.gapEm}em`,
+      )
+      check(
+        `placement ${specimen.label}: charge above the baseline, in the upper band`,
+        g.chargeAboveBaseline &&
+          g.chargeAboveSymbolMid &&
+          g.raiseEm > RAISE_EM.min &&
+          g.raiseEm < RAISE_EM.max,
+        `raise=${g.raiseEm}em bottom=${g.chargeBottomEmAboveBaseline}em above baseline`,
+      )
+      check(
+        `placement ${specimen.label}: charge stays attached (gap <= 0.14em)`,
+        g.gapEm >= 0 && g.gapEm <= 0.14,
+        `${g.gapEm}em`,
+      )
+      check(
+        `placement ${specimen.label}: charge is smaller than the symbol`,
+        g.chargeFont < g.symbolFont,
+        `${g.chargeFont}px vs ${g.symbolFont}px`,
+      )
+    }
+
+    // The live sulfate: its index must stay low while its charge stays high.
+    const sulfate = await ionPage.evaluate(() => {
+      const live = [...document.querySelectorAll('.ion-notation')].find((el) =>
+        (el.textContent || '').includes('SO'),
+      )
+      if (!live) return null
+      return window.__chargeGeometry(
+        '.ion-notation[data-ion="' + live.getAttribute('data-ion') + '"]',
+      )
+    })
+    if (sulfate) {
+      check(
+        'grouped ion SO42-: the index stays below the baseline',
+        sulfate.subscriptBelowBaseline === true,
+        `${sulfate.subscriptBelowBaseline}`,
+      )
+      check(
+        'grouped ion SO42-: the charge stays above the baseline and to the right',
+        sulfate.raiseEm > RAISE_EM.min &&
+          sulfate.raiseEm < RAISE_EM.max &&
+          sulfate.chargeRightOfBody &&
+          sulfate.chargeAboveBaseline,
+        `raise=${sulfate.raiseEm}em rightOfBody=${sulfate.chargeRightOfBody}`,
+      )
+      check(
+        'grouped ion SO42-: magnitude before sign',
+        sulfate.text === 'SO42\u2212' && sulfate.magnitudeLeftOfSign === true,
+        `${JSON.stringify(sulfate.text)} magLeftOfSign=${sulfate.magnitudeLeftOfSign}`,
+      )
+    } else {
+      check('grouped ion SO42-: a live specimen was rendered', false)
+    }
+    await shoot(ionPage, '#ion-rack', path.join(SHOTS, 'ion-charge-ordering.png'), { settle: 250 })
+
+    /* ---------------------------------------------------------------------
+     * 6. Nuclear notation with a charge, and the orphan-sign audit.
+     *
+     *    `²³₁₁Na⁺` used to render as a nuclide PLUS a loose prose sign, so an
+     *    RTL cell drew `+²³₁₁Na` — the sign on the baseline, LEFT of the
+     *    symbol. These checks are the browser-level statement of the fix: no
+     *    charge glyph may survive in prose anywhere, and a charged nuclide must
+     *    carry its charge as a <sup> to the RIGHT of the symbol, after its
+     *    numbers.
+     * ------------------------------------------------------------------- */
+    const BROWSER_AUDIT = `
+window.__orphanSigns = function () {
+  const found = []
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+  let node = walker.nextNode()
+  while (node) {
+    const text = node.textContent || ''
+    const parent = node.parentElement
+    if (
+      parent &&
+      /[\\u207A\\u207B]/.test(text) &&
+      !/[\\u207A\\u207B][\\u2070\\u00B9\\u00B2\\u00B3\\u2074-\\u2079]/.test(text) &&
+      !parent.closest('sup, sub, .katex, script, style')
+    ) {
+      found.push(text.trim().slice(0, 40) + ' in <' + parent.tagName.toLowerCase() + '>')
+    }
+    node = walker.nextNode()
+  }
+  return found
+}
+
+window.__chargedNuclides = function () {
+  // The symbol element CONTAINS the charge, so its box includes the superscript.
+  // The letters' own box is the range from its first to its last text node.
+  const textBoxOf = (element) => {
+    const nodes = [...element.childNodes].filter((node) => node.nodeType === 3)
+    if (!nodes.length) return element.getBoundingClientRect()
+    const range = document.createRange()
+    range.setStart(nodes[0], 0)
+    range.setEnd(nodes[nodes.length - 1], nodes[nodes.length - 1].textContent.length)
+    return range.getBoundingClientRect()
+  }
+  const baselineOf = (element) => {
+    const probe = document.createElement('span')
+    probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'
+    element.insertBefore(probe, element.firstChild)
+    const y = probe.getBoundingClientRect().bottom
+    probe.remove()
+    return y
+  }
+  const out = []
+  for (const notation of document.querySelectorAll('.nuclear-notation')) {
+    const charge = notation.querySelector('.sci-sup')
+    if (!charge) continue
+    const numbers = notation.querySelector('.nuclear-notation__numbers')
+    const symbol = notation.querySelector('.nuclear-notation__symbol')
+    const symbolFont = parseFloat(getComputedStyle(symbol).fontSize)
+    const symbolBox = textBoxOf(symbol)
+    const chargeBox = charge.getBoundingClientRect()
+    const numbersBox = numbers ? numbers.getBoundingClientRect() : null
+    const magnitude = charge.querySelector('[class$="magnitude"]')
+    const sign = charge.querySelector('[class$="sign"]')
+    out.push({
+      text: notation.textContent.trim(),
+      chargeText: charge.textContent,
+      symbol: symbol.firstChild ? String(symbol.firstChild.textContent).trim() : '',
+      numbersLeftOfSymbol: numbersBox ? numbersBox.right <= symbolBox.left + 1 : null,
+      chargeRightOfSymbol: chargeBox.left >= symbolBox.right - 1,
+      raiseEm: +((baselineOf(symbol) - baselineOf(charge)) / symbolFont).toFixed(4),
+      magnitudeLeftOfSign:
+        magnitude && sign
+          ? magnitude.getBoundingClientRect().right <= sign.getBoundingClientRect().left + 0.5
+          : null,
+    })
+  }
+  return out
+}
+`
+
+    const lessonNames = ['atom-and-element', 'chemical-bonds', 'chemical-formulas']
+    let nuclideSeen = 0
+    let nuclideFailures = 0
+    const orphanSigns = []
+    for (const lesson of lessonNames) {
+      const walk = await openPage(`/chemistry/structural-chemistry/${lesson}`, null)
+      await walk.evaluate(BROWSER_AUDIT)
+      for (let step = 0; step < 60; step += 1) {
+        const orphans = await walk.evaluate(() => window.__orphanSigns())
+        for (const orphan of orphans) orphanSigns.push(`${lesson}: ${orphan}`)
+
+        const nuclides = await walk.evaluate(() => window.__chargedNuclides())
+        for (const nuclide of nuclides) {
+          nuclideSeen += 1
+          const ok =
+            nuclide.chargeRightOfSymbol &&
+            nuclide.numbersLeftOfSymbol === true &&
+            nuclide.raiseEm > RAISE_EM.min &&
+            nuclide.raiseEm < RAISE_EM.max &&
+            (nuclide.magnitudeLeftOfSign === null || nuclide.magnitudeLeftOfSign === true)
+          if (!ok) {
+            nuclideFailures += 1
+            check(
+              `nuclear ${nuclide.text}: charge at the upper right of the symbol`,
+              false,
+              JSON.stringify(nuclide),
+            )
+          }
+        }
+
+        const trigger = await walk.$('.lesson-nav .button--primary')
+        if (!trigger) break
+        if (await trigger.evaluate((el) => /إنهاء|إتمام/.test(el.textContent))) break
+        await trigger.click()
+        await new Promise((resolve) => setTimeout(resolve, 260))
+      }
+      await walk.close()
+    }
+    check(
+      'nuclear: a charged nuclide renders as nuclear notation with a <sup> charge',
+      nuclideSeen >= 2,
+      `${nuclideSeen} found`,
+    )
+    check(
+      'nuclear: numbers stay left of the symbol, charge upper-right, one raise',
+      nuclideFailures === 0,
+      `${nuclideFailures} failure(s)`,
+    )
+    check(
+      'prose: no charge glyph is left on the baseline in any lesson step',
+      orphanSigns.length === 0,
+      orphanSigns.slice(0, 4).join(' | '),
+    )
+    await ionPage.close()
+
     const showcase = await openPage('/', null)
     const ions = await showcase.evaluate(() =>
       [...document.querySelectorAll('.ion-notation')].map((el) => el.getAttribute('data-ion')),

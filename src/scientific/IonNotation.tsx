@@ -1,6 +1,6 @@
 import { SciSub, SciSup } from './ScientificText'
 import { ChemicalFormula } from './ChemicalFormula'
-import { normalizeCharge, type Charge } from '@/utils/scientificText'
+import { chargeSuperscript, normalizeCharge, type Charge } from '@/utils/scientificText'
 
 export type IonNotationStyle = 'superscript' | 'stacked'
 
@@ -40,7 +40,11 @@ export function IonNotation({
   label,
 }: IonNotationProps) {
   const parsed: Charge = normalizeCharge(charge)
-  const sign = parsed.sign === '+' ? '+' : parsed.sign === '-' ? '\u2212' : ''
+  // The visible charge: magnitude then sign, with a magnitude of one omitted
+  // (`Na⁺`, never `Na1⁺`).
+  const superscript = chargeSuperscript(charge)
+  const magnitude = superscript.magnitude
+  const sign = superscript.glyph
   const accessible = label ?? `${formula} ${parsed.display}`
 
   if (style === 'stacked') {
@@ -69,16 +73,14 @@ export function IonNotation({
       dir="ltr"
       role="math"
       aria-label={accessible}
-      data-ion={`${formula}${parsed.magnitude}${sign}`}
+      data-ion={`${formula}${magnitude}${sign}`}
     >
       <span className="ion-notation__body">
         <ChemicalFormula formula={formula} size={size} />
       </span>
       <SciSup className="ion-notation__charge">
         <span className="ion-notation__charge-run" dir="ltr">
-          {parsed.magnitude ? (
-            <span className="ion-notation__magnitude">{parsed.magnitude}</span>
-          ) : null}
+          {magnitude ? <span className="ion-notation__magnitude">{magnitude}</span> : null}
           {sign ? <span className="ion-notation__sign">{sign}</span> : null}
         </span>
       </SciSup>
@@ -146,7 +148,7 @@ export type SubscriptedIonProps = {
 
 /** Convenience wrapper for species such as `SO₄²⁻` authored separately. */
 export function SubscriptedIon({ symbol, index, charge, className }: SubscriptedIonProps) {
-  const parsed = charge === undefined ? null : normalizeCharge(charge)
+  const parsed = charge === undefined ? null : chargeSuperscript(charge)
   return (
     <span className={['ion-notation', className].filter(Boolean).join(' ')} dir="ltr" role="math">
       <span className="ion-notation__body">
@@ -156,10 +158,10 @@ export function SubscriptedIon({ symbol, index, charge, className }: Subscripted
       {parsed ? (
         <SciSup className="ion-notation__charge">
           <span className="ion-notation__charge-run" dir="ltr">
-            <span className="ion-notation__magnitude">{parsed.magnitude}</span>
-            <span className="ion-notation__sign">
-              {parsed.sign === '+' ? '+' : parsed.sign === '-' ? '\u2212' : ''}
-            </span>
+            {parsed.magnitude ? (
+              <span className="ion-notation__magnitude">{parsed.magnitude}</span>
+            ) : null}
+            <span className="ion-notation__sign">{parsed.glyph}</span>
           </span>
         </SciSup>
       ) : null}

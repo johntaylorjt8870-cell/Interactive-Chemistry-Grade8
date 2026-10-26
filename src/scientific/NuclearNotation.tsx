@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { SciSup } from './ScientificText'
+import { chargeSuperscript } from '@/utils/scientificText'
 
 const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
 const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
@@ -68,6 +69,13 @@ export function NuclearNotation({
   const hasAtomic = atomicNumber !== undefined && atomicNumber !== ''
   const hasCharge = charge !== undefined && charge !== ''
 
+  // One convention for the whole platform: the magnitude precedes its sign
+  // (`Ca²⁺`, never `Ca⁺²`), a magnitude of one is omitted (`Na⁺`), and the sign
+  // is the mathematical minus (U+2212), not a hyphen.
+  const parsedCharge = hasCharge ? chargeSuperscript(charge) : null
+  const chargeMagnitude = parsedCharge?.magnitude ?? ''
+  const chargeSign = parsedCharge?.glyph ?? ''
+
   const rows = Number(hasMass) + Number(hasAtomic)
   const description =
     label ??
@@ -95,8 +103,18 @@ export function NuclearNotation({
       </span>
       <span className="nuclear-notation__symbol" aria-hidden="true">
         {symbol}
-        {hasCharge ? (
-          <SciSup className="nuclear-notation__charge">{String(charge)}</SciSup>
+        {/* The charge is a real superscript at the symbol's upper right. It is
+            emitted AFTER the symbol, so the LTR isolate of the notation fixes
+            the visual order: `²³₁₁Na⁺`, never `⁺²³₁₁Na`. */}
+        {chargeSign ? (
+          <SciSup className="nuclear-notation__charge">
+            <span className="nuclear-notation__charge-run" dir="ltr">
+              {chargeMagnitude ? (
+                <span className="nuclear-notation__charge-magnitude">{chargeMagnitude}</span>
+              ) : null}
+              <span className="nuclear-notation__charge-sign">{chargeSign}</span>
+            </span>
+          </SciSup>
         ) : null}
       </span>
     </span>

@@ -41,7 +41,12 @@ function renderNodes(nodes: FormulaNode[]): ReactNode {
             {node.charge ? (
               <SciSup className="chem-formula__charge">
                 <span className="chem-formula__charge-run" dir="ltr">
-                  <span className="chem-formula__charge-magnitude">{node.charge.magnitude}</span>
+                  {/* A magnitude of one is omitted, and an empty span is not
+                      emitted at all: the charge DOM is the same in every
+                      renderer, so `Na⁺` carries one sign and no empty digit. */}
+                  {node.charge.magnitude ? (
+                    <span className="chem-formula__charge-magnitude">{node.charge.magnitude}</span>
+                  ) : null}
                   <span className="chem-formula__charge-sign">
                     {node.charge.sign === '+' ? '+' : '\u2212'}
                   </span>
@@ -54,7 +59,9 @@ function renderNodes(nodes: FormulaNode[]): ReactNode {
         return (
           <SciSup key={index} className="chem-formula__charge">
             <span className="chem-formula__charge-run" dir="ltr">
-              <span className="chem-formula__charge-magnitude">{node.magnitude}</span>
+              {node.magnitude ? (
+                <span className="chem-formula__charge-magnitude">{node.magnitude}</span>
+              ) : null}
               <span className="chem-formula__charge-sign">{node.sign === '+' ? '+' : '\u2212'}</span>
             </span>
           </SciSup>

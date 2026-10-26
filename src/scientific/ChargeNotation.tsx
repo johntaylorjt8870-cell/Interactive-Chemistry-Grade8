@@ -1,6 +1,6 @@
 import { SciSup } from './ScientificText'
 import { ChemicalFormula } from './ChemicalFormula'
-import { parseCompactCharge } from '@/utils/scientificText'
+import { chargeSuperscript, parseCompactCharge } from '@/utils/scientificText'
 
 export type ChargeNotationSize = 'sm' | 'md' | 'lg'
 
@@ -61,6 +61,11 @@ export function ChargeNotation({
     )
   }
 
+  // The visible charge: magnitude then sign, with a magnitude of one omitted
+  // (`Na⁺`, never `Na1⁺`). One owner for the convention — see
+  // `chargeSuperscript`.
+  const superscript = chargeSuperscript(`${parsed.magnitude}${parsed.sign}`)
+
   const classes = [
     'charge-notation',
     size ? `charge-notation--${size}` : null,
@@ -91,10 +96,10 @@ export function ChargeNotation({
       </span>
       <SciSup className="charge-notation__charge">
         <span className="charge-notation__charge-run" dir="ltr">
-          {parsed.magnitude ? (
-            <span className="charge-notation__magnitude">{parsed.magnitude}</span>
+          {superscript.magnitude ? (
+            <span className="charge-notation__magnitude">{superscript.magnitude}</span>
           ) : null}
-          <span className="charge-notation__sign">{parsed.sign === '+' ? '+' : '\u2212'}</span>
+          <span className="charge-notation__sign">{superscript.glyph}</span>
         </span>
       </SciSup>
     </span>
