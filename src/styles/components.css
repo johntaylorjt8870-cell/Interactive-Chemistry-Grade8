@@ -1486,7 +1486,17 @@
              drawer, so the step content keeps almost the whole screen.
 
    Nothing above the content reserves the old header height: the only vertical
-   gap is the small space token below. */
+   gap is the small space token below.
+
+   Height budget — the rail is a navigation column, so the step outline is the
+   part that must keep the viewport. The rail itself is capped by the viewport
+   (`max-block-size` below) and the outline is its only growing item; the
+   identity block and the progress line are deliberately unshrinkable, because
+   a flex item with visible overflow never shrinks below its content. Every
+   pixel they take is therefore a pixel the list loses, so they stay compact:
+   the lesson summary is clamped to two lines, and on short viewports the
+   summary and the current-step chip step aside entirely. The outline then
+   owns everything left of the viewport height. */
 
 .container--lesson {
   /* Lessons are the widest surface on the platform: experiments, figures and
@@ -1526,6 +1536,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  /* Fixed share of the rail: the identity never trades height with the step
+     list, and the list keeps whatever the identity does not use. */
+  flex: 0 0 auto;
   min-inline-size: 0;
 }
 
@@ -1566,6 +1579,15 @@
   font-size: var(--fs-xs);
   line-height: var(--lh-normal);
   color: var(--text-secondary);
+  /* Two lines are enough to orient the student. An unclamped summary wraps to
+     four or five lines in a 300px rail, which is several step titles of height
+     taken away from the list; the full text stays on the unit page and in the
+     mobile drawer. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 /* The step that is currently open, as a quiet chip: it changes as the student
@@ -1612,7 +1634,10 @@
 }
 
 /* Only the outline scrolls inside the rail, so a long lesson never lengthens
-   the content column and the current step stays reachable. */
+   the content column and the current step stays reachable. It is also the
+   rail's only growing item: it takes the whole height the identity, the
+   progress line and the rail padding above it leave inside the viewport cap,
+   and it scrolls once the step list is longer than that. */
 .lesson-rail__outline {
   flex: 1 1 auto;
   min-block-size: 0;
@@ -1620,6 +1645,25 @@
   overscroll-behavior: contain;
   padding-block: var(--space-3) var(--space-1);
   border-block-start: 1px solid var(--border-hairline);
+}
+
+/* Short viewports — laptops whose browser chrome leaves ~600–780px, zoomed-in
+   windows and split screens. The rail sheds the two rows that only repeat
+   information shown elsewhere (the summary is on the unit page and in the
+   mobile drawer, the kind of the open step is already a pill inside each list
+   entry) so that the step list still shows several titles instead of one or
+   two. Scoped to the desktop rail: below 1081px the same rows are already
+   inside the drawer. */
+@media (min-width: 1081px) and (max-height: 780px) {
+  .lesson-rail__description {
+    display: none;
+  }
+}
+
+@media (min-width: 1081px) and (max-height: 640px) {
+  .lesson-rail__subtitle {
+    display: none;
+  }
 }
 
 .lesson-shell__rail .lesson-outline__button {
