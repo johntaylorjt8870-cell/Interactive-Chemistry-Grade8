@@ -73,6 +73,29 @@ describe('lesson outline height — the list owns the viewport', () => {
     expect(outline['overflow-y']).toBe('auto')
   })
 
+  it('sizes the list from the rail instead of a fixed height', () => {
+    // A fixed height (or cap) on the list is precisely the bug this fix
+    // removes: it limited the menu to a couple of rows however much viewport
+    // the rail had. The list must be sized by the rail's flex layout only.
+    for (const property of ['block-size', 'height', 'max-block-size', 'max-height']) {
+      expect(outline[property], `fixed ${property} on .lesson-rail__outline`).toBeUndefined()
+    }
+    expect(outline['flex']).toBe('1 1 auto')
+
+    // Scan every block that styles the list — a later rule or breakpoint that
+    // reintroduces a cap would silently undo the fix, so the whole stylesheet
+    // is checked, not just the first declaration block.
+    const blocks = [...components.matchAll(/\.lesson-rail__outline\s*\{([^}]*)\}/g)].map((match) =>
+      (match[1] ?? '').replace(/\/\*[\s\S]*?\*\//g, ''),
+    )
+    expect(blocks.length).toBeGreaterThan(0)
+    for (const block of blocks) {
+      // `min-block-size` is the flex-shrink floor, not a cap — only the sizing
+      // properties that would fix or limit the height are rejected here.
+      expect(block).not.toMatch(/(?:^|;)\s*(?:block-size|height|max-block-size|max-height)\s*:/)
+    }
+  })
+
   it('never lets the identity trade height with the list', () => {
     // Frozen footprint: without this the identity competes with the list for a
     // shrinking rail, and the list — the only scrollport — absorbs the loss.
