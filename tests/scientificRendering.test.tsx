@@ -180,18 +180,32 @@ describe('IonNotation and ChargeValue — the two charge conventions', () => {
     expect(ion.getAttribute('data-ion')).toBe(`${formula}${expectedCharge}`)
   })
 
-  it('locks the Ca charge sign into the grid column to the right of its magnitude', () => {
+  it('keeps the charge magnitude before its sign, in RTL prose and in source order', () => {
+    // The order is carried by the DOM and by the LTR isolate on the notation —
+    // not by a grid track. A grid track is a layout decision about position;
+    // the magnitude-before-sign convention is a reading-order decision, and it
+    // survives every display mode as long as it is in the markup.
     const positive = render(<div dir="rtl"><IonNotation formula="Ca" charge="2+" /></div>)
-    const positiveRun = positive.container.querySelector('.ion-notation__charge-run')!
+    const positiveIon = positive.container.querySelector('.ion-notation')!
+    expect(positiveIon.getAttribute('dir')).toBe('ltr')
+    const positiveRun = positiveIon.querySelector('.ion-notation__charge-run')!
     expect([...positiveRun.children].map((child) => child.textContent)).toEqual(['2', '+'])
+    expect(positiveIon.textContent).toBe('Ca2+')
     positive.unmount()
 
     const negative = render(<div dir="rtl"><IonNotation formula="Ca" charge="2-" /></div>)
-    const negativeRun = negative.container.querySelector('.ion-notation__charge-run')!
+    const negativeIon = negative.container.querySelector('.ion-notation')!
+    expect(negativeIon.getAttribute('dir')).toBe('ltr')
+    const negativeRun = negativeIon.querySelector('.ion-notation__charge-run')!
     expect([...negativeRun.children].map((child) => child.textContent)).toEqual(['2', '−'])
+    expect(negativeIon.textContent).toBe('Ca2−')
 
-    expect(scientificComponentsCss).toMatch(/\.ion-notation__magnitude,\s*\.chem-formula__charge-magnitude\s*\{[^}]*grid-column:\s*1/s)
-    expect(scientificComponentsCss).toMatch(/\.ion-notation__sign,\s*\.chem-formula__charge-sign\s*\{[^}]*grid-column:\s*2/s)
+    // Nothing in the notation layer may order the charge with a layout track.
+    const chargeRules = scientificComponentsCss
+      .split(/\n\}/)
+      .filter((chunk) => /ion-notation|charge-notation|charge-run/.test(chunk))
+      .join('\n}')
+    expect(chargeRules, 'charge order is DOM order, not a grid track').not.toMatch(/grid-column:/)
   })
 
   it.each([
