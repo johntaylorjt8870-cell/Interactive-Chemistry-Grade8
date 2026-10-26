@@ -603,6 +603,126 @@ async function main() {
     }
 
     /* ---------------------------------------------------------------------
+     * 1c. Overridden-scale charges: the raise must not drift with
+     *     `--script-scale`.
+     *
+     *     `.sci-sup` is sized by `var(--script-scale, var(--sci-sup-scale))`, so
+     *     the raise is `--sci-sup-raise` of the SYMBOL only when the divisor is
+     *     that same effective scale. Two production components override it:
+     *     `.nuclear-notation__charge` (0.36) and `.bohr__label-charge` (0.66).
+     *     Both are measured against their own symbol font, in em, so a
+     *     regression in the divisor is a layout failure and not a pixel one.
+     * ------------------------------------------------------------------- */
+    const RAISE_PROBE = `
+window.__measureSymbolRaises = function (symbolSelector, chargeSelector) {
+  const baselineOf = (element) => {
+    const probe = document.createElement('span')
+    probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'
+    element.insertBefore(probe, element.firstChild)
+    const y = probe.getBoundingClientRect().bottom
+    probe.remove()
+    return y
+  }
+  const out = []
+  for (const symbol of document.querySelectorAll(symbolSelector)) {
+    const charge = symbol.querySelector(chargeSelector || '.sci-sup')
+    if (!charge) continue
+    const symbolFont = parseFloat(getComputedStyle(symbol).fontSize)
+    const chargeFont = parseFloat(getComputedStyle(charge).fontSize)
+    const raise = baselineOf(symbol) - baselineOf(charge)
+    out.push({
+      symbolFont,
+      chargeFont,
+      scale: +(chargeFont / symbolFont).toFixed(4),
+      raisePx: +raise.toFixed(2),
+      raiseEmOfSymbol: +(raise / symbolFont).toFixed(4),
+      chargeClass: charge.className,
+      chargeVerticalAlign: getComputedStyle(charge).verticalAlign,
+      text: symbol.textContent.trim(),
+    })
+  }
+  return out
+}
+`
+
+    const overrideHome = await openPage('/', null)
+    await overrideHome.evaluate(RAISE_PROBE)
+    const supRaiseToken = await overrideHome.evaluate(() =>
+      parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sci-sup-raise')),
+    )
+
+    // The nuclear charge is not rendered live anywhere (no NuclearNotation
+    // carries a charge), so the specimen is a CLONE of the notation the
+    // homepage really renders, given the production charge class — the same
+    // class the component puts on it, so the real rule applies.
+    const nuclearSeed = await overrideHome.evaluate(() => {
+      const source = document.querySelector('.nuclear-notation')
+      if (!source) return false
+      const host = document.createElement('div')
+      host.id = 'override-rack'
+      host.style.cssText =
+        'position:absolute;left:0;top:0;z-index:999999;background:#fff;color:#0d1b2a;' +
+        'padding:16px 20px;direction:ltr'
+      const clone = source.cloneNode(true)
+      const symbol = clone.querySelector('.nuclear-notation__symbol')
+      const sup = document.createElement('sup')
+      sup.className = 'sci-sup nuclear-notation__charge'
+      sup.textContent = '+'
+      symbol && symbol.appendChild(sup)
+      host.appendChild(clone)
+      document.body.appendChild(host)
+      return true
+    })
+    check(
+      'override rack: nuclear notation cloned from the rendered homepage',
+      nuclearSeed === true,
+    )
+    const nuclearRows = nuclearSeed
+      ? await overrideHome.evaluate(() =>
+          window.__measureSymbolRaises('#override-rack .nuclear-notation__symbol'),
+        )
+      : []
+
+    // The Bohr label charge IS live: the ionic-transfer diagram of lesson 2.
+    const bondsPage = await openPage('/chemistry/structural-chemistry/chemical-bonds', null)
+    await bondsPage.evaluate(RAISE_PROBE)
+    for (let step = 0; step < 60; step += 1) {
+      if (await bondsPage.$('.bohr__label-charge')) break
+      const trigger = await bondsPage.$('.lesson-nav .button--primary')
+      if (!trigger) break
+      if (await trigger.evaluate((el) => /إنهاء|إتمام/.test(el.textContent))) break
+      await trigger.click()
+      await new Promise((resolve) => setTimeout(resolve, 260))
+    }
+    const bohrRows = await bondsPage.evaluate(() => window.__measureSymbolRaises('.bohr__label'))
+
+    const auditOverride = (label, rows, overrideClass, expectedScale) => {
+      check(`${label}: overridden-scale charge rendered`, rows.length >= 1, `${rows.length} found`)
+      for (const row of rows) {
+        check(
+          `${label} "${row.text}": charge is a real <sup class="sci-sup ${overrideClass}">`,
+          /(^|\s)sci-sup(\s|$)/.test(row.chargeClass) &&
+            new RegExp(`(^|\\s)${overrideClass}(\\s|$)`).test(row.chargeClass),
+          row.chargeClass,
+        )
+        check(
+          `${label} "${row.text}": script scale is ${expectedScale}`,
+          row.scale === expectedScale,
+          `${row.scale} (charge ${row.chargeFont}px / symbol ${row.symbolFont}px)`,
+        )
+        check(
+          `${label} "${row.text}": raise is --sci-sup-raise of the symbol`,
+          Math.abs(row.raiseEmOfSymbol - supRaiseToken) < 0.01,
+          `${row.raisePx}px = ${row.raiseEmOfSymbol}em of the ${row.symbolFont}px symbol (token ${supRaiseToken}em, vertical-align ${row.chargeVerticalAlign})`,
+        )
+      }
+    }
+    auditOverride('nuclear charge', nuclearRows, 'nuclear-notation__charge', 0.36)
+    auditOverride('bohr label charge', bohrRows, 'bohr__label-charge', 0.66)
+    await overrideHome.close()
+    await bondsPage.close()
+
+    /* ---------------------------------------------------------------------
      * 2. Human-comparable contact sheet.
      *
      *    The specimens are CLONES OF WHAT THE PAGE ACTUALLY RENDERED — the

@@ -250,14 +250,20 @@ describe('the shared superscript contract survives every component rule', () => 
   })
 
   it('expresses the raise in em of the symbol so a scale override cannot move it', () => {
-    // `em` in `vertical-align` resolves against the element's OWN font-size.
-    // Dividing the token by the scale is what keeps `--sci-sup-raise` meaning
-    // "0.36em of the letter" instead of "0.36em of an already-scaled <sup>`.
+    // `em` in `vertical-align` resolves against the element's OWN font-size,
+    // which is `--script-scale` of the symbol. Dividing the token by the scale
+    // is what keeps `--sci-sup-raise` meaning "0.36em of the letter" instead of
+    // "0.36em of an already-scaled <sup>`.
+    //
+    // The divisor must be the scale IN FORCE, not the default scale: a
+    // component may override `--script-scale` (`.nuclear-notation__charge`
+    // 0.36, `.bohr__label-charge` 0.66), and dividing by the default then leaves
+    // the raise proportional to `override / default` instead of constant.
     const raiseBlocks = blocksOf(scientificCss, '.sci-sup').filter((block) =>
       /vertical-align/.test(block),
     )
     expect(raiseBlocks[0]!).toMatch(
-      /vertical-align:\s*calc\(var\(--sci-sup-raise\)\s*\/\s*var\(--sci-sup-scale\)\)/,
+      /vertical-align:\s*calc\(var\(--sci-sup-raise\)\s*\/\s*var\(\s*--script-scale\s*,\s*var\(\s*--sci-sup-scale\s*\)\s*\)\)/,
     )
     const tokensCss = readProjectFile('src/styles/tokens.css')
     // The scale is unitless for exactly that division to be possible.

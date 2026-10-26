@@ -304,16 +304,18 @@ describe('the raise contract — one owner, stated against the symbol', () => {
     }
   })
 
-  it('states the raise in em of the symbol and divides by the scale', () => {
+  it('states the raise in em of the symbol and divides by the scale in force', () => {
     // `em` on `vertical-align` resolves against the element's own font-size, so
-    // the token is divided by the scale. Without the division the raise is a
-    // fraction of an already-shrunk <sup>, which is why the same species used to
-    // sit at a different height in every badge.
+    // the token is divided by the scale. Dividing by the DEFAULT scale only
+    // cancels the scale when the default is in force: `.sci-sup` is sized by
+    // `var(--script-scale, var(--sci-sup-scale))`, so the divisor has to be that
+    // same effective expression. Otherwise the raise becomes
+    // `--sci-sup-raise × override / default` and drifts with the override.
     expect(blocksOf(scientificCss, '.sci-sup').join('\n')).toMatch(
-      /vertical-align:\s*calc\(var\(--sci-sup-raise\)\s*\/\s*var\(--sci-sup-scale\)\)/,
+      /vertical-align:\s*calc\(var\(--sci-sup-raise\)\s*\/\s*var\(\s*--script-scale\s*,\s*var\(\s*--sci-sup-scale\s*\)\s*\)\)/,
     )
     expect(blocksOf(scientificCss, '.sci-sub').join('\n')).toMatch(
-      /vertical-align:\s*calc\(-1\s*\*\s*var\(--sci-sub-drop\)\s*\/\s*var\(--sci-sub-scale\)\)/,
+      /vertical-align:\s*calc\(-1\s*\*\s*var\(--sci-sub-drop\)\s*\/\s*var\(\s*--script-scale\s*,\s*var\(\s*--sci-sub-scale\s*\)\s*\)\)/,
     )
     expect(tokensCss, 'the scale must be unitless to be divided by').toMatch(
       /--sci-sup-scale:\s*[\d.]+;/,
@@ -321,6 +323,41 @@ describe('the raise contract — one owner, stated against the symbol', () => {
     expect(tokensCss, 'the raise is a length against a font').toMatch(/--sci-sup-raise:\s*[\d.]+em;/)
     expect(tokensCss).toMatch(/--sci-sub-drop:\s*[\d.]+em;/)
     expect(tokensCss).toMatch(/--sci-sub-scale:\s*[\d.]+;/)
+  })
+
+  it('keeps the raise at --sci-sup-raise for both production scale overrides', () => {
+    // Two components override `--script-scale` on a script element: the nuclear
+    // notation charge (0.36) and the Bohr label charge (0.66). Both must keep the
+    // SAME raise as the default, because the contract is "the charge is raised
+    // `--sci-sup-raise` of the symbol", not "of the default scale". This fails
+    // while the raise divides by the fixed `--sci-sup-scale` and passes once it
+    // divides by the effective `--script-scale`.
+    const componentsCss = readProjectFile('src/styles/scientific-components.css')
+
+    const scriptBlocks = blocksOf(scientificCss, '.sci-sup')
+    const sizeRule = scriptBlocks.find((block) => /font-size/.test(block)) ?? ''
+    const raiseRule = scriptBlocks.find((block) => /vertical-align/.test(block)) ?? ''
+
+    // Both declarations must use the same effective-scale expression: the font
+    // size multiplies by it, the raise divides by it, so the scale cancels and
+    // the raise is `--sci-sup-raise` of the symbol whatever the override.
+    const effectiveScale = /var\(\s*--script-scale\s*,\s*var\(\s*--sci-sup-scale\s*\)\)/
+    expect(sizeRule, 'the script is sized by the effective scale').toMatch(
+      /font-size:\s*calc\(\s*var\(\s*--script-scale\s*,\s*var\(\s*--sci-sup-scale\s*\)\s*\)\s*\*\s*1em\)/,
+    )
+    expect(sizeRule).toMatch(effectiveScale)
+    expect(raiseRule, 'the raise divides by that same effective scale').toMatch(effectiveScale)
+
+    // And both production overrides really do state a scale.
+    for (const [selector, scale] of [
+      ['.nuclear-notation__charge', '0.36'],
+      ['.bohr__label-charge', '0.66'],
+    ] as const) {
+      expect(
+        blocksOf(componentsCss, selector).join('\n'),
+        `${selector} must declare --script-scale`,
+      ).toMatch(new RegExp(`--script-scale:\\s*${scale};`))
+    }
   })
 
   it('never paints a script outside its own box', () => {
