@@ -7,7 +7,12 @@
  */
 
 /** Structured notations that get their own renderer instead of a generic isolate. */
-export type ScientificNotation = 'electron-configuration' | 'charge' | 'range' | 'expression'
+export type ScientificNotation =
+  | 'electron-configuration'
+  | 'charge'
+  | 'nuclide-charge'
+  | 'range'
+  | 'expression'
 
 export type ScientificRun =
   | { kind: 'prose'; value: string }
@@ -45,14 +50,15 @@ const NUMERIC_HYPHEN_SEQUENCE = String.raw`\d+(?:[-\u2212]\d+)+`
  * `PRIORITY_RULES` has already claimed equations, ranges, distributions, and
  * Unicode-superscript charges:
  *
- *  0. compact nuclides with leading script digits — `¹⁶O`, `²³₁₁Na`, `₁₃Al`
+ *  0. compact nuclides with leading script digits — `¹⁶O`, `²³₁₁Na`, `₁₃Al` —
+ *     including a nuclide that carries an ionic charge (`²³₁₁Na⁺`, `¹⁸₈O²⁻`)
  *  1. trailing-sign textbook charges / ASCII ions — `2+`, `2−`, `Mg2+`, `Ca2+`
  *  2. signed or unsigned values with optional exponent and unit — `5 g`, `25 °C`, `6.02×10²³ mol⁻¹`
  *  3. Latin/symbolic identifiers with optional parenthesized groups — `H₂O`, `Ca(OH)₂`, `g·mol⁻¹`, `C̈a`
  */
 const SCIENTIFIC_RUN = new RegExp(
   [
-    String.raw`(?:[${SCRIPT_GLYPHS}]+[A-Z][a-z]?)`,
+    String.raw`(?:[${SCRIPT_GLYPHS}]+[A-Z][a-z]?[${SUPERSCRIPT_DIGITS}]*[${CHARGE_GLYPHS}]?)`,
     String.raw`(?:(?:${IDENT_EXT}\d*[+\-−]|${NUMBER}[+\-−])(?![\dA-Za-z]))`,
     String.raw`(?:(?:=\s?|[+\-−±])?${NUMBER}${EXPONENT}(?:\s?${UNIT})?(?!\())`,
     String.raw`(?:(?:[0-9]+\(${IDENT_EXT}\)|${IDENT_EXT}|\(${IDENT_EXT}\))(?:[A-Za-z0-9_'’.\-·/()${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}]*[A-Za-z0-9)${SCRIPT_GLYPHS}${CHARGE_GLYPHS}${COMBINING_MARKS}])?)`,
@@ -286,6 +292,30 @@ const NUMERIC_HYPHEN_SEQUENCE_PATTERN = new RegExp(`^${NUMERIC_HYPHEN_SEQUENCE}$
 /** `e⁻`, `2e⁻`, `Cl⁻`, `Na⁺`, `Ca²⁺`, `O²⁻`, `Al³⁺`, `SO₄²⁻` — one species. */
 const CHARGE_NOTATION_PARTS = String.raw`(?<![A-Za-z${SCRIPT_GLYPHS}${CHARGE_GLYPHS}])(\d+)?([A-Za-z][A-Za-z0-9${SUBSCRIPT_DIGITS}]*)([${SUPERSCRIPT_DIGITS}]*)([${CHARGE_GLYPHS}])(?![${SUPERSCRIPT_DIGITS}])`
 
+/**
+ * A nuclide that carries an ionic charge: `²³₁₁Na⁺`, `³⁵₁₇Cl⁻`, `¹⁸₈O²⁻`.
+ *
+ * The platform recognised a compact nuclide (`¹⁶O`) and a compact ion (`Cl⁻`)
+ * as two separate species, and a token that is BOTH fell between the two rules:
+ * the nuclide match stopped at the symbol, so the trailing `⁺`/`⁻` was left
+ * over as PROSE. Prose is not isolated, so the sign was laid out on the
+ * baseline and — in the RTL pages that author these cells — placed to the LEFT
+ * of the symbol it belongs to (`+²³₁₁Na`). Both halves are one species, so they
+ * are now claimed as one span and rendered by `<NuclearNotation />`, which puts
+ * the mass and atomic numbers on the left and the charge above the symbol's
+ * upper right.
+ *
+ * The trailing sign is what makes this unambiguous: a compact nuclide without a
+ * charge keeps its own, simpler rule.
+ */
+const NUCLIDE_CHARGE_PARTS = String.raw`(?<![A-Za-z0-9${SCRIPT_GLYPHS}${CHARGE_GLYPHS}])((?:[${SUPERSCRIPT_DIGITS}]+[${SUBSCRIPT_DIGITS}]*|[${SUBSCRIPT_DIGITS}]+)[A-Z][a-z]?)([${SUPERSCRIPT_DIGITS}]*)([${CHARGE_GLYPHS}])(?![${SUPERSCRIPT_DIGITS}])`
+
+const EXACT_NUCLIDE_CHARGE = new RegExp(`^${NUCLIDE_CHARGE_PARTS}$`, 'u')
+const EXACT_NUCLIDE = new RegExp(
+  String.raw`^(?:([${SUPERSCRIPT_DIGITS}]+)([${SUBSCRIPT_DIGITS}]+)?|([${SUBSCRIPT_DIGITS}]+))([A-Z][a-z]?)$`,
+  'u',
+)
+
 /** `18–23`, `1 – 2 – 3 – 4 – 5 – 6 – 7`, `K–O` — an en/em-dash numeric or symbol range. */
 const NUMERIC_RANGE_SOURCE = String.raw`(?:\d+(?:[.,]\d+)?(?:\s?[–—]\s?\d+(?:[.,]\d+)?)+(?![\d]|[.,]\d|-\d)|(?<![A-Za-z0-9${SCRIPT_GLYPHS}])[A-Z][a-z]?[–—][A-Z][a-z]?(?![A-Za-z0-9(${SCRIPT_GLYPHS}]))`
 
@@ -361,6 +391,18 @@ const PRIORITY_RULES: PriorityRule[] = [
     pattern: new RegExp(CHARGE_NOTATION_PARTS, 'gu'),
     resolve: (value) =>
       parseCompactCharge(value) === null ? null : { kind: 'science', value, notation: 'charge' },
+  },
+  {
+    // A nuclide that carries a charge (`²³₁₁Na⁺`, `¹⁸₈O²⁻`) is ONE species, so
+    // its script numbers and its charge arrive as one LTR isolate. Without this
+    // rule the nuclide rule claimed the numbers and symbol only, leaving the
+    // sign to the prose pass — where it landed on the baseline, to the left of
+    // its symbol, in RTL pages.
+    pattern: new RegExp(NUCLIDE_CHARGE_PARTS, 'gu'),
+    resolve: (value) =>
+      parseCompactNuclideCharge(value) === null
+        ? null
+        : { kind: 'science', value, notation: 'nuclide-charge' },
   },
 ]
 
@@ -499,6 +541,30 @@ export function normalizeCharge(raw: string | number): Charge {
   return { magnitude, sign, display: `${signGlyph}${magnitude}` }
 }
 
+/**
+ * The two VISIBLE halves of an ionic charge written as a superscript:
+ * the magnitude first, then the sign (`2+`, `3−`).
+ *
+ * This is the single owner of two conventions that used to differ per
+ * component:
+ *
+ *  - the magnitude precedes the sign (the textbook spelling of an ion; a
+ *    standalone charge VALUE stays sign-first and is rendered by
+ *    `<ChargeValue />`, which does not use this helper);
+ *  - a magnitude of one is omitted, so the result is `Na⁺` / `Cl⁻` and never
+ *    `Na1⁺`. `<BohrAtom />` already applied this rule to its SVG label, while
+ *    `<IonNotation />` printed `1+`; both now read the rule from here.
+ */
+export function chargeSuperscript(charge: string | number): {
+  magnitude: string
+  sign: ChargeSign
+  glyph: string
+} {
+  const parsed = normalizeCharge(charge)
+  const magnitude = parsed.magnitude === '1' ? '' : parsed.magnitude
+  return { magnitude, sign: parsed.sign, glyph: chargeGlyph(parsed.sign) }
+}
+
 /** Renders a bare sign character: `+`, `−` or an empty string. */
 export function chargeGlyph(sign: ChargeSign): string {
   if (sign === '+') return '+'
@@ -518,6 +584,26 @@ export type CompactChargeNotation = {
   formula: string | null
   /** Charge magnitude in ASCII digits (`2`); empty for a bare sign. */
   magnitude: string
+  sign: '+' | '-'
+}
+
+/** One parsed compact nuclide-with-charge token: `²³₁₁Na⁺`, `¹⁸₈O²⁻`. */
+export type CompactNuclideCharge = {
+  /** The source characters verbatim, e.g. `²³₁₁Na⁺`. */
+  source: string
+  /** Element symbol, e.g. `Na`. */
+  symbol: string
+  /** Mass number in ASCII digits (`23`); empty when the source omits it. */
+  massNumber: string
+  /** Atomic number in ASCII digits (`11`); empty when the source omits it. */
+  atomicNumber: string
+  /** Charge magnitude in ASCII digits (`2`); empty for a bare sign. */
+  magnitude: string
+  /**
+   * Charge sign. It is the SECOND half of the superscript: the magnitude is
+   * emitted first, so `Na⁺` / `Ca²⁺` keep the textbook order and never become
+   * `Na⁺²` / `Ca⁺²`.
+   */
   sign: '+' | '-'
 }
 
@@ -559,6 +645,42 @@ export function parseCompactCharge(value: string): CompactChargeNotation | null 
     formula: /^[A-Z][A-Za-z0-9]*$/.test(ascii) ? ascii : null,
     magnitude: plainDigits(match[3] ?? '', SUPERSCRIPT_DIGITS),
     sign: match[4] === '⁺' ? '+' : '-',
+  }
+}
+
+/**
+ * Reads a COMPACT NUCLIDE WITH A CHARGE — `²³₁₁Na⁺`, `³⁵₁₇Cl⁻`, `¹⁸₈O²⁻` — into
+ * the three nuclear values plus the charge's magnitude and sign.
+ *
+ * The result is deliberately magnitude-first (`magnitude` `2`, `sign` `−`) like
+ * every other ionic notation on the platform: the renderer emits the magnitude
+ * and then the sign as siblings inside ONE `<sup>`, so the visual order can
+ * never be reversed by the RTL flow or by the order the browser happens to lay
+ * neutral characters out in.
+ *
+ * Returns `null` for a nuclide without a charge (see `parseFormula` /
+ * `parseCompactNuclearNotation`) and for anything that is not a full token.
+ */
+export function parseCompactNuclideCharge(value: string): CompactNuclideCharge | null {
+  const match = value.trim().match(EXACT_NUCLIDE_CHARGE)
+  if (!match) return null
+
+  const nuclide = match[1] ?? ''
+  const inner = nuclide.match(EXACT_NUCLIDE)
+  if (!inner) return null
+
+  const mass = inner[1] ?? ''
+  const atomic = inner[2] ?? inner[3] ?? ''
+  const symbol = inner[4] ?? ''
+  if (symbol === '') return null
+
+  return {
+    source: value.trim(),
+    symbol,
+    massNumber: plainDigits(mass, SUPERSCRIPT_DIGITS),
+    atomicNumber: plainDigits(atomic, SUBSCRIPT_DIGITS),
+    magnitude: plainDigits(match[2] ?? '', SUPERSCRIPT_DIGITS),
+    sign: match[3] === '⁺' ? '+' : '-',
   }
 }
 

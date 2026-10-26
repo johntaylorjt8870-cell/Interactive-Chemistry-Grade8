@@ -83,8 +83,23 @@
 .charge-value__sign,
 .charge-notation__magnitude,
 .charge-notation__sign,
-.chem-formula__charge-magnitude {
+.chem-formula__charge-magnitude,
+.nuclear-notation__charge-magnitude,
+.nuclear-notation__charge-sign {
   font-variant-numeric: tabular-nums;
+}
+
+/* The charge of a nuclide (`²³₁₁Na⁺`) is one superscript unit: the magnitude and
+   the sign are siblings inside the same <sup>, emitted in that order, so the
+   sign can never end up in front of the number. `direction: ltr` on the run
+   keeps the order explicit even if a rule ever changes the notation's
+   direction. */
+.nuclear-notation__charge-run,
+.nuclear-notation__charge-magnitude,
+.nuclear-notation__charge-sign {
+  display: inline;
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 /* --- Charge-bearing tokens ------------------------------------------------ */

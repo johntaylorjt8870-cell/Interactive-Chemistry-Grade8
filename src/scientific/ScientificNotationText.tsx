@@ -1,5 +1,10 @@
 import type { ElementType, ReactNode } from 'react'
-import { isElectronConfiguration, parseCompactCharge, splitScientificRuns } from '@/utils/scientificText'
+import {
+  isElectronConfiguration,
+  parseCompactCharge,
+  parseCompactNuclideCharge,
+  splitScientificRuns,
+} from '@/utils/scientificText'
 import { ChargeNotation } from './ChargeNotation'
 import { ChemicalFormula } from './ChemicalFormula'
 import { ElectronConfiguration } from './ElectronConfiguration'
@@ -9,7 +14,10 @@ import { Sci, type SciVariant } from './ScientificText'
 
 const SUPERSCRIPT_DIGITS = '⁰¹²³⁴⁵⁶⁷⁸⁹'
 const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉'
-const COMPACT_NUCLEAR_SOURCE = '(?:[⁰¹²³⁴⁵⁶⁷⁸⁹]+[₀₁₂₃₄₅₆₇₈₉]*|[₀₁₂₃₄₅₆₇₈₉]+)[A-Z][a-z]?'
+// A compact nuclide, optionally carrying an ionic charge (`¹⁶O`, `²³₁₁Na⁺`,
+// `¹⁸₈O²⁻`). The charge is part of the same species, so it is matched with the
+// numbers and the symbol instead of being left to the surrounding prose.
+const COMPACT_NUCLEAR_SOURCE = '(?:[⁰¹²³⁴⁵⁶⁷⁸⁹]+[₀₁₂₃₄₅₆₇₈₉]*|[₀₁₂₃₄₅₆₇₈₉]+)[A-Z][a-z]?(?:[⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])?'
 const COMPACT_ION_SOURCE = '(?:[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉]*)+[⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻]'
 const COMPACT_CHARGE_SOURCE = '(?<![A-Za-z₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻])\\d*(?:[A-Za-z][A-Za-z0-9₀₁₂₃₄₅₆₇₈₉]*)[⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻](?![⁰¹²³⁴⁵⁶⁷⁸⁹])'
 // A formula core consumes the whole Latin run (`Cl₂`, `H₂O`, `CH₄`, `AlCl₃`)
@@ -70,20 +78,41 @@ function renderInnerCompoundRun(value: string): ReactNode {
     const precededByWord = WORD_CHAR.test(preceding)
     const precededByLetter = /[A-Za-z]/u.test(preceding)
 
-    const nuclear = !precededByWord ? parseCompactNuclearNotation(token) : null
+    const nuclearCharge = !precededByWord ? parseCompactNuclideCharge(token) : null
+    const nuclear =
+      !nuclearCharge && !precededByWord ? parseCompactNuclearNotation(token) : null
     const ion = !precededByLetter ? parseCompactIonNotation(token) : null
-    const charge = !nuclear && !ion && !precededByLetter && parseCompactCharge(token) ? token : null
-    const formula = !nuclear && !ion && !charge && !precededByWord ? parseCompactFormulaNotation(token) : null
+    const charge =
+      !nuclearCharge && !nuclear && !ion && !precededByLetter && parseCompactCharge(token)
+        ? token
+        : null
+    const formula =
+      !nuclearCharge && !nuclear && !ion && !charge && !precededByWord
+        ? parseCompactFormulaNotation(token)
+        : null
     const config =
-      !nuclear && !ion && !charge && !formula && isElectronConfiguration(token) ? token : null
+      !nuclearCharge && !nuclear && !ion && !charge && !formula && isElectronConfiguration(token)
+        ? token
+        : null
 
-    if (!nuclear && !ion && !charge && !formula && !config) continue
+    if (!nuclearCharge && !nuclear && !ion && !charge && !formula && !config) continue
 
     if (match.index > cursor) {
       nodes.push(value.slice(cursor, match.index))
     }
 
-    if (nuclear) {
+    if (nuclearCharge) {
+      nodes.push(
+        <NuclearNotation
+          key={`nuclide-charge-${match.index}`}
+          symbol={nuclearCharge.symbol}
+          massNumber={nuclearCharge.massNumber}
+          atomicNumber={nuclearCharge.atomicNumber}
+          charge={`${nuclearCharge.magnitude}${nuclearCharge.sign}`}
+          size="sm"
+        />,
+      )
+    } else if (nuclear) {
       nodes.push(
         <NuclearNotation
           key={`nuclear-${match.index}`}
@@ -137,6 +166,20 @@ export function ScientificNotationText<T extends ElementType = 'span'>({
     <Component className={className}>
       {runs.map((run, index) => {
         if (run.kind !== 'science') return <span key={index}>{run.value}</span>
+
+        const nuclearCharge = parseCompactNuclideCharge(run.value)
+        if (nuclearCharge) {
+          return (
+            <NuclearNotation
+              key={index}
+              symbol={nuclearCharge.symbol}
+              massNumber={nuclearCharge.massNumber}
+              atomicNumber={nuclearCharge.atomicNumber}
+              charge={`${nuclearCharge.magnitude}${nuclearCharge.sign}`}
+              size="sm"
+            />
+          )
+        }
 
         const nuclear = parseCompactNuclearNotation(run.value)
         if (nuclear) {

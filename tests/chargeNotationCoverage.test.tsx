@@ -102,6 +102,14 @@ const BASELINE_CHARGE = /(?:[A-Za-z][A-Za-z0-9₀₁₂₃₄₅₆₇₈₉]*|\
  * Text nodes holding a charge sign outside a script element. Superscript
  * exponents in units (`mol⁻¹`) are not charges: their sign is followed by a
  * digit, so they are excluded.
+ *
+ * A BARE sign counts. This is the gap that let `²³₁₁Na⁺` ship as `+²³₁₁Na` in
+ * the lesson 1 ion table: the nuclide renderer claimed the numbers and the
+ * symbol, the sign was left over as its own text node, and this walk — which
+ * only looked for a sign ADJACENT to a species character inside one text node —
+ * never saw it. A superscript glyph that reaches the prose layer is always a
+ * leak: a real charge is markup (`<sup>`), and a mathematical minus in prose is
+ * U+2212, not U+207B.
  */
 function baselineCharges(container: HTMLElement): string[] {
   const found: string[] = []
@@ -112,7 +120,7 @@ function baselineCharges(container: HTMLElement): string[] {
     const text = node.textContent ?? ''
     if (
       parent &&
-      BASELINE_CHARGE.test(text) &&
+      (BASELINE_CHARGE.test(text) || CHARGE_GLYPH.test(text)) &&
       !/[\u207A\u207B][\u2070\u00B9\u00B2\u00B3\u2074-\u2079]/.test(text) &&
       !parent.closest('sup, sub, [data-math], .katex, script, style')
     ) {
