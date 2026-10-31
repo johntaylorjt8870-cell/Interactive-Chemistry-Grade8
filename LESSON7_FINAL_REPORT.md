@@ -1,5 +1,11 @@
 # التقرير النهائي — الدرس السابع «الحساب الكيميائيّ»
 
+## الفرع وطلب السحب
+
+- الفرع: `arena/44abb0f2-interactive-chemistry-grade8`
+- الالتزام: `ce47937`
+- طلب السحب: https://github.com/johntaylorjt8870-cell/Interactive-Chemistry-Grade8/pull/38 (إلى `main`، دون دمج)
+
 ## النطاق والاعتماد
 
 - الدرس: `chem-u1-l7` — «الحساب الكيميائيّ»، الصفحات **40–49**.
