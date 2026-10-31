@@ -55,7 +55,7 @@ describe('README truthfulness', () => {
     // Fix 10 established the scans are absent; the README must keep saying so.
     // Normalize markdown blockquote markers and line wrapping first.
     const flattened = readme.replace(/^>\s?/gm, '').replace(/\s+/g, ' ')
-    expect(flattened).toContain('غير محفوظة كملفات في هذا المستودع')
+    expect(flattened).toContain('لا تُحفظ صفحات الكتاب الكاملة في المستودع')
   })
 })
 

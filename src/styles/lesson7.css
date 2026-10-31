@@ -1,0 +1,42 @@
+/* Lesson 7 — «الحساب الكيميائيّ» (pp.40–49). Scoped readability/overflow only. */
+.lesson-shell[data-lesson-id='chem-u1-l7'] .lesson-outline__button[data-current='true'] .lesson-outline__index { background: var(--palette-chem-700); border-color: var(--palette-chem-700); color: var(--palette-paper); }
+.lesson-shell[data-lesson-id='chem-u1-l7'] [data-math='block'],
+.teacher-section-page[data-lesson-id='chem-u1-l7'] [data-math='block'],
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .teacher-answer__result { min-inline-size: 0; max-inline-size: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .source-image { margin: 0; padding: var(--space-3); border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--surface-raised); }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .source-image img { display: block; inline-size: auto; max-inline-size: 100%; block-size: auto; margin-inline: auto; }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .source-image__caption { display: grid; gap: var(--space-1); margin-block-start: var(--space-2); color: var(--text-secondary); font-size: var(--fs-sm); }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .source-image__ref { color: var(--text-secondary); }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .sci-table-wrapper { max-inline-size: 100%; overflow-x: auto; }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .matching__row { flex-wrap: wrap; }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .matching__row select { max-inline-size: 100%; min-inline-size: 0; }
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .teacher-answer-list { grid-template-columns: minmax(0, 1fr); }
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .teacher-answer { min-inline-size: 0; }
+/* Contrast: lesson-scoped only, mirroring the published-lesson treatment. */
+.lesson-shell[data-lesson-id='chem-u1-l7'] .lesson-rail__visited,
+.lesson-shell[data-lesson-id='chem-u1-l7'] .step__source-ref-page,
+.lesson-shell[data-lesson-id='chem-u1-l7'] .step__source-ref-item,
+.lesson-shell[data-lesson-id='chem-u1-l7'] .textbook-source__ref,
+.lesson-shell[data-lesson-id='chem-u1-l7'] .final-test__meta,
+.lesson-shell[data-lesson-id='chem-u1-l7'] .platform-addition-badge__en,
+.lesson-shell[data-lesson-id='chem-u1-l7'] .interactive-host__caption,
+.lesson-shell[data-lesson-id='chem-u1-l7'] .sci--textual[data-sci='isolated'],
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .platform-addition-badge__en,
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .sci--textual[data-sci='isolated'],
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .eyebrow {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .teacher-answer { overflow: hidden; }
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .platform-addition,
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .platform-addition__body,
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .content-blocks { min-inline-size: 0; max-inline-size: 100%; }
+
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .teacher-lesson-tabs { flex-wrap: wrap; }
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .teacher-lesson-tab { flex: 1 1 140px; min-inline-size: 0; max-inline-size: 100%; text-align: center; }
+.teacher-section-page[data-lesson-id='chem-u1-l7'] .teacher-lesson-tab[aria-current='page'] { background: var(--palette-chem-700); color: var(--palette-paper); }
+.unit-view__completion { margin-block: var(--space-4); padding: var(--space-4); border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--text-strong); }
+
+.lesson-shell[data-lesson-id='chem-u1-l7'] .sci-table__head-unit { color: var(--text-secondary); }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .step__kind { color: #7a3d06; }
+.lesson-shell[data-lesson-id='chem-u1-l7'] .l7-lab .button--primary { background: var(--palette-chem-700); border-color: var(--palette-chem-700); }

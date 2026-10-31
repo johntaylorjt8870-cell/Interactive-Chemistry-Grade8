@@ -369,6 +369,20 @@ const BUILT_IN_INTERACTIVES: InteractiveDefinition[] = [
     description: 'ست حالات تشخيصية للأخطاء الشائعة في الصيغ ورموز الحالات الفيزيائية والمعاملات مع تغذية راجعة معلّلة.',
     load: () => import('./Lesson6ErrorSpotterLab'),
   },
+  {
+    id: 'lesson7-molar-mass-lab',
+    title: 'مختبر الكتلة المولية وكمية المادة',
+    kind: 'simulation',
+    description: 'اختيار مادة وكمية وحساب مساهمات الذرات والكتلة المولية والتحويل بين الكتلة والمولات وعدد الجسيمات كنموذج حسابي معلن.',
+    load: () => import('./MolarMassLab'),
+  },
+  {
+    id: 'lesson7-molar-volume-lab',
+    title: 'مختبر الحجم المولي في الشرطين النظاميين',
+    kind: 'simulation',
+    description: 'تغيير الغاز وعدد المولات عند 273 K و1 atm وقراءة الحجم المحسوب ومقارنة الكتل عند تساوي الحجوم.',
+    load: () => import('./MolarVolumeLab'),
+  },
 ]
 
 const registry = new Map<string, InteractiveDefinition>(
