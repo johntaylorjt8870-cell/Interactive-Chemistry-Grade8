@@ -37,6 +37,12 @@ import {
   finalTest as lesson6FinalTest,
   lesson6TeacherGuide,
 } from '@/data/curriculum/chemistryLesson6'
+import {
+  bookActivitySolutions as lesson7Activities,
+  bookQuestions as lesson7Questions,
+  finalTest as lesson7FinalTest,
+  lesson7TeacherGuide,
+} from '@/data/curriculum/chemistryLesson7'
 
 /**
  * Teacher-area content registry.
@@ -119,6 +125,16 @@ export const TEACHER_LESSONS: TeacherLessonContent[] = [
     bookQuestions: [...lesson6Activities, ...lesson6Questions],
     finalTest: lesson6FinalTest,
     conceptBlocks: lesson6TeacherGuide,
+  },
+  {
+    lessonId: 'chem-u1-l7',
+    label: 'الدرس السابع — كيمياء: الحساب الكيميائيّ',
+    pages: 'الصفحات 40–49',
+    bookNote:
+      'سجل مصدر من 194 بنداً، وحلول 41 وحدة سؤال كتابي بترتيبها، و12 سؤال تدريب من المنصة، واختبار نهائي مستقل من 20 سؤالاً. تبقى التسمية البيضاء في ميزان ص41 غير معتمدة مع حفظ الرسم الأصلي، وتُعلن نسبة 21% للأكسجين في الهواء بوصفها افتراض حل من المنصة.',
+    bookQuestions: [...lesson7Activities, ...lesson7Questions],
+    finalTest: lesson7FinalTest,
+    conceptBlocks: lesson7TeacherGuide,
   },
 ]
 

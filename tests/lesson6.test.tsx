@@ -182,6 +182,7 @@ describe('Lesson 6 curriculum registration, source fidelity, and pure models', (
       'chem-u1-l4',
       'chem-u1-l5',
       'chem-u1-l6',
+      'chem-u1-l7',
     ])
     expect(chemistryLesson6.tests?.map((t) => t.id)).toEqual([
       'chem-u1-l6-book',
@@ -406,7 +407,7 @@ describe('Lesson 6 route, Teacher Area tab, and axe-core accessibility', () => {
     teacherAccess.unlock(TEACHER_PASSWORD)
     renderApp('/teacher/book-solutions?lesson=chem-u1-l6')
     expect(screen.getByRole('heading', { level: 2, name: /الدرس السادس/ })).toBeInTheDocument()
-    expect(document.querySelectorAll('.teacher-lesson-tab')).toHaveLength(6)
+    expect(document.querySelectorAll('.teacher-lesson-tab')).toHaveLength(7)
     expect(document.querySelectorAll('.teacher-answer')).toHaveLength(20)
   })
 

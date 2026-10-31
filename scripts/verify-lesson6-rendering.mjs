@@ -449,8 +449,8 @@ try {
         katexError: Boolean(document.querySelector('.katex-error')),
       }))
       check(
-        `${viewport.name}: Teacher Area exposes 6 lesson tabs, Lesson 6 concept guide, and 20 book solutions`,
-        bookTeacher.tabCount === 6 && bookTeacher.hasGuide && bookTeacher.answerCount === 20,
+        `${viewport.name}: Teacher Area exposes 7 lesson tabs, Lesson 6 concept guide, and 20 book solutions`,
+        bookTeacher.tabCount === 7 && bookTeacher.hasGuide && bookTeacher.answerCount === 20,
         bookTeacher,
       )
       check(

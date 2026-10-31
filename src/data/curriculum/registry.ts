@@ -13,6 +13,7 @@ import { chemistryLesson3 } from './chemistryLesson3'
 import { chemistryLesson4 } from './chemistryLesson4'
 import { chemistryLesson5 } from './chemistryLesson5'
 import { chemistryLesson6 } from './chemistryLesson6'
+import { chemistryLesson7 } from './chemistryLesson7'
 
 /* ============================================================================
    Curriculum registry
@@ -20,11 +21,9 @@ import { chemistryLesson6 } from './chemistryLesson6'
    The single place where curriculum structure is declared.
 
    Currently registered content (all `source-verified`):
-   - Chemistry — unit 1 «الكيمياء البنيوية»: lessons 1–6 (pages 3–39).
-   The unit is still open: further lessons may be added only after their
-   textbook pages are supplied and read. This file is the only file that
-   should change when new content is added, and the validators in
-   @/data/sourceFidelity keep that content honest.
+   - Chemistry — unit 1 «الكيمياء البنيوية»: lessons 1–7 (pages 3–49), complete.
+   Unit 1 is complete: lesson 7 ends on p49 by explicit source approval.
+   The validators in @/data/sourceFidelity keep published content honest.
    ========================================================================= */
 
 const CHEMISTRY: SubjectDefinition = {
@@ -47,7 +46,7 @@ const CHEMISTRY: SubjectDefinition = {
       title: 'الوحدة الأولى — الكيمياء البنيوية',
       order: 1,
       status: 'source-verified',
-      source: { pages: Array.from({ length: 37 }, (_, index) => ({ page: String(index + 3) })), verified: true },
+      source: { pages: Array.from({ length: 47 }, (_, index) => ({ page: String(index + 3) })), verified: true },
       lessons: [
         chemistryLesson1,
         chemistryLesson2,
@@ -55,6 +54,7 @@ const CHEMISTRY: SubjectDefinition = {
         chemistryLesson4,
         chemistryLesson5,
         chemistryLesson6,
+        chemistryLesson7,
       ],
     },
   ],

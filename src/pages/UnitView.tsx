@@ -66,6 +66,12 @@ function UnitContent({ subject, unit }: { subject: SubjectId; unit: UnitDefiniti
         ))}
       </ol>
 
+      {unit.id === 'chem-u1' && unit.lessons.length === 7 ? (
+        <p className="unit-view__completion" role="status">
+          اكتمل محتوى الوحدة الأولى بسبعة دروس؛ الدرس السابع «الحساب الكيميائيّ» هو آخر دروسها.
+        </p>
+      ) : null}
+
       <section className="unit-view__test-entry ta-card" aria-labelledby="unit-test-entry-title">
         <div>
           <p className="eyebrow">تقييم مستقل</p>
@@ -73,7 +79,7 @@ function UnitContent({ subject, unit }: { subject: SubjectId; unit: UnitDefiniti
             اختبار الوحدة الأولى
           </h2>
           <p className="unit-view__test-entry-text">
-            ستون سؤالاً أصلياً تربط بين دروس الوحدة، مع سياسة تصحيح معلنة وحلول منفصلة.
+            بنك مرحلي من ستين سؤالاً يغطي الدرسين الأول والثاني فقط. اكتمل محتوى الوحدة بسبعة دروس، وللدروس الثالث إلى السابع اختبارات نهائية مستقلة داخل صفحاتها.
           </p>
         </div>
         <Link className="button button--primary" to={routes.testAreaTest('chem-u1')}>
