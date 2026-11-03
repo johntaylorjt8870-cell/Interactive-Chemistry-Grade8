@@ -31,7 +31,10 @@ export const chemistryLesson2StudentNotebook: StudentNotebook = {
     {
       id: 'keywords-and-symbols',
       title: 'الكلمات المفتاحية والرموز',
-      points: ['الكلمات المفتاحية: رابطة كيميائيّة – رابطة أيونيّة – رابطة مشتركة.'],
+      points: [
+        'الكلمات المفتاحية: رابطة كيميائيّة – رابطة أيونيّة – رابطة مشتركة.',
+        'أنواع الروابط الكيميائية: الرابطة الأيونية والرابطة المشتركة.',
+      ],
       notes: [
         { text: 'O₂', notation: 'formula' },
         { text: 'NaCl', notation: 'formula' },

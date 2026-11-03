@@ -35,6 +35,18 @@ describe('student notebook — Lesson 2 source and scope', () => {
     expect(lesson1StudentNotebook.sections.every((section) => section.lewisMolecules === undefined)).toBe(true)
   })
 
+  it('records the two printed bond types explicitly as a separate point', () => {
+    const opening = chemistryLesson2StudentNotebook.sections.find((section) => section.id === 'keywords-and-symbols')!
+    const classification = 'أنواع الروابط الكيميائية: الرابطة الأيونية والرابطة المشتركة.'
+    expect(opening.points).toContain(classification)
+
+    const sourceStep = chemistryLesson2.steps.find((step) => step.id === 'bond-definition')!
+    const printedLine = sourceStep.blocks.find(
+      (block) => block.kind === 'textbook-verbatim' && /نوعين من الروابط/.test(block.text),
+    )
+    expect(printedLine).toMatchObject({ kind: 'textbook-verbatim', source: { page: '14' } })
+  })
+
   it('keeps all three complete «تعلّمُ» definitions exactly once', () => {
     const definitions = chemistryLesson2StudentNotebook.sections.flatMap((section) => section.definitions ?? [])
     expect(definitions).toEqual([
