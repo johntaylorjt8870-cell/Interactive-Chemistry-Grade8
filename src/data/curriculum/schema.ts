@@ -235,6 +235,13 @@ export type NotebookDefinition = {
   text: string
   /** Where the lesson states it, e.g. `ص4` or `ص11 — «تعلّمُ»`. */
   source: string
+  /**
+   * For a definition the platform composes rather than quotes: the exact
+   * lesson sentences each clause rests on, verbatim. Tests require every one of
+   * them to exist in the lesson and to carry every scientific term the
+   * definition uses, so no clause can be unsourced.
+   */
+  anchors?: string[]
 }
 
 export type NotebookTable = {

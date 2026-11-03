@@ -104,7 +104,15 @@ const explanationText = normalise(
 )
 
 /** The notebook entries, flattened with the section they belong to. */
-type Entry = { section: string; kind: string; text: string; source?: string; notation?: string; term?: string }
+type Entry = {
+  section: string
+  kind: string
+  text: string
+  source?: string
+  notation?: string
+  term?: string
+  anchors?: string[]
+}
 
 const entries: Entry[] = lesson1StudentNotebook.sections.flatMap((section) => [
   ...(section.definitions ?? []).map((definition) => ({
@@ -113,6 +121,7 @@ const entries: Entry[] = lesson1StudentNotebook.sections.flatMap((section) => [
     text: definition.text,
     source: definition.source,
     term: definition.term,
+    anchors: definition.anchors,
   })),
   ...(section.points ?? []).map((point) => ({ section: section.id, kind: 'point', text: point })),
   ...(section.ordered ?? []).map((item) => ({ section: section.id, kind: 'ordered', text: item })),
@@ -211,28 +220,36 @@ describe('student notebook — every definition is quoted from the lesson', () =
 
       /**
        * A definition explicitly declared as an educational composition
-       * (`صياغة تعليمية مركّبة`) joins the lesson's sentences into one
-       * student-facing statement, so it cannot be required to be contiguous.
-       * It is held to the stricter test that matters instead: it may not
-       * introduce a single content word the lesson never uses, and it must
-       * state in its own source line that it is composed, not printed.
+       * (`صياغة تعليمية مركّبة`) may not be required to be contiguous — it
+       * joins the lesson's sentences into one statement. It is held to the
+       * stricter test instead: every one of its `anchors` must exist verbatim
+       * in the lesson, and every scientific term it uses must be carried by one
+       * of those anchors. An unsourced clause therefore cannot survive.
        */
       if (/صياغة تعليمية مركّبة/.test(definition.source!)) {
         expect(definition.source).toMatch(/ليست نصاً مطبوعاً/)
-        // Arabic glues conjunctions and prepositions to the word (`فالتغيير`,
-        // `والتغيير`), so the comparison strips a leading و/ف/ب/ل/ك before it
-        // looks the word up. That still catches a genuinely new term.
-        const stripClitic = (word: string) => word.replace(/^[وفبلك]/, '')
-        const lessonWords = new Set(lessonText.split(' ').filter(Boolean).map(stripClitic))
+        const anchors = definition.anchors ?? []
+        expect(anchors.length, `composed definition has no anchors: ${definition.term}`).toBeGreaterThan(0)
+
+        const anchorText = normalise(anchors.join(' '))
+        for (const anchor of anchors) {
+          expect(
+            lessonText.includes(normalise(anchor)) || explanationText.includes(normalise(anchor)),
+            `anchor not found verbatim in the lesson: ${anchor.slice(0, 70)}`,
+          ).toBe(true)
+        }
+
+        // Scientific vocabulary of the definition must come from its anchors.
         const novel = definition.text
           .split(/[\s،:؛.()«»]+/)
           .map((word) => normalise(word))
           .filter((word) => word.split(' ').length === 1 && word.length > 2)
-          .map(stripClitic)
-          .filter((word) => !lessonWords.has(word))
-        expect(novel, `composed definition uses words the lesson never uses: ${definition.term}`).toEqual([])
+          .map((word) => word.replace(/^[وفبلك]/, ''))
+          .filter((word) => !anchorText.includes(word))
+        expect(novel, `composed definition uses terms its anchors do not carry: ${definition.term}`).toEqual([])
         continue
       }
+
       const page = pages[0]
       const pageText = page ? normalise(stepTexts.filter((entry) => entry.pages.includes(page)).map((entry) => entry.text).join(' ')) : ''
 
@@ -378,9 +395,10 @@ describe('student notebook — no invented content', () => {
 describe('student notebook — structure and coverage', () => {
   it('covers every objective of the lesson', () => {
     const titles = lesson1StudentNotebook.sections.map((section) => section.title)
-    // Eight to ten sections is the target; completeness wins over the target,
-    // so the floor is what the lesson's objectives actually require.
+    // The agreed shape is 8–10 sections. Ten is reached by merging the electron
+    // and Thomson sections and folding isotope-vs-ion into isotopes.
     expect(titles.length).toBeGreaterThanOrEqual(8)
+    expect(titles.length, `notebook has ${titles.length} sections`).toBeLessThanOrEqual(10)
     for (const expected of [
       'الإلكترون',
       'طومسون',
@@ -407,20 +425,33 @@ describe('student notebook — structure and coverage', () => {
     expect(capacities.rows.map((row) => row.cells.y)).toEqual(['2', '8', '18', '32', '50'])
 
     const ions = tables.find((table) => table.caption.includes('الأيونات'))!
-    expect(ions.rows.map((row) => row.cells.ion)).toEqual(['K⁺', 'F⁻', 'Ca²⁺', 'O²⁻'])
+    for (const symbol of ['K⁺', 'F⁻', 'Ca²⁺', 'O²⁻']) {
+      expect(ions.rows.some((row) => Object.values(row.cells).join(' ').includes(symbol)), symbol).toBe(true)
+    }
   })
 
-  it('keeps the rules a student has to apply, not just name', () => {
+  it('does not keep a six-column answer grid in the notes', () => {
+    // The ion table used to reproduce the book's worked table (z + configuration
+    // + method + charge + symbol); that is an example set, not a rule.
+    const tables = lesson1StudentNotebook.sections.flatMap((section) => (section.table ? [section.table] : []))
+    for (const table of tables) {
+      expect(table.columns.length, `${table.caption} has ${table.columns.length} columns`).toBeLessThanOrEqual(3)
+    }
+  })
+
+  it('keeps the rules a student has to apply, as rules rather than procedures', () => {
     const sections = lesson1StudentNotebook.sections
     const distribution = sections.find((section) => section.id === 'distribution')!
-    expect(distribution.procedure?.steps).toHaveLength(4)
+    // The four checks survive as short stated conditions…
+    expect(distribution.points?.join(' ')).toContain('مجموع الإلكترونات في السويات العدد الذري')
+    expect(distribution.points?.join(' ')).toContain('2(n)²')
+    // …but not as a numbered how-to-answer procedure.
+    expect(distribution.procedure).toBeUndefined()
 
     const ions = sections.find((section) => section.id === 'ions')!
-    // The charge rule is a rule, not a worked example: it stays as a stated
-    // fact plus its formula, without the five-step procedure the lesson uses
-    // to walk through an answer.
     expect(ions.points?.join(' ')).toContain('الشحنة = عدد البروتونات − عدد الإلكترونات')
     expect(ions.notes?.[0]?.tex).toBe('q = N_{p} - N_{e}')
+    expect(ions.ordered).toBeUndefined()
 
     const atomic = sections.find((section) => section.id === 'atomic-numbers')!
     expect(atomic.notes?.some((note) => note.tex === 'N = A - Z')).toBe(true)
@@ -434,7 +465,9 @@ describe('student notebook — structure and coverage', () => {
     // Capacity vs. actual count, and isotope vs. ion.
     expect(text).toContain('السعة العظمى')
     expect(text).toContain('العدد الفعلي')
-    expect(lesson1StudentNotebook.sections.some((section) => section.id === 'isotope-vs-ion')).toBe(true)
+    const isotopes = lesson1StudentNotebook.sections.find((section) => section.id === 'isotopes')!
+    expect(isotopes.points?.join(' ')).toContain('النظير:')
+    expect(isotopes.points?.join(' ')).toContain('الأيون:')
   })
 })
 
@@ -510,31 +543,142 @@ describe('student notebook — the review’s acceptance criteria', () => {
     expect(lawMentions.length).toBeLessThanOrEqual(3)
   })
 
-  it('cites only pages the lesson actually carries', () => {
-    const carried = new Set(stepTexts.flatMap((entry) => entry.pages))
+  it('cites pages whose own content actually carries the definition', () => {
+    /**
+     * A page number that merely *exists* in the lesson proves nothing. For every
+     * printed definition the test takes the cited page's own material and
+     * requires the definition's substance to be found there — so a definition
+     * filed under the wrong page fails even though the page exists.
+     */
     const definitions = sections.flatMap((section) => section.definitions ?? [])
+    const carried = new Set(stepTexts.flatMap((entry) => entry.pages))
+
     for (const definition of definitions) {
-      for (const match of definition.source.matchAll(/ص(\d+)/g)) {
-        expect(carried.has(match[1]), `source cites ص${match[1]} which the lesson does not carry`).toBe(true)
+      const pages = [...definition.source.matchAll(/ص(\d+)/g)].map((match) => match[1])
+      for (const page of pages) {
+        expect(carried.has(page), `source cites ص${page} which the lesson does not carry`).toBe(true)
+      }
+
+      // Printed definitions: substance must be on the cited page itself.
+      if (/^ص\d+$/.test(definition.source)) {
+        const pageText = normalise(
+          stepTexts.filter((entry) => entry.pages.includes(pages[0])).map((entry) => entry.text).join(' '),
+        )
+        const substantive = definition.text
+          .split(/[،:؛.]/)
+          .map((clause) => normalise(clause))
+          .filter((clause) => clause.split(' ').filter(Boolean).length >= 3)
+        expect(substantive.length).toBeGreaterThan(0)
+        for (const clause of substantive) {
+          expect(pageText.includes(clause), `ص${pages[0]} does not carry: ${clause}`).toBe(true)
+        }
       }
     }
   })
 
-  it('stays within the size a student can write by hand', () => {
-    const count = (value: string) => value.trim().split(/\s+/).filter(Boolean).length
-    let words = 0
-    for (const section of sections) {
-      for (const definition of section.definitions ?? []) words += count(definition.text)
-      for (const point of section.points ?? []) words += count(point)
-      for (const item of section.ordered ?? []) words += count(item)
-      for (const note of section.notes ?? []) words += count(note.text)
-      for (const step of section.procedure?.steps ?? []) words += count(step)
-      for (const row of section.table?.rows ?? []) words += count(Object.values(row.cells).join(' '))
+  it('does not file a printed definition under a page other than its own', () => {
+    /**
+     * Guards the exact defect the review found twice: a definition copied from
+     * ص4 but labelled ص3. For each printed definition, the cited page must be the
+     * page where the sentence is *first* stated, not merely a page that mentions
+     * the topic.
+     */
+    const printed = entries.filter(
+      (entry) => entry.kind === 'definition' && /^ص\d+$/.test(entry.source ?? ''),
+    )
+    for (const definition of printed) {
+      const cited = definition.source!.match(/ص(\d+)/)![1]
+      const key = normalise(definition.text).slice(0, 50)
+      const firstPage = stepTexts.find((entry) => normalise(entry.text).includes(key))
+      expect(
+        firstPage?.pages.includes(cited),
+        `«${definition.term}» is cited to ص${cited} but the lesson states it on ص${firstPage?.pages.join(',') ?? '—'}`,
+      ).toBe(true)
     }
-    // The brief's target is 400–500 words, but completeness outranks it. This
-    // floor keeps the notebook from creeping back into a copy of the lesson.
-    expect(words).toBeGreaterThan(350)
-    expect(words, `notebook is ${words} words — too long to be handwritten notes`).toBeLessThanOrEqual(1000)
+  })
+
+  it('stays at the size that was agreed for handwritten notes', () => {
+    const count = (value: string) => value.trim().split(/\s+/).filter(Boolean).length
+
+    /**
+     * The agreed target is 400–500 words. Part of the notebook cannot be
+     * shortened: printed definitions quoted from the book (`source: 'صN'`) and
+     * the printed Bohr statements. Everything the platform itself writes — the
+     * points, formulas, table cells and the composed definitions — is authored
+     * prose, and *that* is what the budget governs. Without this split the old
+     * test let 908 words through merely by staying under 1000.
+     */
+    let printed = 0
+    let authored = 0
+    for (const section of sections) {
+      for (const definition of section.definitions ?? []) {
+        const words = count(definition.text)
+        if (definition.anchors) authored += words
+        else printed += words
+      }
+      for (const item of section.ordered ?? []) printed += count(item)
+      for (const point of section.points ?? []) authored += count(point)
+      for (const note of section.notes ?? []) authored += count(note.text)
+      for (const row of section.table?.rows ?? []) authored += count(Object.values(row.cells).join(' '))
+    }
+
+    const total = printed + authored
+
+    // The floor: the notebook must still be complete enough to be useful.
+    expect(total, `notebook is ${total} words — too short to be complete`).toBeGreaterThan(350)
+
+    // The agreed ceiling: authored prose may not exceed the agreed target by
+    // more than a quarter, and the page as a whole keeps a hard ceiling that is
+    // well below the 908-word version this test exists to prevent recurring.
+    expect(
+      authored,
+      `platform-authored prose is ${authored} words (printed source: ${printed}); the agreed budget is ${Math.round(500 * 1.25)}`,
+    ).toBeLessThanOrEqual(500 * 1.25)
+    expect(total, `notebook is ${total} words; the ceiling is 700`).toBeLessThanOrEqual(700)
+  })
+
+  it('keeps section leads and the introduction from becoming extra explanation', () => {
+    const count = (value: string) => value.trim().split(/\s+/).filter(Boolean).length
+
+    // The introduction is a one-line statement of what the notebook is.
+    expect(count(lesson1StudentNotebook.introduction)).toBeLessThanOrEqual(30)
+
+    // A lead is a label for the section, not a paragraph of teaching.
+    for (const section of lesson1StudentNotebook.sections) {
+      if (!section.lead) continue
+      expect(count(section.lead), `${section.title}: lead is ${count(section.lead)} words`).toBeLessThanOrEqual(12)
+    }
+    const leadWords = lesson1StudentNotebook.sections.reduce(
+      (total, section) => total + count(section.lead ?? ''),
+      0,
+    )
+    expect(leadWords, `leads total ${leadWords} words`).toBeLessThanOrEqual(80)
+  })
+
+  it('keeps no solution procedure and no worked example', () => {
+    const sectionIds = sections.map((section) => section.id)
+    expect(sectionIds, `a separate isotope/ion section reappeared`).not.toContain('isotope-vs-ion')
+
+    for (const section of sections) {
+      // A numbered how-to-answer block is a solution procedure, not notes.
+      expect(section.procedure, `${section.title} still carries a procedure`).toBeUndefined()
+
+      for (const item of section.ordered ?? []) {
+        // Ordered items must be the printed model statements, not steps the
+        // student executes to produce an answer.
+        expect(item, `${section.title}: «${item.slice(0, 40)}» reads like a step`).not.toMatch(
+          /^(اقرأ|اكتب|اجمع|اطرح|تأكد|احسب|وزّع|عدّ)\b/,
+        )
+      }
+
+      // Example grids: a table with more than three columns is a worked table.
+      if (section.table) expect(section.table.columns.length).toBeLessThanOrEqual(3)
+    }
+
+    const text = JSON.stringify(sections)
+    for (const banned of ['مثال محلول', 'كما في مثالنا السابق', 'خطوات التحقق', 'الكبريت', 'حرف X']) {
+      expect(text, `worked example or procedure leaked in: ${banned}`).not.toContain(banned)
+    }
   })
 })
 
