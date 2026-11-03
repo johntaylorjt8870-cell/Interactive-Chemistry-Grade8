@@ -204,11 +204,11 @@ describe('student notebook — placement in the lesson', () => {
   })
 })
 
-describe('student notebook — the rest of the platform is untouched', () => {
-  it('only Lesson 1 carries a notebook', () => {
+describe('student notebooks — scope remains limited to the opted-in lessons', () => {
+  it('attaches notebooks only to Lessons 1 and 2', () => {
     const lessons = listSubjects().flatMap((subject) => subject.units.flatMap((unit) => unit.lessons))
     const withNotebook = lessons.filter((lesson) => lesson.studentNotebook)
-    expect(withNotebook.map((lesson) => lesson.id)).toEqual(['chem-u1-l1'])
+    expect(withNotebook.map((lesson) => lesson.id)).toEqual(['chem-u1-l1', 'chem-u1-l2'])
   })
 
   it('does not change the lesson step count, the step kinds or the curriculum totals', () => {

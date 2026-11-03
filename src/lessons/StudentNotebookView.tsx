@@ -3,6 +3,7 @@ import {
   ChemicalFormula,
   ElectronConfiguration,
   IonNotation,
+  LewisMolecule,
   MathFormula,
   NuclearNotation,
   Sci,
@@ -157,6 +158,22 @@ function NotebookSectionView({ section, index }: { section: NotebookSection; ind
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {section.lewisMolecules?.length ? (
+        <div className="student-notebook__lewis-molecules">
+          {section.lewisMolecules.map((molecule) => (
+            <LewisMolecule
+              key={molecule.id}
+              left={molecule.left}
+              right={molecule.right}
+              sharedPairs={molecule.sharedPairs}
+              size="md"
+              className="student-notebook__lewis"
+              caption={<ChemicalFormula formula={molecule.formula} size="sm" />}
+            />
+          ))}
+        </div>
       ) : null}
 
       {section.table ? <NotebookTableView table={section.table} /> : null}

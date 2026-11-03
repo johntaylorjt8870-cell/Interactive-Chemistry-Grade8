@@ -528,7 +528,10 @@ describe('lesson 2 page rendering', () => {
     const { container } = renderApp(LESSON_PATH)
     expect(await screen.findByRole('heading', { level: 1, name: /الروابط الكيميائية/ })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'خطوات الدرس' })
-    expect(within(nav).getAllByRole('button')).toHaveLength(chemistryLesson2.steps.length)
+    const buttons = within(nav).getAllByRole('button')
+    expect(buttons).toHaveLength(chemistryLesson2.steps.length + 1)
+    expect(buttons.slice(0, -1)).toHaveLength(chemistryLesson2.steps.length)
+    expect(buttons.at(-1)).toHaveAttribute('data-tab', 'notebook')
     expect(container.textContent).toContain('ألاحظ وأجيب')
   })
 

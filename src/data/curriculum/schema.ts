@@ -259,6 +259,23 @@ export type NotebookTable = {
   footnote?: string
 }
 
+/** One atom in the existing LewisMolecule component's dot diagram. */
+export type NotebookLewisAtom = {
+  symbol: string
+  /** Lone-pair positions in the component's LTR diagram space. */
+  lonePairSides?: Array<'top' | 'right' | 'bottom' | 'left'>
+}
+
+/** A textbook diatomic Lewis example rendered by the existing LewisMolecule. */
+export type NotebookLewisMolecule = {
+  id: string
+  /** Plain formula source for ChemicalFormula, e.g. `H2`. */
+  formula: string
+  left: NotebookLewisAtom
+  right: NotebookLewisAtom
+  sharedPairs: 1 | 2 | 3
+}
+
 /** A step-by-step method the student must be able to apply. */
 export type NotebookProcedure = {
   title: string
@@ -287,6 +304,8 @@ export type NotebookSection = {
   ordered?: string[]
   notes?: NotebookNote[]
   table?: NotebookTable
+  /** Optional page-15 Lewis figures; omitted by every other lesson notebook. */
+  lewisMolecules?: NotebookLewisMolecule[]
   procedure?: NotebookProcedure
 }
 
