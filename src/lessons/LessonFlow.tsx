@@ -2,12 +2,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { LessonShell } from '@/layouts/LessonShell'
 import { LessonOutline } from './LessonOutline'
+import { StudentNotebookView } from './StudentNotebookView'
 import { getStepRenderer } from './stepRenderers'
 import { STEP_KIND_META } from './stepKinds'
 import { Drawer } from '@/components/Drawer'
 import { RtlRun } from '@/components/BidiText'
 import { LiveStatus } from '@/components/LiveStatus'
-import { ArrowEndGlyph, ArrowStartGlyph, CheckGlyph, ListGlyph } from '@/components/Icons'
+import {
+  ArrowEndGlyph,
+  ArrowStartGlyph,
+  CheckGlyph,
+  ListGlyph,
+  NotebookGlyph,
+} from '@/components/Icons'
 import { computeLessonProgress, useLessonProgress } from '@/data/progress'
 import type { LessonDefinition } from '@/data/curriculum/schema'
 
@@ -24,6 +31,9 @@ export type LessonFlowProps = {
   /** Renders an action area in the final step (e.g. "back to unit"). */
   finishAction?: ReactNode
 }
+
+/** Hash of the notebook tab; distinct from `#step-N` step hashes. */
+const NOTEBOOK_HASH = '#student-notebook'
 
 function stepIndexFromHash(lesson: LessonDefinition, hash: string): number | null {
   const raw = hash.replace(/^#/, '')
@@ -42,6 +52,13 @@ function stepIndexFromHash(lesson: LessonDefinition, hash: string): number | nul
  *
  * The current step is reflected in the URL hash, so a lesson step can be
  * bookmarked and shared, and the browser back button keeps working.
+ *
+ * A lesson that carries a `studentNotebook` gets one extra entry at the end of
+ * its own tab strip — «📒 دفتر الطالب». It is the same navigation system (the
+ * same outline, the same content column, the same state), opened as a final
+ * tab rather than as a teaching step: it is not counted in the step counter,
+ * it is not marked as visited, and it is never reached by «التالي». Lessons
+ * without a notebook are untouched by any of this.
  */
 export function LessonFlow({
   lesson,
@@ -54,6 +71,7 @@ export function LessonFlow({
   finishAction,
 }: LessonFlowProps) {
   const total = lesson.steps.length
+  const notebook = lesson.studentNotebook
 
   const [currentIndex, setCurrentIndex] = useState(() => {
     if (total === 0) return 0
@@ -67,8 +85,20 @@ export function LessonFlow({
     }
     return 0
   })
+  /** Whether the notebook tab is the open tab (never a step index). */
+  const [notebookOpen, setNotebookOpen] = useState(() => {
+    if (typeof window === 'undefined' || !notebook) return false
+    return window.location.hash === NOTEBOOK_HASH
+  })
   const [drawerOpen, setDrawerOpen] = useState(false)
   const focusContentAfterDrawer = useRef(false)
+  /**
+   * The teaching step the student was on when they opened the notebook, so
+   * returning to the lesson puts them back on that exact step. Answers and lab
+   * state are not lost by the round trip: the step is only hidden, and step
+   * components keep their own state for the life of the page.
+   */
+  const returnIndex = useRef(Math.max(total - 1, 0))
 
   const { seenStepIds, markStepSeen, setCompleted } = useLessonProgress(lesson.id)
   const progress = useMemo(
@@ -81,7 +111,7 @@ export function LessonFlow({
 
   // Record visited steps so the outline can report honest progress.
   useEffect(() => {
-    if (!currentStep) return
+    if (!currentStep || notebookOpen) return
     markStepSeen(currentStep.id)
     if (typeof window !== 'undefined') {
       const nextHash = `#step-${currentIndex + 1}`
@@ -89,12 +119,28 @@ export function LessonFlow({
         window.history.replaceState(null, '', nextHash)
       }
     }
-  }, [currentStep, currentIndex, lesson.id, markStepSeen])
+  }, [currentStep, currentIndex, lesson.id, markStepSeen, notebookOpen])
+
+  // The notebook is addressable on its own (`#student-notebook`), without
+  // touching the step counter or the visited steps.
+  useEffect(() => {
+    if (!notebookOpen || typeof window === 'undefined') return
+    if (window.location.hash !== NOTEBOOK_HASH) {
+      window.history.replaceState(null, '', NOTEBOOK_HASH)
+    }
+  }, [notebookOpen])
+
+  const focusLessonContent = useCallback(() => {
+    if (typeof document !== 'undefined') {
+      document.getElementById('lesson-content')?.focus?.()
+    }
+  }, [])
 
   const goTo = useCallback(
     (index: number) => {
       if (index < 0 || index >= total) return
       setCurrentIndex(index)
+      if (notebookOpen) setNotebookOpen(false)
 
       // Closing the drawer hands focus back to the trigger that opened it. When
       // the student chose a step, the step that is now displayed has to receive
@@ -104,21 +150,32 @@ export function LessonFlow({
       focusContentAfterDrawer.current = drawerOpen
       setDrawerOpen(false)
 
-      if (!drawerOpen && typeof document !== 'undefined') {
-        document.getElementById('lesson-content')?.focus?.()
-      }
+      if (!drawerOpen) focusLessonContent()
     },
-    [drawerOpen, total],
+    [drawerOpen, focusLessonContent, notebookOpen, total],
   )
+
+  /** Opens «📒 دفتر الطالب»: same page, same outline, no reload. */
+  const openNotebook = useCallback(() => {
+    if (!notebook) return
+    if (!notebookOpen) returnIndex.current = currentIndex
+    setNotebookOpen(true)
+    focusContentAfterDrawer.current = drawerOpen
+    setDrawerOpen(false)
+    if (!drawerOpen) focusLessonContent()
+  }, [drawerOpen, focusLessonContent, notebook, notebookOpen, currentIndex])
+
+  /** Returns to the step the student was reading before the notebook. */
+  const returnToLesson = useCallback(() => {
+    goTo(returnIndex.current)
+  }, [goTo])
 
   // Runs after the drawer's own focus restore, so the new step wins.
   useEffect(() => {
     if (drawerOpen || !focusContentAfterDrawer.current) return
     focusContentAfterDrawer.current = false
-    if (typeof document !== 'undefined') {
-      document.getElementById('lesson-content')?.focus?.()
-    }
-  }, [drawerOpen])
+    focusLessonContent()
+  }, [drawerOpen, focusLessonContent])
 
   const handleFinish = useCallback(() => {
     setCompleted(true)
@@ -142,7 +199,9 @@ export function LessonFlow({
 
   // Announced when the step changes, so the student learns *where* they landed
   // and not only that the counter moved. Mount state stays silent.
-  const stepAnnouncement = `الخطوة ${currentIndex + 1} من ${total}: ${currentStep.title}`
+  const stepAnnouncement = notebookOpen
+    ? 'دفتر الطالب — تبويب نهاية الدرس'
+    : `الخطوة ${currentIndex + 1} من ${total}: ${currentStep.title}`
 
   return (
     <>
@@ -161,9 +220,12 @@ export function LessonFlow({
         outline={
           <LessonOutline
             lesson={lesson}
-            currentIndex={currentIndex}
+            currentIndex={notebookOpen ? -1 : currentIndex}
             onSelect={goTo}
             seenStepIds={seenStepIds}
+            notebook={
+              notebook ? { title: '📒 دفتر الطالب', open: notebookOpen, onSelect: openNotebook } : undefined
+            }
           />
         }
         mobileOutlineTrigger={
@@ -179,40 +241,73 @@ export function LessonFlow({
           </button>
         }
         navigation={
-          <div className="lesson-nav">
-            <button
-              type="button"
-              className="button button--secondary"
-              onClick={() => goTo(currentIndex - 1)}
-              disabled={currentIndex === 0}
-            >
-              <ArrowEndGlyph size={17} />
-              <span>السابق</span>
-            </button>
+          notebookOpen ? (
+            <div className="lesson-nav">
+              <button type="button" className="button button--primary" onClick={returnToLesson}>
+                <ArrowEndGlyph size={17} />
+                <span>العودة إلى الدرس</span>
+              </button>
+            </div>
+          ) : (
+            <div className="lesson-nav">
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => goTo(currentIndex - 1)}
+                disabled={currentIndex === 0}
+              >
+                <ArrowEndGlyph size={17} />
+                <span>السابق</span>
+              </button>
 
-            {isLast || isFinalStep ? (
-              <button type="button" className="button button--primary" onClick={handleFinish}>
-                <CheckGlyph size={17} />
-                <span>إنهاء الدرس</span>
-              </button>
-            ) : (
-              <button type="button" className="button button--primary" onClick={() => goTo(currentIndex + 1)}>
-                <span>التالي</span>
-                <ArrowStartGlyph size={17} />
-              </button>
-            )}
-          </div>
+              {/* Lessons without a notebook keep exactly the markup they
+                  had: the extra tab is the only difference. */}
+              {isLast || isFinalStep ? (
+                isLast && notebook ? (
+                  <div className="lesson-nav__actions">
+                    <button type="button" className="button button--quiet" onClick={openNotebook}>
+                      <NotebookGlyph size={17} />
+                      <span>📒 دفتر الطالب</span>
+                    </button>
+                    <button type="button" className="button button--primary" onClick={handleFinish}>
+                      <CheckGlyph size={17} />
+                      <span>إنهاء الدرس</span>
+                    </button>
+                  </div>
+                ) : (
+                  <button type="button" className="button button--primary" onClick={handleFinish}>
+                    <CheckGlyph size={17} />
+                    <span>إنهاء الدرس</span>
+                  </button>
+                )
+              ) : (
+                <button type="button" className="button button--primary" onClick={() => goTo(currentIndex + 1)}>
+                  <span>التالي</span>
+                  <ArrowStartGlyph size={17} />
+                </button>
+              )}
+            </div>
+          )
         }
       >
         <LiveStatus message={stepAnnouncement} delayMs={0} />
+        {/* The open teaching step stays mounted while the notebook tab is
+            shown, and is only hidden: every answer, simulation and lab state
+            inside it survives opening the notebook and coming back, because
+            nothing is unmounted or reloaded. The step keeps its place as the
+            first child of the content region — no wrapper element is added. */}
         <StepRenderer
           step={currentStep}
           meta={meta}
+          hidden={notebookOpen}
           renderQuestion={renderQuestion}
           renderDiagram={renderDiagram}
           renderTest={renderTest}
         />
-        {isLast && finishAction ? <div className="lesson-shell__finish">{finishAction}</div> : null}
+        {notebookOpen && notebook ? <StudentNotebookView notebook={notebook} /> : null}
+        {isLast && !notebookOpen && finishAction ? (
+          <div className="lesson-shell__finish">{finishAction}</div>
+        ) : null}
       </LessonShell>
 
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="خطوات الدرس" side="start">
@@ -232,10 +327,13 @@ export function LessonFlow({
         </div>
         <LessonOutline
           lesson={lesson}
-          currentIndex={currentIndex}
+          currentIndex={notebookOpen ? -1 : currentIndex}
           onSelect={goTo}
           seenStepIds={seenStepIds}
           variant="drawer"
+          notebook={
+            notebook ? { title: '📒 دفتر الطالب', open: notebookOpen, onSelect: openNotebook } : undefined
+          }
         />
       </Drawer>
     </>

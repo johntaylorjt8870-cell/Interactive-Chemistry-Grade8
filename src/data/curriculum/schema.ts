@@ -209,6 +209,75 @@ export type LessonStep = {
   minutes?: number
 }
 
+/* ---------------------------------------------------------------------------
+ * Student notebook (دفتر الطالب)
+ * ------------------------------------------------------------------------ */
+
+/**
+ * One sentence a student is expected to write down.
+ *
+ * `text` is the sentence itself. `notation` marks a sentence whose core is a
+ * symbol, a formula or an operation (not a prose definition): it is rendered as
+ * structured notation instead of being left to bidi reordering inside RTL
+ * prose. Nothing is generated: every entry is authored from the lesson.
+ */
+export type NotebookNote = {
+  text: string
+  notation?: 'nuclide' | 'formula' | 'ion' | 'configuration' | 'math'
+  /** TeX for `notation: 'math'`, e.g. `y = 2(n)^2`. */
+  tex?: string
+}
+
+/** A complete scientific definition, kept in one block, never shortened. */
+export type NotebookDefinition = {
+  term: string
+  /** The full meaning, as it must be written in the notebook. */
+  text: string
+  /** Where the lesson states it, e.g. `ص4` or `ص11 — «تعلّمُ»`. */
+  source: string
+}
+
+export type NotebookTable = {
+  caption: string
+  columns: Array<{ key: string; header: string; rowHeader?: boolean }>
+  rows: Array<{ id: string; cells: Record<string, string> }>
+  footnote?: string
+}
+
+/** A step-by-step method the student must be able to apply. */
+export type NotebookProcedure = {
+  title: string
+  steps: string[]
+}
+
+export type NotebookSection = {
+  id: string
+  /** Section heading, taken from the topic the lesson actually teaches. */
+  title: string
+  /** One short line: what this part of the notebook covers. */
+  lead?: string
+  definitions?: NotebookDefinition[]
+  /** Bulleted facts, rules and classifications to keep. */
+  points?: string[]
+  /** Ordered rule that must be applied in this order. */
+  ordered?: string[]
+  notes?: NotebookNote[]
+  table?: NotebookTable
+  procedure?: NotebookProcedure
+}
+
+export type StudentNotebook = {
+  /** Notebook title shown as the page heading. */
+  title: string
+  /** One line under the title: what the notebook is and is not. */
+  introduction: string
+  /** Page range the notebook is drawn from. */
+  source: SourceReference
+  sections: NotebookSection[]
+  /** Closing checklist of what the student must be able to do with the notes. */
+  checklist?: { title: string; items: string[] }
+}
+
 export type LessonDefinition = {
   id: string
   slug: string
@@ -219,6 +288,11 @@ export type LessonDefinition = {
   /** Short statement of what the lesson covers, taken from the book. */
   summary?: string
   steps: LessonStep[]
+  /**
+   * Optional student notebook (دفتر الطالب) for this lesson. When present it is
+   * shown as the last tab of the lesson, after the last teaching step.
+   */
+  studentNotebook?: StudentNotebook
   /** Comprehensive tests attached to the lesson (normally one). */
   tests?: FinalTest[]
 }

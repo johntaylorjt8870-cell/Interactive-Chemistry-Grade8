@@ -110,9 +110,14 @@ describe('lesson layout — identity and progress in the rail', () => {
     expect(bar).toHaveAttribute('aria-valuemax', String(chemistryLesson1.steps.length))
     expect(bar).toHaveAttribute('aria-valuenow', '1')
     expect(within(rail).getByText(`الخطوة 1 من ${chemistryLesson1.steps.length}`)).toBeInTheDocument()
-    // The step outline with every step is in the rail.
+    // The step outline with every step is in the rail, plus the lesson's final
+    // «دفتر الطالب» tab that follows them (Lesson 1 carries a notebook).
     const nav = within(rail).getByRole('navigation', { name: 'خطوات الدرس' })
-    expect(within(nav).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length)
+    expect(within(nav).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length + 1)
+    const stepButtons = within(nav).getAllByRole('button').filter((button) => button.dataset.tab !== 'notebook')
+    expect(stepButtons).toHaveLength(chemistryLesson1.steps.length)
+    const notebookTab = within(nav).getByRole('button', { name: /دفتر الطالب/ })
+    expect(notebookTab).toHaveAttribute('data-tab', 'notebook')
 
     // The content column carries the step only: no title, progress or outline.
     const content = screen.getByRole('region', { name: 'محتوى الدرس' })
@@ -190,7 +195,7 @@ describe('lesson layout — compact trigger and drawer on narrow screens', () =>
 
     const dialog = screen.getByRole('dialog', { name: 'خطوات الدرس' })
     const nav = within(dialog).getByRole('navigation', { name: 'خطوات الدرس' })
-    expect(within(nav).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length)
+    expect(within(nav).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length + 1)
     expect(within(dialog).getByRole('button', { current: 'step' })).toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: 'إغلاق القائمة' })).toBeInTheDocument()
     // Lesson information travels with the drawer on mobile.
@@ -198,8 +203,9 @@ describe('lesson layout — compact trigger and drawer on narrow screens', () =>
     expect(within(dialog).getByText(new RegExp(`الخطوة 1 من ${chemistryLesson1.steps.length}`))).toBeInTheDocument()
     expect(within(dialog).getByRole('link', { name: 'الكيمياء' })).toBeInTheDocument()
 
-    // The outlined controls are the outline plus the close button, nothing else.
-    expect(within(dialog).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length + 1)
+    // The outlined controls are the outline (steps + the notebook tab) plus the
+    // close button, nothing else.
+    expect(within(dialog).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length + 2)
   })
 
   it('closes with Escape and returns focus to the compact trigger', async () => {

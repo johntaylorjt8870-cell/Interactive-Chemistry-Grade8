@@ -16,6 +16,7 @@
     "verify:charges": "node scripts/verify-charge-notation.mjs",
     "verify": "npm run typecheck && npm run build && npm run verify:dist && npm test",
     "verify:lesson1": "node scripts/verify-lesson1-rendering.mjs",
+    "verify:lesson1-notebook": "node scripts/verify-lesson1-notebook.mjs",
     "verify:lesson2": "node scripts/verify-lesson2-rendering.mjs",
     "verify:lesson3": "node scripts/verify-lesson3-rendering.mjs",
     "verify:lesson4": "node scripts/verify-lesson4-rendering.mjs",

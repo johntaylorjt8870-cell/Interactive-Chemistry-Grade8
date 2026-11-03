@@ -142,6 +142,17 @@ hr {
   top: var(--space-4);
 }
 
+/**
+ * The `hidden` attribute must always win over an author `display` rule.
+ * Several components set `display: flex|grid` on elements that are also
+ * toggled with `hidden` (the lesson step while the student notebook tab is
+ * open, for example); without this rule the element would stay in the layout
+ * while being reported as hidden to assistive technology.
+ */
+[hidden] {
+  display: none !important;
+}
+
 .visually-hidden {
   position: absolute !important;
   width: 1px;

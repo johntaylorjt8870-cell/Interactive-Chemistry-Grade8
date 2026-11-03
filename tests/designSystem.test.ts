@@ -68,6 +68,14 @@ describe('design tokens', () => {
   })
 })
 
+describe('hidden attribute contract', () => {
+  it('never lets an author display rule defeat [hidden]', () => {
+    // Components set `display: flex|grid` on elements toggled with `hidden`;
+    // without this rule a hidden element would keep occupying the layout.
+    expect(base).toMatch(/\[hidden\]\s*\{\s*display:\s*none\s*!important;?\s*\}/)
+  })
+})
+
 describe('Chemistry design identity', () => {
   it('uses the Chemistry accent in the shared design system', () => {
     const chemistry = declarations(tokens, ':root,\n[data-subject=\'neutral\'],\n[data-subject=\'chemistry\']')
