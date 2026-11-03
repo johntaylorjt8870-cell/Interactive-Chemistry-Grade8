@@ -92,10 +92,10 @@ const stepTexts: StepText[] = chemistryLesson1.steps.flatMap((step) => {
 const lessonText = normalise(stepTexts.map((entry) => entry.text).join(' '))
 
 /**
- * Some printed relationships are stated only in the lesson's own question
- * explanations (the mass-number definition is one). They are part of the
- * lesson content, so they are searchable — but a definition that relies on them
- * must say so in its source line instead of claiming a printed page.
+ * The lesson's own question explanations. They are *not* a source for the
+ * notebook — the final review ruled that a platform explanation is not
+ * evidence a fact belongs in the notes — but they are collected here so a test
+ * can prove no notebook sentence was lifted from one.
  */
 const explanationText = normalise(
   [...bookQuestions, ...bookActivitySolutions, ...lesson1PracticeQuestions]
@@ -191,93 +191,48 @@ describe('student notebook — every definition is quoted from the lesson', () =
     }
   })
 
-  it('restates platform explanations only where the lesson explains them', () => {
-    const explained = definitions.filter(
-      (entry) => /شرح الدرس/.test(entry.source ?? '') || /شرح سؤال الكتاب|شرح المنصة/.test(entry.source ?? ''),
+  /**
+   * After the final review the notebook carries no platform-composed
+   * definition at all: the composed «مفهوم العنصر الكيميائي», the mass number
+   * and the atomic number were removed by decision, not by accident. The test
+   * therefore asserts the removal as a property of the file, so a future edit
+   * cannot quietly reintroduce a definition that is not in the book.
+   */
+  it('carries no definition the book does not print', () => {
+    const platformDefinitions = definitions.filter(
+      (entry) => !/^ص\d+/.test(entry.source ?? '') || /شرح|صياغة|مركّبة/.test(entry.source ?? ''),
     )
-    expect(explained.length).toBeGreaterThan(0)
+    expect(
+      platformDefinitions.map((entry) => `${entry.term} — ${entry.source}`),
+      'a definition that is not a printed book sentence re-entered the notebook',
+    ).toEqual([])
 
-    /**
-     * A platform definition may join two facts the lesson states on that page
-     * (the lesson explains them in separate sentences), so it is checked clause
-     * by clause: every clause must be a contiguous excerpt of the page. A new
-     * fact would break contiguity and fail here.
-     */
-    for (const definition of explained) {
-      /**
-       * A platform definition either quotes the lesson's own key-terms block
-       * (which has no printed page, and says so in its label) or cites the
-       * pages it joins (`ص7` + `ص29`). Every cited page must exist; a definition
-       * that cites none must still be composed of the lesson's own words, which
-       * the clause check below enforces.
-       */
-      const pages = [...definition.source!.matchAll(/ص(\d+)/g)].map((match) => match[1])
-      for (const cited of pages) {
-        expect(
-          stepTexts.some((entry) => entry.pages.includes(cited)),
-          `composed definition cites ص${cited}, which the lesson does not carry`,
-        ).toBe(true)
-      }
-      if (/صياغة منصة|الكلمات المفتاحية/.test(definition.source!)) {
-        expect(definition.source, `a platform-composed definition must say so: ${definition.term}`).toMatch(
-          /لا نص مطبوع|صياغة/,
-        )
-      }
-
-      /**
-       * A definition explicitly declared as an educational composition
-       * (`صياغة تعليمية مركّبة`) may not be required to be contiguous — it
-       * joins the lesson's sentences into one statement. It is held to the
-       * stricter test instead: every one of its `anchors` must exist verbatim
-       * in the lesson, and every scientific term it uses must be carried by one
-       * of those anchors. An unsourced clause therefore cannot survive.
-       */
-      if (/صياغة تعليمية مركّبة/.test(definition.source!)) {
-        expect(definition.source).toMatch(/ليست نصاً مطبوعاً/)
-        const anchors = definition.anchors ?? []
-        expect(anchors.length, `composed definition has no anchors: ${definition.term}`).toBeGreaterThan(0)
-
-        const anchorText = normalise(anchors.join(' '))
-        for (const anchor of anchors) {
-          expect(
-            lessonText.includes(normalise(anchor)) || explanationText.includes(normalise(anchor)),
-            `anchor not found verbatim in the lesson: ${anchor.slice(0, 70)}`,
-          ).toBe(true)
-        }
-
-        // Scientific vocabulary of the definition must come from its anchors.
-        const novel = definition.text
-          .split(/[\s،:؛.()«»]+/)
-          .map((word) => normalise(word))
-          .filter((word) => word.split(' ').length === 1 && word.length > 2)
-          .map((word) => word.replace(/^[وفبلك]/, ''))
-          .filter((word) => !anchorText.includes(word))
-        expect(novel, `composed definition uses terms its anchors do not carry: ${definition.term}`).toEqual([])
-        continue
-      }
-
-      const page = pages[0]
-      const pageText = page ? normalise(stepTexts.filter((entry) => entry.pages.includes(page)).map((entry) => entry.text).join(' ')) : ''
-
-      // Split on clause boundaries and on the em dash the lesson uses inside a
-      // sentence, then drop fragments too short to carry a fact.
-      const clauses = definition.text
-        .split(/[،:؛.]/)
-        .map((clause) => normalise(clause))
-        .filter((clause) => clause.split(' ').filter(Boolean).length >= 4)
-
-      expect(clauses.length, `no checkable clause in: ${definition.text.slice(0, 50)}`).toBeGreaterThan(0)
-      for (const clause of clauses) {
-        // Platform explanation steps sometimes carry no page anchor of their
-        // own, so the clause is accepted from the cited page or — when that
-        // page's own steps do not hold it — from the lesson as a whole. The
-        // vocabulary test below still guarantees no new word enters.
-        expect(
-          pageText.includes(clause) || lessonText.includes(clause) || explanationText.includes(clause),
-          `platform clause not found in the lesson (ص${page}): ${clause}`,
-        ).toBe(true)
-      }
+    // Every remaining definition is a printed page reference, and it is quoted
+    // from that page (checked clause by clause above).
+    for (const definition of definitions) {
+      expect(definition.source, `${definition.term} must cite a printed page`).toMatch(/^ص\d+/)
+      expect(definition.anchors, `${definition.term} is labelled as a composition`).toBeUndefined()
     }
+  })
+
+  it('takes no sentence from a platform explanation', () => {
+    /**
+     * The previous round accepted notebook wording that appeared only in a
+     * question explanation. The review closed that door: an explanation is
+     * evidence of what the platform says, never of what the student must write.
+     * Every student-facing sentence must now be found in the lesson's own
+     * content, not in an explanation.
+     */
+    const sentences = entries
+      .filter((entry) => entry.notation !== 'math')
+      .flatMap((entry) => entry.text.split(/(?<=[.؛])\s+/))
+      .map((sentence) => normalise(sentence))
+      .filter((sentence) => sentence.split(' ').filter(Boolean).length >= 4)
+
+    const explainedOnly = sentences.filter(
+      (sentence) => explanationText.includes(sentence) && !lessonText.includes(sentence),
+    )
+    expect(explainedOnly, 'a notebook sentence exists only in a platform explanation').toEqual([])
   })
 
   it('keeps every definition complete instead of truncating it to keywords', () => {
@@ -288,77 +243,18 @@ describe('student notebook — every definition is quoted from the lesson', () =
   })
 })
 
-describe('student notebook — every claim in a composed definition is sourced', () => {
-  const composed = lesson1StudentNotebook.sections
-    .flatMap((section) => section.definitions ?? [])
-    .filter((definition) => definition.anchors?.length)
-
-  it('binds each claim to its own source sentence, and the claim is contiguous in it', () => {
-    expect(composed.length, 'no composed definition to check').toBeGreaterThan(0)
-
-    for (const definition of composed) {
-      const claims = definition.claims ?? []
-      expect(claims.length, `composed definition declares no claims: ${definition.term}`).toBeGreaterThan(0)
-
-      /**
-       * The scientific relationship itself must be supported, not just its
-       * words. Each claim is required to appear contiguously inside the source
-       * sentence declared for it — so «مجموع البروتونات والنيوترونات» cannot
-       * pass on a sentence that merely mentions both particles separately.
-       */
-      for (const { claim, source } of claims) {
-        const sourceInLesson =
-          lessonText.includes(normalise(source)) || explanationText.includes(normalise(source))
-        expect(sourceInLesson, `declared source is not in the lesson: ${source.slice(0, 60)}`).toBe(true)
-
-        expect(
-          normalise(source).includes(normalise(claim)),
-          `claim is not a contiguous part of its declared source\n    claim: ${claim}\n    source: ${source}`,
-        ).toBe(true)
-      }
-
-      // Every claim the definition makes must be covered: no sentence may sit
-      // outside a declared claim.
-      const covered = normalise(claims.map(({ claim }) => claim).join(' '))
-      const sentences = definition.text
-        .split(/(?<=[.؛])\s+/)
-        .map((sentence) => normalise(sentence))
-        .filter((sentence) => sentence.split(' ').length >= 3)
-      for (const sentence of sentences) {
-        const supported = claims.some(({ claim }) => {
-          const key = normalise(claim)
-          return sentence.includes(key) || key.split(' ').filter((word) => sentence.includes(word)).length / key.split(' ').length > 0.8
-        })
-        expect(supported, `unsourced sentence in «${definition.term}»: ${sentence}`).toBe(true)
-      }
-      expect(covered.length).toBeGreaterThan(0)
-    }
-  })
-
-  it('labels a definition as composed exactly when it composes several statements', () => {
-    for (const definition of composed) {
-      /**
-       * `claims` is used both by genuinely composed definitions (several
-       * statements joined) and by a verbatim quote whose sentence is split for
-       * checking. Only the former must warn the reader; a printed sentence
-       * quoted whole must NOT claim to be a composition.
-       */
-      const isSingleQuotedSentence =
-        definition.claims!.length === 1 &&
-        normalise(definition.claims![0]!.source).includes(normalise(definition.text.trim()))
-
-      if (isSingleQuotedSentence) {
-        expect(
-          definition.source,
-          `«${definition.term}» is a single quoted sentence but its label implies composition`,
-        ).not.toMatch(/مركّبة|ليست نصاً مطبوعاً/)
-      } else {
-        expect(
-          definition.source,
-          `«${definition.term}» composes several statements but its source line does not say so`,
-        ).toMatch(/مركّبة|ليست نصاً مطبوعاً/)
-      }
-    }
+describe('student notebook — no definition is a composition of sources', () => {
+  it('keeps the composed-definition machinery empty', () => {
+    /**
+     * `anchors`/`claims` exist so that a definition built from the book plus
+     * the platform can be falsified clause by clause. The review ruled that the
+     * notebook should hold no such definition, so the machinery must stay
+     * unused — an unused capability is a guard, not dead code: the moment an
+     * anchor appears, the reviewer's decision has been reversed silently.
+     */
+    const composed = lesson1StudentNotebook.sections.flatMap((section) => section.definitions ?? [])
+    expect(composed.filter((definition) => definition.anchors?.length)).toEqual([])
+    expect(composed.filter((definition) => definition.claims?.length)).toEqual([])
   })
 })
 
@@ -521,30 +417,39 @@ describe('student notebook — structure and coverage', () => {
 
   it('keeps the rules a student has to apply, as rules rather than procedures', () => {
     const sections = lesson1StudentNotebook.sections
+    /**
+     * The rules kept are the *printed* ones, in the book's own wording: the
+     * fill-from-the-inside rule (ص6) and the proton/electron equality (ص11).
+     * The platform's four-condition check and its `q = Np − Ne` formula were
+     * removed, so the test asserts their absence rather than their presence.
+     */
     const distribution = sections.find((section) => section.id === 'distribution')!
-    // The four checks survive as short stated conditions…
-    expect(distribution.points?.join(' ')).toContain('مجموع الإلكترونات في السويات العدد الذري')
-    expect(distribution.points?.join(' ')).toContain('2(n)²')
-    // …but not as a numbered how-to-answer procedure.
-    expect(distribution.procedure).toBeUndefined()
+    expect(distribution.points?.join(' ')).toContain('الإلكترونات تشغل السويّات الأدنى أولاً')
+    expect(distribution.points?.join(' ')).toContain('عدد الإلكترونات يساوي عدد البروتونات في الذرة')
+    expect(distribution.procedure, 'a solution procedure reappeared').toBeUndefined()
+    expect(distribution.points?.join(' '), 'the platform check-list reappeared').not.toContain('2(n)²')
 
     const ions = sections.find((section) => section.id === 'ions')!
-    expect(ions.points?.join(' ')).toContain('الشحنة = عدد البروتونات − عدد الإلكترونات')
-    expect(ions.notes?.[0]?.tex).toBe('q = N_{p} - N_{e}')
+    expect(ions.points?.join(' ')).toContain('ترتيب إشارة الشحنة')
+    expect(ions.notes, 'the charge formula came back as a note').toBeUndefined()
     expect(ions.ordered).toBeUndefined()
 
+    // Only the printed capacity law survives as a formula note.
     const atomic = sections.find((section) => section.id === 'atomic-numbers')!
-    expect(atomic.notes?.some((note) => note.tex === 'N = A - Z')).toBe(true)
+    expect(atomic.notes, 'the neutron relation came back as a note').toBeUndefined()
 
     const levels = sections.find((section) => section.id === 'levels')!
-    expect(levels.notes?.some((note) => note.tex === 'y = 2(n)^2')).toBe(true)
+    expect(levels.notes, 'the capacity law is a printed rule, not a formula gloss').toBeUndefined()
+    expect(levels.points?.join(' ')).toContain('y = 2(n)²')
   })
 
-  it('states the two mistakes the lesson warns about', () => {
+  it('keeps the capacity wording without a platform lecture beside it', () => {
     const text = JSON.stringify(lesson1StudentNotebook)
-    // Capacity vs. actual count, and isotope vs. ion.
+    // The law's own printed phrase survives…
     expect(text).toContain('السعة العظمى')
-    expect(text).toContain('العدد الفعلي')
+    // …but the platform's «max vs. actual» explanation was removed with the
+    // rest of the added prose, and must not creep back in.
+    expect(text).not.toContain('العدد الفعلي')
     const isotopes = lesson1StudentNotebook.sections.find((section) => section.id === 'isotopes')!
     expect(isotopes.points?.join(' ')).toContain('النظير:')
     expect(isotopes.points?.join(' ')).toContain('الأيون:')
@@ -621,20 +526,26 @@ describe('student notebook — the review’s acceptance criteria', () => {
   const sections = lesson1StudentNotebook.sections
   const everything = JSON.stringify(lesson1StudentNotebook)
 
-  it('closes the two gaps the review found: the element and the mass number', () => {
+  it('leaves the element and the mass number to the lesson, not to the notebook', () => {
     const definitions = sections.flatMap((section) => section.definitions ?? [])
-    const element = definitions.find((definition) => definition.term.includes('العنصر الكيميائي'))
-    expect(element, 'the notebook must conceptualise the chemical element').toBeTruthy()
-    // It must explain the concept, not merely restate the Z rule.
-    expect(element!.text).toMatch(/عنصراً مختلفاً/)
-    expect(element!.text).toMatch(/البروتونات/)
-    // …and it must not pass itself off as printed (the book prints no definition).
-    expect(element!.source).toMatch(/ليست نصاً مطبوعاً/)
 
-    const mass = definitions.find((definition) => definition.term.includes('العدد الكتلي'))
-    expect(mass, 'the notebook must define the mass number').toBeTruthy()
-    expect(mass!.text).toContain('مجموع البروتونات والنيوترونات')
-    expect(mass!.source).not.toMatch(/^ص\d+$/)
+    /**
+     * The book prints no definition of the chemical element and none of the
+     * mass number; the two entries that used to stand here were platform
+     * compositions. The final review removed them, so the notebook must contain
+     * neither — and must not replace them with a new paraphrase.
+     */
+    expect(definitions.some((definition) => definition.term.includes('العنصر الكيميائي'))).toBe(false)
+    expect(definitions.some((definition) => definition.term.includes('العدد الكتلي'))).toBe(false)
+
+    const text = JSON.stringify(sections)
+    expect(text, 'a composed element concept came back').not.toContain('عنصراً مختلفاً')
+    expect(text, 'a composed mass-number definition came back').not.toContain('مجموع البروتونات والنيوترونات')
+
+    // What remains is only what lets the student *read* the printed symbol.
+    const atomic = sections.find((section) => section.id === 'atomic-numbers')!
+    expect(atomic.points).toHaveLength(1)
+    expect(atomic.points![0]).toContain('العدد الكتلي A في الأعلى')
   })
 
   it('carries no experiment execution, only observation and conclusion', () => {
@@ -674,10 +585,25 @@ describe('student notebook — the review’s acceptance criteria', () => {
     const terms = definitions.map((definition) => definition.term)
     expect(new Set(terms).size, `duplicate terms: ${terms.join(' | ')}`).toBe(terms.length)
 
-    for (const tex of ['q = N_{p} - N_{e}', 'N = A - Z', 'y = 2(n)^2']) {
-      const occurrences = sections.flatMap((section) => section.notes ?? []).filter((note) => note.tex === tex)
-      expect(occurrences, `${tex} must appear exactly once`).toHaveLength(1)
+    /**
+     * The charge formula (`q = Np − Ne`) and the neutron relation (`N = A − Z`)
+     * are platform derivations, not printed statements: the final review had
+     * them removed from the notebook. They must not return as formula notes,
+     * and no note may reintroduce them in prose either.
+     */
+    const formulaNotes = sections.flatMap((section) => (section.notes ?? []).map((note) => note.tex ?? ''))
+    for (const removed of ['q = N_{p} - N_{e}', 'N = A - Z']) {
+      expect(formulaNotes, `${removed} is a platform formula the review removed`).not.toContain(removed)
     }
+    const prose = sections.flatMap((section) => [
+      ...(section.points ?? []),
+      ...(section.definitions ?? []).map((definition) => definition.text),
+      ...(section.notes ?? []).map((note) => note.text),
+    ])
+    expect(prose.join(' '), 'the A − Z relation came back').not.toContain('A − Z')
+    expect(prose.join(' '), 'the charge difference formula came back').not.toMatch(/الشحنة\s*=\s*عدد البروتونات/)
+    // The capacity law, which *is* printed, stays stated once as a rule.
+    expect(prose.filter((text) => text.includes('2(n)')).length).toBeGreaterThanOrEqual(1)
 
     // The capacity law is stated once as a rule and once as its formula only.
     const lawMentions = sections
@@ -747,12 +673,13 @@ describe('student notebook — the review’s acceptance criteria', () => {
     const count = (value: string) => value.trim().split(/\s+/).filter(Boolean).length
 
     /**
-     * The agreed target is 400–500 words. Part of the notebook cannot be
-     * shortened: printed definitions quoted from the book (`source: 'صN'`) and
-     * the printed Bohr statements. Everything the platform itself writes — the
-     * points, formulas, table cells and the composed definitions — is authored
-     * prose, and *that* is what the budget governs. Without this split the old
-     * test let 908 words through merely by staying under 1000.
+     * The agreed target is 400–500 words, and after the final review it is
+     * reachable — so it is enforced as a range, not as a ceiling. Part of the
+     * notebook cannot be shortened: the printed definitions quoted from the
+     * book (`source: 'صN'`, about 283 words) and the printed Bohr statements.
+     * Everything else — the points and the table cells — is platform-authored,
+     * and that is what the upper bound governs. An earlier version of this test
+     * accepted 908 words merely for staying under 1000; a later one accepted 657.
      */
     let printed = 0
     let authored = 0
@@ -770,17 +697,16 @@ describe('student notebook — the review’s acceptance criteria', () => {
 
     const total = printed + authored
 
-    // The floor: the notebook must still be complete enough to be useful.
-    expect(total, `notebook is ${total} words — too short to be complete`).toBeGreaterThan(350)
+    // The agreed window, enforced in both directions.
+    expect(total, `notebook is ${total} words — below the agreed 400`).toBeGreaterThanOrEqual(400)
+    expect(total, `notebook is ${total} words — above the agreed 500`).toBeLessThanOrEqual(500)
 
-    // The agreed ceiling: authored prose may not exceed the agreed target by
-    // more than a quarter, and the page as a whole keeps a hard ceiling that is
-    // well below the 908-word version this test exists to prevent recurring.
+    // Platform-authored prose must also stay a minority of the page: a notebook
+    // that reaches 500 words by padding its own commentary has missed the point.
     expect(
       authored,
-      `platform-authored prose is ${authored} words (printed source: ${printed}); the agreed budget is ${Math.round(500 * 1.25)}`,
-    ).toBeLessThanOrEqual(500 * 1.25)
-    expect(total, `notebook is ${total} words; the ceiling is 700`).toBeLessThanOrEqual(700)
+      `platform-authored prose is ${authored} words (printed source: ${printed})`,
+    ).toBeLessThan(printed)
   })
 
   it('keeps section leads and the introduction from becoming extra explanation', () => {
@@ -822,7 +748,9 @@ describe('student notebook — the review’s acceptance criteria', () => {
     }
 
     const text = JSON.stringify(sections)
-    for (const banned of ['مثال محلول', 'كما في مثالنا السابق', 'خطوات التحقق', 'الكبريت', 'حرف X']) {
+    // «حرف X» is printed on ص9 and is deliberately kept; what is banned is the
+    // platform's spacing rule for the dots, which the book never states.
+    for (const banned of ['مثال محلول', 'كما في مثالنا السابق', 'خطوات التحقق', 'الكبريت', 'فرادى']) {
       expect(text, `worked example or procedure leaked in: ${banned}`).not.toContain(banned)
     }
   })

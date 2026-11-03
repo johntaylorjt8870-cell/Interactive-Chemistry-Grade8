@@ -4,19 +4,28 @@ import type { StudentNotebook } from './schema'
    «دفتر الطالب» — Lesson 1 «الذرّة والعنصر» (ص3–12)
    ----------------------------------------------------------------------------
    What this file is: the material a student is expected to write in the school
-   notebook after studying the lesson. It is neither a summary of the lesson nor
-   a revision sheet: it holds the definitions, rules, classifications and
-   symbols that must be kept, in the lesson's own scientific wording.
+   notebook after studying the lesson, and nothing else.
 
-   The test of every line is not "does it appear in the lesson?" but "would a
-   Grade-8 student copy it into the notebook and come back to it?". So the
-   notebook keeps:
+   The standard applied here, after the final pedagogical review:
 
-     * complete printed definitions, character for character (`source: 'صN'`);
-     * composed definitions, marked as composed (`source:` says so, and
-       `anchors` lists the exact lesson sentences they rest on);
-     * the printed rules, constraints and symbols a student applies later;
-     * one table, because level capacities are data worth memorising.
+     * the notebook holds what the textbook itself prints — definitions quoted
+       character for character (`source: 'صN'`), the printed rules, the printed
+       statements of Bohr's model and the printed data tables;
+     * a platform sentence enters only when the printed page would otherwise be
+       impossible to record (a symbol a student cannot read), and then it is
+       one short line, never a definition, never a derived formula;
+     * a platform explanation is *not* evidence that a fact belongs here. The
+       lesson may explain a topic at length; the notebook keeps the printed
+       core;
+     * nothing is composed from the book plus the platform: no definition in
+       this file is a synthesis of two sources.
+
+   Removed on the reviewer's instruction, and not to be restored without an
+   explicit request: the platform definition of «السوية الطاقية», the composed
+   «مفهوم العنصر الكيميائي», the atomic-number and mass-number definitions,
+   the mass-number relation (A − Z), the charge formula (q = Np − Ne), the
+   monovalent-ion entry, the gas-notation ordering rule for Lewis dots, and the
+   gloss notes that repeated the tables.
 
    And it leaves out — because the lesson already carries them and copying them
    would turn the notebook into a second copy of the lesson:
@@ -45,7 +54,7 @@ export const lesson1StudentNotebook: StudentNotebook = {
         {
           term: 'الإلكترون',
           text:
-            'جسيم صغير كتلته تقريبًا (1/1860) من كتلة نواة ذرّة الهيدروجين ويحمل شحنة سالبة، تمكّن العالم طومسون بعد دراسة التقريب الكهربائي من اكتشاف الإلكترون.',
+            'تمكّن العالم طومسون بعد دراسة التقريب الكهربائي من اكتشاف الإلكترون وهو جسيم صغير كتلته تقريبًا (1/1860) من كتلة نواة ذرّة الهيدروجين ويحمل شحنة سالبة.',
           source: 'ص4',
         },
         {
@@ -60,51 +69,34 @@ export const lesson1StudentNotebook: StudentNotebook = {
     {
       id: 'rutherford',
       title: 'تجربة رذرفورد والنواة',
-      lead: 'الملاحظتان واستنتاج كل منهما.',
+      lead: 'الملاحظتان المطبوعتان، وتعريف النواة.',
       definitions: [
         {
+          /**
+           * The printed clause alone, complete in meaning: it names the part,
+           * its charge, what it carries and who called it that. The platform's
+           * «الكتلة والشحنة الموجبة مركّزتان…» was removed — it is an
+           * explanation of the experiment, not a printed definition, and it was
+           * previously mis-filed to ص7.
+           */
           term: 'النواة',
-          text:
-            'الكتلة والشحنة الموجبة مركّزتان في جزء صغير جداً (النواة)؛ جزء موجب يمثل معظم كتلة الذرة أطلق عليه العالم رذرفورد النواة.',
-          source:
-            'صياغة تعليمية مركّبة — ليست نصاً مطبوعاً: نص الكتاب ص4 («جزء موجب يمثل معظم كتلة الذرة أطلق عليه العالم رذرفورد النواة») + شرح المنصة ص7 («الكتلة والشحنة الموجبة مركّزتان في جزء صغير جداً (النواة)»).',
-          anchors: [
-            'جزء موجب يمثل معظم كتلة الذرة أطلق عليه العالم رذرفورد النواة',
-            'الكتلة والشحنة الموجبة مركّزتان في جزء صغير جداً (النواة)',
-          ],
-          claims: [
-            {
-              claim: 'الكتلة والشحنة الموجبة مركّزتان في جزء صغير جداً (النواة)',
-              source: 'الكتلة والشحنة الموجبة مركّزتان في جزء صغير جداً (النواة)',
-            },
-            {
-              claim: 'جزء موجب يمثل معظم كتلة الذرة أطلق عليه العالم رذرفورد النواة',
-              source: 'جزء موجب يمثل معظم كتلة الذرة أطلق عليه العالم رذرفورد النواة',
-            },
-          ],
+          text: 'جزء موجب يمثل معظم كتلة الذرة أطلق عليه العالم رذرفورد النواة.',
+          source: 'ص4',
         },
       ],
       points: [
         'معظم جسيمات ألفا تنفذ دون انحراف ← معظم حجم الذرّة فراغ.',
-        'جزء صغير منها ارتد أو انحرف بزوايا مختلفة ← الذرّة تحوي جزءاً موجباً يمثل معظم كتلتها هو النواة.',
+        'جزء صغير من جسيمات ألفا ارتد وبعضها انحرف بزوايا مختلفة.',
       ],
     },
     {
       id: 'bohr',
       title: 'نموذج بور والسويات الطاقية',
       lead: 'نقاط نموذج بور الثلاث',
-      definitions: [
-        {
-          term: 'السوية الطاقية',
-          text:
-            'حالة محددة للطاقة يمكن أن يوجد فيها الإلكترون حول النواة وفق نموذج بور. السوية الأقرب إلى النواة أدنى طاقة، وتزداد الطاقة كلما ابتعدنا عن النواة.',
-          source: 'شرح الدرس — ص5',
-        },
-      ],
       ordered: [
         'تتكوّن الذرّة من نواة موجبة وتدور حولها الإلكترونات في سويّات لها طاقة محدّدة.',
         'تمتصّ الذرّة طاقة محددة عندما يقفز الإلكترون من سوية طاقة أدنى إلى سوية طاقة أعلى بحيث تكون الطاقة الممتصّة تساوي فرق الطاقة بين السويتين اللتين قفز بينهما الإلكترون.',
-        'تصدر الذرّة طاقة محددة على شكل ضوء عندما يقفز الإلكترون من سوية طاقة أعلى إلى سوية طاقة أدنى، وهذا ما يفسّر طيف الانبعاثات الذي تصدره الذرّات بعد إثارتها.',
+        'تصدر الذرّة طاقة محددة على شكل ضوء عندما يقفز الإلكترون من سوية طاقة أعلى إلى سوية طاقة أدنى.',
       ],
     },
     {
@@ -120,14 +112,6 @@ export const lesson1StudentNotebook: StudentNotebook = {
       ],
       points: [
         'y = 2(n)² حيث يعبّر n عن رقم السوية الرئيسية، مع العلم أن السوية الأخيرة لا تحوي أكثر من ثمانية إلكترونات.',
-        'قانون السعة يعطي العدد الأعظمي لا العدد الفعلي.',
-      ],
-      notes: [
-        {
-          notation: 'math',
-          tex: 'y = 2(n)^2',
-          text: 'y: العدد الأعظمي للإلكترونات في السوية، n: رقم السوية الرئيسية (1–7).',
-        },
       ],
       table: {
         caption: 'السعة العظمى للإلكترونات في السويات K–O',
@@ -143,7 +127,7 @@ export const lesson1StudentNotebook: StudentNotebook = {
           { id: 'n', cells: { level: 'N', n: '4', y: '32' } },
           { id: 'o', cells: { level: 'O', n: '5', y: '50' } },
         ],
-        footnote: 'القيم المطبوعة في الكتاب: K = 2 وL = 8، ويُكمل M وN وO بتعويض رقم السوية في القانون.',
+        footnote: 'K = 2 وL = 8 كما في الكتاب، ويُكمل M وN وO بالقانون.',
       },
     },
     {
@@ -151,93 +135,27 @@ export const lesson1StudentNotebook: StudentNotebook = {
       title: 'التوزيع الإلكتروني',
       lead: 'قواعد التوزيع على السويات',
       points: [
-        'الإلكترونات تشغل السويّات الأدنى أولاً، أي الأقرب إلى النواة، ثم تنتقل إلى السوية التي تليها.',
-        'يجب أن يساوي مجموع الإلكترونات في السويات العدد الذري، وألا تتجاوز سوية سعتها العظمى 2(n)².',
+        'الإلكترونات تشغل السويّات الأدنى أولاً.',
+        'عدد الإلكترونات يساوي عدد البروتونات في الذرة.',
       ],
     },
     {
       id: 'atomic-numbers',
       title: 'العدد الذري والعدد الكتلي والترميز النووي',
-      lead: 'رمز النواة ومفهوم العنصر الكيميائي',
-      definitions: [
-        {
-          term: 'مفهوم العنصر الكيميائي',
-          text:
-            'تغيير عدد البروتونات لا يعطي «صوديوماً مختلفاً» بل عنصراً مختلفاً، ولهذا يُسمّى العدد الذري رقم هوية العنصر. اختلاف عدد النيوترونات ينتج النظائر، واختلاف عدد الإلكترونات ينتج الأيونات، ووحدها البروتونات إذا تغيّرت تغيّر العنصر.',
-          source:
-            'صياغة تعليمية مركّبة من شرح المنصة — «لماذا العدد الذري هو هوية العنصر؟» (ص7) وخلاصة الدرس (ص12). ليست نصاً مطبوعاً من الكتاب.',
-          anchors: [
-            'تغيير هذا العدد لا يعطي «صوديوماً مختلفاً» بل عنصراً مختلفاً.',
-            'ولهذا يُسمّى العدد الذري رقم هوية العنصر، وهو ما يحدد موضعه في الجدول الدوري.',
-            'اختلاف عدد النيوترونات ينتج النظائر (أكسجين-16 وأكسجين-18 كلاهما أكسجين)، واختلاف عدد الإلكترونات ينتج الأيونات (Na وNa⁺ كلاهما صوديوم).',
-            'وحدها البروتونات إذا تغيّرت تغيّر العنصر.',
-          ],
-          claims: [
-            {
-              claim: 'تغيير هذا العدد لا يعطي «صوديوماً مختلفاً» بل عنصراً مختلفاً',
-              source: 'تغيير هذا العدد لا يعطي «صوديوماً مختلفاً» بل عنصراً مختلفاً. ولهذا يُسمّى العدد الذري رقم هوية العنصر',
-            },
-            {
-              claim: 'يُسمّى العدد الذري رقم هوية العنصر',
-              source: 'ولهذا يُسمّى العدد الذري رقم هوية العنصر، وهو ما يحدد موضعه في الجدول الدوري.',
-            },
-            {
-              claim: 'اختلاف عدد النيوترونات ينتج النظائر',
-              source: 'اختلاف عدد النيوترونات ينتج النظائر (أكسجين-16 وأكسجين-18 كلاهما أكسجين)',
-            },
-            {
-              claim: 'اختلاف عدد الإلكترونات ينتج الأيونات',
-              source: 'واختلاف عدد الإلكترونات ينتج الأيونات (Na وNa⁺ كلاهما صوديوم)',
-            },
-            {
-              claim: 'وحدها البروتونات إذا تغيّرت تغيّر العنصر',
-              source: 'وحدها البروتونات إذا تغيّرت تغيّر العنصر.',
-            },
-          ],
-        },
-        {
-          term: 'العدد الذري (Z)',
-          text: 'يُسمّى العدد الذري رقم هوية العنصر، وهو ما يحدد موضعه في الجدول الدوري.',
-          source: 'شرح الدرس — ص7',
-        },
-        {
-          term: 'العدد الكتلي (A)',
-          text: 'هو مجموع البروتونات والنيوترونات. البروتونات = Z، والنيوترونات = A − Z.',
-          source:
-            'صياغة تعليمية مركّبة — ليست نصاً مطبوعاً: شرح المنصة لسؤال الكتاب ص7 («وهو مجموع البروتونات والنيوترونات») + شرح الدرس ص7. الكتاب لم يطبع تعريفاً للعدد الكتلي، ويستعمله في ص7 وص11.',
-          anchors: [
-            'العدد الكتلي يكتب أعلى يسار الرمز، وهو 20. وهو مجموع البروتونات والنيوترونات.',
-            'العدد العلوي هو العدد الكتلي A، والسفلي هو العدد الذري Z.',
-            'البروتونات = Z، والنيوترونات = A − Z',
-          ],
-          claims: [
-            {
-              claim: 'هو مجموع البروتونات والنيوترونات',
-              source: 'العدد الكتلي يكتب أعلى يسار الرمز، وهو 20. وهو مجموع البروتونات والنيوترونات.',
-            },
-            {
-              claim: 'البروتونات = Z، والنيوترونات = A − Z',
-              source: 'البروتونات = Z، والنيوترونات = A − Z',
-            },
-          ],
-        },
-      ],
-      points: [
-        'في رمز النواة يُكتب العدد الكتلي A في الأعلى والعدد الذري Z في الأسفل.',
-        'البروتونات = Z، والإلكترونات = البروتونات في الذرة المتعادلة.',
-      ],
-      notes: [
-        {
-          notation: 'math',
-          tex: 'N = A - Z',
-          text: 'N: عدد النيوترونات، A: العدد الكتلي، Z: العدد الذري.',
-        },
-      ],
+      lead: 'قراءة رمز النواة',
+      /**
+       * The book prints the symbol ²⁰₁₀Ne and asks for A, for Z, for the number
+       * of electrons and for the distribution — but it prints no definition of
+       * either number. On the reviewer's instruction the two definitions and
+       * the A − Z relation were removed; what remains is the single line that
+       * makes the printed symbol readable at all.
+       */
+      points: ['في رمز النواة يُكتب العدد الكتلي A في الأعلى والعدد الذري Z في الأسفل.'],
     },
     {
       id: 'octet',
       title: 'قاعدة الثمانية والنشاط الكيميائي',
-      lead: 'استقرار الذرّة وطريقها إليه',
+      lead: 'قاعدة الاستقرار، واستثناء الهيدروجين.',
       definitions: [
         {
           /**
@@ -264,23 +182,8 @@ export const lesson1StudentNotebook: StudentNotebook = {
             'الأيون هو ذرة فقدت أو اكتسبت إلكترونًا أو أكثر. إذا فقدت الذرة إلكترونًا (أو أكثر) تتحوّل إلى أيون موجب، ويرمز له برمز ذرته مع عدد من الإشارات الموجبة يساوي عدد الإلكترونات التي فقدتها الذرة. إذا اكتسبت الذرة إلكترونًا (أو أكثر) تتحوّل إلى أيون سالب، ويرمز له برمز ذرته مع عدد من الإشارات السالبة يساوي عدد الإلكترونات التي اكتسبتها الذرة.',
           source: 'ص8',
         },
-        {
-          term: 'الأيون أحادي التكافؤ',
-          text: 'الأيون الذي شحنته ±1 مثل Na⁺ وCl⁻ وK⁺ وF⁻.',
-          source: 'شرح الدرس — ص3 (هدف الدرس) وص9.',
-        },
       ],
-      points: [
-        'إشارة الشحنة تُكتب بعد رمز الذرّة وبعدد مرات يساوي عدد الإلكترونات المفقودة أو المكتسبة، وبترتيب الكتاب: 2+ و2− لا +2 و−2.',
-        'الشحنة = عدد البروتونات − عدد الإلكترونات (المجموع الجبري للشحنات).',
-      ],
-      notes: [
-        {
-          notation: 'math',
-          tex: 'q = N_{p} - N_{e}',
-          text: 'q: الشحنة، Np: عدد البروتونات، Ne: عدد الإلكترونات.',
-        },
-      ],
+      points: ['ترتيب إشارة الشحنة في الكتاب: 2+ و2− لا +2 و−2.'],
       table: {
         caption: 'أمثلة الأيونات كما في الكتاب (ص9)',
         columns: [
@@ -302,13 +205,15 @@ export const lesson1StudentNotebook: StudentNotebook = {
       lead: 'إلكترونات السوية الأخيرة فقط، بنقاط حول الرمز.',
       definitions: [
         {
+          /**
+           * The printed definition, completed: the previous version dropped the
+           * printed «أو حرف X صغير», which is part of what Lewis proposed.
+           */
           term: 'تمثيل لويس',
-          text: 'رمز الذرة محاطاً بنقاط تمثل إلكترونات السوية الأخيرة (السطحية) فقط، لا جميع إلكترونات الذرة.',
+          text:
+            'اقترح لويس تمثيلًا مبسّطًا للذرات بحيث نكتبُ رمز الذرّة محاطة بالإلكترونات السّطحية فقط ويشار لها بنقاط أو حرف X صغير.',
           source: 'ص9',
         },
-      ],
-      points: [
-        'عدد النقاط يساوي عدد إلكترونات السوية الأخيرة، وتُرسم فرادى في الجهات الأربع أولاً ثم تُزدوج.',
       ],
     },
     {
@@ -324,9 +229,8 @@ export const lesson1StudentNotebook: StudentNotebook = {
         },
       ],
       points: [
-        'نظائر الهيدروجين الثلاثة ¹₁H و²₁H و³₁H: العدد الذري 1 في الحالات الثلاث، وتختلف في عدد النيوترونات (صفر، وواحد، واثنان).',
-        'النظير: يتغيّر عدد النيوترونات مع ثبات البروتونات والإلكترونات.',
-        'الأيون: يتغيّر عدد الإلكترونات مع ثبات البروتونات والنيوترونات.',
+        'نظائر الهيدروجين الثلاثة ¹₁H و²₁H و³₁H: العدد الذري 1 في الحالات الثلاث، والنيوترونات صفر وواحد واثنان.',
+        'النظير: تتغيّر النيوترونات وتثبت البروتونات والإلكترونات. الأيون: تتغيّر الإلكترونات وتثبت البروتونات والنيوترونات.',
       ],
     },
   ],

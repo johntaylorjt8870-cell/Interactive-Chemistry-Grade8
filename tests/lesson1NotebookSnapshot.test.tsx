@@ -74,7 +74,12 @@ describe('student notebook — rendered DOM snapshot', () => {
     // The dumped files must contain the real content, not a placeholder.
     const dumped = fs.readFileSync(notebookFile, 'utf8')
     expect(dumped).toContain('student-notebook__definitions')
-    expect(dumped).toContain('katex')
+    // Real structured notation, not raw text: the isotope symbols go through
+    // NuclearNotation and the ion table through the same cell promotion.
+    // (KaTeX is no longer required here: the only TeX notes were the platform
+    // formula glosses the final review removed.)
+    expect(dumped).toContain('nuclear-notation')
+    expect(dumped).toContain('student-notebook__table')
     expect(dumped).not.toContain('empty-state')
     expect(container.querySelectorAll('.student-notebook')).toHaveLength(1)
   })
