@@ -55,21 +55,34 @@ export function StudentNotebookView({ notebook }: { notebook: StudentNotebook })
         ))}
       </div>
 
-      {notebook.checklist ? (
-        <section className="student-notebook__checklist" aria-labelledby="student-notebook-checklist-title">
-          <h4 className="student-notebook__section-title" id="student-notebook-checklist-title">
-            {notebook.checklist.title}
-          </h4>
-          <ul className="student-notebook__list">
-            {notebook.checklist.items.map((item, index) => (
-              <li key={index}>
-                <ScientificNotationText as="span">{item}</ScientificNotationText>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
     </article>
+  )
+}
+
+/**
+ * Revision, kept apart from the notes.
+ *
+ * The notebook article is what a student copies; this card is what they test
+ * themselves with. It sits below the notebook, under an explicit label, so the
+ * two are never confused — the review asked for exactly that separation.
+ */
+export function StudentNotebookRevision({ notebook }: { notebook: StudentNotebook }) {
+  if (!notebook.checklist) return null
+
+  return (
+    <section className="student-notebook-revision" aria-labelledby="student-notebook-revision-title">
+      <p className="student-notebook-revision__label">أسئلة مراجعة — ليست مادة تُنسخ في الدفتر</p>
+      <h3 className="student-notebook-revision__title" id="student-notebook-revision-title">
+        <ScientificNotationText as="span">{notebook.checklist.title}</ScientificNotationText>
+      </h3>
+      <ul className="student-notebook-revision__list">
+        {notebook.checklist.items.map((item, index) => (
+          <li key={index}>
+            <ScientificNotationText as="span">{item}</ScientificNotationText>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
 

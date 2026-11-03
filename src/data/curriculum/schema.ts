@@ -274,7 +274,11 @@ export type StudentNotebook = {
   /** Page range the notebook is drawn from. */
   source: SourceReference
   sections: NotebookSection[]
-  /** Closing checklist of what the student must be able to do with the notes. */
+  /**
+   * Revision checklist of what the student must be able to *do* with the notes.
+   * It is deliberately not part of the notebook page: it is not material to
+   * copy, so it is rendered as a separate card beside the notebook.
+   */
   checklist?: { title: string; items: string[] }
 }
 

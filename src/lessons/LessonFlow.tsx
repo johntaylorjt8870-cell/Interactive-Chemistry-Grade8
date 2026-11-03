@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { LessonShell } from '@/layouts/LessonShell'
 import { LessonOutline } from './LessonOutline'
-import { StudentNotebookView } from './StudentNotebookView'
+import { StudentNotebookRevision, StudentNotebookView } from './StudentNotebookView'
 import { getStepRenderer } from './stepRenderers'
 import { STEP_KIND_META } from './stepKinds'
 import { Drawer } from '@/components/Drawer'
@@ -304,7 +304,12 @@ export function LessonFlow({
           renderDiagram={renderDiagram}
           renderTest={renderTest}
         />
-        {notebookOpen && notebook ? <StudentNotebookView notebook={notebook} /> : null}
+        {notebookOpen && notebook ? (
+          <>
+            <StudentNotebookView notebook={notebook} />
+            <StudentNotebookRevision notebook={notebook} />
+          </>
+        ) : null}
         {isLast && !notebookOpen && finishAction ? (
           <div className="lesson-shell__finish">{finishAction}</div>
         ) : null}

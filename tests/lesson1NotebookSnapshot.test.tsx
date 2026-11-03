@@ -42,9 +42,16 @@ describe('student notebook — rendered DOM snapshot', () => {
     const notebook = within(content).getByRole('article', { name: /مادة الدفتر المدرسي/ })
     const headings = within(notebook).getAllByRole('heading')
     expect(headings[0]!).toHaveAccessibleName('الذرّة والعنصر — مادة الدفتر المدرسي')
-    // Title + one heading per section + one per method block + the checklist.
+    // Title + one heading per section + one per method block. The closing
+    // checklist is no longer part of the notebook: it is revision material,
+    // not something a student copies, so it must not render here.
     const methodHeadings = lesson1StudentNotebook.sections.filter((section) => section.procedure).length
-    expect(headings).toHaveLength(1 + lesson1StudentNotebook.sections.length + methodHeadings + 1)
+    expect(headings).toHaveLength(1 + lesson1StudentNotebook.sections.length + methodHeadings)
+    expect(within(notebook).queryByText(/قبل الاختبار/)).toBeNull()
+
+    // The revision questions live outside the notebook, and say what they are.
+    const revision = screen.getByRole('region', { name: /قبل الاختبار/ })
+    expect(within(revision).getByText(/ليست مادة تُنسخ في الدفتر/)).toBeTruthy()
     // Each section heading carries its order number, so the page reads as a
     // numbered notebook rather than an unranked list of topics.
     const sectionHeadings = [...notebook.querySelectorAll('.student-notebook__section > .student-notebook__section-title')]
