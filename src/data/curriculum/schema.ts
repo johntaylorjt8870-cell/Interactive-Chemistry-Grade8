@@ -242,6 +242,14 @@ export type NotebookDefinition = {
    * definition uses, so no clause can be unsourced.
    */
   anchors?: string[]
+  /**
+   * The composed definition, split into the claims it makes, each bound to the
+   * verbatim lesson sentence that supports it. This is what makes a composed
+   * definition falsifiable: a claim whose text is not a contiguous part of its
+   * own source fails, so the *relationship itself* is checked rather than the
+   * mere presence of its words.
+   */
+  claims?: Array<{ claim: string; source: string }>
 }
 
 export type NotebookTable = {

@@ -144,9 +144,15 @@ describe('student notebook — every definition is quoted from the lesson', () =
 
   it('has the definitions the lesson actually states', () => {
     expect(definitions.length).toBeGreaterThanOrEqual(7)
-    expect(definitions.map((entry) => entry.source)).toEqual(
-      expect.arrayContaining(['ص4', 'ص7', 'ص8', 'ص9', 'ص11']),
+
+    // Source lines carry explanatory suffixes («ص7 — نص الكتاب: …»), so the
+    // pages are extracted rather than matched as whole strings.
+    const citedPages = new Set(
+      definitions.flatMap((entry) => [...(entry.source ?? '').matchAll(/ص(\d+)/g)].map((match) => match[1])),
     )
+    for (const page of ['4', '7', '8', '9', '11']) {
+      expect(citedPages.has(page), `no definition is sourced to ص${page}`).toBe(true)
+    }
   })
 
   it('takes each printed definition from the page it cites, without adding a fact', () => {
@@ -278,6 +284,80 @@ describe('student notebook — every definition is quoted from the lesson', () =
     for (const definition of definitions) {
       // A definition a student must copy is a sentence, not a label.
       expect(definition.text.split(/\s+/).length, definition.text).toBeGreaterThanOrEqual(6)
+    }
+  })
+})
+
+describe('student notebook — every claim in a composed definition is sourced', () => {
+  const composed = lesson1StudentNotebook.sections
+    .flatMap((section) => section.definitions ?? [])
+    .filter((definition) => definition.anchors?.length)
+
+  it('binds each claim to its own source sentence, and the claim is contiguous in it', () => {
+    expect(composed.length, 'no composed definition to check').toBeGreaterThan(0)
+
+    for (const definition of composed) {
+      const claims = definition.claims ?? []
+      expect(claims.length, `composed definition declares no claims: ${definition.term}`).toBeGreaterThan(0)
+
+      /**
+       * The scientific relationship itself must be supported, not just its
+       * words. Each claim is required to appear contiguously inside the source
+       * sentence declared for it — so «مجموع البروتونات والنيوترونات» cannot
+       * pass on a sentence that merely mentions both particles separately.
+       */
+      for (const { claim, source } of claims) {
+        const sourceInLesson =
+          lessonText.includes(normalise(source)) || explanationText.includes(normalise(source))
+        expect(sourceInLesson, `declared source is not in the lesson: ${source.slice(0, 60)}`).toBe(true)
+
+        expect(
+          normalise(source).includes(normalise(claim)),
+          `claim is not a contiguous part of its declared source\n    claim: ${claim}\n    source: ${source}`,
+        ).toBe(true)
+      }
+
+      // Every claim the definition makes must be covered: no sentence may sit
+      // outside a declared claim.
+      const covered = normalise(claims.map(({ claim }) => claim).join(' '))
+      const sentences = definition.text
+        .split(/(?<=[.؛])\s+/)
+        .map((sentence) => normalise(sentence))
+        .filter((sentence) => sentence.split(' ').length >= 3)
+      for (const sentence of sentences) {
+        const supported = claims.some(({ claim }) => {
+          const key = normalise(claim)
+          return sentence.includes(key) || key.split(' ').filter((word) => sentence.includes(word)).length / key.split(' ').length > 0.8
+        })
+        expect(supported, `unsourced sentence in «${definition.term}»: ${sentence}`).toBe(true)
+      }
+      expect(covered.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('labels a definition as composed exactly when it composes several statements', () => {
+    for (const definition of composed) {
+      /**
+       * `claims` is used both by genuinely composed definitions (several
+       * statements joined) and by a verbatim quote whose sentence is split for
+       * checking. Only the former must warn the reader; a printed sentence
+       * quoted whole must NOT claim to be a composition.
+       */
+      const isSingleQuotedSentence =
+        definition.claims!.length === 1 &&
+        normalise(definition.claims![0]!.source).includes(normalise(definition.text.trim()))
+
+      if (isSingleQuotedSentence) {
+        expect(
+          definition.source,
+          `«${definition.term}» is a single quoted sentence but its label implies composition`,
+        ).not.toMatch(/مركّبة|ليست نصاً مطبوعاً/)
+      } else {
+        expect(
+          definition.source,
+          `«${definition.term}» composes several statements but its source line does not say so`,
+        ).toMatch(/مركّبة|ليست نصاً مطبوعاً/)
+      }
     }
   })
 })
@@ -468,6 +548,41 @@ describe('student notebook — structure and coverage', () => {
     const isotopes = lesson1StudentNotebook.sections.find((section) => section.id === 'isotopes')!
     expect(isotopes.points?.join(' ')).toContain('النظير:')
     expect(isotopes.points?.join(' ')).toContain('الأيون:')
+  })
+})
+
+describe('student notebook — the octet rule is stated once', () => {
+  const count = (value: string, pattern: RegExp) => (value.match(pattern) ?? []).length
+
+  it('does not restate «eight electrons» across the octet section', () => {
+    const octet = lesson1StudentNotebook.sections.find((section) => section.id === 'octet')!
+    const prose = JSON.stringify([
+      octet.title,
+      octet.lead ?? '',
+      (octet.definitions ?? []).map((definition) => `${definition.term} ${definition.text}`),
+      octet.points ?? [],
+      octet.ordered ?? [],
+      (octet.notes ?? []).map((note) => note.text),
+    ])
+
+    /**
+     * The rule itself says "eight electrons" once; the hydrogen exception names
+     * "two". Anything beyond that is the repetition the review asked to remove
+     * (it was seven mentions before).
+     */
+    expect(count(prose, /ثمانية/g), `«ثمانية» appears ${count(prose, /ثمانية/g)} times`).toBeLessThanOrEqual(4)
+    expect(count(prose, /ثمانية/g)).toBeGreaterThanOrEqual(1)
+    // The hydrogen exception must survive — it is in the printed rule.
+    expect(prose).toContain('عدا الهيدروجين')
+  })
+
+  it('states the rule in exactly one place across the whole notebook', () => {
+    const prose = lesson1StudentNotebook.sections.flatMap((section) => [
+      ...(section.points ?? []),
+      ...(section.definitions ?? []).map((definition) => definition.text),
+    ])
+    const ruleStatements = prose.filter((text) => /سعى|تسعى/.test(text) && /ثمانية/.test(text))
+    expect(ruleStatements.length, `the octet rule is restated ${ruleStatements.length} times`).toBeLessThanOrEqual(2)
   })
 })
 
