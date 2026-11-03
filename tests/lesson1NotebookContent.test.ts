@@ -554,26 +554,57 @@ describe('student notebook — structure and coverage', () => {
 describe('student notebook — the octet rule is stated once', () => {
   const count = (value: string, pattern: RegExp) => (value.match(pattern) ?? []).length
 
-  it('does not restate «eight electrons» across the octet section', () => {
+  it('does not restate the octet rule across the section', () => {
     const octet = lesson1StudentNotebook.sections.find((section) => section.id === 'octet')!
-    const prose = JSON.stringify([
-      octet.title,
-      octet.lead ?? '',
-      (octet.definitions ?? []).map((definition) => `${definition.term} ${definition.text}`),
-      octet.points ?? [],
-      octet.ordered ?? [],
-      (octet.notes ?? []).map((note) => note.text),
-    ])
 
     /**
-     * The rule itself says "eight electrons" once; the hydrogen exception names
-     * "two". Anything beyond that is the repetition the review asked to remove
-     * (it was seven mentions before).
+     * Counting the word «ثمانية» alone would count the rule's *name* in the
+     * heading and in the term. What must not repeat is a statement of the rule
+     * itself, so only prose is measured — the definitions' meanings, the points
+     * and the ordered items — not titles or terms.
      */
-    expect(count(prose, /ثمانية/g), `«ثمانية» appears ${count(prose, /ثمانية/g)} times`).toBeLessThanOrEqual(4)
-    expect(count(prose, /ثمانية/g)).toBeGreaterThanOrEqual(1)
+    const prose = [
+      ...(octet.definitions ?? []).map((definition) => definition.text),
+      ...(octet.points ?? []),
+      ...(octet.ordered ?? []),
+      ...(octet.notes ?? []).map((note) => note.text),
+    ].join(' ')
+
+    // The printed sentence mentions «ثمانية» twice, so two is the floor for
+    // faithful quotation. A third would be a restatement.
+    expect(count(prose, /ثمانية/g), `the rule is restated: «ثمانية» appears ${count(prose, /ثمانية/g)} times in prose`).toBeLessThanOrEqual(2)
     // The hydrogen exception must survive — it is in the printed rule.
     expect(prose).toContain('عدا الهيدروجين')
+  })
+
+  it('quotes the printed sentence once instead of turning it into a definition', () => {
+    const sections = lesson1StudentNotebook.sections
+    const sentence = 'فتكتسب أو تفقد الإلكترونات وهذا ما يسمى النشاط الكيميائي'
+
+    // The lesson prints no standalone definition of the term, so the notebook
+    // must not manufacture one: the term may not appear as a definition entry.
+    const standalone = sections.flatMap((section) =>
+      (section.definitions ?? []).map((definition) => definition.term),
+    )
+    expect(standalone, 'the active-activity term became a standalone definition').not.toContain('النشاط الكيميائي')
+
+    // The printed sentence itself appears exactly once in the student-facing text.
+    const prose = sections.flatMap((section) => [
+      section.title,
+      section.lead ?? '',
+      ...(section.definitions ?? []).flatMap((definition) => [definition.term, definition.text]),
+      ...(section.points ?? []),
+      ...(section.ordered ?? []),
+      ...(section.notes ?? []).map((note) => note.text),
+    ])
+    const occurrences = prose.filter((text) => normalise(text).includes(normalise(sentence)))
+    expect(occurrences, `the printed sentence appears ${occurrences.length} times`).toHaveLength(1)
+
+    // …and it is quoted, with the printed-page label, not paraphrased.
+    const octet = sections.find((section) => section.id === 'octet')!
+    const rule = octet.definitions!.find((definition) => definition.term.includes('قاعدة الثمانية'))!
+    expect(rule.text).toContain(sentence)
+    expect(rule.source).toMatch(/نص الكتاب/)
   })
 
   it('states the rule in exactly one place across the whole notebook', () => {
