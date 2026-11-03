@@ -4,6 +4,7 @@ import { bookActivitySolutions, bookQuestions } from './chemistryLesson1Book'
 import { lesson1PracticeQuestions } from './chemistryLesson1Practice'
 import { lesson1FinalTest } from './chemistryLesson1Test'
 import { lesson1TeacherGuide } from './chemistryLesson1TeacherGuide'
+import { lesson1StudentNotebook } from './chemistryLesson1Notebook'
 
 /* ============================================================================
    Lesson 1 — «الذرّة والعنصر» — pages 3–12
@@ -1314,5 +1315,6 @@ export const chemistryLesson1: LessonDefinition = {
   summary:
     'بنية الذرة ونماذجها (طومسون ورذرفورد وبور)، السويات الرئيسية وقانون السعة، التوزيع الإلكتروني، العدد الذري والكتلي، قاعدة الثمانية، الأيونات، تمثيل لويس، والنظائر.',
   steps,
+  studentNotebook: lesson1StudentNotebook,
   tests: [bookAssessment, practiceAssessment, finalTest],
 }

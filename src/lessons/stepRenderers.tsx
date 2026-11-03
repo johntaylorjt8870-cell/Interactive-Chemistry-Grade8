@@ -7,6 +7,13 @@ import { PlatformAddition, ScientificNotationText } from '@/scientific'
 export type StepRendererProps = {
   step: LessonStep
   meta: StepKindMeta
+  /**
+   * Keeps the step in the DOM but out of view — used while the lesson's
+   * notebook tab is open, so answers and lab state inside the step survive the
+   * round trip. The step element itself is hidden (no wrapper is added), which
+   * keeps the content region's first child a step.
+   */
+  hidden?: boolean
   renderQuestion?: (questionId: string, options?: { reveal?: boolean }) => ReactNode
   renderDiagram?: (diagramId: string, description: string) => ReactNode
   /** Rendered for `final-test` steps once a test definition exists. */
@@ -17,9 +24,9 @@ export type StepRendererProps = {
    Frame
    ------------------------------------------------------------------------ */
 
-function StepFrame({ step, meta, children }: StepRendererProps & { children: ReactNode }) {
+function StepFrame({ step, meta, hidden, children }: StepRendererProps & { children: ReactNode }) {
   return (
-    <article className="step" data-step={step.id} data-step-kind={step.kind} data-tone={meta.tone}>
+    <article className="step" data-step={step.id} data-step-kind={step.kind} data-tone={meta.tone} hidden={hidden}>
       <header className="step__header">
         <span className="step__kind" data-tone={meta.tone}>
           <meta.icon size={17} />

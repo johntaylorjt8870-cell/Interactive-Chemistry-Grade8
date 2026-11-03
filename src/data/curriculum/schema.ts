@@ -209,6 +209,103 @@ export type LessonStep = {
   minutes?: number
 }
 
+/* ---------------------------------------------------------------------------
+ * Student notebook (دفتر الطالب)
+ * ------------------------------------------------------------------------ */
+
+/**
+ * One sentence a student is expected to write down.
+ *
+ * `text` is the sentence itself. `notation` marks a sentence whose core is a
+ * symbol, a formula or an operation (not a prose definition): it is rendered as
+ * structured notation instead of being left to bidi reordering inside RTL
+ * prose. Nothing is generated: every entry is authored from the lesson.
+ */
+export type NotebookNote = {
+  text: string
+  notation?: 'nuclide' | 'formula' | 'ion' | 'configuration' | 'math'
+  /** TeX for `notation: 'math'`, e.g. `y = 2(n)^2`. */
+  tex?: string
+}
+
+/** A complete scientific definition, kept in one block, never shortened. */
+export type NotebookDefinition = {
+  term: string
+  /** The full meaning, as it must be written in the notebook. */
+  text: string
+  /** Where the lesson states it, e.g. `ص4` or `ص11 — «تعلّمُ»`. */
+  source: string
+  /**
+   * For a definition the platform composes rather than quotes: the exact
+   * lesson sentences each clause rests on, verbatim. Tests require every one of
+   * them to exist in the lesson and to carry every scientific term the
+   * definition uses, so no clause can be unsourced.
+   */
+  anchors?: string[]
+  /**
+   * The composed definition, split into the claims it makes, each bound to the
+   * verbatim lesson sentence that supports it. This is what makes a composed
+   * definition falsifiable: a claim whose text is not a contiguous part of its
+   * own source fails, so the *relationship itself* is checked rather than the
+   * mere presence of its words.
+   */
+  claims?: Array<{ claim: string; source: string }>
+}
+
+export type NotebookTable = {
+  caption: string
+  columns: Array<{ key: string; header: string; rowHeader?: boolean }>
+  rows: Array<{ id: string; cells: Record<string, string> }>
+  footnote?: string
+}
+
+/** A step-by-step method the student must be able to apply. */
+export type NotebookProcedure = {
+  title: string
+  steps: string[]
+}
+
+export type NotebookSection = {
+  id: string
+  /** Section heading, taken from the topic the lesson actually teaches. */
+  title: string
+  /** One short line: what this part of the notebook covers. */
+  lead?: string
+  /**
+   * Optional provenance line shown under `lead`, for the rare section whose
+   * content is added by the platform instead of quoted from the book.
+   *
+   * It exists so that an addition can say so *to the student*, visibly — the
+   * notebook may not pass a platform sentence off as printed text. A section
+   * whose content is printed must leave this unset, and a test enforces that.
+   */
+  source?: string
+  definitions?: NotebookDefinition[]
+  /** Bulleted facts, rules and classifications to keep. */
+  points?: string[]
+  /** Ordered rule that must be applied in this order. */
+  ordered?: string[]
+  notes?: NotebookNote[]
+  table?: NotebookTable
+  procedure?: NotebookProcedure
+}
+
+export type StudentNotebook = {
+  /** Notebook title shown as the page heading. */
+  title: string
+  /** One line under the title: what the notebook is and is not. */
+  introduction: string
+  /** Page range the notebook is drawn from. */
+  source: SourceReference
+  sections: NotebookSection[]
+  /**
+   * Revision checklist of what the student must be able to *do* with the notes.
+   * It is deliberately not part of the notebook page: it is not material to
+   * copy, so it is rendered as a separate card beside the notebook.
+   */
+  checklist?: { title: string; items: string[] }
+}
+
 export type LessonDefinition = {
   id: string
   slug: string
@@ -219,6 +316,11 @@ export type LessonDefinition = {
   /** Short statement of what the lesson covers, taken from the book. */
   summary?: string
   steps: LessonStep[]
+  /**
+   * Optional student notebook (دفتر الطالب) for this lesson. When present it is
+   * shown as the last tab of the lesson, after the last teaching step.
+   */
+  studentNotebook?: StudentNotebook
   /** Comprehensive tests attached to the lesson (normally one). */
   tests?: FinalTest[]
 }

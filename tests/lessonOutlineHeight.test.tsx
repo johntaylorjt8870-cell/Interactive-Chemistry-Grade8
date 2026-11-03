@@ -148,8 +148,11 @@ describe('lesson outline height — the list owns the viewport', () => {
     const nav = within(railElement).getByRole('navigation', { name: 'خطوات الدرس' })
 
     // Every step is in the scrollport: the rail shows more of them at once, and
-    // the rest is reached by scrolling the list itself.
-    expect(within(nav).getAllByRole('button')).toHaveLength(chemistryLesson1.steps.length)
+    // the rest is reached by scrolling the list itself. Lesson 1 adds its
+    // «دفتر الطالب» tab after the last step, inside the same list.
+    const buttons = within(nav).getAllByRole('button')
+    expect(buttons).toHaveLength(chemistryLesson1.steps.length + 1)
+    expect(buttons.at(-1)).toHaveAttribute('data-tab', 'notebook')
     expect(nav.closest('.lesson-rail__outline')).not.toBeNull()
 
     // The list is the last block of the rail, so nothing below it steals height.

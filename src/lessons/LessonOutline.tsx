@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { ScientificNotationText } from '@/scientific'
+import { NotebookGlyph } from '@/components/Icons'
 import { STEP_KIND_META } from './stepKinds'
 import type { LessonDefinition } from '@/data/curriculum/schema'
 
@@ -10,6 +11,12 @@ export type LessonOutlineProps = {
   seenStepIds?: string[]
   /** `sidebar` is the desktop outline; `drawer` is used inside the mobile drawer. */
   variant?: 'sidebar' | 'drawer'
+  /**
+   * Final tab of the lesson («📒 دفتر الطالب»). It is rendered after the last
+   * step, in the same list, because it belongs to the lesson's own navigation —
+   * not to its counted steps.
+   */
+  notebook?: { title: string; open: boolean; onSelect: () => void }
 }
 
 /**
@@ -24,6 +31,7 @@ export function LessonOutline({
   onSelect,
   seenStepIds = [],
   variant = 'sidebar',
+  notebook,
 }: LessonOutlineProps) {
   const seen = new Set(seenStepIds)
   const currentRef = useRef<HTMLButtonElement>(null)
@@ -86,6 +94,33 @@ export function LessonOutline({
             </li>
           )
         })}
+        {notebook ? (
+          <li className="lesson-outline__item lesson-outline__item--notebook">
+            <button
+              type="button"
+              className="lesson-outline__button lesson-outline__button--notebook"
+              data-current={notebook.open ? 'true' : undefined}
+              data-tab="notebook"
+              aria-current={notebook.open ? 'page' : undefined}
+              onClick={notebook.onSelect}
+            >
+              <span className="lesson-outline__index" aria-hidden="true">
+                <NotebookGlyph size={16} />
+              </span>
+              <span className="lesson-outline__text">
+                <span className="lesson-outline__title">
+                  <span>{notebook.title}</span>
+                </span>
+                <span className="lesson-outline__meta">
+                  <span className="lesson-outline__kind">دفتر الطالب</span>
+                  <span className="lesson-outline__status">
+                    {notebook.open ? 'مفتوح' : 'آخر تبويب'}
+                  </span>
+                </span>
+              </span>
+            </button>
+          </li>
+        ) : null}
       </ol>
     </nav>
   )

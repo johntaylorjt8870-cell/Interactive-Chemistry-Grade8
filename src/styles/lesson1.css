@@ -1,0 +1,386 @@
+/* ============================================================================
+   «📒 دفتر الطالب» — Lesson 1 «الذرّة والعنصر» only.
+   ----------------------------------------------------------------------------
+   Follows the per-lesson convention of this repository (lesson2.css …
+   lesson7.css): every rule is scoped to the lesson that owns the notebook
+   (`data-lesson-id='chem-u1-l1'`), so no other lesson changes appearance.
+
+   Design intent: a page a student can read and copy, not a dashboard.
+   One surface, one accent, calm definition blocks, real lists, one data
+   table. Everything is plain selectable text; nothing is hidden behind an
+   interaction. Colours come from the shared tokens only.
+   ========================================================================= */
+
+/* --- The notebook tab in the lesson outline ------------------------------ */
+
+.lesson-shell .lesson-outline__button--notebook {
+  border-style: dashed;
+}
+
+.lesson-shell .lesson-outline__button--notebook .lesson-outline__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lesson-shell .lesson-outline__button--notebook[data-current='true'] {
+  border-style: solid;
+}
+
+/* --- The notebook page --------------------------------------------------- */
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook {
+  --notebook-rule: var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: clamp(var(--space-4), 3vw, var(--space-8));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  /* A notebook page is written from the right in Arabic; nothing here changes
+     the direction of the surrounding interface. */
+  direction: rtl;
+  text-align: start;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block-end: var(--space-5);
+  border-block-end: 2px solid var(--border-hairline);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__title {
+  margin: 0;
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-tight);
+  color: var(--text-strong);
+  font-weight: var(--fw-bold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__intro {
+  margin: 0;
+  font-size: var(--fs-md);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+  max-inline-size: 68ch;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-block-end: var(--space-6);
+  border-block-end: 1px solid var(--notebook-rule);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__section:last-of-type {
+  border-block-end: 0;
+  padding-block-end: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: var(--fs-xl);
+  line-height: var(--lh-snug);
+  color: var(--text-strong);
+  font-weight: var(--fw-semibold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__section-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.9rem;
+  block-size: 1.9rem;
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__lead {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+}
+
+/* --- Definitions -------------------------------------------------------- */
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__definitions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__definition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__term {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--text-strong);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__source {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-regular);
+  color: var(--text-muted);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__source::before {
+  content: '— ';
+}
+
+/*
+ * Provenance line for a section whose content the platform added rather than
+ * quoted (currently one section). It is deliberately quiet — small, muted and
+ * bordered — so it reads as a note on the material, not as more material to
+ * copy into the notebook.
+ */
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__section-source {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  border-inline-start: 2px solid var(--border-soft);
+  padding-inline-start: var(--space-2);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__meaning {
+  margin: 0;
+  font-size: var(--fs-md);
+  line-height: var(--lh-relaxed);
+  color: var(--text-primary);
+}
+
+/* --- Lists: facts, rules, ordered methods -------------------------------- */
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__list,
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: var(--space-6);
+  font-size: var(--fs-md);
+  line-height: var(--lh-relaxed);
+  color: var(--text-primary);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__list > li,
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__notes > li {
+  padding-inline-start: var(--space-1);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__list > li::marker {
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__notes {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__notes > li {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__notation-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__formula {
+  margin: 0;
+  padding-block: var(--space-1);
+}
+
+/* --- The method block --------------------------------------------------- */
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__procedure {
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__procedure-title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text-strong);
+}
+
+/* --- Navigation row that carries «📒 دفتر الطالب» beside «إنهاء الدرس» -- */
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .lesson-nav__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .lesson-shell[data-lesson-id='chem-u1-l1'] .lesson-nav__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
+/* --- Data table --------------------------------------------------------- */
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table-wrap {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  border: 1px solid var(--table-border, var(--border-soft));
+  border-radius: var(--radius-md);
+  background: var(--table-bg, var(--surface-base));
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table {
+  inline-size: 100%;
+  min-inline-size: 32rem;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+  color: var(--table-body-text, var(--text-primary));
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table-caption {
+  padding: var(--space-3) var(--space-4);
+  text-align: start;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table th,
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table td {
+  padding: var(--space-2) var(--space-3);
+  border-block-start: 1px solid var(--table-border, var(--border-hairline));
+  text-align: start;
+  vertical-align: top;
+  line-height: var(--lh-normal);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table thead th {
+  background: var(--table-header-bg, var(--surface-sunken));
+  color: var(--table-header-text, var(--text-strong));
+  font-weight: var(--fw-semibold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table tbody th {
+  font-weight: var(--fw-semibold);
+  color: var(--table-body-text, var(--text-strong));
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table-footnote {
+  margin: 0;
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+}
+
+/* --- Revision card: questions, explicitly not notebook material ---------- */
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook-revision {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-block-start: var(--space-6);
+  padding: var(--space-5);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  direction: rtl;
+  text-align: start;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook-revision__label {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook-revision__title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  line-height: var(--lh-snug);
+  font-weight: var(--fw-semibold);
+  color: var(--text-strong);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook-revision__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: var(--space-6);
+  font-size: var(--fs-md);
+  line-height: var(--lh-relaxed);
+  color: var(--text-primary);
+}
+
+/* --- Narrow screens ----------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook {
+    padding: var(--space-4);
+    gap: var(--space-6);
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__title {
+    font-size: var(--fs-xl);
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__definition {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__list,
+  .lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__notes {
+    padding-inline-start: var(--space-4);
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__table {
+    min-inline-size: 26rem;
+  }
+}

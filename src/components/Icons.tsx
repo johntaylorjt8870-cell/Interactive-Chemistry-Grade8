@@ -262,3 +262,14 @@ export function CompareGlyph({ size = 18, ...rest }: IconProps) {
     </Icon>
   )
 }
+
+/** Notebook with a pen — the student notebook tab. */
+export function NotebookGlyph({ size = 18, ...rest }: IconProps) {
+  return (
+    <Icon size={size} {...rest}>
+      <path d="M5 4.6A1.6 1.6 0 0 1 6.6 3H17a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6.6A1.6 1.6 0 0 1 5 19.4z" />
+      <path d="M8.4 3v18M5 7h3.4M5 17h3.4" />
+      <path d="M11.6 15.6l3.9-3.9 1.6 1.6-3.9 3.9-2 .4z" />
+    </Icon>
+  )
+}
