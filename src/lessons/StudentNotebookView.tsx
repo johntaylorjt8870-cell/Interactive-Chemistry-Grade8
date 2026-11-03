@@ -104,6 +104,13 @@ function NotebookSectionView({ section, index }: { section: NotebookSection; ind
         </p>
       ) : null}
 
+      {section.source ? (
+        <p className="student-notebook__section-source">
+          {/* Arabic prose, so it takes the same RTL-safe path as a lead. */}
+          <ScientificNotationText as="span">{section.source}</ScientificNotationText>
+        </p>
+      ) : null}
+
       {section.definitions?.length ? (
         <dl className="student-notebook__definitions">
           {section.definitions.map((definition) => (

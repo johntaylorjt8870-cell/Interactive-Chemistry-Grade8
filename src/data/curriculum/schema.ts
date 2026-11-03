@@ -271,6 +271,15 @@ export type NotebookSection = {
   title: string
   /** One short line: what this part of the notebook covers. */
   lead?: string
+  /**
+   * Optional provenance line shown under `lead`, for the rare section whose
+   * content is added by the platform instead of quoted from the book.
+   *
+   * It exists so that an addition can say so *to the student*, visibly — the
+   * notebook may not pass a platform sentence off as printed text. A section
+   * whose content is printed must leave this unset, and a test enforces that.
+   */
+  source?: string
   definitions?: NotebookDefinition[]
   /** Bulleted facts, rules and classifications to keep. */
   points?: string[]

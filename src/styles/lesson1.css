@@ -162,6 +162,20 @@
   content: '— ';
 }
 
+/*
+ * Provenance line for a section whose content the platform added rather than
+ * quoted (currently one section). It is deliberately quiet — small, muted and
+ * bordered — so it reads as a note on the material, not as more material to
+ * copy into the notebook.
+ */
+.lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__section-source {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  border-inline-start: 2px solid var(--border-soft);
+  padding-inline-start: var(--space-2);
+}
+
 .lesson-shell[data-lesson-id='chem-u1-l1'] .student-notebook__meaning {
   margin: 0;
   font-size: var(--fs-md);

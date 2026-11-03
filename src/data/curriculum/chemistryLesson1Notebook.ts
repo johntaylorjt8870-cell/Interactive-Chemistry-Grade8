@@ -144,12 +144,13 @@ export const lesson1StudentNotebook: StudentNotebook = {
       title: 'العدد الذري والعدد الكتلي والترميز النووي',
       lead: 'قراءة رمز النواة',
       /**
-       * The book prints the symbol ²⁰₁₀Ne and asks for A, for Z, for the number
-       * of electrons and for the distribution — but it prints no definition of
-       * either number. On the reviewer's instruction the two definitions and
-       * the A − Z relation were removed; what remains is the single line that
-       * makes the printed symbol readable at all.
+       * The only line in the notebook that the book does not print. The book
+       * prints the symbol ²⁰₁₀Ne and asks for A, for Z, for the number of
+       * electrons and for the distribution, but names neither number — so
+       * without this line the printed symbol has no key. It is labelled to the
+       * student on the same page, not only here.
        */
+      source: 'توضيح ضروري من المنصة — ليس نصاً من الكتاب',
       points: ['في رمز النواة يُكتب العدد الكتلي A في الأعلى والعدد الذري Z في الأسفل.'],
     },
     {

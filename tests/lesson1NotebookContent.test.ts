@@ -5,6 +5,9 @@ import { bookActivitySolutions, bookQuestions } from '@/data/curriculum/chemistr
 import { lesson1PracticeQuestions } from '@/data/curriculum/chemistryLesson1Practice'
 import { lesson1StudentNotebook } from '@/data/curriculum/chemistryLesson1Notebook'
 import { getLesson } from '@/data/curriculum/registry'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { StudentNotebookView } from '@/lessons/StudentNotebookView'
 
 /**
  * «📒 دفتر الطالب» — source integrity.
@@ -763,5 +766,66 @@ describe('student notebook — scope', () => {
     expect(registered?.studentNotebook?.source.pages.map((page) => page.page)).toEqual([
       '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
     ])
+  })
+})
+
+describe('student notebook — platform additions are labelled to the student', () => {
+  it('marks the single platform line, and nothing else', () => {
+    /**
+     * After the final review the notebook has exactly one statement the book
+     * does not print: the key to reading a nuclear symbol. It may stay only if
+     * the page says so where the student reads it — not merely in this file's
+     * comments. Every other section must stay unmarked, and any new marker
+     * would mean a second platform addition appeared.
+     */
+    const marked = lesson1StudentNotebook.sections.filter((section) => section.source)
+    expect(marked.map((section) => section.id), 'an unlabelled platform addition appeared').toEqual([
+      'atomic-numbers',
+    ])
+
+    const atomic = marked[0]!
+    expect(atomic.source).toBe('توضيح ضروري من المنصة — ليس نصاً من الكتاب')
+
+    // The printed sections must carry no label at all, so their appearance and
+    // their content are untouched.
+    for (const section of lesson1StudentNotebook.sections) {
+      if (section.id === 'atomic-numbers') continue
+      expect(section.source, `${section.id} is printed but carries a platform label`).toBeUndefined()
+    }
+
+    // The label is not part of the prose the student copies: it must not be
+    // counted as a notebook statement, and it may not enter the word budget.
+    const label = normalise(atomic.source!)
+    const prose = lesson1StudentNotebook.sections.flatMap((section) => [
+      ...(section.points ?? []),
+      ...(section.definitions ?? []).map((definition) => definition.text),
+      ...(section.ordered ?? []),
+    ])
+    expect(prose.map(normalise)).not.toContain(label)
+  })
+
+  it('shows the label in the rendered notebook, next to the line it belongs to', () => {
+    // `createElement`, not JSX: this file is `.ts` and must stay a plain
+    // data/document test.
+    const html = renderToStaticMarkup(
+      createElement(StudentNotebookView, { notebook: lesson1StudentNotebook }),
+    )
+    const labels = html.match(/student-notebook__section-source/g) ?? []
+    expect(labels, 'the platform label is not rendered exactly once').toHaveLength(1)
+
+    // …and it sits inside the section that holds the marked line.
+    const section = html.slice(html.indexOf('data-notebook-section="atomic-numbers"'))
+    const end = section.indexOf('</section>')
+    expect(section.slice(0, end)).toContain('student-notebook__section-source')
+    expect(section.slice(0, end)).toContain('توضيح ضروري من المنصة')
+
+    // No other rendered section carries it.
+    for (const other of lesson1StudentNotebook.sections) {
+      if (other.id === 'atomic-numbers') continue
+      const start = html.indexOf(`data-notebook-section="${other.id}"`)
+      if (start < 0) continue
+      const chunk = html.slice(start, html.indexOf('</section>', start))
+      expect(chunk, `${other.id} shows a platform label`).not.toContain('student-notebook__section-source')
+    }
   })
 })
