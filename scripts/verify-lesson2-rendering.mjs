@@ -16,7 +16,10 @@
  *   - no Unicode subscript/charge glyph leaks outside structured notation;
  *   - both interactions complete their real state transitions;
  *   - the final test exposes its question count;
- * and, in the real browser, axe reports no serious/critical violations.
+ *   - the student notebook is the last tab, renders all three Lewis figures,
+ *     keeps its notation and content at phone/desktop widths, and is captured;
+ * and, in the real browser, axe reports no serious/critical violations on
+ * both lesson steps and the notebook.
  */
 import http from 'node:http'
 import fs from 'node:fs'
@@ -459,6 +462,102 @@ try {
         check(`${viewport.name}: final test hides solutions before submission`, !leaked)
       }
     }
+
+    // The notebook is a final tab, not a teaching step. Visit it in the same
+    // real viewport and capture the actual responsive page (phone and desktop).
+    await page.goto(
+      `${origin}${LESSON_PATH}?notebook=${++visit}#step-${chemistryLesson2.steps.length}`,
+      { waitUntil: 'networkidle0' },
+    )
+    await page.waitForSelector('.step__title')
+    if (viewport.name === 'mobile') {
+      await page.click('.lesson-shell__outline-trigger')
+      await page.waitForSelector('[role="dialog"] [data-tab="notebook"]')
+    }
+    const outlineSelector = viewport.name === 'mobile'
+      ? '[role="dialog"] .lesson-outline'
+      : '.lesson-shell__rail .lesson-outline'
+    const placement = await page.$eval(outlineSelector, (nav) => {
+      const buttons = [...nav.querySelectorAll('button')]
+      return {
+        count: buttons.length,
+        lastTab: buttons.at(-1)?.getAttribute('data-tab') ?? null,
+        lastTitle: buttons.at(-1)?.textContent?.trim() ?? '',
+      }
+    })
+    check(
+      `${viewport.name}: notebook is the only tab after all 38 teaching steps`,
+      placement.count === chemistryLesson2.steps.length + 1 && placement.lastTab === 'notebook',
+      placement,
+    )
+    await page.click(
+      viewport.name === 'mobile'
+        ? '[role="dialog"] [data-tab="notebook"]'
+        : '.lesson-shell__rail [data-tab="notebook"]',
+    )
+    await page.waitForSelector('.student-notebook')
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+
+    const notebook = await page.evaluate(() => {
+      const article = document.querySelector('.student-notebook')
+      const root = document.documentElement
+      const figures = [...(article?.querySelectorAll('.student-notebook__lewis') ?? [])]
+      return {
+        title: article?.querySelector('.student-notebook__title')?.textContent?.trim() ?? '',
+        viewport: innerWidth,
+        documentWidth: root.scrollWidth,
+        sourceBadgeCount: article?.querySelectorAll('.student-notebook__section-source').length ?? 0,
+        sourceBadge: article?.querySelector('.student-notebook__section-source')?.textContent?.trim() ?? '',
+        definitionCount: article?.querySelectorAll('.student-notebook__definition').length ?? 0,
+        figures: figures.map((figure) => ({
+          molecule: figure.getAttribute('data-molecule'),
+          pairs: figure.querySelector('.lewis-mol__shared')?.getAttribute('data-shared-pairs'),
+          hasModel: Boolean(figure.querySelector('.bond-model')),
+          width: figure.getBoundingClientRect().width,
+          parentWidth: figure.parentElement?.getBoundingClientRect().width ?? null,
+        })),
+        formulae: [...(article?.querySelectorAll('.chem-formula') ?? [])].map((node) => node.getAttribute('data-formula')),
+        nuclearNotationCount: article?.querySelectorAll('.nuclear-notation').length ?? 0,
+        configurationCount: article?.querySelectorAll('.electron-configuration').length ?? 0,
+        invalidMath: article?.querySelectorAll('[data-math-error="true"]').length ?? 0,
+        sourceImages: article?.querySelectorAll('[data-source-image], .source-image').length ?? 0,
+        includesQuestionOrAnswer: /أختبر نفسي|اختر المختلف|الإجابة المرجعية|الحلّ النموذجي|أجب عن/.test(article?.textContent ?? ''),
+      }
+    })
+    check(`${viewport.name}: notebook heading renders`, /الروابط الكيميائية/.test(notebook.title), notebook.title)
+    check(`${viewport.name}: notebook retains the three printed definitions`, notebook.definitionCount === 3, notebook.definitionCount)
+    check(
+      `${viewport.name}: notebook has one visibly labelled platform line`,
+      notebook.sourceBadgeCount === 1 && notebook.sourceBadge === 'توضيح ضروري من المنصة — ليس نصاً من الكتاب',
+      { count: notebook.sourceBadgeCount, label: notebook.sourceBadge },
+    )
+    check(`${viewport.name}: notebook includes all three Lewis diagrams and ball-and-stick models`,
+      notebook.figures.length === 3 && notebook.figures.every((figure) => figure.hasModel), notebook.figures)
+    check(`${viewport.name}: Lewis figures stay inside their column`,
+      notebook.figures.every((figure) => !figure.parentWidth || figure.width <= figure.parentWidth + 1), notebook.figures)
+    check(`${viewport.name}: notebook uses structured formulae, nuclei and configurations`,
+      notebook.formulae.includes('H2O') && notebook.formulae.includes('NH3') && notebook.nuclearNotationCount === 7 && notebook.configurationCount === 4,
+      notebook)
+    check(`${viewport.name}: notebook contains no question, answer key or textbook scan`,
+      !notebook.includesQuestionOrAnswer && notebook.sourceImages === 0, notebook)
+    check(`${viewport.name}: notebook has no failed math rendering`, notebook.invalidMath === 0, notebook.invalidMath)
+    check(
+      `${viewport.name}: notebook has no horizontal page overflow`,
+      notebook.documentWidth <= notebook.viewport + 1,
+      { viewport: notebook.viewport, document: notebook.documentWidth },
+    )
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+    await page.screenshot({
+      path: path.join(OUT, `${viewport.name}-student-notebook.png`),
+      fullPage: true,
+    })
+    const lewisSection = await page.$('[data-notebook-section="lewis-examples"]')
+    if (lewisSection) {
+      await lewisSection.screenshot({
+        path: path.join(OUT, `${viewport.name}-student-notebook-lewis.png`),
+      })
+    }
   }
 
   // Real Chromium axe checks supplement the jsdom accessibility tests.
@@ -481,6 +580,23 @@ try {
     })
     check(`real-browser axe: step ${index + 1} has no serious/critical violations`, violations.length === 0, violations)
   }
+
+  await page.goto(`${origin}${LESSON_PATH}?a11yNotebook=${++visit}#student-notebook`, { waitUntil: 'networkidle0' })
+  await page.waitForSelector('.student-notebook')
+  await page.addScriptTag({ path: path.join(ROOT, 'node_modules/axe-core/axe.min.js') })
+  const notebookViolations = await page.evaluate(async () => {
+    const result = await window.axe.run(document.querySelector('#main-content') ?? document.body, {
+      rules: { region: { enabled: false } },
+    })
+    return result.violations
+      .filter((item) => ['serious', 'critical'].includes(item.impact))
+      .map((item) => ({
+        id: item.id,
+        impact: item.impact,
+        nodes: item.nodes.map((node) => ({ target: node.target, summary: node.failureSummary })),
+      }))
+  })
+  check('real-browser axe: student notebook has no serious/critical violations', notebookViolations.length === 0, notebookViolations)
 
   await page.close()
 } catch (error) {
