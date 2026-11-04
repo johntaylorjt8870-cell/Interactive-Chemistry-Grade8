@@ -7,8 +7,8 @@ import type { StudentNotebook } from './schema'
    complete «تعلّمُ» definitions, printed properties, electron-transfer data,
    the three printed diatomic Lewis examples, and the printed compound list.
    Questions, answers, worked solutions, and review prompts are deliberately
-   excluded. The formula-reading line is the single authorized platform note
-   and is visibly labelled where the student sees it.
+   excluded. The authorized platform notes are visibly labelled where the
+   student sees them.
 
    Source basis: the documented transcription and lesson-2 source ledger. The
    original page scans were not directly inspected for this notebook review;
@@ -50,6 +50,17 @@ export const chemistryLesson2StudentNotebook: StudentNotebook = {
         {
           text: 'الحرف اللاتيني الكبير (أو الكبير متبوعاً بصغير مثل Na وCl) يدلّ على نوع العنصر، والرقم الصغير السفلي على يمين الرمز يدلّ على عدد ذرّات ذلك العنصر وحده: ففي H₂O ذرّتا هيدروجين وذرّة أكسجين واحدة.',
         },
+      ],
+    },
+    {
+      id: 'metals-nonmetals-valence',
+      title: 'الفلزّات واللافلزّات وسلوك إلكترونات التكافؤ',
+      source: 'توضيح ضروري من المنصة — ليس نصاً من الكتاب',
+      points: [
+        'إلكترونات التكافؤ (إلكترونات السطح) هي إلكترونات السوية الخارجية الأخيرة في الذرّة، أي آخر رقم في التوزيع الإلكتروني، وهي التي تُفقد أو تُكتسب أو تُشارك عند تكوّن الرابطة.',
+        'الفلزّات الممثّلة في هذا الدرس، ومنها الصوديوم Na والكالسيوم Ca والألمنيوم Al، تحمل سويتها الأخيرة عدداً قليلاً من إلكترونات التكافؤ (1 أو 2 أو 3) فوق سوية داخلية مكتملة؛ وعند ارتباطها باللافلزّات تفقد إلكترونات تكافئها وتتحوّل إلى أيونات موجبة.',
+        'اللافلزّات في هذا الدرس، ومنها الكربون C والنيتروجين N والأكسجين O والكلور Cl، تحمل سويتها الأخيرة غالباً من 4 إلى 7 إلكترونات تكافؤ. أمّا الهيدروجين H فلا فلزّ رغم أن سطحه إلكترون واحد، وتكتمل سويته الأولى بإلكترونين، لذلك يميل إلى المشاركة.',
+        'عند لقاء فلزّ بلا فلزّ ينتقل إلكترون أو أكثر من الفلزّ إلى اللافلزّ، فيتكوّن أيون موجب وأيون سالب يتجاذبان في رابطة أيونية. أمّا عند لقاء لا فلزّين فتتشارك الذرّات زوجاً من الإلكترونات أو أكثر دون تكوّن أيونات، فتتكوّن رابطة مشتركة؛ ولهذا لا يصح القول إن اللافلزّ يكتسب دائماً، بل يتوقّف سلوكه على الذرّة المقابلة.',
       ],
     },
     {
