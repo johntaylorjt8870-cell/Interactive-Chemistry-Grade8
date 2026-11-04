@@ -12,6 +12,12 @@ import { renderApp, renderWithTheme } from './utils/renderApp'
 const LESSON_PATH = '/chemistry/structural-chemistry/chemical-bonds'
 const FORMULA_READING_NOTE =
   'الحرف اللاتيني الكبير (أو الكبير متبوعاً بصغير مثل Na وCl) يدلّ على نوع العنصر، والرقم الصغير السفلي على يمين الرمز يدلّ على عدد ذرّات ذلك العنصر وحده: ففي H₂O ذرّتا هيدروجين وذرّة أكسجين واحدة.'
+const METALS_NONMETALS_POINTS = [
+  'إلكترونات التكافؤ (إلكترونات السطح) هي إلكترونات السوية الخارجية الأخيرة في الذرّة، أي آخر رقم في التوزيع الإلكتروني، وهي التي تُفقد أو تُكتسب أو تُشارك عند تكوّن الرابطة.',
+  'الفلزّات الممثّلة في هذا الدرس، ومنها الصوديوم Na والكالسيوم Ca والألمنيوم Al، تحمل سويتها الأخيرة عدداً قليلاً من إلكترونات التكافؤ (1 أو 2 أو 3) فوق سوية داخلية مكتملة؛ وعند ارتباطها باللافلزّات تفقد إلكترونات تكافئها وتتحوّل إلى أيونات موجبة.',
+  'اللافلزّات في هذا الدرس، ومنها الكربون C والنيتروجين N والأكسجين O والكلور Cl، تحمل سويتها الأخيرة غالباً من 4 إلى 7 إلكترونات تكافؤ. أمّا الهيدروجين H فلا فلزّ رغم أن سطحه إلكترون واحد، وتكتمل سويته الأولى بإلكترونين، لذلك يميل إلى المشاركة.',
+  'عند لقاء فلزّ بلا فلزّ ينتقل إلكترون أو أكثر من الفلزّ إلى اللافلزّ، فيتكوّن أيون موجب وأيون سالب يتجاذبان في رابطة أيونية. أمّا عند لقاء لا فلزّين فتتشارك الذرّات زوجاً من الإلكترونات أو أكثر دون تكوّن أيونات، فتتكوّن رابطة مشتركة؛ ولهذا لا يصح القول إن اللافلزّ يكتسب دائماً، بل يتوقّف سلوكه على الذرّة المقابلة.',
+]
 
 beforeEach(() => {
   window.history.replaceState(null, '', '/')
@@ -94,12 +100,25 @@ describe('student notebook — Lesson 2 source and scope', () => {
     ])
   })
 
-  it('uses the one authorized platform addition verbatim and labels it visibly', () => {
+  it('uses the two authorized platform additions verbatim and labels them visibly', () => {
     const marked = chemistryLesson2StudentNotebook.sections.filter((section) => section.source)
-    expect(marked).toHaveLength(1)
-    expect(marked[0]?.id).toBe('formula-reading')
-    expect(marked[0]?.source).toBe('توضيح ضروري من المنصة — ليس نصاً من الكتاب')
+    expect(marked.map((section) => section.id)).toEqual(['formula-reading', 'metals-nonmetals-valence'])
+    for (const section of marked) {
+      expect(section.source).toBe('توضيح ضروري من المنصة — ليس نصاً من الكتاب')
+    }
     expect(marked[0]?.notes?.map((note) => note.text)).toEqual([FORMULA_READING_NOTE])
+    expect(marked[1]?.points).toEqual(METALS_NONMETALS_POINTS)
+
+    expect(chemistryLesson2StudentNotebook.sections.map((section) => section.id)).toEqual([
+      'keywords-and-symbols',
+      'formula-reading',
+      'metals-nonmetals-valence',
+      'ionic-transfer',
+      'lewis-examples',
+      'compound-properties',
+      'printed-compounds',
+      'learn-box-definitions',
+    ])
   })
 
   it('keeps the printed research examples and atomic numbers, but no questions, solutions or checklist', () => {
@@ -196,7 +215,12 @@ describe('student notebook — lesson integration', () => {
     const article = screen.getByRole('article', { name: /مادة الدفتر المدرسي/ })
     expect(within(article).getByRole('heading', { level: 3, name: /الروابط الكيميائية — مادة الدفتر المدرسي/ })).toBeInTheDocument()
     expect(within(article).getAllByRole('figure')).toHaveLength(3)
-    expect(within(article).getByText('توضيح ضروري من المنصة — ليس نصاً من الكتاب')).toBeInTheDocument()
+    expect(within(article).getAllByText('توضيح ضروري من المنصة — ليس نصاً من الكتاب')).toHaveLength(2)
+    expect(
+      within(article).getByRole('heading', { level: 4, name: 'الفلزّات واللافلزّات وسلوك إلكترونات التكافؤ' }),
+    ).toBeInTheDocument()
+    const foundation = article.querySelector<HTMLElement>('[data-notebook-section="metals-nonmetals-valence"]')!
+    expect(within(foundation).getAllByRole('listitem')).toHaveLength(4)
   })
 
   it('keeps a written answer when leaving a lesson step and returning from the notebook', async () => {
