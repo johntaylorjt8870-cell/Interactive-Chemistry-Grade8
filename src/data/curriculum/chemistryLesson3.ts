@@ -4,6 +4,7 @@ import { bookActivitySolutions, bookAssessment, bookQuestions } from './chemistr
 import { lesson3PracticeQuestions } from './chemistryLesson3Practice'
 import { lesson3FinalTest } from './chemistryLesson3Test'
 import { lesson3TeacherGuide } from './chemistryLesson3TeacherGuide'
+import { chemistryLesson3StudentNotebook } from './chemistryLesson3Notebook'
 
 /* ============================================================================
    الدرس الثالث — صيغةُ المركّباتِ الكيميائيَّةِ (الصفحات 18–23)
@@ -1185,6 +1186,7 @@ export const chemistryLesson3: LessonDefinition = {
   summary:
     'قراءة الصيغة الكيميائية، والتكافؤ الكيميائي في المركّبات ذات الروابط المشتركة والأيونية، وجدول التكافؤات، والجذور الكيميائية وتكافؤاتها، ومراحل كتابة الصيغ بالتعادل الكهربائي والتطبيقان المحلولان، وقاعدة القوس، وتسمية المركّبات.',
   steps,
+  studentNotebook: chemistryLesson3StudentNotebook,
   tests: [bookAssessment, practiceAssessment, finalTest],
 }
 

@@ -362,6 +362,97 @@ try {
         check(`${viewport.name}: final test hides solutions before submission`, !leaked)
       }
     }
+
+    // The notebook is a final tab, not a teaching step. Visit it in the same
+    // real viewport and capture the actual responsive page (phone and desktop).
+    await page.goto(
+      `${origin}${LESSON_PATH}?notebook=${++visit}#step-${chemistryLesson3.steps.length}`,
+      { waitUntil: 'networkidle0' },
+    )
+    await page.waitForSelector('.step__title')
+    if (viewport.name === 'mobile') {
+      await page.click('.lesson-shell__outline-trigger')
+      await page.waitForSelector('[role="dialog"] [data-tab="notebook"]')
+    }
+    const outlineSelector = viewport.name === 'mobile'
+      ? '[role="dialog"] .lesson-outline'
+      : '.lesson-shell__rail .lesson-outline'
+    const placement = await page.$eval(outlineSelector, (nav) => {
+      const buttons = [...nav.querySelectorAll('button')]
+      return {
+        count: buttons.length,
+        lastTab: buttons.at(-1)?.getAttribute('data-tab') ?? null,
+        lastTitle: buttons.at(-1)?.textContent?.trim() ?? '',
+      }
+    })
+    check(
+      `${viewport.name}: notebook is the only tab after all 32 teaching steps`,
+      placement.count === chemistryLesson3.steps.length + 1 && placement.lastTab === 'notebook',
+      placement,
+    )
+    await page.click(
+      viewport.name === 'mobile'
+        ? '[role="dialog"] [data-tab="notebook"]'
+        : '.lesson-shell__rail [data-tab="notebook"]',
+    )
+    await page.waitForSelector('.student-notebook')
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+
+    const notebook = await page.evaluate(() => {
+      const article = document.querySelector('.student-notebook')
+      const root = document.documentElement
+      return {
+        title: article?.querySelector('.student-notebook__title')?.textContent?.trim() ?? '',
+        viewport: innerWidth,
+        documentWidth: root.scrollWidth,
+        sectionCount: article?.querySelectorAll('[data-notebook-section]').length ?? 0,
+        sourceBadgeCount: article?.querySelectorAll('.student-notebook__section-source').length ?? 0,
+        sourceBadges: [...(article?.querySelectorAll('.student-notebook__section-source') ?? [])].map((el) =>
+          el.textContent?.trim() ?? '',
+        ),
+        definitionCount: article?.querySelectorAll('.student-notebook__definition').length ?? 0,
+        tableCount: article?.querySelectorAll('.student-notebook__table').length ?? 0,
+        procedureCount: article?.querySelectorAll('.student-notebook__procedure').length ?? 0,
+        formulae: [...(article?.querySelectorAll('.chem-formula') ?? [])].map((node) => node.getAttribute('data-formula')),
+        ionCount: article?.querySelectorAll('.ion-notation').length ?? 0,
+        invalidMath: article?.querySelectorAll('[data-math-error="true"]').length ?? 0,
+        sourceImages: article?.querySelectorAll('[data-source-image], .source-image').length ?? 0,
+        includesQuestionOrAnswer: /أختبر نفسي|اختر الإجابة|الإجابة المرجعية|الحلّ النموذجي/.test(article?.textContent ?? ''),
+      }
+    })
+    check(`${viewport.name}: notebook heading renders`, /صيغ المركّبات الكيميائيّة/.test(notebook.title), notebook.title)
+    check(`${viewport.name}: notebook renders all 10 sections`, notebook.sectionCount === 10, notebook.sectionCount)
+    check(`${viewport.name}: notebook retains the 6 printed definitions`, notebook.definitionCount === 6, notebook.definitionCount)
+    check(`${viewport.name}: notebook renders the 5 reference tables and 1 procedure box`,
+      notebook.tableCount === 5 && notebook.procedureCount === 1,
+      { tables: notebook.tableCount, procedures: notebook.procedureCount })
+    check(
+      `${viewport.name}: notebook has three visibly labelled platform clarification lines`,
+      notebook.sourceBadgeCount === 3 &&
+        notebook.sourceBadges.every((badge) => badge === 'توضيح ضروري من المنصة — ليس نصاً من الكتاب'),
+      { count: notebook.sourceBadgeCount, labels: notebook.sourceBadges },
+    )
+    check(`${viewport.name}: notebook uses structured formulae and ions`,
+      notebook.formulae.includes('H2O') &&
+        notebook.formulae.includes('NH3') &&
+        notebook.formulae.includes('CH4') &&
+        notebook.formulae.includes('Al2(SO4)3') &&
+        notebook.ionCount >= 30,
+      { formulaSample: notebook.formulae.slice(0, 10), ionCount: notebook.ionCount })
+    check(`${viewport.name}: notebook contains no question, answer key or textbook scan`,
+      !notebook.includesQuestionOrAnswer && notebook.sourceImages === 0, notebook)
+    check(`${viewport.name}: notebook has no failed math rendering`, notebook.invalidMath === 0, notebook.invalidMath)
+    check(
+      `${viewport.name}: notebook has no horizontal page overflow`,
+      notebook.documentWidth <= notebook.viewport + 1,
+      { viewport: notebook.viewport, document: notebook.documentWidth },
+    )
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+    await page.screenshot({
+      path: path.join(OUT, `${viewport.name}-student-notebook.png`),
+      fullPage: true,
+    })
   }
 
   await page.setViewport({ width: 1365, height: 960, deviceScaleFactor: 1 })
@@ -383,6 +474,23 @@ try {
     })
     check(`real-browser axe: step ${index + 1} has no serious/critical violations`, violations.length === 0, violations)
   }
+
+  await page.goto(`${origin}${LESSON_PATH}?a11yNotebook=${++visit}#student-notebook`, { waitUntil: 'networkidle0' })
+  await page.waitForSelector('.student-notebook')
+  await page.addScriptTag({ path: path.join(ROOT, 'node_modules/axe-core/axe.min.js') })
+  const notebookViolations = await page.evaluate(async () => {
+    const result = await window.axe.run(document.querySelector('#main-content') ?? document.body, {
+      rules: { region: { enabled: false } },
+    })
+    return result.violations
+      .filter((item) => ['serious', 'critical'].includes(item.impact))
+      .map((item) => ({
+        id: item.id,
+        impact: item.impact,
+        nodes: item.nodes.map((node) => ({ target: node.target, summary: node.failureSummary })),
+      }))
+  })
+  check('real-browser axe: student notebook has no serious/critical violations', notebookViolations.length === 0, notebookViolations)
 
   await page.close()
 } catch (error) {

@@ -63,3 +63,286 @@
 .lesson-shell[data-lesson-id='chem-u1-l3'] .lab {
   padding: clamp(var(--space-4), 3vw, var(--space-6));
 }
+
+/* --- Student notebook: scoped to Lesson 3 (`data-lesson-id='chem-u1-l3'`) -- */
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  padding: clamp(var(--space-4), 3vw, var(--space-8));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  direction: rtl;
+  text-align: start;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block-end: var(--space-5);
+  border-block-end: 2px solid var(--border-hairline);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__title {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__intro {
+  max-inline-size: 68ch;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+  line-height: var(--lh-relaxed);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-inline-size: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-inline-size: 0;
+  padding-block-end: var(--space-5);
+  border-block-end: 1px solid var(--border-soft);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__section:last-of-type {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--text-strong);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__section-index {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.9rem;
+  block-size: 1.9rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-semibold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__definitions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__definition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-inline-start: 3px solid var(--palette-chem-700);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__term {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  color: var(--text-strong);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__source {
+  color: var(--text-secondary);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-regular);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__source::before {
+  content: '— ';
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__meaning,
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__list,
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__notes {
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  line-height: var(--lh-relaxed);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__meaning {
+  margin: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__list,
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  margin: 0;
+  padding-inline-start: var(--space-6);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__list > li,
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__notes > li {
+  padding-inline-start: var(--space-1);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__list > li::marker {
+  color: var(--palette-chem-700);
+  font-weight: var(--fw-semibold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__notes {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__notes > li {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__section-source {
+  margin: 0;
+  padding-inline-start: var(--space-3);
+  border-inline-start: 3px solid var(--palette-chem-700);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-relaxed);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__procedure {
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__procedure-title {
+  margin: 0 0 var(--space-3);
+  color: var(--text-strong);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .lesson-nav__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table-wrap {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table {
+  inline-size: 100%;
+  min-inline-size: 34rem;
+  border-collapse: collapse;
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table-caption {
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-align: start;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table th,
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table td {
+  padding: var(--space-3);
+  border-block-start: 1px solid var(--border-hairline);
+  line-height: var(--lh-relaxed);
+  text-align: start;
+  vertical-align: top;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table thead th {
+  background: var(--surface-sunken);
+  color: var(--text-strong);
+  font-weight: var(--fw-semibold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table tbody th {
+  color: var(--text-strong);
+  font-weight: var(--fw-semibold);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table-footnote {
+  margin: 0;
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-normal);
+}
+
+@media (max-width: 640px) {
+  .lesson-shell[data-lesson-id='chem-u1-l3'] .lesson-nav__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook {
+    gap: var(--space-5);
+    padding: var(--space-4);
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__title {
+    font-size: var(--fs-xl);
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__definition {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__list {
+    padding-inline-start: var(--space-4);
+  }
+
+  .lesson-shell[data-lesson-id='chem-u1-l3'] .student-notebook__table {
+    min-inline-size: 30rem;
+  }
+}
