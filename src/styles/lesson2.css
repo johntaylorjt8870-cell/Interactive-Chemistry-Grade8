@@ -1216,3 +1216,74 @@
   .l2-spotter-lab__item { padding: var(--space-3); }
   .l2-choice { font-size: var(--fs-xs); }
 }
+
+/* Independent board supplement: only Lesson 2 opts into this surface. */
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra {
+  display: grid;
+  gap: var(--space-6);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  padding: clamp(var(--space-4), 3vw, var(--space-8));
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  direction: rtl;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__header,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__board,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__board > section,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__clarification {
+  display: grid;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra h2,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra h3,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra h4 {
+  margin: 0;
+  color: var(--text-strong);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__source {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: var(--lh-relaxed);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__clarification {
+  padding-block-start: var(--space-5);
+  border-block-start: 2px solid var(--border-soft);
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra .content-blocks,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra .sci-table-wrapper {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra .sci-table-wrapper {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__references {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__references p {
+  flex-basis: 100%;
+}
+
+.lesson-shell[data-lesson-id='chem-u1-l2'] .lesson-extra__references .button {
+  max-inline-size: 100%;
+  white-space: normal;
+  text-align: start;
+}

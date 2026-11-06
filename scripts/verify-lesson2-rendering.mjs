@@ -463,6 +463,64 @@ try {
       }
     }
 
+    // The supplement must not increment progress or replace the teaching step.
+    await page.goto(`${origin}${LESSON_PATH}?extra=${++visit}#step-3`, { waitUntil: 'networkidle0' })
+    await page.waitForSelector('.step__title')
+    const extraBefore = await page.evaluate(() => ({
+      progress: localStorage.getItem('ipc:progress'),
+      step: document.querySelector('.step')?.getAttribute('data-step'),
+    }))
+    if (viewport.name === 'mobile') await page.click('.lesson-shell__outline-trigger')
+    await page.click(viewport.name === 'mobile'
+      ? '[role="dialog"] [data-tab="extra"]'
+      : '.lesson-shell__rail [data-tab="extra"]')
+    await page.waitForSelector('.lesson-extra')
+    await page.evaluate(() => document.fonts.ready)
+    const extraView = await page.evaluate(() => {
+      const article = document.querySelector('.lesson-extra')
+      const source = article.querySelector('[data-extra-source="board"]')
+      const tables = [...source.querySelectorAll('table')]
+      return {
+        hash: location.hash,
+        progress: localStorage.getItem('ipc:progress'),
+        stepHidden: document.querySelector('.step')?.hidden,
+        step: document.querySelector('.step')?.getAttribute('data-step'),
+        direction: getComputedStyle(article).direction,
+        rows: tables.map((table) => table.querySelectorAll('tbody tr').length),
+        symbols: [...source.querySelectorAll('[data-column="symbol"]')]
+          .filter((cell) => cell.tagName === 'TD')
+          .map((cell) => ({ text: cell.textContent.trim(), ltr: Boolean(cell.querySelector('[dir="ltr"]')) })),
+        sourceText: source.textContent,
+        clarification: article.querySelector('[data-extra-source="platform"]')?.textContent,
+        documentWidth: document.documentElement.scrollWidth,
+        viewport: innerWidth,
+        progressMax: document.querySelector('[aria-label="التقدّم في الدرس"]')?.getAttribute('aria-valuemax'),
+      }
+    })
+    check(`${viewport.name}: extra renders all 15 metal and 9 nonmetal rows`, JSON.stringify(extraView.rows) === '[15,9]', extraView.rows)
+    check(`${viewport.name}: extra preserves progress and the mounted step`,
+      extraView.progress === extraBefore.progress && extraView.stepHidden && extraView.step === extraBefore.step && extraView.progressMax === '38')
+    check(`${viewport.name}: extra is RTL, addressable and does not overflow`,
+      extraView.direction === 'rtl' && extraView.hash === '#extra' && extraView.documentWidth <= extraView.viewport + 1, extraView)
+    check(`${viewport.name}: symbols and Roman labels are isolated LTR`,
+      extraView.symbols.length === 24 && extraView.symbols.every((cell) => cell.ltr), extraView.symbols)
+    check(`${viewport.name}: board and platform clarification stay separate`,
+      !extraView.sourceText.includes('الزوج المدرسي الشائع') && extraView.clarification.includes('الزوج المدرسي الشائع'))
+    await page.addScriptTag({ path: path.join(ROOT, 'node_modules/axe-core/axe.min.js') })
+    const extraViolations = await page.evaluate(async () => {
+      const result = await window.axe.run(document.querySelector('#main-content'), { rules: { region: { enabled: false } } })
+      return result.violations.filter((item) => ['serious', 'critical'].includes(item.impact))
+        .map((item) => ({ id: item.id, nodes: item.nodes.map((node) => node.target) }))
+    })
+    check(`${viewport.name}: extra has no serious/critical axe violations`, extraViolations.length === 0, extraViolations)
+    await page.screenshot({ path: path.join(OUT, `${viewport.name}-extra.png`), fullPage: true })
+    await page.click('.lesson-nav .button--primary')
+    check(`${viewport.name}: extra returns to the same numbered step`,
+      await page.evaluate(() => location.hash === '#step-3' && !document.querySelector('.step').hidden))
+    await page.goto(`${origin}${LESSON_PATH}?extraDirect=${++visit}#extra`, { waitUntil: 'networkidle0' })
+    await page.waitForSelector('.lesson-extra')
+    check(`${viewport.name}: direct extra link opens the independent tab`, await page.$eval('.step', (step) => step.hidden))
+
     // The notebook is a final tab, not a teaching step. Visit it in the same
     // real viewport and capture the actual responsive page (phone and desktop).
     await page.goto(
@@ -482,12 +540,13 @@ try {
       return {
         count: buttons.length,
         lastTab: buttons.at(-1)?.getAttribute('data-tab') ?? null,
+        extraTab: buttons.at(-2)?.getAttribute('data-tab') ?? null,
         lastTitle: buttons.at(-1)?.textContent?.trim() ?? '',
       }
     })
     check(
-      `${viewport.name}: notebook is the only tab after all 38 teaching steps`,
-      placement.count === chemistryLesson2.steps.length + 1 && placement.lastTab === 'notebook',
+      `${viewport.name}: extra precedes the final notebook after all 38 teaching steps`,
+      chemistryLesson2.steps.length === 38 && placement.count === 40 && placement.lastTab === 'notebook' && placement.extraTab === 'extra',
       placement,
     )
     await page.click(
@@ -507,7 +566,7 @@ try {
         viewport: innerWidth,
         documentWidth: root.scrollWidth,
         sourceBadgeCount: article?.querySelectorAll('.student-notebook__section-source').length ?? 0,
-        sourceBadge: article?.querySelector('.student-notebook__section-source')?.textContent?.trim() ?? '',
+        sourceBadges: [...(article?.querySelectorAll('.student-notebook__section-source') ?? [])].map((node) => node.textContent.trim()),
         definitionCount: article?.querySelectorAll('.student-notebook__definition').length ?? 0,
         figures: figures.map((figure) => ({
           molecule: figure.getAttribute('data-molecule'),
@@ -527,9 +586,11 @@ try {
     check(`${viewport.name}: notebook heading renders`, /الروابط الكيميائية/.test(notebook.title), notebook.title)
     check(`${viewport.name}: notebook retains the three printed definitions`, notebook.definitionCount === 3, notebook.definitionCount)
     check(
-      `${viewport.name}: notebook has one visibly labelled platform line`,
-      notebook.sourceBadgeCount === 1 && notebook.sourceBadge === 'توضيح ضروري من المنصة — ليس نصاً من الكتاب',
-      { count: notebook.sourceBadgeCount, label: notebook.sourceBadge },
+      `${viewport.name}: notebook retains every authored provenance label`,
+      JSON.stringify(notebook.sourceBadges) === JSON.stringify(
+        chemistryLesson2.studentNotebook.sections.filter((section) => section.source).map((section) => section.source),
+      ),
+      { count: notebook.sourceBadgeCount, labels: notebook.sourceBadges },
     )
     check(`${viewport.name}: notebook includes all three Lewis diagrams and ball-and-stick models`,
       notebook.figures.length === 3 && notebook.figures.every((figure) => figure.hasModel), notebook.figures)

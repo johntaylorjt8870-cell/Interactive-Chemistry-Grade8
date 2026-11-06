@@ -6,6 +6,8 @@ import { chemistryLesson1 } from '@/data/curriculum/chemistryLesson1'
 import { lesson1StudentNotebook } from '@/data/curriculum/chemistryLesson1Notebook'
 import { chemistryLesson2 } from '@/data/curriculum/chemistryLesson2'
 import { chemistryLesson2StudentNotebook } from '@/data/curriculum/chemistryLesson2Notebook'
+import { chemistryLesson2Extra } from '@/data/curriculum/chemistryLesson2Extra'
+import { getSubjectDefinition } from '@/data/curriculum/registry'
 import { StudentNotebookView } from '@/lessons/StudentNotebookView'
 import { renderApp, renderWithTheme } from './utils/renderApp'
 
@@ -208,7 +210,8 @@ describe('student notebook — lesson integration', () => {
 
     const nav = screen.getByRole('navigation', { name: 'خطوات الدرس' })
     const buttons = within(nav).getAllByRole('button')
-    expect(buttons).toHaveLength(chemistryLesson2.steps.length + 1)
+    expect(buttons).toHaveLength(chemistryLesson2.steps.length + 2)
+    expect(buttons.at(-2)).toHaveAttribute('data-tab', 'extra')
     expect(buttons.at(-1)).toHaveAttribute('data-tab', 'notebook')
 
     await user.click(buttons.at(-1)!)
@@ -245,5 +248,127 @@ describe('student notebook — lesson integration', () => {
     expect(document.querySelector('.step')).toBe(step)
     expect(step).not.toHaveAttribute('hidden')
     expect(answer).toHaveValue('إجابة مؤقتة')
+  })
+})
+
+
+describe('Lesson 2 — independent extra tab', () => {
+  it('retains every approved board value and exact text, separate from clarification', () => {
+    expect(chemistryLesson2.extra).toBe(chemistryLesson2Extra)
+    expect(chemistryLesson2.steps).toHaveLength(38)
+    expect(chemistryLesson2.steps.at(-1)?.id).toBe('final-test')
+    expect(chemistryLesson2.steps.some((step) => step.id === 'extra')).toBe(false)
+    const [definition, metals, nonmetals] = chemistryLesson2Extra.sections
+    expect(definition.blocks[0]).toMatchObject({
+      kind: 'definition',
+      text: 'هو عدد الإلكترونات التي تفقدها أو تكتسبها أو تشترك بها الذرة أثناء تفاعلها لتصل لحالة الاستقرار',
+    })
+    const metalTable = metals.blocks[0]
+    const nonmetalTable = nonmetals.blocks[0]
+    expect(metalTable.kind).toBe('table')
+    expect(nonmetalTable.kind).toBe('table')
+    if (metalTable.kind !== 'table' || nonmetalTable.kind !== 'table') throw new Error('Missing board tables')
+    expect(metalTable.rows.map(({ cells }) => [cells.symbol, cells.valence])).toEqual([
+      ['Na', '1'], ['K', '1'], ['Ag', '1'], ['Au', '1'], ['Hg', '1'],
+      ['Cu I', '1'], ['Cu II', '2'], ['Mg', '2'], ['Ca', '2'], ['Ba', '2'],
+      ['Pb', '2'], ['Zn', '2'], ['Al', '3'], ['Fe I', '1'], ['Fe II', '2'],
+    ])
+    expect(nonmetalTable.rows.map(({ cells }) => [cells.symbol, cells.valence])).toEqual([
+      ['Cl', '1'], ['Br', '1'], ['F', '1'], ['H', '1'], ['O', '2'],
+      ['S', '2'], ['N', '3'], ['P', '3'], ['C', '2 و4'],
+    ])
+    expect(metals.blocks[1]).toMatchObject({
+      text: 'يدلنا التكافؤ على عدد الالكترونات المفقودة لذلك نعتبر المعادن أيونات موجبة',
+    })
+    expect(nonmetals.blocks[1]).toMatchObject({
+      text: 'يدلنا التكافؤ على عدد الالكترونات المكتسبة فتعتبر اللامعادن أيونات سالبة',
+    })
+    const source = JSON.stringify(chemistryLesson2Extra.sections)
+    expect(source).not.toMatch(/Cd|هيليوم|هليوم|نيون|أرغون|Fe III|CH[₄4]|CO[₂2]|textbook-verbatim/)
+    expect(chemistryLesson2Extra.clarification.every((block) => 'attribution' in block && block.attribution === 'platform')).toBe(true)
+    for (const id of chemistryLesson2Extra.relatedStepIds) {
+      expect(chemistryLesson2.steps.some((step) => step.id === id), id).toBe(true)
+    }
+  })
+
+  it('renders two complete RTL board tables and a clearly separated scientific note', async () => {
+    window.history.replaceState(null, '', '/#extra')
+    renderApp(LESSON_PATH)
+    const article = await screen.findByRole('article', { name: 'إضافي' })
+    expect(within(article).getAllByRole('table')).toHaveLength(2)
+    const [metals, nonmetals] = within(article).getAllByRole('table')
+    expect(within(metals).getAllByRole('row')).toHaveLength(16)
+    expect(within(nonmetals).getAllByRole('row')).toHaveLength(10)
+    for (const rowId of ['cu-i', 'cu-ii', 'fe-i', 'fe-ii']) {
+      const cell = metals.querySelector(`[data-row="${rowId}"] [data-column="symbol"]`)!
+      expect(cell.querySelector('[dir="ltr"]')).toBeInTheDocument()
+    }
+    expect(within(article).getByRole('heading', { name: 'توضيح إضافي' })).toBeInTheDocument()
+    expect(article.querySelector('[data-extra-source="board"]')).not.toHaveTextContent('الزوج المدرسي الشائع')
+    expect(article.querySelector('[data-extra-source="platform"]')).toHaveTextContent('الزوج المدرسي الشائع')
+    expect(article.querySelector('[data-extra-section="nonmetals"]')).toHaveTextContent('ملاحظة السبورة — اللافلزات')
+    expect(article.querySelector('[data-extra-section="metals"]')).not.toHaveTextContent('المكتسبة')
+    expect(progressStore.getLesson(chemistryLesson2.id)).toBeUndefined()
+    expect(window.location.hash).toBe('#extra')
+    expect(screen.getByRole('progressbar', { name: 'التقدّم في الدرس' })).toHaveAttribute('aria-valuemax', '38')
+  })
+
+  it('preserves the answer, active step and progress across extra → notebook → extra → lesson', async () => {
+    const user = userEvent.setup()
+    window.history.replaceState(null, '', '/#step-3')
+    renderApp(LESSON_PATH)
+    const answer = (await screen.findAllByRole('textbox'))[0]
+    await user.type(answer, 'إجابة محفوظة')
+    const step = document.querySelector('.step')!
+    const before = progressStore.getSnapshot()
+    await user.click(screen.getByRole('button', { name: /إضافي.*محتوى السبورة/ }))
+    expect(window.location.hash).toBe('#extra')
+    expect(step).toHaveAttribute('hidden')
+    expect(progressStore.getSnapshot()).toBe(before)
+    expect(document.activeElement).toBe(document.getElementById('lesson-content'))
+    await user.click(screen.getByRole('button', { name: /دفتر الطالب/ }))
+    expect(window.location.hash).toBe('#student-notebook')
+    expect(screen.queryByRole('article', { name: 'إضافي' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /إضافي.*محتوى السبورة/ }))
+    await user.click(screen.getByRole('button', { name: /العودة إلى الدرس/ }))
+    expect(window.location.hash).toBe('#step-3')
+    expect(document.querySelector('.step')).toBe(step)
+    expect(step).not.toHaveAttribute('hidden')
+    expect(answer).toHaveValue('إجابة محفوظة')
+    expect(progressStore.getLesson(chemistryLesson2.id)?.seenStepIds).toEqual(before.lessons[chemistryLesson2.id].seenStepIds)
+  })
+
+  it('opens a real existing step from a short reference, not an invented extra step', async () => {
+    const user = userEvent.setup()
+    window.history.replaceState(null, '', '/#extra')
+    renderApp(LESSON_PATH)
+    const references = screen.getByRole('navigation', { name: 'إحالات إلى شرح الدرس' })
+    await user.click(within(references).getAllByRole('button')[0])
+    expect(document.querySelector('.step')).toHaveAttribute('data-step', 'atoms-and-shells')
+    expect(window.location.hash).toBe('#step-4')
+    expect(progressStore.getLesson(chemistryLesson2.id)?.seenStepIds).toEqual(['atoms-and-shells'])
+  })
+
+  it('supports opening extra from the drawer and returning without losing focus', async () => {
+    const user = userEvent.setup()
+    renderApp(LESSON_PATH)
+    await user.click(screen.getByRole('button', { name: 'خطوات الدرس' }))
+    const dialog = screen.getByRole('dialog')
+    await user.click(within(dialog).getByRole('button', { name: /إضافي.*محتوى السبورة/ }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('article', { name: 'إضافي' })).toBeInTheDocument()
+    expect(document.activeElement).toBe(document.getElementById('lesson-content'))
+  })
+
+  const otherLessons = getSubjectDefinition('chemistry').units.flatMap((unit) =>
+    unit.lessons.filter((lesson) => lesson.id !== 'chem-u1-l2').map((lesson) => ({ unit, lesson })),
+  )
+  it.each(otherLessons)('does not attach or render extra in $lesson.id, even at #extra', ({ unit, lesson }) => {
+    expect(lesson.extra).toBeUndefined()
+    window.history.replaceState(null, '', '/#extra')
+    renderApp(`/chemistry/${unit.slug}/${lesson.slug}`)
+    expect(document.querySelector('[data-tab="extra"]')).not.toBeInTheDocument()
+    expect(screen.queryByRole('article', { name: 'إضافي' })).not.toBeInTheDocument()
+    expect(document.querySelector('.step')).not.toHaveAttribute('hidden')
   })
 })

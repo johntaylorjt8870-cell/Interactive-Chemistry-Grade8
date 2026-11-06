@@ -325,6 +325,16 @@ export type StudentNotebook = {
   checklist?: { title: string; items: string[] }
 }
 
+/** Optional board supplement, separate from teaching steps and the notebook. */
+export type LessonExtra = {
+  title: string
+  sourceNote: string
+  sections: Array<{ id: string; title: string; blocks: ContentBlock[] }>
+  clarification: ContentBlock[]
+  /** Existing teaching steps to revisit instead of duplicating their explanations. */
+  relatedStepIds: string[]
+}
+
 export type LessonDefinition = {
   id: string
   slug: string
@@ -340,6 +350,8 @@ export type LessonDefinition = {
    * shown as the last tab of the lesson, after the last teaching step.
    */
   studentNotebook?: StudentNotebook
+  /** Independent «إضافي» tab; never counted or visited as a teaching step. */
+  extra?: LessonExtra
   /** Comprehensive tests attached to the lesson (normally one). */
   tests?: FinalTest[]
 }
