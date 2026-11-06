@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { LessonShell } from '@/layouts/LessonShell'
 import { LessonOutline } from './LessonOutline'
+import { ContentBlocks } from './ContentBlocks'
+import { ScientificNotationText } from '@/scientific'
 import { StudentNotebookRevision, StudentNotebookView } from './StudentNotebookView'
 import { getStepRenderer } from './stepRenderers'
 import { STEP_KIND_META } from './stepKinds'
@@ -34,6 +36,7 @@ export type LessonFlowProps = {
 
 /** Hash of the notebook tab; distinct from `#step-N` step hashes. */
 const NOTEBOOK_HASH = '#student-notebook'
+const EXTRA_HASH = '#extra'
 
 function stepIndexFromHash(lesson: LessonDefinition, hash: string): number | null {
   const raw = hash.replace(/^#/, '')
@@ -72,6 +75,7 @@ export function LessonFlow({
 }: LessonFlowProps) {
   const total = lesson.steps.length
   const notebook = lesson.studentNotebook
+  const extra = lesson.extra
 
   const [currentIndex, setCurrentIndex] = useState(() => {
     if (total === 0) return 0
@@ -90,6 +94,11 @@ export function LessonFlow({
     if (typeof window === 'undefined' || !notebook) return false
     return window.location.hash === NOTEBOOK_HASH
   })
+  const [extraSelected, setExtraOpen] = useState(() =>
+    Boolean(extra && typeof window !== 'undefined' && window.location.hash === EXTRA_HASH),
+  )
+  const extraOpen = Boolean(extra && extraSelected)
+  const supplementOpen = notebookOpen || extraOpen
   const [drawerOpen, setDrawerOpen] = useState(false)
   const focusContentAfterDrawer = useRef(false)
   /**
@@ -98,7 +107,7 @@ export function LessonFlow({
    * state are not lost by the round trip: the step is only hidden, and step
    * components keep their own state for the life of the page.
    */
-  const returnIndex = useRef(Math.max(total - 1, 0))
+  const returnIndex = useRef(extraOpen ? currentIndex : Math.max(total - 1, 0))
 
   const { seenStepIds, markStepSeen, setCompleted } = useLessonProgress(lesson.id)
   const progress = useMemo(
@@ -111,7 +120,7 @@ export function LessonFlow({
 
   // Record visited steps so the outline can report honest progress.
   useEffect(() => {
-    if (!currentStep || notebookOpen) return
+    if (!currentStep || supplementOpen) return
     markStepSeen(currentStep.id)
     if (typeof window !== 'undefined') {
       const nextHash = `#step-${currentIndex + 1}`
@@ -119,7 +128,7 @@ export function LessonFlow({
         window.history.replaceState(null, '', nextHash)
       }
     }
-  }, [currentStep, currentIndex, lesson.id, markStepSeen, notebookOpen])
+  }, [currentStep, currentIndex, lesson.id, markStepSeen, supplementOpen])
 
   // The notebook is addressable on its own (`#student-notebook`), without
   // touching the step counter or the visited steps.
@@ -129,6 +138,12 @@ export function LessonFlow({
       window.history.replaceState(null, '', NOTEBOOK_HASH)
     }
   }, [notebookOpen])
+
+  // The supplement has its own URL, outside the numbered teaching sequence.
+  useEffect(() => {
+    if (!extraOpen || typeof window === 'undefined') return
+    if (window.location.hash !== EXTRA_HASH) window.history.replaceState(null, '', EXTRA_HASH)
+  }, [extraOpen])
 
   const focusLessonContent = useCallback(() => {
     if (typeof document !== 'undefined') {
@@ -141,6 +156,7 @@ export function LessonFlow({
       if (index < 0 || index >= total) return
       setCurrentIndex(index)
       if (notebookOpen) setNotebookOpen(false)
+      if (extraOpen) setExtraOpen(false)
 
       // Closing the drawer hands focus back to the trigger that opened it. When
       // the student chose a step, the step that is now displayed has to receive
@@ -152,20 +168,32 @@ export function LessonFlow({
 
       if (!drawerOpen) focusLessonContent()
     },
-    [drawerOpen, focusLessonContent, notebookOpen, total],
+    [drawerOpen, extraOpen, focusLessonContent, notebookOpen, total],
   )
 
   /** Opens «📒 دفتر الطالب»: same page, same outline, no reload. */
   const openNotebook = useCallback(() => {
     if (!notebook) return
-    if (!notebookOpen) returnIndex.current = currentIndex
+    if (!supplementOpen) returnIndex.current = currentIndex
+    setExtraOpen(false)
     setNotebookOpen(true)
     focusContentAfterDrawer.current = drawerOpen
     setDrawerOpen(false)
     if (!drawerOpen) focusLessonContent()
-  }, [drawerOpen, focusLessonContent, notebook, notebookOpen, currentIndex])
+  }, [drawerOpen, focusLessonContent, notebook, supplementOpen, currentIndex])
 
-  /** Returns to the step the student was reading before the notebook. */
+  /** Same local navigation as the notebook, without adding a teaching step. */
+  const openExtra = useCallback(() => {
+    if (!extra) return
+    if (!supplementOpen) returnIndex.current = currentIndex
+    setNotebookOpen(false)
+    setExtraOpen(true)
+    focusContentAfterDrawer.current = drawerOpen
+    setDrawerOpen(false)
+    if (!drawerOpen) focusLessonContent()
+  }, [currentIndex, drawerOpen, extra, focusLessonContent, supplementOpen])
+
+  /** Returns to the teaching step without discarding its answers or lab state. */
   const returnToLesson = useCallback(() => {
     goTo(returnIndex.current)
   }, [goTo])
@@ -199,9 +227,11 @@ export function LessonFlow({
 
   // Announced when the step changes, so the student learns *where* they landed
   // and not only that the counter moved. Mount state stays silent.
-  const stepAnnouncement = notebookOpen
-    ? 'دفتر الطالب — تبويب نهاية الدرس'
-    : `الخطوة ${currentIndex + 1} من ${total}: ${currentStep.title}`
+  const stepAnnouncement = extraOpen
+    ? 'إضافي — محتوى السبورة'
+    : notebookOpen
+      ? 'دفتر الطالب — تبويب نهاية الدرس'
+      : `الخطوة ${currentIndex + 1} من ${total}: ${currentStep.title}`
 
   return (
     <>
@@ -220,9 +250,10 @@ export function LessonFlow({
         outline={
           <LessonOutline
             lesson={lesson}
-            currentIndex={notebookOpen ? -1 : currentIndex}
+            currentIndex={supplementOpen ? -1 : currentIndex}
             onSelect={goTo}
             seenStepIds={seenStepIds}
+            extra={extra ? { open: extraOpen, onSelect: openExtra } : undefined}
             notebook={
               notebook ? { title: '📒 دفتر الطالب', open: notebookOpen, onSelect: openNotebook } : undefined
             }
@@ -241,7 +272,7 @@ export function LessonFlow({
           </button>
         }
         navigation={
-          notebookOpen ? (
+          supplementOpen ? (
             <div className="lesson-nav">
               <button type="button" className="button button--primary" onClick={returnToLesson}>
                 <ArrowEndGlyph size={17} />
@@ -299,7 +330,7 @@ export function LessonFlow({
         <StepRenderer
           step={currentStep}
           meta={meta}
-          hidden={notebookOpen}
+          hidden={supplementOpen}
           renderQuestion={renderQuestion}
           renderDiagram={renderDiagram}
           renderTest={renderTest}
@@ -310,7 +341,40 @@ export function LessonFlow({
             <StudentNotebookRevision notebook={notebook} />
           </>
         ) : null}
-        {isLast && !notebookOpen && finishAction ? (
+        {extraOpen && extra ? (
+          <article className="lesson-extra" aria-labelledby="lesson-extra-title">
+            <header className="lesson-extra__header">
+              <h2 id="lesson-extra-title">{extra.title}</h2>
+              <p className="lesson-extra__source">{extra.sourceNote}</p>
+            </header>
+            <div className="lesson-extra__board" data-extra-source="board">
+              <h3>محتوى السبورة</h3>
+              {extra.sections.map((section) => (
+                <section key={section.id} data-extra-section={section.id} aria-labelledby={`extra-${section.id}`}>
+                  <h4 id={`extra-${section.id}`}>{section.title}</h4>
+                  <ContentBlocks blocks={section.blocks} />
+                </section>
+              ))}
+            </div>
+            <section className="lesson-extra__clarification" data-extra-source="platform" aria-labelledby="extra-clarification">
+              <h3 id="extra-clarification">توضيح إضافي</h3>
+              <p>شرح علمي من المنصة — ليس نقلاً عن السبورة أو نصاً من الكتاب.</p>
+              <ContentBlocks blocks={extra.clarification} />
+              <nav className="lesson-extra__references" aria-label="إحالات إلى شرح الدرس">
+                <p>للمراجعة دون تكرار الشرح:</p>
+                {extra.relatedStepIds.map((id) => {
+                  const index = lesson.steps.findIndex((step) => step.id === id)
+                  return index < 0 ? null : (
+                    <button key={id} type="button" className="button button--quiet button--small" onClick={() => goTo(index)}>
+                      <ScientificNotationText as="span">{lesson.steps[index].title}</ScientificNotationText>
+                    </button>
+                  )
+                })}
+              </nav>
+            </section>
+          </article>
+        ) : null}
+        {isLast && !supplementOpen && finishAction ? (
           <div className="lesson-shell__finish">{finishAction}</div>
         ) : null}
       </LessonShell>
@@ -332,9 +396,10 @@ export function LessonFlow({
         </div>
         <LessonOutline
           lesson={lesson}
-          currentIndex={notebookOpen ? -1 : currentIndex}
+          currentIndex={supplementOpen ? -1 : currentIndex}
           onSelect={goTo}
           seenStepIds={seenStepIds}
+          extra={extra ? { open: extraOpen, onSelect: openExtra } : undefined}
           variant="drawer"
           notebook={
             notebook ? { title: '📒 دفتر الطالب', open: notebookOpen, onSelect: openNotebook } : undefined

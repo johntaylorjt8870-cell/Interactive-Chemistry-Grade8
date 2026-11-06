@@ -5,6 +5,7 @@ import { lesson2PracticeQuestions } from './chemistryLesson2Practice'
 import { lesson2FinalTest } from './chemistryLesson2Test'
 import { lesson2TeacherGuide } from './chemistryLesson2TeacherGuide'
 import { chemistryLesson2StudentNotebook } from './chemistryLesson2Notebook'
+import { chemistryLesson2Extra } from './chemistryLesson2Extra'
 
 /* ============================================================================
    الدرس الثاني — «الروابط الكيميائية» — الصفحات 13–17
@@ -1453,6 +1454,7 @@ export const chemistryLesson2: LessonDefinition = {
     'درس مكتفٍ بذاته يبني من مكوّنات الذرّة وإلكترونات التكافؤ والأيونات والفلزّات واللافلزّات إلى الرابطة الأيونية والرابطة المشتركة (التساهمية) وتمثيل لويس، مع حفظ حرفي لمحتوى الكتاب وأمثلة وتدريبات متدرّجة.',
   steps: steps2,
   studentNotebook: chemistryLesson2StudentNotebook,
+  extra: chemistryLesson2Extra,
   tests: [bookAssessment, practiceAssessment, finalTest],
 }
 

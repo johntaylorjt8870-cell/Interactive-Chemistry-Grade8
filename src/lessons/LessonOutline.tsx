@@ -17,6 +17,8 @@ export type LessonOutlineProps = {
    * not to its counted steps.
    */
   notebook?: { title: string; open: boolean; onSelect: () => void }
+  /** Optional independent supplement, before the unchanged final notebook tab. */
+  extra?: { open: boolean; onSelect: () => void }
 }
 
 /**
@@ -32,6 +34,7 @@ export function LessonOutline({
   seenStepIds = [],
   variant = 'sidebar',
   notebook,
+  extra,
 }: LessonOutlineProps) {
   const seen = new Set(seenStepIds)
   const currentRef = useRef<HTMLButtonElement>(null)
@@ -94,6 +97,27 @@ export function LessonOutline({
             </li>
           )
         })}
+        {extra ? (
+          <li className="lesson-outline__item lesson-outline__item--extra">
+            <button
+              type="button"
+              className="lesson-outline__button"
+              data-current={extra.open ? 'true' : undefined}
+              data-tab="extra"
+              aria-current={extra.open ? 'page' : undefined}
+              onClick={extra.onSelect}
+            >
+              <span className="lesson-outline__index" aria-hidden="true">+</span>
+              <span className="lesson-outline__text">
+                <span className="lesson-outline__title">إضافي</span>
+                <span className="lesson-outline__meta">
+                  <span className="lesson-outline__kind">محتوى السبورة</span>
+                  <span className="lesson-outline__status">{extra.open ? 'مفتوح' : 'مرجع إضافي'}</span>
+                </span>
+              </span>
+            </button>
+          </li>
+        ) : null}
         {notebook ? (
           <li className="lesson-outline__item lesson-outline__item--notebook">
             <button
