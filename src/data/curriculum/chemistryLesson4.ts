@@ -4,6 +4,7 @@ import { bookActivitySolutions, bookAssessment, bookQuestions, lesson4Figures } 
 import { lesson4PracticeQuestions, practiceAssessment } from './chemistryLesson4Practice'
 import { finalTest } from './chemistryLesson4Test'
 import { lesson4TeacherGuide } from './chemistryLesson4TeacherGuide'
+import { chemistryLesson4StudentNotebook } from './chemistryLesson4Notebook'
 
 export {
   bookActivitySolutions,
@@ -14,6 +15,7 @@ export {
   practiceAssessment,
   finalTest,
   lesson4TeacherGuide,
+  chemistryLesson4StudentNotebook,
 }
 
 const ref = (page: string, item?: string, scanId?: string) => ({ page, item, scanId })
@@ -844,6 +846,7 @@ export const chemistryLesson4: LessonDefinition = {
     'التفاعل الكيميائي ومواده ودلائله، المعادلات اللفظية وقراءة كبريتيد الحديد II، احتراق شريط المغنزيوم واستنتاج صيغة MgO، أثر كمية الأكسجين في الاحتراق التام وغير التام لغاز البوتان، الغاز المنزلي وخطر أحادي أكسيد الكربون (CO)، والكشف التجريبي عن ثنائي أكسيد الكربون.',
   steps,
   tests: [bookAssessment, practiceAssessment, finalTest],
+  studentNotebook: chemistryLesson4StudentNotebook,
 }
 
 export default chemistryLesson4
