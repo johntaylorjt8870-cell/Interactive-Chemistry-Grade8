@@ -282,6 +282,34 @@ export type NotebookProcedure = {
   steps: string[]
 }
 
+/**
+ * Science the notebook adds from outside the textbook.
+ *
+ * Two kinds of addition already exist and are *not* this:
+ *   - `section.source` labels a sentence that **clarifies** the pages;
+ *   - the lesson steps explain the pages inside the lesson.
+ *
+ * This record is for a third, narrower case: a fact neither the book nor the
+ * lesson states, which the student nevertheless needs in order to understand
+ * the page (why a flame is yellow, what "limewater" is, the affinity of CO for
+ * haemoglobin). Such a fact may only enter the notebook together with the
+ * reference that supports it, so a teacher can check it instead of trusting the
+ * platform. The record is optional and additive: leaving it out changes
+ * nothing, which is why the notebooks of Lessons 1–3 render exactly as before.
+ */
+export type NotebookEnrichment = {
+  /** The statement itself, as the student writes it in the notebook. */
+  text: string
+  /** Short reference name shown as a chip beside the statement, e.g. `OpenStax`. */
+  reference: string
+  /** Full reference line, e.g. `OpenStax, Chemistry 2e — 2.7 Chemical Nomenclature`. */
+  citation: string
+  /** Public URL of the reference, when a stable one exists. */
+  url?: string
+  /** Why the page needs it — one clause, so an addition can never be decorative. */
+  why: string
+}
+
 export type NotebookSection = {
   id: string
   /** Section heading, taken from the topic the lesson actually teaches. */
@@ -302,6 +330,12 @@ export type NotebookSection = {
   points?: string[]
   /** Ordered rule that must be applied in this order. */
   ordered?: string[]
+  /**
+   * Facts added from outside the textbook, each carrying its own reference.
+   * Rendered after the printed material of the section, under a visible label,
+   * never mixed into `points`/`definitions`. Omitted by Lessons 1–3.
+   */
+  enrichment?: NotebookEnrichment[]
   notes?: NotebookNote[]
   table?: NotebookTable
   /** Optional page-15 Lewis figures; omitted by every other lesson notebook. */
@@ -317,6 +351,11 @@ export type StudentNotebook = {
   /** Page range the notebook is drawn from. */
   source: SourceReference
   sections: NotebookSection[]
+  /**
+   * Optional note under the introduction, naming the references a reader can
+   * use to check the enriched statements. Omitted when a notebook has none.
+   */
+  enrichmentNote?: string
   /**
    * Revision checklist of what the student must be able to *do* with the notes.
    * It is deliberately not part of the notebook page: it is not material to

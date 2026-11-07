@@ -14,6 +14,7 @@ import { parseCompactNuclearNotation } from '@/scientific/NuclearNotation'
 import { parseCompactIonNotation } from '@/scientific/ScientificNotationText'
 import { isElectronConfiguration } from '@/utils/scientificText'
 import type {
+  NotebookEnrichment,
   NotebookNote,
   NotebookSection,
   NotebookTable,
@@ -48,6 +49,11 @@ export function StudentNotebookView({ notebook }: { notebook: StudentNotebook })
         <p className="student-notebook__intro">
           <ScientificNotationText as="span">{notebook.introduction}</ScientificNotationText>
         </p>
+        {notebook.enrichmentNote ? (
+          <p className="student-notebook__enrichment-note">
+            <ScientificNotationText as="span">{notebook.enrichmentNote}</ScientificNotationText>
+          </p>
+        ) : null}
       </header>
 
       <div className="student-notebook__sections">
@@ -178,6 +184,8 @@ function NotebookSectionView({ section, index }: { section: NotebookSection; ind
 
       {section.table ? <NotebookTableView table={section.table} /> : null}
 
+      {section.enrichment?.length ? <NotebookEnrichmentView items={section.enrichment} /> : null}
+
       {section.procedure ? (
         <div className="student-notebook__procedure">
           <h5 className="student-notebook__procedure-title">
@@ -193,6 +201,93 @@ function NotebookSectionView({ section, index }: { section: NotebookSection; ind
         </div>
       ) : null}
     </section>
+  )
+}
+
+/**
+ * Science added from outside the textbook.
+ *
+ * The block is deliberately labelled before its first statement: a student must
+ * be able to tell, while writing, which sentences are the book's and which ones
+ * the platform brought in from a named reference. Each statement therefore ends
+ * with its own reference chip, and the full citation sits under it, linked when
+ * a stable URL exists. Nothing here is ever mixed into `points`/`definitions`.
+ */
+const ARABIC = /[\u0600-\u06FF]/
+
+/**
+ * A reference line, in the order it must be read.
+ *
+ * Citations are bibliographic, so their Latin part is one unit: passing a whole
+ * Latin sentence through the per-word notation splitter let the RTL paragraph
+ * reverse the words ("You Can Prevent …" rendered backwards). A mixed citation
+ * is therefore split once — Latin head isolated `dir="ltr"`, Arabic note
+ * isolated `dir="rtl"` — and an all-Latin one is a single isolated run. No
+ * citation is ever left to the paragraph's own bidirectional resolution.
+ */
+function NotebookCitation({ value }: { value: string }) {
+  const arabicAt = value.search(ARABIC)
+  if (arabicAt < 0) {
+    return (
+      <span className="student-notebook__enrichment-citation-latin" dir="ltr">
+        {value}
+      </span>
+    )
+  }
+
+  const head = value.slice(0, arabicAt).trim()
+  const tail = value.slice(arabicAt).trim()
+  return (
+    <>
+      {head ? (
+        <>
+          <span className="student-notebook__enrichment-citation-latin" dir="ltr">
+            {head}
+          </span>{' '}
+        </>
+      ) : null}
+      <span className="student-notebook__enrichment-citation-arabic" dir="rtl">
+        {tail}
+      </span>
+    </>
+  )
+}
+
+function NotebookEnrichmentView({ items }: { items: NotebookEnrichment[] }) {
+  return (
+    <div className="student-notebook__enrichment" data-notebook-enrichment="true">
+      <p className="student-notebook__enrichment-label">إثراء علمي من خارج الكتاب</p>
+      <ul className="student-notebook__enrichment-list">
+        {items.map((item, index) => (
+          <li className="student-notebook__enrichment-item" key={index}>
+            <p className="student-notebook__enrichment-text">
+              <ScientificNotationText as="span">{item.text}</ScientificNotationText>
+              <span className="student-notebook__enrichment-chip">
+                <Sci variant="textual">{item.reference}</Sci>
+              </span>
+            </p>
+            <p className="student-notebook__enrichment-citation">
+              <NotebookCitation value={item.citation} />
+            </p>
+            {item.url ? (
+              <p className="student-notebook__enrichment-source-link">
+                <a
+                  className="student-notebook__enrichment-link"
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  <Sci variant="textual">{item.url}</Sci>
+                </a>
+              </p>
+            ) : null}
+            <p className="student-notebook__enrichment-why">
+              <ScientificNotationText as="span">{item.why}</ScientificNotationText>
+            </p>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

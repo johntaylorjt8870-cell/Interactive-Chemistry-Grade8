@@ -181,6 +181,9 @@ describe('lesson 4 — progressive practice, textbook word-equation grading & no
       'src/data/curriculum/chemistryLesson4Test.ts',
       'src/data/curriculum/chemistryLesson4TeacherGuide.ts',
       'src/data/curriculum/chemistryLesson4.ts',
+      // The student notebook is Lesson 4 authored content too: it must not carry
+      // raw directional controls either (the renderer isolates notation instead).
+      'src/data/curriculum/chemistryLesson4Notebook.ts',
     ]
     for (const path of files) {
       expect(readFileSync(path, 'utf8'), path).not.toMatch(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/u)
