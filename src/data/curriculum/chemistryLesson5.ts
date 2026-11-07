@@ -12,6 +12,7 @@ import {
 import { lesson5PracticeQuestions, practiceAssessment } from './chemistryLesson5Practice'
 import { finalTest } from './chemistryLesson5Test'
 import { lesson5TeacherGuide } from './chemistryLesson5TeacherGuide'
+import { chemistryLesson5StudentNotebook } from './chemistryLesson5Notebook'
 
 export {
   bookActivitySolutions,
@@ -23,6 +24,7 @@ export {
   lesson5Figures,
   lesson5PracticeQuestions,
   lesson5TeacherGuide,
+  chemistryLesson5StudentNotebook,
   practiceAssessment,
 }
 
@@ -704,6 +706,7 @@ export const chemistryLesson5: LessonDefinition = {
   summary:
     'انحفاظ نوع الذرة وعددها كما يبينه عدّ شكل الميزان، قانون انحفاظ الكتلة (لافوازييه) بتجربة الميزان الإلكتروني وحدود النظام المفتوح والمغلق، وقانون النسب الثابتة (بروست) بجداول الرصاص/الكبريت والحديد/الكبريت والكربون/الأكسجين مع تمييز الفائض غير المتفاعل.',
   steps,
+  studentNotebook: chemistryLesson5StudentNotebook,
   tests: [bookAssessment, practiceAssessment, finalTest],
 }
 
