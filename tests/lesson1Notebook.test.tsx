@@ -208,13 +208,14 @@ describe('student notebooks — scope remains limited to the opted-in lessons', 
   it('attaches notebooks only to the lessons reviewed for one', () => {
     const lessons = listSubjects().flatMap((subject) => subject.units.flatMap((unit) => unit.lessons))
     const withNotebook = lessons.filter((lesson) => lesson.studentNotebook)
-    // Lessons 1–5 have approved notebooks; Lessons 6–7 remain unchanged.
+    // Lessons 1–6 have approved notebooks; Lesson 7 remains unchanged.
     expect(withNotebook.map((lesson) => lesson.id)).toEqual([
       'chem-u1-l1',
       'chem-u1-l2',
       'chem-u1-l3',
       'chem-u1-l4',
       'chem-u1-l5',
+      'chem-u1-l6',
     ])
   })
 

@@ -18,6 +18,7 @@ import {
 } from './chemistryLesson6Practice'
 import { finalTest } from './chemistryLesson6Test'
 import { lesson6TeacherGuide } from './chemistryLesson6TeacherGuide'
+import { chemistryLesson6StudentNotebook } from './chemistryLesson6Notebook'
 
 export {
   bookActivitySolutions,
@@ -29,6 +30,7 @@ export {
   lesson6BookQuestionIds,
   lesson6PracticeQuestions,
   lesson6TeacherGuide,
+  chemistryLesson6StudentNotebook,
   practiceApplicationQuestions,
   practiceAssessment,
   practiceFoundationalQuestions,
@@ -1202,5 +1204,6 @@ export const chemistryLesson6: LessonDefinition = {
   summary:
     'تمثيل التفاعلات الكيميائيّة بمعادلات لفظية ورمزية، وتمييز رموز الحالة الفيزيائيّة (s, l, aq, g) وشرط التسخين (Δ)، وكتابة الصيغ الكيميائيّة الصحيحة وموازنة المعادلات بالمعاملات تحقيقاً لقانونَي التفاعلات الكيميائيّة.',
   steps,
+  studentNotebook: chemistryLesson6StudentNotebook,
   tests: [bookAssessment, practiceAssessment, finalTest],
 }
