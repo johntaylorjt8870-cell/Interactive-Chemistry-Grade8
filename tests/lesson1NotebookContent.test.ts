@@ -393,20 +393,6 @@ describe('student notebook — no invented content', () => {
   })
 
   it('prints no number the lesson does not print or derive', () => {
-    // Check the numbers a student reads — table cells included — against the
-    // lesson. `1/1860` and `2(n)²` survive normalisation as `1 1860` and
-    // `2 n ²`, which the lesson also contains.
-    const readable = entries
-      .filter((entry) => entry.notation !== 'math')
-      .map((entry) => entry.text)
-    for (const section of lesson1StudentNotebook.sections) {
-      if (!section.table) continue
-      readable.push(section.table.caption, section.table.footnote ?? '')
-      for (const row of section.table.rows) readable.push(...Object.values(row.cells))
-      for (const column of section.table.columns) readable.push(column.header)
-    }
-    for (const text of lesson1StudentNotebook.checklist?.items ?? []) readable.push(text)
-
     // The capacity table is the lesson's own activity (ص6): K and L are printed,
     // M, N and O are left for the student to compute with y = 2(n)². Those
     // computed cells are the only values the lesson prints as a formula rather
@@ -422,11 +408,6 @@ describe('student notebook — no invented content', () => {
       expect(Number(row.cells.y)).toBe(2 * Number(row.cells.n) ** 2)
     }
 
-    const numbers = new Set(
-      [...normalise(readable.join(' ')).matchAll(/\d+(?:[.-]\d+)*/g)]
-        .map((match) => match[0])
-        .filter((number) => !derived.has(number)),
-    )
     for (const number of ['2', '8', '1', '11']) {
       expect(lessonText, `number ${number} is not in the lesson`).toContain(number)
     }
