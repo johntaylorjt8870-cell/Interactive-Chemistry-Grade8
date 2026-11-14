@@ -5,9 +5,16 @@ import { progressStore } from '@/data/progress'
 import { renderApp } from './utils/renderApp'
 import { chemistryLesson1 } from '@/data/curriculum/chemistryLesson1'
 import { lesson1StudentNotebook } from '@/data/curriculum/chemistryLesson1Notebook'
+import { chemistryLesson3StudentNotebook } from '@/data/curriculum/chemistryLesson3Notebook'
+import { chemistryLesson4StudentNotebook } from '@/data/curriculum/chemistryLesson4Notebook'
+import { chemistryLesson5StudentNotebook } from '@/data/curriculum/chemistryLesson5Notebook'
+import { chemistryLesson6StudentNotebook } from '@/data/curriculum/chemistryLesson6Notebook'
 import { curriculumStats, listSubjects } from '@/data/curriculum/registry'
 import { STEP_KINDS } from '@/data/curriculum/schema'
 import { validateLesson } from '@/data/sourceFidelity'
+import { LESSON1_LEDGER } from '@/data/curriculum/lesson1SourceLedger'
+import { StudentNotebookView } from '@/lessons/StudentNotebookView'
+import { renderWithTheme } from './utils/renderApp'
 
 /**
  * «📒 دفتر الطالب» — Lesson 1 only.
@@ -236,5 +243,89 @@ describe('student notebooks — scope remains limited to the opted-in lessons', 
     expect(testIds).toEqual(['chem-u1-l1-book', 'chem-u1-l1-practice', 'chem-u1-l1-final'])
     const notebookQuestionIds = JSON.stringify(lesson1StudentNotebook).match(/questionId/g) ?? []
     expect(notebookQuestionIds).toHaveLength(0)
+  })
+})
+
+describe('student notebook — Lesson 1 page tags and figures', () => {
+  it('hides صN chips in the body and keeps pages in the sources appendix only', () => {
+    expect(lesson1StudentNotebook.hidePageTagsInBody).toBe(true)
+    const { container } = renderWithTheme(<StudentNotebookView notebook={lesson1StudentNotebook} />)
+    const body = container.querySelector('.student-notebook__sections')!
+    expect(body.textContent ?? '').not.toMatch(/ص\d/)
+    const appendix = container.querySelector('.student-notebook__sources')!
+    expect(appendix.textContent).toContain('4')
+    expect(appendix.querySelectorAll('tbody tr').length).toBe(lesson1StudentNotebook.sourcesAppendix!.rows.length)
+  })
+
+  it('renders the required reconstructions without a loading fallback', () => {
+    const { container } = renderWithTheme(<StudentNotebookView notebook={lesson1StudentNotebook} />)
+    for (const id of [
+      'fig-thomson',
+      'fig-rutherford',
+      'fig-bohr',
+      'fig-levels',
+      'fig-sodium',
+      'fig-hydrogen-nuclei',
+      'lewis-li',
+      'lewis-ca',
+      'lewis-o',
+    ]) {
+      expect(container.querySelector(`[data-notebook-figure="${id}"]`), id).not.toBeNull()
+    }
+    expect(container.textContent).not.toContain('جارٍ تحميل')
+    expect(container.querySelector('[data-interactive="rutherford-scattering"]')).toBeNull()
+    expect(container.querySelector('[data-notebook-figure="fig-levels"] svg')).not.toBeNull()
+    expect(container.querySelector('[data-notebook-figure="fig-sodium"]')?.getAttribute('data-shells')).toBe('2-8-1')
+    const bohr = container.querySelector('[data-notebook-figure="fig-bohr"]')!
+    expect(bohr.getAttribute('data-shells')).toBe('0-0-0')
+    expect(bohr.querySelector('.student-notebook__figure-count')).toBeNull()
+    expect(bohr.querySelectorAll('.bohr__shell')).toHaveLength(3)
+    expect(bohr.querySelectorAll('.bohr__electron')).toHaveLength(0)
+    const sodium = container.querySelector('[data-notebook-figure="fig-sodium"]')!
+    expect(sodium.querySelector('.student-notebook__figure-count')?.getAttribute('data-electron-total')).toBe('11')
+    expect(sodium.querySelectorAll('.bohr__electron').length).toBe(11)
+  })
+
+  it('does not hide definition page chips on Lessons 3–6', () => {
+    for (const notebook of [
+      chemistryLesson3StudentNotebook,
+      chemistryLesson4StudentNotebook,
+      chemistryLesson5StudentNotebook,
+      chemistryLesson6StudentNotebook,
+    ]) {
+      expect(notebook.hidePageTagsInBody).toBeUndefined()
+      const { container } = renderWithTheme(<StudentNotebookView notebook={notebook} />)
+      const chips = [...container.querySelectorAll('.student-notebook__source')].map((node) => node.textContent ?? '')
+      expect(chips.some((text) => /ص\d/.test(text)), notebook.title).toBe(true)
+    }
+  })
+
+  it('maps every notebook-relevant ledger figure, definition, table, example, rule and summary to the notebook or an explicit appendix row', () => {
+    const notebook = JSON.stringify(lesson1StudentNotebook)
+    const skip = new Set([
+      'p3-heading',
+      'p3-keywords',
+      'p3-figure-atom',
+      'p4-figure-discharge-tube',
+      'p5-building-analogy',
+      'p7-photo-sodium',
+      'p7-photo-salt',
+    ])
+    const kinds = new Set(['figure', 'definition', 'table', 'example', 'rule', 'summary'])
+    const required = LESSON1_LEDGER.filter(
+      (item) =>
+        kinds.has(item.kind) &&
+        item.status !== 'decorative' &&
+        Number(item.page) >= 4 &&
+        Number(item.page) <= 11 &&
+        !skip.has(item.id),
+    )
+    for (const item of required) {
+      const inData = notebook.includes(item.id) || Boolean(item.excerpt && notebook.includes(item.excerpt.slice(0, 24)))
+      const inAppendix = lesson1StudentNotebook.sourcesAppendix!.rows.some(
+        (row) => row.source.includes(item.id) || row.item.includes(item.title.slice(0, 12)),
+      )
+      expect(inData || inAppendix, item.id).toBe(true)
+    }
   })
 })

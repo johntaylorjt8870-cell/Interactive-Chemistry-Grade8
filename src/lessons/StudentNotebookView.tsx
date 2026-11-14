@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react'
 import {
+  BohrAtom,
   ChemicalFormula,
   ElectronConfiguration,
   IonNotation,
   LewisMolecule,
+  LewisStructure,
   MathFormula,
   NuclearNotation,
   Sci,
@@ -15,11 +17,18 @@ import { parseCompactIonNotation } from '@/scientific/ScientificNotationText'
 import { isElectronConfiguration } from '@/utils/scientificText'
 import type {
   NotebookEnrichment,
+  NotebookFigure,
   NotebookNote,
   NotebookSection,
   NotebookTable,
   StudentNotebook,
 } from '@/data/curriculum/schema'
+import LevelsDiagram from '@/simulations/LevelsDiagram'
+import {
+  HydrogenNucleiFigure,
+  RutherfordStaticFigure,
+  ThomsonNotebookFigure,
+} from '@/lessons/notebookStaticFigures'
 
 /**
  * «دفتر الطالب» — the material a student is expected to write in the school
@@ -58,9 +67,16 @@ export function StudentNotebookView({ notebook }: { notebook: StudentNotebook })
 
       <div className="student-notebook__sections">
         {notebook.sections.map((section, index) => (
-          <NotebookSectionView key={section.id} section={section} index={index} />
+          <NotebookSectionView
+            key={section.id}
+            section={section}
+            index={index}
+            hidePageTagsInBody={Boolean(notebook.hidePageTagsInBody)}
+          />
         ))}
       </div>
+
+      {notebook.sourcesAppendix ? <NotebookSourcesAppendix appendix={notebook.sourcesAppendix} /> : null}
 
     </article>
   )
@@ -93,7 +109,15 @@ export function StudentNotebookRevision({ notebook }: { notebook: StudentNoteboo
   )
 }
 
-function NotebookSectionView({ section, index }: { section: NotebookSection; index: number }) {
+function NotebookSectionView({
+  section,
+  index,
+  hidePageTagsInBody,
+}: {
+  section: NotebookSection
+  index: number
+  hidePageTagsInBody: boolean
+}) {
   const headingId = `student-notebook-section-${section.id}`
   const number = index + 1
 
@@ -124,9 +148,11 @@ function NotebookSectionView({ section, index }: { section: NotebookSection; ind
             <div className="student-notebook__definition" key={definition.term}>
               <dt className="student-notebook__term">
                 <ScientificNotationText as="span">{definition.term}</ScientificNotationText>
-                <span className="student-notebook__source">
-                  <Sci variant="textual">{definition.source}</Sci>
-                </span>
+                {definition.source && !(hidePageTagsInBody && /^ص\d/.test(definition.source)) ? (
+                  <span className="student-notebook__source">
+                    <Sci variant="textual">{definition.source}</Sci>
+                  </span>
+                ) : null}
               </dt>
               <dd className="student-notebook__meaning">
                 <ScientificNotationText as="span">{definition.text}</ScientificNotationText>
@@ -159,7 +185,14 @@ function NotebookSectionView({ section, index }: { section: NotebookSection; ind
       {section.notes?.length ? (
         <ul className="student-notebook__notes">
           {section.notes.map((note, noteIndex) => (
-            <li key={noteIndex}>
+            <li
+              key={noteIndex}
+              data-note-role={note.role ?? 'textbook'}
+              className={note.role === 'platform' ? 'student-notebook__note--platform' : undefined}
+            >
+              {note.role === 'platform' ? (
+                <p className="student-notebook__platform-label">توضيح تعليمي — ليس نص الكتاب</p>
+              ) : null}
               <NotebookNoteView note={note} />
             </li>
           ))}
@@ -183,6 +216,17 @@ function NotebookSectionView({ section, index }: { section: NotebookSection; ind
       ) : null}
 
       {section.table ? <NotebookTableView table={section.table} /> : null}
+      {section.tables?.map((table) => (
+        <NotebookTableView key={table.caption} table={table} />
+      ))}
+
+      {section.figures?.length ? (
+        <div className="student-notebook__figures">
+          {section.figures.map((figure) => (
+            <NotebookFigureView key={figure.id} figure={figure} />
+          ))}
+        </div>
+      ) : null}
 
       {section.enrichment?.length ? <NotebookEnrichmentView items={section.enrichment} /> : null}
 
@@ -352,6 +396,136 @@ function NotebookNotation({
  * notation promotion as the lesson tables (electron configurations, nuclides,
  * formulae), so a value such as `2-8-8-2` can never be split or reordered.
  */
+function reconstructionNote(show: boolean) {
+  if (!show) return null
+  return <p className="student-notebook__figure-note">إعادة بناء تعليمية من المنصة، ليست صورة الكتاب.</p>
+}
+
+function NotebookFigureView({ figure }: { figure: NotebookFigure }) {
+  if (figure.kind === 'bohr') {
+    const count = figure.shells.reduce((sum, value) => sum + value, 0)
+    return (
+      <figure className="student-notebook__figure student-notebook__figure--wide" data-notebook-figure={figure.id} data-shells={figure.shells.join('-')}>
+        <BohrAtom symbol={figure.symbol} shells={figure.shells} size={220} label={figure.symbol} />
+        {figure.legend ? <p className="student-notebook__figure-legend">{figure.legend}</p> : null}
+        <figcaption>
+          <ScientificNotationText as="span">{figure.caption}</ScientificNotationText>
+          {reconstructionNote(figure.reconstruction)}
+          {count > 0 ? (
+            <span className="student-notebook__figure-count" data-electron-total={count}>
+              {' '}
+              عدد الإلكترونات: {figure.shells.join('-')} (المجموع {count})
+            </span>
+          ) : null}
+        </figcaption>
+      </figure>
+    )
+  }
+
+  if (figure.kind === 'thomson') {
+    return (
+      <figure className="student-notebook__figure student-notebook__figure--wide" data-notebook-figure={figure.id}>
+        <ThomsonNotebookFigure />
+        <figcaption>
+          <ScientificNotationText as="span">{figure.caption}</ScientificNotationText>
+          {reconstructionNote(true)}
+        </figcaption>
+      </figure>
+    )
+  }
+
+  if (figure.kind === 'rutherford-static') {
+    return (
+      <figure className="student-notebook__figure student-notebook__figure--wide" data-notebook-figure={figure.id}>
+        <RutherfordStaticFigure />
+        <figcaption>
+          <ScientificNotationText as="span">{figure.caption}</ScientificNotationText>
+          {reconstructionNote(true)}
+        </figcaption>
+      </figure>
+    )
+  }
+
+  if (figure.kind === 'levels') {
+    return (
+      <figure className="student-notebook__figure student-notebook__figure--wide" data-notebook-figure={figure.id}>
+        <LevelsDiagram interactiveId="source-figure-p5-levels" reducedMotion />
+        <figcaption>
+          <ScientificNotationText as="span">{figure.caption}</ScientificNotationText>
+          {reconstructionNote(true)}
+        </figcaption>
+      </figure>
+    )
+  }
+
+  if (figure.kind === 'hydrogen-nuclei') {
+    return (
+      <figure className="student-notebook__figure student-notebook__figure--wide" data-notebook-figure={figure.id}>
+        <HydrogenNucleiFigure />
+        <figcaption>
+          <ScientificNotationText as="span">{figure.caption}</ScientificNotationText>
+          {reconstructionNote(true)}
+        </figcaption>
+      </figure>
+    )
+  }
+
+  if (figure.kind === 'interactive') {
+    return null
+  }
+
+  return (
+    <figure className="student-notebook__figure student-notebook__figure--lewis" data-notebook-figure={figure.id}>
+      <LewisStructure
+        symbol={figure.symbol}
+        dots={figure.dots?.map((position) => ({ position }))}
+        pairs={figure.pairs}
+        size="lg"
+        caption={<ScientificNotationText as="span">{figure.caption}</ScientificNotationText>}
+      />
+      {reconstructionNote(figure.reconstruction)}
+    </figure>
+  )
+}
+
+function NotebookSourcesAppendix({
+  appendix,
+}: {
+  appendix: NonNullable<StudentNotebook['sourcesAppendix']>
+}) {
+  return (
+    <section className="student-notebook__sources" aria-labelledby="student-notebook-sources-title">
+      <h4 className="student-notebook__section-title" id="student-notebook-sources-title">
+        <ScientificNotationText as="span">{appendix.caption}</ScientificNotationText>
+      </h4>
+      <div className="student-notebook__table-wrap" tabIndex={0}>
+        <table className="student-notebook__table">
+          <thead>
+            <tr>
+              <th scope="col">البند</th>
+              <th scope="col">النوع</th>
+              <th scope="col">التصنيف</th>
+              <th scope="col">المصدر</th>
+              <th scope="col">الصفحة</th>
+            </tr>
+          </thead>
+          <tbody>
+            {appendix.rows.map((row) => (
+              <tr key={row.item}>
+                <th scope="row">{row.item}</th>
+                <td>{row.kind}</td>
+                <td>{row.classification}</td>
+                <td>{row.source}</td>
+                <td>{row.page}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
 function NotebookTableView({ table }: { table: NotebookTable }) {
   return (
     <div className="student-notebook__table-wrap" tabIndex={0}>

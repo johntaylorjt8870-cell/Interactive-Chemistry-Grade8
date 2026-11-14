@@ -372,3 +372,14 @@ describe('Lesson 2 — independent extra tab', () => {
     expect(document.querySelector('.step')).not.toHaveAttribute('hidden')
   })
 })
+
+describe('Lesson 2 definition sources stay visible after Lesson 1 page-tag hiding', () => {
+  it('still prints ص16 on the three «تعلّمُ» definitions', () => {
+    const { container } = renderWithTheme(
+      <StudentNotebookView notebook={chemistryLesson2StudentNotebook} />,
+    )
+    const sources = [...container.querySelectorAll('.student-notebook__source')].map((node) => node.textContent)
+    expect(sources.filter((text) => text?.includes('ص16'))).toHaveLength(3)
+    expect(chemistryLesson2StudentNotebook.hidePageTagsInBody).toBeUndefined()
+  })
+})
