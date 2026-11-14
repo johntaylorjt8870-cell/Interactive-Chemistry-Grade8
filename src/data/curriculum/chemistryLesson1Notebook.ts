@@ -1,55 +1,22 @@
 import type { StudentNotebook } from './schema'
 
-/* ============================================================================
-   «دفتر الطالب» — Lesson 1 «الذرّة والعنصر» (ص3–12)
-   ----------------------------------------------------------------------------
-   What this file is: the material a student is expected to write in the school
-   notebook after studying the lesson, and nothing else.
-
-   The standard applied here, after the final pedagogical review:
-
-     * the notebook holds what the textbook itself prints — definitions quoted
-       character for character (`source: 'صN'`), the printed rules, the printed
-       statements of Bohr's model and the printed data tables;
-     * a platform sentence enters only when the printed page would otherwise be
-       impossible to record (a symbol a student cannot read), and then it is
-       one short line, never a definition, never a derived formula;
-     * a platform explanation is *not* evidence that a fact belongs here. The
-       lesson may explain a topic at length; the notebook keeps the printed
-       core;
-     * nothing is composed from the book plus the platform: no definition in
-       this file is a synthesis of two sources.
-
-   Removed on the reviewer's instruction, and not to be restored without an
-   explicit request: the platform definition of «السوية الطاقية», the composed
-   «مفهوم العنصر الكيميائي», the atomic-number and mass-number definitions,
-   the mass-number relation (A − Z), the charge formula (q = Np − Ne), the
-   monovalent-ion entry, the gas-notation ordering rule for Lewis dots, and the
-   gloss notes that repeated the tables.
-
-   And it leaves out — because the lesson already carries them and copying them
-   would turn the notebook into a second copy of the lesson:
-
-     * experiment execution and apparatus;
-     * solved examples, worked applications and example grids;
-     * solution procedures and checklists describing *how* to answer;
-     * re-explanations of why a rule holds, and repeated restatements;
-     * the closing self-check questions, which are revision, not notes.
-   ========================================================================= */
-
 export const lesson1StudentNotebook: StudentNotebook = {
   title: 'الذرّة والعنصر — مادة الدفتر المدرسي',
   introduction:
-    'التعريفات والقواعد والرموز التي تُدوَّن في دفترك بعد درس «الذرّة والعنصر» (ص3–12). الشرح والأمثلة والأنشطة تُقرأ في الدرس.',
+    'المحتوى الدراسي الذي يُدوَّن في الدفتر: التعاريف والقوانين والقواعد والجداول والأمثلة المحلولة والرسوم. التوثيق في جدول المصادر في نهاية الدفتر.',
+  hidePageTagsInBody: true,
   source: {
     pages: Array.from({ length: 10 }, (_, index) => ({ page: String(index + 3) })),
-    verified: true,
+    verified: false,
+    readability: {
+      notes:
+        'صور الصفحات الأصلية غير محفوظة في المستودع؛ التفريغ من المصادر المحلية. verified=false: لا تحقق بصري من المسح.',
+    },
   },
   sections: [
     {
       id: 'electron',
       title: 'الإلكترون ونموذج طومسون',
-      lead: 'أول جسيم داخل الذرّة، وأول تفسير لتوزيع شحنتها.',
       definitions: [
         {
           term: 'الإلكترون',
@@ -64,54 +31,84 @@ export const lesson1StudentNotebook: StudentNotebook = {
           source: 'ص4',
         },
       ],
-      points: ['الذرّة تتكوّن من جسيمات تحمل شحنات سالبة وأخرى موجبة.'],
+      points: [
+        'بدأ العلماء في العصر الحديث يعتمدون المنهج التجريبي للتأكد من بنية الذرّة، وقد أدّى اكتشاف التيار الكهربائي ونقل محاليل الأملاح للتيار الكهربائي إلى أن الذرّة تتكوّن من جسيمات تحمل شحنات سالبة وأخرى موجبة.',
+      ],
+      figures: [
+        {
+          id: 'fig-thomson',
+          kind: 'thomson',
+          caption:
+            'نموذج طومسون تخطيطي: كرة موجبة متجانسة تتوزع داخلها إلكترونات سالبة. النقاط في الرسم توضح الفكرة فقط، وعددها في الرسم ليس عدداً مقرراً من الكتاب.',
+          reconstruction: true,
+        },
+      ],
     },
     {
       id: 'rutherford',
       title: 'تجربة رذرفورد والنواة',
-      lead: 'الملاحظتان المطبوعتان، وتعريف النواة.',
       definitions: [
         {
-          /**
-           * The printed clause alone, complete in meaning: it names the part,
-           * its charge, what it carries and who called it that. The platform's
-           * «الكتلة والشحنة الموجبة مركّزتان…» was removed — it is an
-           * explanation of the experiment, not a printed definition, and it was
-           * previously mis-filed to ص7.
-           */
           term: 'النواة',
           text: 'جزء موجب يمثل معظم كتلة الذرة أطلق عليه العالم رذرفورد النواة.',
           source: 'ص4',
         },
       ],
-      points: [
-        'معظم جسيمات ألفا تنفذ دون انحراف ← معظم حجم الذرّة فراغ.',
-        'جزء صغير من جسيمات ألفا ارتد وبعضها انحرف بزوايا مختلفة.',
+      ordered: [
+        'قام رذرفورد بتجربته الآتية: أسقط رزمة من جسيمات ألفا (جسيمات موجبة الشحنة) على صفيحة ذهب رقيقة.',
+        'ملاحظة 1: معظم جسيمات ألفا تنفذ من صفيحة الذهب دون أن تنحرف مما يدل أن معظم حجم الذرة فراغ.',
+        'ملاحظة 2: جزء صغير من جسيمات ألفا ارتد وبعضها انحرف بزوايا مختلفة.',
+        'الاستنتاج: ممّا يدلّ على أنّ الذرّة تحوي بداخلها على جزء موجب يمثّل معظم كتلة الذرّة أطلق عليه العالم رذرفورد النواة.',
+      ],
+      figures: [
+        {
+          id: 'fig-rutherford',
+          kind: 'rutherford-static',
+          caption:
+            'مخطط ثابت: مصدر جسيمات ألفا، صفيحة ذهب، شاشة مطلية بـ ZnS. معظم المسارات تنفذ، بعضها ينحرف، وعدد قليل يرتد. التجربة التفاعلية تُعرض في الدرس لا في مادة الدفتر.',
+          reconstruction: true,
+        },
       ],
     },
     {
       id: 'bohr',
-      title: 'نموذج بور والسويات الطاقية',
-      lead: 'نقاط نموذج بور الثلاث',
+      title: 'نموذج بور للذرّة',
       ordered: [
         'تتكوّن الذرّة من نواة موجبة وتدور حولها الإلكترونات في سويّات لها طاقة محدّدة.',
         'تمتصّ الذرّة طاقة محددة عندما يقفز الإلكترون من سوية طاقة أدنى إلى سوية طاقة أعلى بحيث تكون الطاقة الممتصّة تساوي فرق الطاقة بين السويتين اللتين قفز بينهما الإلكترون.',
         'تصدر الذرّة طاقة محددة على شكل ضوء عندما يقفز الإلكترون من سوية طاقة أعلى إلى سوية طاقة أدنى.',
       ],
+      points: ['(هذا ما يفسر طيف الانبعاثات الذي تصدره الذرّات بعد إثارتها)'],
+      figures: [
+        {
+          id: 'fig-bohr',
+          kind: 'bohr',
+          symbol: '—',
+          shells: [0, 0, 0],
+          caption:
+            'إعادة بناء تعليمية عامة لنموذج بور، تُظهر النواة وسويات الطاقة. الحلقات فارغة عمداً؛ إذ لا يعرض هذا الرسم توزيعاً إلكترونياً لعنصر معيّن، ولا يُنسب إلى رسم الكتاب الأصلي',
+          reconstruction: true,
+          legend: 'الدائرة المركزية = النواة. الحلقات المحيطة = سويات الطاقة. لا تظهر إلكترونات على هذا الرسم العام',
+        },
+      ],
     },
     {
       id: 'levels',
       title: 'السويات الرئيسية وقانون السعة',
-      lead: 'عدد السويات وقانون السعة العظمى',
-      definitions: [
+      points: [
+        'يوجد في الذرة سبع سويات طاقة أساسية لها الأرقام (1 – 2 – 3 – 4 – 5 – 6 – 7) (K, L, M, N, O, P, Q)، وتحوي كل منها عددًا أعظميًا من الإلكترونات يساوي (2n²).',
+        'y = 2(n)² حيث يعبّر n عن رقم السوية الرئيسية، مع العلم أن السوية الأخيرة لا تحوي أكثر من ثمانية إلكترونات.',
+      ],
+      notes: [
         {
-          term: 'السويات الرئيسية',
-          text: 'يوجد في الذرة سبع سويات طاقة أساسية لها الأرقام (1 – 2 – 3 – 4 – 5 – 6 – 7) (K, L, M, N, O, P, Q)، وتحوي كل منها عددًا أعظميًا من الإلكترونات يساوي (2n²).',
-          source: 'ص11 — «تعلّمُ»',
+          text: 'نربّع رقم السوية n أولاً ثم نضرب الناتج في 2: y = 2 × n². ليست (2n)².',
+          role: 'platform',
         },
       ],
-      points: [
-        'y = 2(n)² حيث يعبّر n عن رقم السوية الرئيسية، مع العلم أن السوية الأخيرة لا تحوي أكثر من ثمانية إلكترونات.',
+      ordered: [
+        'توزّع إلكترونات الذرّة على سبع سويّات طاقة رئيسية.',
+        'تحوي كل سوية رئيسية عدداً أعظمياً من الإلكترونات y يحدده القانون y = 2(n)².',
+        'الإلكترونات تشغل السويّات الأدنى أولاً إلا السوية الرئيسية الأخيرة لا تحوي أكثر من ثمانية إلكترونات.',
       ],
       table: {
         caption: 'السعة العظمى للإلكترونات في السويات K–O',
@@ -127,55 +124,129 @@ export const lesson1StudentNotebook: StudentNotebook = {
           { id: 'n', cells: { level: 'N', n: '4', y: '32' } },
           { id: 'o', cells: { level: 'O', n: '5', y: '50' } },
         ],
-        footnote: 'K = 2 وL = 8 كما في الكتاب، ويُكمل M وN وO بالقانون.',
       },
+      figures: [
+        {
+          id: 'fig-levels',
+          kind: 'levels',
+          caption: 'سبع حلقات دائرية متحدة المركز حول النواة، بأسماء K إلى Q وأرقام n من 1 إلى 7، بلا إلكترونات.',
+          reconstruction: true,
+        },
+      ],
     },
     {
       id: 'distribution',
-      title: 'التوزيع الإلكتروني',
-      lead: 'قواعد التوزيع على السويات',
+      title: 'التوزيع الإلكتروني وتطبيق الصوديوم',
       points: [
         'الإلكترونات تشغل السويّات الأدنى أولاً.',
         'عدد الإلكترونات يساوي عدد البروتونات في الذرة.',
+      ],
+      procedure: {
+        title: 'توزيع إلكترونات الصوديوم (11 إلكتروناً)',
+        steps: [
+          'نملأ K بسعتها 2. المتبقي 11 − 2 = 9.',
+          'نملأ L بسعتها 8. المتبقي 9 − 8 = 1.',
+          'نضع 1 في M. التحقق: 2 + 8 + 1 = 11.',
+          'النتيجة: Na: K(2), L(8), M(1) أي 2-8-1.',
+        ],
+      },
+      table: {
+        caption: 'عدد الإلكترونات الموجود فعلاً في كل سوية لذرة الصوديوم',
+        columns: [
+          { key: 'level', header: 'السوية', rowHeader: true },
+          { key: 'n', header: 'n' },
+          { key: 'actual', header: 'عدد الإلكترونات الموجود فعلاً في كل سوية' },
+        ],
+        rows: [
+          { id: 'k', cells: { level: 'K', n: '1', actual: '2' } },
+          { id: 'l', cells: { level: 'L', n: '2', actual: '8' } },
+          { id: 'm', cells: { level: 'M', n: '3', actual: '1' } },
+        ],
+        footnote: 'هذه الأعداد هي التوزيع الفعلي. السعة النظرية لـ M تساوي 18.',
+      },
+      tables: [
+        {
+          caption: 'السعة النظرية مقابل العدد الفعلي في ذرة الصوديوم',
+          columns: [
+            { key: 'level', header: 'السوية', rowHeader: true },
+            { key: 'cap', header: 'السعة العظمى 2(n)²' },
+            { key: 'actual', header: 'العدد الموجود فعلاً' },
+          ],
+          rows: [
+            { id: 'k', cells: { level: 'K', cap: '2', actual: '2' } },
+            { id: 'l', cells: { level: 'L', cap: '8', actual: '8' } },
+            { id: 'm', cells: { level: 'M', cap: '18', actual: '1' } },
+          ],
+        },
+      ],
+      figures: [
+        {
+          id: 'fig-sodium',
+          kind: 'bohr',
+          symbol: 'Na',
+          shells: [2, 8, 1],
+          caption: 'ذرة الصوديوم: حلقة K إلكترونان، حلقة L ثمانية، حلقة M إلكترون واحد.',
+          reconstruction: true,
+          legend: 'المفتاح: النقاط على الحلقات = إلكترونات. الدائرة المركزية = النواة. لا أعداد بروتونات أو نيوترونات على هذا الرسم لأنها غير واردة في مصدر الشكل.',
+        },
       ],
     },
     {
       id: 'atomic-numbers',
       title: 'العدد الذري والعدد الكتلي والترميز النووي',
-      lead: 'قراءة رمز النواة',
-      /**
-       * The only line in the notebook that the book does not print. The book
-       * prints the symbol ²⁰₁₀Ne and asks for A, for Z, for the number of
-       * electrons and for the distribution, but names neither number — so
-       * without this line the printed symbol has no key. It is labelled to the
-       * student on the same page, not only here.
-       */
-      source: 'توضيح ضروري من المنصة — ليس نصاً من الكتاب',
       points: ['في رمز النواة يُكتب العدد الكتلي A في الأعلى والعدد الذري Z في الأسفل.'],
+      procedure: {
+        title: 'مثال النيون ²⁰₁₀Ne',
+        steps: [
+          'العدد الكتلي A = 20.',
+          'العدد الذري Z = 10، وهو عدد البروتونات.',
+          'في الذرة المتعادلة عدد الإلكترونات = 10.',
+          'التوزع الإلكتروني: 2-8.',
+        ],
+      },
+      notes: [
+        {
+          role: 'platform',
+          text: 'في رمز النواة يُكتب العدد الكتلي A في الأعلى والعدد الذري Z في الأسفل. هذه قراءة رمز مطبوعة في الأمثلة، وصياغتها هنا توضيح من المنصة.',
+        },
+        {
+          text: 'عدد النيوترونات N = A − Z. تُستخدم عند ملء جداول النظائر.',
+          role: 'platform',
+          notation: 'math',
+          tex: 'N = A - Z',
+        },
+        {
+          role: 'platform',
+          text:
+            'الكتاب يضع هدف «يحدّد مفهوم العنصر الكيميائي» دون جملة تعريف مطبوعة. ما يثبّت هوية العنصر في هذا الدرس هو ثبات العدد الذري (عدد البروتونات): النظائر تتماثل بالعدد الذري فتبقى للعنصر نفسه. هذه صياغة المنصة من الهدف وتعريف النظائر، وليست تعريفاً مطبوعاً.',
+        },
+      ],
     },
     {
       id: 'octet',
       title: 'قاعدة الثمانية والنشاط الكيميائي',
-      lead: 'قاعدة الاستقرار، واستثناء الهيدروجين.',
       definitions: [
         {
-          /**
-           * The printed sentence is shown whole, not split into a separate
-           * "chemical activity" definition. It already names the term inside
-           * the rule, and the lesson prints nothing else that defines it — so
-           * quoting it as it stands is the only faithful option.
-           */
           term: 'قاعدة الثمانية الإلكترونية',
           text:
             'تسعى ذرّات العناصر الكيميائية إلى الاستقرار بأن يصبح في طبقتها السطحية ثمانية إلكترونات، عدا الهيدروجين الذي يحتوي على إلكترونين فقط. تسعى الذرّة للحصول على ثمانية إلكترونات في طبقتها السطحية، فتكتسب أو تفقد الإلكترونات وهذا ما يسمى النشاط الكيميائي.',
           source: 'ص7 — نص الكتاب، كما هو.',
         },
       ],
+      notes: [
+        {
+          role: 'platform',
+          text:
+            'ذرة الهيدروجين المتعادلة تحتوي إلكتروناً واحداً لأن عددها الذري 1. استقرار السوية الأولى K يتحقق بإلكترونين، وهذا هدف الاستقرار لا عدد إلكترونات الذرة المتعادلة.',
+        },
+      ],
+      points: [
+        'الصوديوم المعدني توزعه 2-8-1 ونشاطه الكيميائي عالٍ. في كلوريد الصوديوم يوجد أيون Na⁺ بتوزع 2-8 وهو أكثر استقراراً. النشاط يفسّر اختلاف السلوك، ولا يصف آلية الحروق.',
+      ],
     },
     {
       id: 'ions',
       title: 'الأيونات ورموزها',
-      lead: 'تعريف الأيون وقاعدة شحنته ورمزه',
       definitions: [
         {
           term: 'الأيون',
@@ -184,43 +255,115 @@ export const lesson1StudentNotebook: StudentNotebook = {
           source: 'ص8',
         },
       ],
-      points: ['ترتيب إشارة الشحنة في الكتاب: 2+ و2− لا +2 و−2.'],
       table: {
-        caption: 'أمثلة الأيونات كما في الكتاب (ص9)',
+        caption: 'ذرة الصوديوم وأيونه وذرة الكلور وأيونه',
         columns: [
-          { key: 'element', header: 'اسم العنصر', rowHeader: true },
-          { key: 'way', header: 'طريقة حصوله على قاعدة الثمانية' },
-          { key: 'ion', header: 'شحنة الأيون ورمزه' },
+          { key: 'species', header: 'الشكل', rowHeader: true },
+          { key: 'symbol', header: 'الرمز' },
+          { key: 'electrons', header: 'عدد الإلكترونات' },
+          { key: 'protons', header: 'عدد البروتونات' },
+          { key: 'sum', header: 'المجموع الجبري للشحنات' },
         ],
         rows: [
-          { id: 'k', cells: { element: 'البوتاسيوم', way: 'فقدان إلكترون واحد', ion: '1+ ‑ K⁺' } },
-          { id: 'f', cells: { element: 'الفلور', way: 'اكتساب إلكترون واحد', ion: '1− ‑ F⁻' } },
-          { id: 'ca', cells: { element: 'الكالسيوم', way: 'فقدان إلكترونين', ion: '2+ ‑ Ca²⁺' } },
-          { id: 'o', cells: { element: 'الأكسجين', way: 'اكتساب إلكترونين', ion: '2− ‑ O²⁻' } },
+          { id: 'na', cells: { species: 'ذرة الصوديوم', symbol: '²³₁₁Na', electrons: '11', protons: '11', sum: '0' } },
+          { id: 'na-ion', cells: { species: 'أيون الصوديوم', symbol: '²³₁₁Na⁺', electrons: '10', protons: '11', sum: '+1' } },
+          { id: 'cl', cells: { species: 'ذرة الكلور', symbol: '³⁵₁₇Cl', electrons: '17', protons: '17', sum: '0' } },
+          { id: 'cl-ion', cells: { species: 'أيون الكلور', symbol: '³⁵₁₇Cl⁻', electrons: '18', protons: '17', sum: '−1' } },
+        ],
+      },
+      points: [
+        'المجموع صفر في الذرتين المتعادلتين، ويساوي +1 في أيون الصوديوم و−1 في أيون الكلور.',
+        'ذرة الصوديوم 11 إلكتروناً، وأيون الصوديوم 10؛ الأيون فقد إلكتروناً واحداً.',
+        'فقدت ذرة الصوديوم إلكتروناً من سويتها الأخيرة فتكوّن Na⁺.',
+        'ذرة الكلور 17 و17 والمجموع 0. أيون الكلور اكتسب إلكتروناً فصار 18 إلكتروناً و17 بروتوناً والشحنة −1.',
+      ],
+      notes: [
+        {
+          role: 'platform',
+          text: 'ترتيب إشارة الشحنة في الكتاب: 2+ و2− لا +2 و−2.',
+        },
+      ],
+      tables: [
+        {
+          caption: 'أمثلة الأيونات',
+          columns: [
+            { key: 'element', header: 'اسم العنصر', rowHeader: true },
+            { key: 'z', header: 'عدده الذري' },
+            { key: 'dist', header: 'توزعه الإلكتروني' },
+            { key: 'way', header: 'طريقة حصوله على قاعدة الثمانية' },
+            { key: 'ion', header: 'شحنة الأيون ورمزه' },
+          ],
+          rows: [
+            { id: 'k', cells: { element: 'البوتاسيوم', z: '19', dist: '2-8-8-1', way: 'فقدان إلكترون واحد', ion: '1+  K⁺' } },
+            { id: 'f', cells: { element: 'الفلور', z: '9', dist: '2-7', way: 'اكتساب إلكترون واحد', ion: '1−  F⁻' } },
+            { id: 'ca', cells: { element: 'الكالسيوم', z: '20', dist: '2-8-8-2', way: 'فقدان إلكترونين', ion: '2+  Ca²⁺' } },
+            { id: 'o', cells: { element: 'الأكسجين', z: '8', dist: '2-6', way: 'اكتساب إلكترونين', ion: '2−  O²⁻' } },
+          ],
+          footnote: 'توزيع أيون الكالسيوم هو 2-8-8.',
+        },
+      ],
+      procedure: {
+        title: 'الفضة والبروم',
+        steps: [
+          'تفقد ذرّة الفضة Ag إلكترونًا واحدًا فتتحوّل إلى أيون موجب، نرمز له بالرمز Ag⁺.',
+          'فقدت ذرة الفضة إلكتروناً فتكوّن Ag⁺.',
+          'تتحوّل ذرّة البروم إلى أيون البروم Br⁻ عندما تكتسب إلكتروناً واحداً.',
+          'اكتسبت ذرة البروم إلكتروناً فتكوّن Br⁻.',
         ],
       },
     },
     {
       id: 'lewis',
       title: 'تمثيل لويس للذرّات',
-      lead: 'إلكترونات السوية الأخيرة فقط، بنقاط حول الرمز.',
       definitions: [
         {
-          /**
-           * The printed definition, completed: the previous version dropped the
-           * printed «أو حرف X صغير», which is part of what Lewis proposed.
-           */
           term: 'تمثيل لويس',
           text:
-            'اقترح لويس تمثيلًا مبسّطًا للذرات بحيث نكتبُ رمز الذرّة محاطة بالإلكترونات السّطحية فقط ويشار لها بنقاط أو حرف X صغير.',
+            'اقترح لويس تمثيلًا مبسّطًا للذرات بحيث نكتبُ رمز الذرّة محاطة بالإلكترونات السّطحية فقط ويشار لها بنقاط أو حرف X صغير. مثال: ذرة الكالسيوم Ca نكتبها وفق لويس بالشكل C̈a لأنها تحوي إلكترونين سطحيين.',
           source: 'ص9',
         },
+      ],
+      table: {
+        caption: 'جدول لويس',
+        columns: [
+          { key: 'label', header: '', rowHeader: true },
+          { key: 'li', header: 'الليثيوم' },
+          { key: 'b', header: 'البورون' },
+          { key: 'c', header: 'الكربون' },
+          { key: 'n', header: 'النيتروجين' },
+          { key: 'f', header: 'الفلور' },
+        ],
+        rows: [
+          { id: 'z', cells: { label: 'عدده الذري', li: '3', b: '5', c: '6', n: '7', f: '9' } },
+          { id: 'dist', cells: { label: 'توزعه الإلكتروني', li: '2-1', b: '2-3', c: '2-4', n: '2-5', f: '2-7' } },
+          {
+            id: 'lewis',
+            cells: {
+              label: 'تمثيل لويس للعنصر',
+              li: 'نقطة واحدة',
+              b: 'ثلاث نقاط',
+              c: 'أربع نقاط في الجهات الأربع',
+              n: 'خمسة إلكترونات سطحية: زوج واحد وثلاث نقاط مفردة',
+              f: 'سبعة إلكترونات سطحية: ثلاثة أزواج ونقطة مفردة',
+            },
+          },
+        ],
+      },
+      figures: [
+        { id: 'lewis-li', kind: 'lewis-atom', symbol: 'Li', dots: ['right'], caption: 'الليثيوم Li — العدد الذري 3 — التوزع 2-1 — إلكترون سطحي واحد', reconstruction: true },
+        { id: 'lewis-b', kind: 'lewis-atom', symbol: 'B', dots: ['top', 'right', 'left'], caption: 'البورون B — العدد الذري 5 — التوزع 2-3 — ثلاثة إلكترونات سطحية', reconstruction: true },
+        { id: 'lewis-c', kind: 'lewis-atom', symbol: 'C', dots: ['top', 'right', 'bottom', 'left'], caption: 'الكربون C — العدد الذري 6 — التوزع 2-4 — أربعة إلكترونات سطحية', reconstruction: true },
+        { id: 'lewis-n', kind: 'lewis-atom', symbol: 'N', dots: ['right', 'bottom', 'left'], pairs: { top: 1 }, caption: 'النيتروجين N — العدد الذري 7 — التوزع 2-5 — خمسة إلكترونات سطحية', reconstruction: true },
+        { id: 'lewis-f', kind: 'lewis-atom', symbol: 'F', dots: ['right'], pairs: { top: 1, left: 1, bottom: 1 }, caption: 'الفلور F — العدد الذري 9 — التوزع 2-7 — سبعة إلكترونات سطحية', reconstruction: true },
+        { id: 'lewis-ca', kind: 'lewis-atom', symbol: 'Ca', dots: ['right', 'left'], caption: 'الكالسيوم Ca — إلكترونان سطحيان (نقطتان حول الرمز). جملة التفريغ C̈a غير مؤكدة كمطابقة بصرية لصورة الكتاب.', reconstruction: true },
+        { id: 'lewis-al', kind: 'lewis-atom', symbol: 'Al', dots: ['top', 'right', 'left'], caption: 'الألمنيوم Al — العدد الذري 13 — التوزع 2-8-3 — ثلاثة إلكترونات سطحية', reconstruction: true },
+        { id: 'lewis-mg', kind: 'lewis-atom', symbol: 'Mg', dots: ['right', 'left'], caption: 'المغنيسيوم Mg — العدد الذري 12 — التوزع 2-8-2 — إلكترونان سطحيان', reconstruction: true },
+        { id: 'lewis-o', kind: 'lewis-atom', symbol: 'O', dots: ['right', 'left'], pairs: { top: 1, bottom: 1 }, caption: 'الأكسجين O — العدد الذري 8 — التوزع 2-6 — ستة إلكترونات سطحية', reconstruction: true },
       ],
     },
     {
       id: 'isotopes',
-      title: 'النظائر والفرق بينها وبين الأيون',
-      lead: 'العنصر نفسه بعدد ذري ثابت وعدد كتلي مختلف.',
+      title: 'النظائر',
       definitions: [
         {
           term: 'النظائر',
@@ -229,21 +372,115 @@ export const lesson1StudentNotebook: StudentNotebook = {
           source: 'ص11',
         },
       ],
+      figures: [
+        {
+          id: 'fig-hydrogen-nuclei',
+          kind: 'hydrogen-nuclei',
+          caption:
+            'نوى نظائر الهيدروجين. المفتاح: الدائرة الحمراء = النواة. بروتون، نيوترون، إلكترون. العادي: بروتون واحد ولا نيوترون وإلكترون واحد. الديوتيريوم: بروتون ونيوترون وإلكترون. التريتيوم: بروتون ونيوترونان وإلكترون.',
+          reconstruction: true,
+        },
+      ],
+      table: {
+        caption: 'نظائر الهيدروجين',
+        columns: [
+          { key: 'property', header: 'الخاصية', rowHeader: true },
+          { key: 'h1', header: '¹₁H' },
+          { key: 'h2', header: '²₁H' },
+          { key: 'h3', header: '³₁H' },
+        ],
+        rows: [
+          { id: 'a', cells: { property: 'العدد الكتلي', h1: '1', h2: '2', h3: '3' } },
+          { id: 'z', cells: { property: 'العدد الذري', h1: '1', h2: '1', h3: '1' } },
+          { id: 'n', cells: { property: 'عدد النيوترونات', h1: '0', h2: '1', h3: '2' } },
+        ],
+      },
+      tables: [
+        {
+          caption: 'نظائر الأكسجين',
+          columns: [
+            { key: 'property', header: 'الخاصية', rowHeader: true },
+            { key: 'o16', header: '¹⁶O' },
+            { key: 'o17', header: '¹⁷O' },
+            { key: 'o18', header: '¹⁸O' },
+          ],
+          rows: [
+            { id: 'a', cells: { property: 'العدد الكتلي', o16: '16', o17: '17', o18: '18' } },
+            { id: 'z', cells: { property: 'العدد الذري', o16: '8', o17: '8', o18: '8' } },
+            { id: 'n', cells: { property: 'عدد النيوترونات', o16: '8', o17: '9', o18: '10' } },
+          ],
+        },
+      ],
       points: [
-        'نظائر الهيدروجين الثلاثة ¹₁H و²₁H و³₁H: العدد الذري 1 في الحالات الثلاث، والنيوترونات صفر وواحد واثنان.',
+        'نوى الهيدروجين تتشابه ببروتون واحد وتختلف بعدد النيوترونات 0 و1 و2.',
+        'التريتيوم أكبر كتلة لأن عدده الكتلي 3.',
+        'النظائر تختلف في الكتلة وتتماثل كيميائياً لأن عدد الإلكترونات واحد.',
         'النظير: تتغيّر النيوترونات وتثبت البروتونات والإلكترونات. الأيون: تتغيّر الإلكترونات وتثبت البروتونات والنيوترونات.',
       ],
     },
+    {
+      id: 'learn',
+      title: 'خلاصة تعلّمُ',
+      points: [
+        'يوجد في الذرة سبع سويّات طاقة أساسية لها الأرقام (1 – 2 – 3 – 4 – 5 – 6 – 7) (K, L, M, N, O, P, Q)، وتحوي كل منها عددًا أعظميًا من الإلكترونات يساوي (2n²). عدد الإلكترونات يساوي عدد البروتونات في الذرة. إذا فقدت الذرة إلكترونًا أو أكثر أصبحت أيونًا موجبًا. إذا اكتسبت الذرة إلكترونًا أو أكثر أصبحت أيونًا سالبًا. النظائر هي ذرّات لعنصر واحد تتماثل بالعدد الذري وتختلف بالعدد الكتلي.',
+      ],
+    },
   ],
-
-  /**
-   * Revision, not notes. Rendered *outside* the notebook article, under a
-   * heading that says so, so a student never copies it into the notebook.
-   */
+  sourcesAppendix: {
+    caption: 'جدول مصادر بنود دفتر الطالب',
+    rows: [
+      { item: 'المنهج التجريبي والتيار', kind: 'فقرة', classification: 'نص الكتاب', source: 'p4-experiment-method', page: '4' },
+      { item: 'تعريف الإلكترون', kind: 'تعريف', classification: 'نص التفريغ — غير محسوم بصرياً («التقريب الكهربائي»)', source: 'p4-thomson-electron', page: '4' },
+      { item: 'تعريف نموذج طومسون', kind: 'تعريف', classification: 'نص الكتاب في التفريغ', source: 'p4-thomson-definition', page: '4' },
+      { item: 'رسم نموذج طومسون', kind: 'رسم', classification: 'إعادة بناء تخطيطية. عدد النقاط ليس مقرراً', source: 'p4-figure-thomson-model', page: '4' },
+      { item: 'إجراء رذرفورد', kind: 'إجراء', classification: 'نص الكتاب', source: 'p4-rutherford-procedure', page: '4' },
+      { item: 'ملاحظة رذرفورد 1', kind: 'ملاحظة', classification: 'نص الكتاب', source: 'p4-observation-1', page: '4' },
+      { item: 'ملاحظة رذرفورد 2', kind: 'ملاحظة', classification: 'نص الكتاب', source: 'p4-observation-2', page: '4' },
+      { item: 'استنتاج النواة', kind: 'استنتاج', classification: 'نص الكتاب بعد الملاحظتين', source: 'p4-conclusion', page: '4' },
+      { item: 'تعريف النواة', kind: 'تعريف', classification: 'نص الكتاب', source: 'p4-conclusion', page: '4' },
+      { item: 'رسم رذرفورد الثابت', kind: 'رسم', classification: 'إعادة بناء ثابتة للنسخ. المحاكاة في خطوة الدرس فقط', source: 'p4-figure-rutherford', page: '4' },
+      { item: 'نقطة بور 1', kind: 'تعداد', classification: 'نص الكتاب', source: 'p5-bohr-1', page: '5' },
+      { item: 'نقطة بور 2', kind: 'تعداد', classification: 'نص الكتاب', source: 'p5-bohr-2', page: '5' },
+      { item: 'نقطة بور 3', kind: 'تعداد', classification: 'نص الكتاب', source: 'p5-bohr-3', page: '5' },
+      { item: 'طيف الانبعاث', kind: 'ملاحظة', classification: 'نص الكتاب', source: 'p5-spectral-note', page: '5' },
+      { item: 'رسم بور', kind: 'رسم', classification: 'إعادة بناء عامة. الأعداد والحرف ليسا من الكتاب', source: 'p5-figure-bohr', page: '5' },
+      { item: 'قانون السعة y = 2(n)²', kind: 'قانون', classification: 'نص الكتاب', source: 'p5-law', page: '5' },
+      { item: 'ترتيب العمليات في y = 2(n)²', kind: 'توضيح منصة', classification: 'إضافة المنصة: نربّع n ثم نضرب في 2', source: 'منصة على p5-law', page: '5' },
+      { item: 'رسم السويات السبع', kind: 'رسم', classification: 'إعادة بناء LevelsDiagram (تحميل ساكن)', source: 'p5-figure-levels', page: '5' },
+      { item: 'جدول السعات K–O', kind: 'جدول', classification: 'نشاط ص6 محلول', source: 'p6-table', page: '6' },
+      { item: 'قواعد التوزيع', kind: 'قاعدة', classification: 'نص الكتاب', source: 'p6-statements', page: '6' },
+      { item: 'تطبيق الصوديوم', kind: 'مثال محلول', classification: 'نص الكتاب', source: 'p6-worked-sodium', page: '6' },
+      { item: 'جدول العدد الفعلي للصوديوم', kind: 'جدول', classification: 'عنوان الطالب: الموجود فعلاً. عنوان التفريغ «الأعظمى» غير محسوم بصرياً', source: 'p6-worked-sodium', page: '6' },
+      { item: 'جدول السعة النظرية مقابل الفعلية', kind: 'جدول', classification: 'توضيح منصة يفصل السعة عن الإشغال', source: 'منصة على p6-worked-sodium وp5-law', page: '6' },
+      { item: 'رسم الصوديوم 2-8-1', kind: 'رسم', classification: 'إعادة بناء BohrAtom. مفتاح رموز بلا أعداد p/n', source: 'p6-figure-sodium', page: '6' },
+      { item: 'مثال النيون', kind: 'مثال محلول', classification: 'نص الكتاب', source: 'p7-example-neon', page: '7' },
+      { item: 'قراءة A أعلى وZ أسفل', kind: 'توضيح منصة', classification: 'صياغة المنصة لقراءة الرمز النووي المطبوع في الأمثلة', source: 'منصة على p7-example-neon', page: '7' },
+      { item: 'العلاقة N = A − Z', kind: 'توضيح منصة', classification: 'مشتقة لملء جداول النظائر. ليست جملة مطبوعة', source: 'منصة على p10-hydrogen-table', page: '10' },
+      { item: 'هدف مفهوم العنصر', kind: 'توضيح منصة', classification: 'الهدف مطبوع ص3 دون جملة تعريف. صياغة المنصة من ثبات Z وتعريف النظائر — ليست تعريف كتاب', source: 'O5 / p11-isotope-definition', page: '3 و11' },
+      { item: 'قاعدة الثمانية', kind: 'قاعدة', classification: 'نص الكتاب', source: 'p7-octet-rule', page: '7' },
+      { item: 'توضيح الهيدروجين (إلكترونان هدف K)', kind: 'توضيح', classification: 'إضافة المنصة منفصلة عن نص الكتاب', source: 'منصة', page: '7' },
+      { item: 'نشاط الصوديوم والمسحوق', kind: 'ملاحظة', classification: 'تمييز المعدن عن NaCl — ليس آلية حرق', source: 'p7-ion-phenomenon', page: '7' },
+      { item: 'جدول Na/Cl', kind: 'جدول', classification: 'عمود «الرمز». التفريغ «رمز النواة» غير محسوم بصرياً', source: 'p8-table', page: '8' },
+      { item: 'ترتيب إشارة الشحنة 2+ و2−', kind: 'توضيح منصة', classification: 'من ملاحظة الدرس على ترميز الكتاب', source: 'منصة على p8-ion-definition', page: '8' },
+      { item: 'تعريف الأيون', kind: 'تعريف', classification: 'نص الكتاب', source: 'p8-ion-definition', page: '8' },
+      { item: 'أمثلة الأيونات K F Ca O', kind: 'جدول', classification: 'نص الكتاب. أيون Ca: 2-8-8', source: 'p9-examples-table', page: '9' },
+      { item: 'نشاط الفضة Ag⁺', kind: 'مثال محلول', classification: 'نص النشاط + حل المصدر المحلي. لا توزيع إلكتروني مطبوع للفضة في المصدر', source: 'p9-activity-1', page: '9' },
+      { item: 'نشاط البروم Br⁻', kind: 'مثال محلول', classification: 'نص النشاط + حل المصدر المحلي. إشارة Br⁻ غير محسومة بصرياً', source: 'p9-activity-2', page: '9' },
+      { item: 'تعريف لويس', kind: 'تعريف', classification: 'نص الكتاب + جملة مثال Ca من الـ ledger. شكل C̈a غير محسوم بصرياً', source: 'p9-lewis-definition', page: '9' },
+      { item: 'جدول لويس Li B C N F بما فيه صف التمثيل', kind: 'جدول', classification: 'نشاط محلول: Z والتوزع وتمثيل لويس', source: 'p9-lewis-table', page: '9' },
+      { item: 'رسوم لويس Li B C N F', kind: 'رسم', classification: 'إعادة بناء LewisStructure', source: 'p9-lewis-table', page: '9' },
+      { item: 'رسوم لويس Al Mg O', kind: 'رسم', classification: 'إعادة بناء لنشاط ص10', source: 'p10-activity-al-mg-o', page: '10' },
+      { item: 'رسم نوى الهيدروجين', kind: 'رسم', classification: 'إعادة بناء من وصف الـ ledger — ليست صورة الكتاب', source: 'p10-figure-hydrogen', page: '10' },
+      { item: 'جدول نظائر الهيدروجين', kind: 'جدول', classification: 'نشاط محلول', source: 'p10-hydrogen-table', page: '10' },
+      { item: 'تعريف النظائر', kind: 'تعريف', classification: 'نص الكتاب', source: 'p11-isotope-definition', page: '11' },
+      { item: 'جدول نظائر الأكسجين', kind: 'جدول', classification: 'نشاط محلول', source: 'p11-oxygen-table', page: '11' },
+      { item: 'خلاصة تعلّمُ', kind: 'خلاصة', classification: 'نص الكتاب', source: 'p11-learn', page: '11' },
+    ],
+  },
   checklist: {
     title: 'قبل الاختبار: تحقّق أنك تستطيع',
     items: [
-      'كتابة التوزيع الإلكتروني لأي ذرّة من عددها الذري على السويات الرئيسية، والتحقق منه بالشروط الأربعة.',
+      'كتابة التوزيع الإلكتروني لأي ذرّة من عددها الذري على السويات الرئيسية.',
       'قراءة العدد الذري والعدد الكتلي من رمز النواة، وحساب البروتونات والنيوترونات والإلكترونات.',
       'تعليل تكوّن الأيون الموجب والأيون السالب بقاعدة الثمانية، وحساب شحنة الأيون ورمزه.',
       'رسم تمثيل لويس لذرّة من توزيعها الإلكتروني.',

@@ -224,6 +224,8 @@ export type LessonStep = {
 export type NotebookNote = {
   text: string
   notation?: 'nuclide' | 'formula' | 'ion' | 'configuration' | 'math'
+  /** Platform clarification shown apart from quoted textbook text. */
+  role?: 'textbook' | 'platform'
   /** TeX for `notation: 'math'`, e.g. `y = 2(n)^2`. */
   tex?: string
 }
@@ -310,6 +312,67 @@ export type NotebookEnrichment = {
   why: string
 }
 
+export type NotebookFigure =
+  | {
+      id: string
+      kind: 'bohr'
+      symbol: string
+      shells: number[]
+      caption: string
+      /** Educational reconstruction, never a textbook scan. */
+      reconstruction: true
+      /** Text key beside the drawing (labels only; no invented counts). */
+      legend?: string
+    }
+  | {
+      id: string
+      kind: 'interactive'
+      interactiveId: string
+      caption: string
+      reconstruction: true
+    }
+  | {
+      id: string
+      kind: 'lewis-atom'
+      symbol: string
+      dots?: Array<'top' | 'right' | 'bottom' | 'left'>
+      pairs?: Partial<Record<'top' | 'right' | 'bottom' | 'left', number>>
+      caption: string
+      reconstruction: true
+    }
+  | {
+      id: string
+      kind: 'thomson'
+      caption: string
+      reconstruction: true
+    }
+  | {
+      id: string
+      kind: 'rutherford-static'
+      caption: string
+      reconstruction: true
+    }
+  | {
+      id: string
+      kind: 'levels'
+      caption: string
+      reconstruction: true
+    }
+  | {
+      id: string
+      kind: 'hydrogen-nuclei'
+      caption: string
+      reconstruction: true
+    }
+
+export type NotebookSourceRow = {
+  item: string
+  kind: string
+  classification: string
+  source: string
+  page: string
+}
+
 export type NotebookSection = {
   id: string
   /** Section heading, taken from the topic the lesson actually teaches. */
@@ -338,6 +401,9 @@ export type NotebookSection = {
   enrichment?: NotebookEnrichment[]
   notes?: NotebookNote[]
   table?: NotebookTable
+  /** Extra tables in one section; omitted by other lesson notebooks. */
+  tables?: NotebookTable[]
+  figures?: NotebookFigure[]
   /** Optional page-15 Lewis figures; omitted by every other lesson notebook. */
   lewisMolecules?: NotebookLewisMolecule[]
   procedure?: NotebookProcedure
@@ -362,6 +428,13 @@ export type StudentNotebook = {
    * copy, so it is rendered as a separate card beside the notebook.
    */
   checklist?: { title: string; items: string[] }
+  /** Provenance for each notebook item; rendered after the student-facing notes. */
+  sourcesAppendix?: { caption: string; rows: NotebookSourceRow[] }
+  /**
+   * Lesson 1 only: hide `صN` chips on definitions in the student-facing body.
+   * Other notebooks omit this so their definition sources stay visible.
+   */
+  hidePageTagsInBody?: boolean
 }
 
 /** Optional board supplement, separate from teaching steps and the notebook. */
