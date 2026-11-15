@@ -12,15 +12,6 @@ import { StudentNotebookView } from '@/lessons/StudentNotebookView'
 import { renderApp, renderWithTheme } from './utils/renderApp'
 
 const LESSON_PATH = '/chemistry/structural-chemistry/chemical-bonds'
-const FORMULA_READING_NOTE =
-  'الحرف اللاتيني الكبير (أو الكبير متبوعاً بصغير مثل Na وCl) يدلّ على نوع العنصر، والرقم الصغير السفلي على يمين الرمز يدلّ على عدد ذرّات ذلك العنصر وحده: ففي H₂O ذرّتا هيدروجين وذرّة أكسجين واحدة.'
-const METALS_NONMETALS_POINTS = [
-  'إلكترونات التكافؤ (إلكترونات السطح) هي إلكترونات السوية الخارجية الأخيرة في الذرّة، أي آخر رقم في التوزيع الإلكتروني، وهي التي تُفقد أو تُكتسب أو تُشارك عند تكوّن الرابطة.',
-  'الفلزّات الممثّلة في هذا الدرس، ومنها الصوديوم Na والكالسيوم Ca والألمنيوم Al، تحمل سويتها الأخيرة عدداً قليلاً من إلكترونات التكافؤ (1 أو 2 أو 3) فوق سوية داخلية مكتملة؛ وعند ارتباطها باللافلزّات تفقد إلكترونات تكافئها وتتحوّل إلى أيونات موجبة.',
-  'اللافلزّات في هذا الدرس، ومنها الكربون C والنيتروجين N والأكسجين O والكلور Cl، تحمل سويتها الأخيرة غالباً من 4 إلى 7 إلكترونات تكافؤ. أمّا الهيدروجين H فلا فلزّ رغم أن سطحه إلكترون واحد، وتكتمل سويته الأولى بإلكترونين، لذلك يميل إلى المشاركة.',
-  'عند لقاء فلزّ بلا فلزّ ينتقل إلكترون أو أكثر من الفلزّ إلى اللافلزّ، فيتكوّن أيون موجب وأيون سالب يتجاذبان في رابطة أيونية. أمّا عند لقاء لا فلزّين فتتشارك الذرّات زوجاً من الإلكترونات أو أكثر دون تكوّن أيونات، فتتكوّن رابطة مشتركة؛ ولهذا لا يصح القول إن اللافلزّ يكتسب دائماً، بل يتوقّف سلوكه على الذرّة المقابلة.',
-]
-
 beforeEach(() => {
   window.history.replaceState(null, '', '/')
   progressStore.resetAll()
@@ -44,7 +35,7 @@ describe('student notebook — Lesson 2 source and scope', () => {
   })
 
   it('records the two printed bond types explicitly as a separate point', () => {
-    const opening = chemistryLesson2StudentNotebook.sections.find((section) => section.id === 'keywords-and-symbols')!
+    const opening = chemistryLesson2StudentNotebook.sections.find((section) => section.id === 'bond-meaning')!
     const classification = 'أنواع الروابط الكيميائية: الرابطة الأيونية والرابطة المشتركة.'
     expect(opening.points).toContain(classification)
 
@@ -61,17 +52,17 @@ describe('student notebook — Lesson 2 source and scope', () => {
       {
         term: 'الرابطة الكيميائيّة',
         text: 'هي القوّة التي تجذب الذرّات أو الأيونات أو الجزيئات إلى بعضها البعض.',
-        source: 'ص16 — صندوق «تعلّمُ»',
+        source: 'ص16',
       },
       {
         term: 'الرابطة الأيونية',
         text: 'هي قوة تجاذب كهربائيّة ساكنة بين أيون موجب وأيون سالب.',
-        source: 'ص16 — صندوق «تعلّمُ»',
+        source: 'ص15',
       },
       {
         term: 'الرابطة المشتركة',
         text: 'هي اشتراك ذرّتين بزوج من الإلكترونات أو أكثر.',
-        source: 'ص16 — صندوق «تعلّمُ»',
+        source: 'ص16',
       },
     ])
 
@@ -82,62 +73,46 @@ describe('student notebook — Lesson 2 source and scope', () => {
     expect(definitions.map(({ term, text }) => `${term}: ${text}`)).toEqual(printedLines)
   })
 
-  it('preserves the complete printed ionic transfer data and only the printed comparison properties', () => {
-    const transfer = chemistryLesson2StudentNotebook.sections.find((section) => section.id === 'ionic-transfer')!
-    expect(transfer.points).toEqual([
-      'عند ارتباط الصّوديوم مع الكلور تفقد ذرّة الصّوديوم إلكترونًا واحدًا متحوّلةً إلى أيون الصّوديوم Na⁺ بينما تكسب ذرّة الكلور ذلك الإلكترون متحوّلةً إلى أيون الكلوريد Cl⁻ وتتحقّق بذلك قاعدة الثمانية لكليهما.',
-      'تتجاذب أيونات الصّوديوم الموجبة Na⁺ مع أيونات الكلور السّالبة Cl⁻ لتشكيل جزيئات كلوريد الصّوديوم على شكل بلورات صلبة NaCl (ملح الطعام) المتعادل كهربائيًا.',
+  it('preserves printed transfer and properties, adding full foundations and solutions', () => {
+    const transfer = chemistryLesson2StudentNotebook.sections.find(s => s.id === 'ionic-transfer')!
+    expect(transfer.points?.[1]).toBe('عند ارتباط الصّوديوم مع الكلور تفقد ذرّة الصّوديوم إلكترونًا واحدًا متحوّلةً إلى أيون الصّوديوم Na⁺ بينما تكسب ذرّة الكلور ذلك الإلكترون متحوّلةً إلى أيون الكلوريد Cl⁻ وتتحقّق بذلك قاعدة الثمانية لكليهما.')
+    expect(transfer.points?.[2]).toBe('تتجاذب أيونات الصّوديوم الموجبة Na⁺ مع أيونات الكلور السّالبة Cl⁻ لتشكيل جزيئات كلوريد الصّوديوم على شكل بلورات صلبة NaCl (ملح الطعام) المتعادل كهربائيًا.')
+    expect(transfer.table?.rows.map(({ cells }) => Object.values(cells))).toEqual([
+      ['Na','11','11','0','2-8-1'], ['Cl','17','17','0','2-8-7'], ['Na⁺','11','10','+1','2-8'], ['Cl⁻','17','18','−1','2-8-8'],
     ])
-    expect(transfer.table?.rows.map(({ cells }) => [cells.electrons, cells.configuration])).toEqual([
-      ['11', '2-8-1'],
-      ['17', '2-8-7'],
-      ['10', '2-8'],
-      ['18', '2-8-8'],
-    ])
-
-    const properties = chemistryLesson2StudentNotebook.sections.find((section) => section.id === 'compound-properties')!
-    expect(properties.table?.rows.map(({ cells }) => cells.properties)).toEqual([
-      'المركبات ذات الرابطة الأيونية صلبة في الدرجة العادية من الحرارة، ولا تنقل التيار الكهربائي في حالتها الصلبة بينما محاليلها ومصاهيرها تنقل التيار الكهربائي ودرجات غليانها وانصهارها مرتفعة.',
-      'المركّبات ذات الرابطة المشتركة معظمها غازات وغير ناقلة للتيار الكهربائي ودرجات غليانها منخفضة.',
-    ])
+    expect(chemistryLesson2StudentNotebook.sections.find(s => s.id === 'ionic-properties')?.points?.[0]).toBe('المركبات ذات الرابطة الأيونية صلبة في الدرجة العادية من الحرارة، ولا تنقل التيار الكهربائي في حالتها الصلبة بينما محاليلها ومصاهيرها تنقل التيار الكهربائي ودرجات غليانها وانصهارها مرتفعة.')
+    expect(chemistryLesson2StudentNotebook.sections.find(s => s.id === 'lewis-worked')?.points?.[0]).toBe('المركّبات ذات الرابطة المشتركة معظمها غازات وغير ناقلة للتيار الكهربائي ودرجات غليانها منخفضة.')
   })
 
-  it('uses the two authorized platform additions verbatim and labels them visibly', () => {
-    const marked = chemistryLesson2StudentNotebook.sections.filter((section) => section.source)
-    expect(marked.map((section) => section.id)).toEqual(['formula-reading', 'metals-nonmetals-valence'])
-    for (const section of marked) {
-      expect(section.source).toBe('توضيح ضروري من المنصة — ليس نصاً من الكتاب')
-    }
-    expect(marked[0]?.notes?.map((note) => note.text)).toEqual([FORMULA_READING_NOTE])
-    expect(marked[1]?.points).toEqual(METALS_NONMETALS_POINTS)
-
-    expect(chemistryLesson2StudentNotebook.sections.map((section) => section.id)).toEqual([
-      'keywords-and-symbols',
-      'formula-reading',
-      'metals-nonmetals-valence',
-      'ionic-transfer',
-      'lewis-examples',
-      'compound-properties',
-      'printed-compounds',
-      'learn-box-definitions',
-    ])
+  it('retains all research compounds and atomic numbers while requiring full exam solutions and revision', () => {
+    const research = chemistryLesson2StudentNotebook.sections.find(s => s.id === 'comparison-research')!
+    expect(research.tables?.[2]?.rows.map(r => r.cells['0'])).toEqual(['NH₃','H₂O','CH₄','CaO','AlCl₃'])
+    expect(research.points?.[1]).toContain('₁₃Al، ₂₀Ca، ₆C، ₁H، ₈O، ₇N، ₁₇Cl')
+    research.tables?.[2]?.rows.forEach(r => expect(r.cells['3']!.length).toBeGreaterThan(35))
+    expect(research.points?.[5]).toContain('المختلف CH₄')
+    expect(research.points?.[6]).toContain('المختلف N₂')
+    expect(research.points?.[6]).toContain('اختيار H₂')
+    expect(chemistryLesson2StudentNotebook.checklist!.items).toHaveLength(7)
+    expect(chemistryLesson2StudentNotebook.sections.filter(s => s.ordered || s.procedure).map(s => s.id)).toEqual(['ionic-worked','lewis-worked'])
   })
 
-  it('keeps the printed research examples and atomic numbers, but no questions, solutions or checklist', () => {
-    const research = chemistryLesson2StudentNotebook.sections.find((section) => section.id === 'printed-compounds')!
-    expect(research.table?.rows.map(({ cells }) => [cells.name, cells.formula])).toEqual([
-      ['غاز النشادر', 'NH₃'],
-      ['الماء', 'H₂O'],
-      ['غاز الميتان', 'CH₄'],
-      ['أكسيد الكالسيوم', 'CaO'],
-      ['كلوريد الألمنيوم', 'AlCl₃'],
+  it('replaces the eight-section brief with eleven complete clean sections and a separate revision', () => {
+    expect(chemistryLesson2StudentNotebook.sections.map(s => s.id)).toEqual([
+      'keywords-and-symbols','bond-meaning','atomic-foundation','metals-nonmetals-valence','ionic-transfer','ionic-worked','ionic-properties','lewis-examples','lewis-worked','comparison-research','review-errors',
     ])
-    expect(research.points).toEqual(['حيث: ₁₃Al، ₂₀Ca، ₆C، ₁H، ₈O، ₇N، ₁₇Cl.'])
-
-    const serialized = JSON.stringify(chemistryLesson2StudentNotebook)
-    expect(chemistryLesson2StudentNotebook.checklist).toBeUndefined()
-    expect(chemistryLesson2StudentNotebook.sections.every((section) => !section.procedure && !section.ordered)).toBe(true)
-    expect(serialized).not.toMatch(/أختبر نفسي|اختر المختلف|الإجابة المرجعية|الحلّ النموذجي|أجب عن/)
+    expect(chemistryLesson2StudentNotebook.sections.every(s => !s.source)).toBe(true)
+    expect(chemistryLesson2StudentNotebook.sections[0]?.points?.[3]).toContain('الرقم الصغير السفلي')
+    expect(chemistryLesson2StudentNotebook.sections[3]?.points?.join(' ')).toMatch(/الهيدروجين.*لا فلزّ/)
+    expect(chemistryLesson2StudentNotebook.sections[3]?.points?.join(' ')).toContain('الزئبق Hg')
+    expect(chemistryLesson2StudentNotebook.sections[3]?.points?.join(' ')).toContain('الغرافيت')
+    expect(chemistryLesson2StudentNotebook.checklist?.items).toHaveLength(7)
+    expect(chemistryLesson2StudentNotebook.sections[8]?.procedure?.steps).toHaveLength(4)
+    const research = chemistryLesson2StudentNotebook.sections[9]!
+    expect(research.tables?.[2]?.rows.map(r => r.cells['0'])).toEqual(['NH₃','H₂O','CH₄','CaO','AlCl₃'])
+    expect(research.tables?.[1]?.rows.map(r => r.cells['1'])).toEqual(['13','20','6','1','8','7','17'])
+    expect(research.points?.join(' ')).toContain('اختر المختلف')
+    expect(research.points?.join(' ')).toContain('N₂')
+    expect(chemistryLesson2StudentNotebook.sourcesAppendix?.caption).toBe('جدول مصادر بنود دفتر الطالب')
   })
 })
 
@@ -169,7 +144,7 @@ describe('student notebook — reuses the printed Lewis diagrams', () => {
 
   it('renders the three real LewisMolecule figures and structured formula notation', () => {
     const { container } = renderWithTheme(<StudentNotebookView notebook={chemistryLesson2StudentNotebook} />)
-    const figures = [...container.querySelectorAll<HTMLElement>('.student-notebook__lewis')]
+    const figures = [...container.querySelectorAll<HTMLElement>('[data-notebook-section="lewis-examples"] .student-notebook__lewis')]
     expect(figures).toHaveLength(3)
 
     const expected = [
@@ -197,8 +172,10 @@ describe('student notebook — reuses the printed Lewis diagrams', () => {
     expect(container.querySelector('.student-notebook__table [data-formula="H2O"] sub')).toHaveTextContent('2')
     expect(container.querySelector('.student-notebook__table [data-formula="CH4"] sub')).toHaveTextContent('4')
     expect(container.querySelector('.student-notebook__table [data-formula="AlCl3"] sub')).toHaveTextContent('3')
-    expect(container.querySelectorAll('.nuclear-notation')).toHaveLength(7)
-    expect(container.querySelectorAll('.electron-configuration')).toHaveLength(4)
+    expect(container.querySelectorAll('.nuclear-notation')).toHaveLength(11)
+    expect(container.querySelectorAll('[data-notebook-section="comparison-research"] .nuclear-notation')).toHaveLength(7)
+    expect(container.querySelectorAll('.electron-configuration')).toHaveLength(35)
+    expect(container.querySelectorAll('[data-notebook-section="ionic-transfer"] .student-notebook__table .electron-configuration')).toHaveLength(4)
   })
 })
 
@@ -217,13 +194,16 @@ describe('student notebook — lesson integration', () => {
     await user.click(buttons.at(-1)!)
     const article = screen.getByRole('article', { name: /مادة الدفتر المدرسي/ })
     expect(within(article).getByRole('heading', { level: 3, name: /الروابط الكيميائية — مادة الدفتر المدرسي/ })).toBeInTheDocument()
-    expect(within(article).getAllByRole('figure')).toHaveLength(3)
-    expect(within(article).getAllByText('توضيح ضروري من المنصة — ليس نصاً من الكتاب')).toHaveLength(2)
+    expect(article.querySelectorAll('.l2-notebook-static')).toHaveLength(10)
+    expect(article.querySelectorAll('.student-notebook__lewis')).toHaveLength(4)
+    expect(within(article).queryByText('توضيح ضروري من المنصة — ليس نصاً من الكتاب')).not.toBeInTheDocument()
+    expect(within(article).getByText('جدول مصادر بنود دفتر الطالب')).toBeInTheDocument()
     expect(
-      within(article).getByRole('heading', { level: 4, name: 'الفلزّات واللافلزّات وسلوك إلكترونات التكافؤ' }),
+      within(article).getByRole('heading', { level: 4, name: /الفلزّات واللافلزّات وسلوك الذرّة بحسب الشريك/ }),
     ).toBeInTheDocument()
     const foundation = article.querySelector<HTMLElement>('[data-notebook-section="metals-nonmetals-valence"]')!
-    expect(within(foundation).getAllByRole('listitem')).toHaveLength(4)
+    expect(within(foundation).getAllByRole('listitem')).toHaveLength(3)
+    expect(within(foundation).getAllByRole('row')).toHaveLength(6)
   })
 
   it('keeps a written answer when leaving a lesson step and returning from the notebook', async () => {
@@ -373,13 +353,17 @@ describe('Lesson 2 — independent extra tab', () => {
   })
 })
 
-describe('Lesson 2 definition sources stay visible after Lesson 1 page-tag hiding', () => {
-  it('still prints ص16 on the three «تعلّمُ» definitions', () => {
+describe('Lesson 2 sources are consolidated after its notebook upgrade', () => {
+  it('hides all three definition chips and documents the original occurrences in one appendix', () => {
     const { container } = renderWithTheme(
       <StudentNotebookView notebook={chemistryLesson2StudentNotebook} />,
     )
     const sources = [...container.querySelectorAll('.student-notebook__source')].map((node) => node.textContent)
-    expect(sources.filter((text) => text?.includes('ص16'))).toHaveLength(3)
-    expect(chemistryLesson2StudentNotebook.hidePageTagsInBody).toBeUndefined()
+    expect(sources).toEqual([])
+    expect(chemistryLesson2StudentNotebook.hidePageTagsInBody).toBe(true)
+    const rows = chemistryLesson2StudentNotebook.sourcesAppendix!.rows.filter(r => r.item === 'الرابطة الكيميائيّة')
+    expect(rows).toHaveLength(1)
+    expect(rows[0]?.source).toContain('p14-bond-definition')
+    expect(rows[0]?.source).toContain('p16-learn-line-1')
   })
 })

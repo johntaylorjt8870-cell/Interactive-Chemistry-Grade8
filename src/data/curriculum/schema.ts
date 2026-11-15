@@ -313,6 +313,7 @@ export type NotebookEnrichment = {
 }
 
 export type NotebookFigure =
+  | { id: string; kind: 'lesson2-static'; figureKey: 'valence' | 'charge' | 'nacl' | 'mgo' | 'research-lewis' | 'cao' | 'na2o' | 'mgcl2' | 'hetero' | 'compare'; caption: string }
   | {
       id: string
       kind: 'bohr'
@@ -374,6 +375,8 @@ export type NotebookSourceRow = {
 }
 
 export type NotebookSection = {
+  /** Supplementary Lesson 2 tool; core text and figures never depend on it. */
+  notebookTool?: 'charge' | 'ionic' | 'lewis' | 'compare'
   id: string
   /** Section heading, taken from the topic the lesson actually teaches. */
   title: string
