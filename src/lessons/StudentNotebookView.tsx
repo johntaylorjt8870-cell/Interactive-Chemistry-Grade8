@@ -1,4 +1,11 @@
-import type { ReactNode } from 'react'
+import { Component, lazy, Suspense, type ReactNode } from 'react'
+import { Lesson2NotebookFigure } from './lesson2NotebookFigures'
+const Lesson2NotebookTool = lazy(() => import('./lesson2NotebookWidgets'))
+class NotebookToolBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+  static getDerivedStateFromError() { return { failed: true } }
+  render() { return this.state.failed ? <p role="status">تعذّر تحميل الأداة؛ الحل والرسوم الكاملة متاحان أعلاه.</p> : this.props.children }
+}
 import {
   BohrAtom,
   ChemicalFormula,
@@ -228,6 +235,10 @@ function NotebookSectionView({
         </div>
       ) : null}
 
+      {section.notebookTool ? <aside className="l2-notebook-tool" aria-label="تدريب تكميلي — لا يُنسخ في الدفتر">
+        <NotebookToolBoundary><Suspense fallback={<p>تحميل التدريب التكميلي…</p>}><Lesson2NotebookTool tool={section.notebookTool} /></Suspense></NotebookToolBoundary>
+      </aside> : null}
+
       {section.enrichment?.length ? <NotebookEnrichmentView items={section.enrichment} /> : null}
 
       {section.procedure ? (
@@ -402,6 +413,7 @@ function reconstructionNote(show: boolean) {
 }
 
 function NotebookFigureView({ figure }: { figure: NotebookFigure }) {
+  if (figure.kind === 'lesson2-static') return <Lesson2NotebookFigure figure={figure} />
   if (figure.kind === 'bohr') {
     const count = figure.shells.reduce((sum, value) => sum + value, 0)
     return (

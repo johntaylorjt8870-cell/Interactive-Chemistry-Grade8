@@ -1287,3 +1287,63 @@
   white-space: normal;
   text-align: start;
 }
+
+/* Notebook additions: scoped to this lesson, never hide core science. */
+.lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook { line-height: 2; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook__section { margin-block: 2rem; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook__list li { margin-block: .7rem; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook__procedure { padding: 1rem; border-inline-start: 3px solid var(--accent, #2563eb); }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook__sources { margin-block-start: 2rem; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-static { margin: 1.5rem 0; border: 1px solid #9ca3af; border-radius: .6rem; padding: 1rem; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-atoms,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-hetero { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem; text-align: center; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-hetero > div { flex: 1 1 260px; min-width: 0; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-stages > section { border-block-end: 1px solid #9ca3af; padding: .6rem; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-static h6 { font-size: 1rem; margin: .6rem 0; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-arrow { width: 100%; max-width: 320px; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-octet,
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-water { display: inline-flex; flex-direction: column; align-items: center; font: 1.3rem/1.4 monospace; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-ion-bracket { display: inline-flex; align-items: center; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-tool { border: 1px dashed #64748b; padding: 1rem; margin-block: 1rem; border-radius: .6rem; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-tool label { display: block; margin: .6rem 0; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-tool button { padding: .5rem .8rem; margin: .3rem; border: 1px solid #64748b; border-radius: .4rem; background: transparent; color: inherit; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-tool button[aria-pressed='true'] { border-width: 3px; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-tool select { color: #172033; background: #fff; padding: .4rem; max-width: 100%; }
+.lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook-revision { margin-block: 2rem; padding: 1rem; border: 2px solid #64748b; }
+@media print {
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-tool { display: none !important; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook { color: #000; background: white; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-static { overflow: visible; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-stages > section,
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook__lewis { break-inside: avoid; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook table { font-size: 9pt; width: 100%; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook th,
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook td { overflow-wrap: anywhere; }
+}
+
+@media print {
+  /* Only while this notebook is open: remove navigation chrome, not science. */
+  body:has(.lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook) .site-header,
+  .lesson-shell[data-lesson-id='chem-u1-l2']:has(.student-notebook) .lesson-shell__rail,
+  .lesson-shell[data-lesson-id='chem-u1-l2']:has(.student-notebook) .lesson-shell__nav {
+    display: none !important;
+  }
+  .lesson-shell[data-lesson-id='chem-u1-l2']:has(.student-notebook) .lesson-shell__body { display: block; max-width: none; padding: 0; }
+  .lesson-shell[data-lesson-id='chem-u1-l2']:has(.student-notebook) .lesson-shell__main { padding: 0; border: 0; box-shadow: none; overflow: visible; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook__table-wrap { overflow: visible; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook table { min-width: 0; table-layout: fixed; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook__section-title { break-after: avoid; }
+}
+
+@media print {
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-hetero,
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-ionic-lewis,
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-atoms { break-inside: avoid; }
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .student-notebook svg { break-inside: avoid; }
+}
+@media print {
+  .lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-static:has(.l2-notebook-hetero) { break-inside: avoid; }
+}
+/* Four-shell Ca has an inner radius of 12 in the existing Bohr SVG.
+   Keep its illustrative nucleus smaller than that orbit, locally only. */
+.lesson-shell[data-lesson-id='chem-u1-l2'] .l2-notebook-static .bohr__nucleus { r: 8px; }
