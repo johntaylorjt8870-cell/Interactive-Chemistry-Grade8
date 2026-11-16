@@ -365,6 +365,13 @@ export type NotebookFigure =
       caption: string
       reconstruction: true
     }
+  | {
+      id: string
+      kind: 'lesson5-figure'
+      figureKey: 'balance' | 'scale' | 'trials'
+      caption: string
+      reconstruction: true
+    }
 
 export type NotebookSourceRow = {
   item: string

@@ -19,13 +19,13 @@ function Balance({ reading }: { reading: string }) {
   )
 }
 
-export default function Lesson5ScaleDiagram({ reducedMotion }: InteractiveProps) {
+export default function Lesson5ScaleDiagram({ reducedMotion, hidePageRef }: InteractiveProps & { hidePageRef?: boolean }) {
   return (
     <figure className={reducedMotion ? 'l5-source-figure l5-source-figure--still' : 'l5-source-figure'} data-source-reconstruction="p31-scale">
       <svg
         viewBox="0 0 780 300"
         role="img"
-        aria-label="إعادة بناء تخطيطية من المنصة لشكل ص31: لوحتان لميزان إلكتروني، اليسرى فيها دورق حمض كلور الماء وقطع أكسيد الكالسيوم بقراءة 125.100، واليمنى دورق النواتج كلوريد الكالسيوم والماء بالقراءة نفسها 125.100 دون وحدة مطبوعة"
+        aria-label={hidePageRef ? "إعادة بناء تخطيطية من المنصة لشكل الميزانين: لوحتان لميزان إلكتروني، اليسرى فيها دورق حمض كلور الماء وقطع أكسيد الكالسيوم بقراءة 125.100، واليمنى دورق النواتج كلوريد الكالسيوم والماء بالقراءة نفسها 125.100 دون وحدة مطبوعة" : "إعادة بناء تخطيطية من المنصة لشكل ص31: لوحتان لميزان إلكتروني، اليسرى فيها دورق حمض كلور الماء وقطع أكسيد الكالسيوم بقراءة 125.100، واليمنى دورق النواتج كلوريد الكالسيوم والماء بالقراءة نفسها 125.100 دون وحدة مطبوعة"}
         className="l5-source-figure__svg"
       >
         <rect x="14" y="14" width="364" height="236" rx="14" className="l5-fig__card" />
@@ -62,7 +62,7 @@ export default function Lesson5ScaleDiagram({ reducedMotion }: InteractiveProps)
         <text x="390" y="282" textAnchor="middle" className="l5-fig__note">القراءتان منقولتان كما طبعتا (125.100)؛ لا تظهر وحدة قياس في الكتاب.</text>
       </svg>
       <figcaption className="l5-source-figure__caption">
-        إعادة رسم تخطيطية من المنصة لشكل الميزانين ص31 — ليست صورة الكتاب الأصلية، ولا تدّعي أن نموذج المنصة قاس القيمتين.
+        {hidePageRef ? "إعادة رسم تخطيطية من المنصة لشكل الميزانين — ليست صورة الكتاب الأصلية، ولا تدّعي أن نموذج المنصة قاس القيمتين." : "إعادة رسم تخطيطية من المنصة لشكل الميزانين ص31 — ليست صورة الكتاب الأصلية، ولا تدّعي أن نموذج المنصة قاس القيمتين."}
       </figcaption>
     </figure>
   )

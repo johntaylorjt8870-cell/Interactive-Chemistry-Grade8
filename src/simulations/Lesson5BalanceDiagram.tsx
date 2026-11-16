@@ -26,13 +26,13 @@ function Flask() {
   )
 }
 
-export default function Lesson5BalanceDiagram({ reducedMotion }: InteractiveProps) {
+export default function Lesson5BalanceDiagram({ reducedMotion, hidePageRef }: InteractiveProps & { hidePageRef?: boolean }) {
   return (
     <figure className={reducedMotion ? 'l5-source-figure l5-source-figure--still' : 'l5-source-figure'} data-source-reconstruction="p30-balance">
       <svg
         viewBox="0 0 780 330"
         role="img"
-        aria-label="إعادة بناء تخطيطية من المنصة لشكل ص30: ميزان متوازن، كفة المتفاعلات حمض الخل وبيكربونات الصوديوم، وكفة النواتج خلات الصوديوم والماء وثنائي أكسيد الكربون، وبجانب كل كفة العد المطبوع ثلاث ذرات كربون وخمس هيدروجين وخمس أكسجين وذرة صوديوم واحدة"
+        aria-label={hidePageRef ? "إعادة بناء تخطيطية من المنصة لشكل الميزان: ميزان متوازن، كفة المتفاعلات حمض الخل وبيكربونات الصوديوم، وكفة النواتج خلات الصوديوم والماء وثنائي أكسيد الكربون، وبجانب كل كفة العد المطبوع ثلاث ذرات كربون وخمس هيدروجين وخمس أكسجين وذرة صوديوم واحدة" : "إعادة بناء تخطيطية من المنصة لشكل ص30: ميزان متوازن، كفة المتفاعلات حمض الخل وبيكربونات الصوديوم، وكفة النواتج خلات الصوديوم والماء وثنائي أكسيد الكربون، وبجانب كل كفة العد المطبوع ثلاث ذرات كربون وخمس هيدروجين وخمس أكسجين وذرة صوديوم واحدة"}
         className="l5-source-figure__svg"
       >
         {/* Beam and pillar */}
@@ -71,7 +71,7 @@ export default function Lesson5BalanceDiagram({ reducedMotion }: InteractiveProp
         <text x="612" y="316" textAnchor="middle" className="l5-fig__strip-label">خلات الصوديوم + ماء + ثنائي أكسيد الكربون</text>
       </svg>
       <figcaption className="l5-source-figure__caption">
-        إعادة رسم تخطيطية من المنصة لشكل ص30 — ليست صورة الكتاب الأصلية. الدورقان والكفتان رموز للمقارنة والعد فقط.
+        {hidePageRef ? "إعادة رسم تخطيطية من المنصة لشكل الميزان — ليست صورة الكتاب الأصلية. الدورقان والكفتان رموز للمقارنة والعد فقط." : "إعادة رسم تخطيطية من المنصة لشكل ص30 — ليست صورة الكتاب الأصلية. الدورقان والكفتان رموز للمقارنة والعد فقط."}
       </figcaption>
     </figure>
   )

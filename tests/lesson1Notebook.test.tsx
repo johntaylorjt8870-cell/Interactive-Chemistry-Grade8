@@ -286,11 +286,10 @@ describe('student notebook — Lesson 1 page tags and figures', () => {
     expect(sodium.querySelectorAll('.bohr__electron').length).toBe(11)
   })
 
-  it('does not hide definition page chips on Lessons 3–6', () => {
+  it('does not hide definition page chips on Lessons 3, 4 and 6', () => {
     for (const notebook of [
       chemistryLesson3StudentNotebook,
       chemistryLesson4StudentNotebook,
-      chemistryLesson5StudentNotebook,
       chemistryLesson6StudentNotebook,
     ]) {
       expect(notebook.hidePageTagsInBody).toBeUndefined()
@@ -298,6 +297,14 @@ describe('student notebook — Lesson 1 page tags and figures', () => {
       const chips = [...container.querySelectorAll('.student-notebook__source')].map((node) => node.textContent ?? '')
       expect(chips.some((text) => /ص\d/.test(text)), notebook.title).toBe(true)
     }
+  })
+
+  it('hides page chips inside the body for the complete Lesson 5 notebook', () => {
+    expect(chemistryLesson5StudentNotebook.hidePageTagsInBody).toBe(true)
+    const { container } = renderWithTheme(<StudentNotebookView notebook={chemistryLesson5StudentNotebook} />)
+    const body = container.querySelector('.student-notebook__sections')!
+    expect(body.textContent ?? '').not.toMatch(/ص\d/)
+    expect(container.querySelectorAll('.student-notebook__source')).toHaveLength(0)
   })
 
   it('maps every notebook-relevant ledger figure, definition, table, example, rule and summary to the notebook or an explicit appendix row', () => {

@@ -33,13 +33,13 @@ function Pile({ x, y, kind, large = false }: { x: number; y: number; kind: 'dark
   )
 }
 
-export default function Lesson5TrialsDiagram({ reducedMotion }: InteractiveProps) {
+export default function Lesson5TrialsDiagram({ reducedMotion, hidePageRef }: InteractiveProps & { hidePageRef?: boolean }) {
   return (
     <figure className={reducedMotion ? 'l5-source-figure l5-source-figure--still' : 'l5-source-figure'} data-source-reconstruction="p32-trials">
       <svg
         viewBox="0 0 780 340"
         role="img"
-        aria-label="إعادة بناء تخطيطية من المنصة لشكل تجارب ص32: التجربة واحد عشرة غرامات رصاص مع 1.56 غرام كبريت يعطيان 11.56 غرام كبريتيد الرصاص، والتجربة اثنان عشرة غرامات رصاص مع ثلاثة غرامات كبريت يعطيان المركب نفسه ويبقى 1.44 غرام كبريت، والتجربة ثلاثة ثمانية عشر غرام رصاص مع 1.56 غرام كبريت يعطيان المركب نفسه ويبقى ثمانية غرامات رصاص"
+        aria-label={hidePageRef ? "إعادة بناء تخطيطية من المنصة لشكل التجارب: التجربة واحد عشرة غرامات رصاص مع 1.56 غرام كبريت يعطيان 11.56 غرام كبريتيد الرصاص، والتجربة اثنان عشرة غرامات رصاص مع ثلاثة غرامات كبريت يعطيان المركب نفسه ويبقى 1.44 غرام كبريت، والتجربة ثلاثة ثمانية عشر غرام رصاص مع 1.56 غرام كبريت يعطيان المركب نفسه ويبقى ثمانية غرامات رصاص" : "إعادة بناء تخطيطية من المنصة لشكل تجارب ص32: التجربة واحد عشرة غرامات رصاص مع 1.56 غرام كبريت يعطيان 11.56 غرام كبريتيد الرصاص، والتجربة اثنان عشرة غرامات رصاص مع ثلاثة غرامات كبريت يعطيان المركب نفسه ويبقى 1.44 غرام كبريت، والتجربة ثلاثة ثمانية عشر غرام رصاص مع 1.56 غرام كبريت يعطيان المركب نفسه ويبقى ثمانية غرامات رصاص"}
         className="l5-source-figure__svg"
       >
         <rect x="14" y="10" width="752" height="288" rx="14" className="l5-fig__card" />
@@ -71,7 +71,7 @@ export default function Lesson5TrialsDiagram({ reducedMotion }: InteractiveProps
         <text x="390" y="324" textAnchor="middle" className="l5-fig__note">بيانات مطبوعة للتحليل فقط؛ لا تُعاد تجربة الرصاص عملياً لسمّيته.</text>
       </svg>
       <figcaption className="l5-source-figure__caption">
-        إعادة رسم تخطيطية من المنصة لشكل التجارب الثلاث ص32 بالقيم المطبوعة نفسها — ليست صورة الكتاب الأصلية.
+        {hidePageRef ? "إعادة رسم تخطيطية من المنصة لشكل التجارب الثلاث بالقيم المطبوعة نفسها — ليست صورة الكتاب الأصلية." : "إعادة رسم تخطيطية من المنصة لشكل التجارب الثلاث ص32 بالقيم المطبوعة نفسها — ليست صورة الكتاب الأصلية."}
       </figcaption>
     </figure>
   )
