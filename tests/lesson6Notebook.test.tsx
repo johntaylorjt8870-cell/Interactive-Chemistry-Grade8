@@ -10,7 +10,7 @@ import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axe from 'axe-core'
 import { chemistryLesson6, chemistryLesson6StudentNotebook as notebook } from '@/data/curriculum/chemistryLesson6'
-import { getLesson } from '@/data/curriculum/registry'
+import { getLesson, getSubjectDefinition } from '@/data/curriculum/registry'
 import { progressStore } from '@/data/progress'
 import { StudentNotebookRevision, StudentNotebookView } from '@/lessons/StudentNotebookView'
 import { renderApp, renderWithTheme } from './utils/renderApp'
@@ -22,6 +22,7 @@ const expectedReviewQuestions = [
   'في تجربة الزنك، أيّ العبارتين ملاحظة مباشرة وأيّهما استنتاج: تصاعدت فقاعات أم تكوّن غاز الهدروجين؟ وضّح الفرق.',
   'عند التعبير عن تجربة بمعادلة كيميائية، لماذا لا نكتب أنبوب الاختبار ضمن المواد المتفاعلة أو الناتجة؟',
 ]
+const sectionIds = ['objectives-and-keywords', 'iron-and-air', 'chemical-equation', 'formula-writing', 'symbol-meanings', 'zinc-experiment', 'zinc-observations', 'atom-counting', 'zinc-before', 'zinc-balanced', 'balancing', 'aluminum-worked', 'intact-sulfate', 'propane-worked', 'activities', 'learned-summary', 'self-test-q1', 'self-test-q2', 'transfer-practice', 'checking-errors']
 const stepIds = ['discovery-opening', 'entry-source', 'foundation-reaction-anatomy', 'foundation-formulas-and-diatomics', 'foundation-numbers-in-chemistry', 'experiment-zinc-hcl-source', 'experiment-observation-vs-interpretation', 'zinc-hcl-virtual-lab', 'observe-and-state-table-source', 'state-symbols-deep', 'zinc-balancing-source', 'conclude-equation-source', 'qualitative-vs-quantitative-deep', 'worked-example-al-hcl-source', 'worked-example-al-hcl-explained', 'balancing-methodology', 'worked-example-displacement-radicals', 'worked-example-combustion-decomposition', 'equation-balancer-simulation', 'activity-p39-source', 'activity-p39-review', 'word-to-symbol-builder', 'learned-box-source', 'common-errors', 'error-spotter-activity', 'comparison-representations', 'self-test-q1-source', 'self-test-q1-review', 'self-test-q2-source', 'self-test-q2-review', 'practice-foundational', 'practice-application', 'practice-reasoning', 'comprehensive-summary', 'final-test']
 
 beforeEach(() => {
@@ -34,14 +35,14 @@ describe('Lesson 6 notebook — wiring and display', () => {
     expect(getLesson('chemistry', 'structural-chemistry', 'chemical-equations')?.studentNotebook).toBe(notebook)
     expect(chemistryLesson6.steps.map((step) => step.id)).toEqual(stepIds)
     expect(notebook.source.pages.map((page) => page.page)).toEqual(['36', '37', '38', '39'])
-    expect(notebook.sections.map((s) => s.id)).toEqual(['objectives-and-keywords', 'chemical-equation', 'symbol-meanings', 'balancing', 'learned-summary'])
+    expect(notebook.sections.map((s) => s.id)).toEqual(sectionIds)
   })
 
   it('renders a separate review card, visible provenance and accessible text', async () => {
     const { container } = renderWithTheme(<div dir="rtl"><StudentNotebookView notebook={notebook} /><StudentNotebookRevision notebook={notebook} /></div>)
     const article = screen.getByRole('article')
-    expect(article.querySelectorAll('[data-notebook-section]')).toHaveLength(5)
-    expect(article).toHaveTextContent('توضيح من المنصة — ليس نصاً من الكتاب')
+    expect(article.querySelectorAll('[data-notebook-section]')).toHaveLength(20)
+    expect(article.querySelector('.student-notebook__sources')).toHaveTextContent('شرح من المنصة')
     expect(article.querySelector('.student-notebook-revision')).toBeNull()
     const card = container.querySelector('.student-notebook-revision')!
     expect(within(card as HTMLElement).getAllByRole('listitem').map((item) => item.textContent)).toEqual(expectedReviewQuestions)
@@ -49,6 +50,86 @@ describe('Lesson 6 notebook — wiring and display', () => {
     expect(strayScriptGlyphs(container)).toEqual([])
     const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } })
     expect(results.violations.filter((v) => ['serious', 'critical'].includes(v.impact ?? '')).map((v) => v.id)).toEqual([])
+  }, 60000)
+
+  it('pairs every displayed item with exactly one complete five-field source row, in reading order', () => {
+    const { container } = renderWithTheme(<StudentNotebookView notebook={notebook} />)
+    const article = container.querySelector('article')!
+    const appendix = article.lastElementChild!
+    expect(appendix).toHaveClass('student-notebook__sources')
+    expect(appendix.querySelector('h4')).toHaveTextContent('جدول مصادر بنود دفتر الطالب')
+    expect(appendix.querySelectorAll('table')).toHaveLength(1)
+    expect([...appendix.querySelectorAll('thead th')].map(th => th.textContent)).toEqual(['البند', 'النوع', 'التصنيف', 'المصدر', 'الصفحة'])
+    const rowCells = [...appendix.querySelectorAll('tbody tr')].map(tr => [...tr.children].map(cell => cell.textContent))
+    expect(rowCells).toEqual(notebook.sourcesAppendix!.rows.map(r => [r.item, r.kind, r.classification, r.source, r.page]))
+    const body = article.querySelector('.student-notebook__sections')!
+    const blocks = body.querySelectorAll('.student-notebook__lead, dt, .student-notebook__section > .student-notebook__list > li, .student-notebook__notes > li, caption, figcaption, .student-notebook__procedure-title')
+    const numbers = Array.from(blocks, block => {
+      const matches = [...block.textContent!.matchAll(/([٠-٩]+) ـ /gu)]
+      expect(matches, block.tagName).toHaveLength(1)
+      return matches[0][1]
+    })
+    expect(numbers).toEqual(rowCells.map(cells => cells[0]))
+    expect(new Set(numbers).size).toBe(122)
+    expect(numbers.map(n => Number(n.replace(/[٠-٩]/gu, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))))).toEqual(Array.from({ length: 122 }, (_, i) => i + 1))
+    for (const node of [article.querySelector('header')!, body]) {
+      expect(node.textContent).not.toMatch(/ص\s*[0-9٠-٩]|الصفحة\s*[0-9٠-٩]|\[(?:كتاب|حل نشاط|منصة)\]/u)
+      expect(node.querySelector('.student-notebook__source, .student-notebook__section-source, .student-notebook__platform-label')).toBeNull()
+    }
+  })
+
+  it('keeps solution provenance in the appendix, not a textbook attribute or a visible role tag', () => {
+    const { container } = renderWithTheme(<StudentNotebookView notebook={notebook} />)
+    const renderedNotes = container.querySelectorAll('[data-note-role]')
+    for (const li of renderedNotes) {
+      const number = li.textContent!.match(/([٠-٩]+) ـ /u)![1]
+      const source = notebook.sourcesAppendix!.rows.find(r => r.item === number)!
+      if (source.classification === 'من الكتاب بحسب التفريغ المحلي') {
+        expect(li).toHaveAttribute('data-note-role', 'textbook')
+      } else {
+        expect(['حل تعليمي لسؤال الكتاب', 'معادلة من الكتاب وتعليل من المنصة', 'حل تطبيق من خطوات المنصة', 'تطبيق محلول من المنصة']).toContain(source.classification)
+        expect(li).toHaveAttribute('data-note-role', 'appendix')
+      }
+      expect(li.querySelector('.student-notebook__platform-label')).toBeNull()
+      expect(li).not.toHaveTextContent(/appendix|ليس نص الكتاب/)
+    }
+    const activity = container.querySelector('[data-notebook-section="activities"]')!
+    expect(activity.querySelectorAll('[data-note-role="appendix"] .katex')).toHaveLength(3)
+    expect(activity.querySelectorAll('[data-note-role="textbook"] .katex')).toHaveLength(1) // the printed fill-in, not its solution
+  })
+
+  it('preserves legacy note defaults and the explicit platform label without modifying a published notebook', () => {
+    const { container } = renderWithTheme(<StudentNotebookView notebook={{ ...notebook, sections: [{ id: 'fixture', title: 'مثال', notes: [{ text: 'قول مطبوع' }, { text: 'شرح معلّم', role: 'platform' }] }] }} />)
+    const [printed, added] = container.querySelectorAll('[data-note-role]')
+    expect(printed).toHaveAttribute('data-note-role', 'textbook')
+    expect(printed.querySelector('.student-notebook__platform-label')).toBeNull()
+    expect(added).toHaveAttribute('data-note-role', 'platform')
+    expect(added.querySelector('.student-notebook__platform-label')).toHaveTextContent('توضيح تعليمي — ليس نص الكتاب')
+  })
+
+  it('renders a static labelled experiment and isolated equations without labs, hidden answers or other lessons’ figures', () => {
+    const { container } = renderWithTheme(<StudentNotebookView notebook={notebook} />)
+    const figure = container.querySelector('[data-notebook-figure="l6-zinc-tube"]')!
+    const svg = within(figure as HTMLElement).getByRole('img', { name: /أنبوب اختبار.*عود ثقاب/ })
+    expect([...svg.querySelectorAll('text')].map(t => t.textContent)).toEqual(['H2', 'زنك', 'حمض كلور'])
+    expect(figure.querySelector('figcaption')).toHaveTextContent('الحبيبات في القاع')
+    expect(figure.querySelector('figcaption')).toHaveTextContent('واللهب عند الفوهة')
+    expect(container.querySelectorAll('[data-notebook-figure]')).toHaveLength(1)
+    expect(container.querySelectorAll('[data-math="block"][dir="ltr"] .katex')).toHaveLength(33)
+    const heated = [...container.querySelectorAll('mover')].filter(el => el.lastElementChild?.textContent === 'Δ')
+    expect(heated).toHaveLength(7)
+    for (const arrow of heated) expect(arrow.firstElementChild).toHaveTextContent('⟶')
+    expect(container.querySelectorAll('.word-equation[dir="ltr"]')).toHaveLength(5)
+    expect(container.querySelectorAll('.word-equation__name:not([dir="rtl"])')).toHaveLength(0)
+    expect(container.querySelector('[data-math-error], .katex-error, button, details, input, [data-interactive-id]')).toBeNull()
+    const lessons = getSubjectDefinition('chemistry').units.flatMap(u => u.lessons).filter(l => l.id !== 'chem-u1-l6')
+    for (const lesson of lessons) {
+      expect(lesson.studentNotebook).not.toBe(notebook)
+      if (!lesson.studentNotebook) continue
+      const { container: other, unmount } = renderWithTheme(<StudentNotebookView notebook={lesson.studentNotebook} />)
+      expect(other.querySelector('[data-notebook-figure="l6-zinc-tube"], [data-note-role="appendix"], .student-notebook__word-note')).toBeNull()
+      unmount()
+    }
   })
 
   it('opens as the last tab, preserves the step, progress and answer, and returns', async () => {
@@ -94,9 +175,12 @@ type BrowserPage = {
   goto(url: string, options: { waitUntil: 'networkidle0' }): Promise<unknown>
   waitForSelector(selector: string): Promise<unknown>
   click(selector: string): Promise<void>
-  evaluate<T>(fn: () => T | Promise<T>): Promise<Awaited<T>>
+  evaluate<T, A extends unknown[]>(fn: (...args: A) => T | Promise<T>, ...args: A): Promise<Awaited<T>>
   addScriptTag(options: { path: string }): Promise<unknown>
   waitForFunction(fn: () => boolean): Promise<unknown>
+  emulateMediaType(type: 'print' | 'screen'): Promise<void>
+  screenshot(options: { path: string }): Promise<unknown>
+  pdf(options: { path: string; format: 'A4'; printBackground: boolean; margin: Record<string, string> }): Promise<unknown>
   close(): Promise<void>
 }
 
@@ -204,7 +288,7 @@ describe.skipIf(!browserEnabled)('Lesson 6 notebook — production Chromium', ()
       it(`opens and checks the real notebook and return journey at ${width}px`, async () => {
         if (!browser) throw new Error('Chromium لم يبدأ')
         const page: unknown = await browser.newPage()
-        assertMethods<BrowserPage>(page, 'Chromium page', ['setViewport', 'goto', 'waitForSelector', 'click', 'evaluate', 'addScriptTag', 'waitForFunction', 'close'])
+        assertMethods<BrowserPage>(page, 'Chromium page', ['setViewport', 'goto', 'waitForSelector', 'click', 'evaluate', 'addScriptTag', 'waitForFunction', 'emulateMediaType', 'screenshot', 'pdf', 'close'])
         try {
           await page.setViewport({ width, height: 900, deviceScaleFactor: 1 })
           await page.goto(`${origin}${base}${path}#step-3`, { waitUntil: 'networkidle0' })
@@ -242,6 +326,11 @@ describe.skipIf(!browserEnabled)('Lesson 6 notebook — production Chromium', ()
               articleDirection: getComputedStyle(article).direction,
               cardDirection: getComputedStyle(card).direction,
               sections: article.querySelectorAll('[data-notebook-section]').length,
+              clipped: [...article.querySelectorAll('.word-equation-scroll, .student-notebook__formula, .student-notebook__table-wrap')]
+                .filter(node => node.scrollWidth > node.clientWidth + 1).length,
+              rows: article.querySelectorAll('.student-notebook__sources tbody tr').length,
+              equations: article.querySelectorAll('[data-math="block"][dir="ltr"] .katex').length,
+              raw: /\\(?:mathrm|longrightarrow|xrightarrow)/.test((article as HTMLElement).innerText.replace(/\s/g, '')) || Boolean(article.querySelector('[data-math-error], .katex-error')),
               reviewItems: [...card.querySelectorAll('li')].map((item) => item.textContent),
               reviewVisible: [...card.querySelectorAll('li')].every((item) => {
                 const rect = item.getBoundingClientRect()
@@ -259,13 +348,49 @@ describe.skipIf(!browserEnabled)('Lesson 6 notebook — production Chromium', ()
           })
           expect(actual.docWidth).toBeLessThanOrEqual(width)
           expect(actual.overflow).toBe(0)
+          expect(actual.clipped).toBe(0)
           expect([actual.articleDirection, actual.cardDirection]).toEqual(['rtl', 'rtl'])
-          expect([actual.sections, actual.reviewSeparate, actual.reviewVisible]).toEqual([5, true, true])
+          expect([actual.sections, actual.reviewSeparate, actual.reviewVisible]).toEqual([20, true, true])
+          expect([actual.rows, actual.equations, actual.raw]).toEqual([122, 33, false])
           expect(actual.reviewItems).toEqual(expectedReviewQuestions)
           expect([before.checked, actual.checked, actual.hidden, actual.hash]).toEqual([true, true, true, '#student-notebook'])
           expect(actual.progress).toBe(before.progress)
           expect(actual.stored).toBe(before.stored)
           expect(actual.violations).toEqual([])
+          const out = nodePath.resolve('artifacts/lesson6-notebook')
+          mkdirSync(out, { recursive: true })
+          // Check *what* the screenshot shows. Smooth scrolling/sticky headers can
+          // otherwise yield three screenshots of the opening paragraph instead.
+          for (const [name, selector] of [
+            ['tube', '[data-notebook-figure="l6-zinc-tube"]'],
+            ['equations', '[data-notebook-section="aluminum-worked"] .student-notebook__formula'],
+            ['sources', '.student-notebook__sources h4'],
+          ]) {
+            const visible = await page.evaluate((target: string) => {
+              const element = document.querySelector(target)!
+              element.scrollIntoView({ block: 'center', behavior: 'instant' })
+              const rect = element.getBoundingClientRect()
+              return rect.top >= document.querySelector('.site-header')!.getBoundingClientRect().bottom && rect.bottom <= innerHeight
+            }, selector)
+            expect(visible, selector).toBe(true)
+            await page.screenshot({ path: nodePath.join(out, `${name}-${width}.png`) })
+          }
+          if (width === 1365) {
+            await page.emulateMediaType('print')
+            const printable = await page.evaluate(() => {
+              const figure = document.querySelector('.l6-notebook-schematic')!
+              return { svgWidth: figure.querySelector('svg')!.getBoundingClientRect().width,
+                keepTogether: getComputedStyle(figure).breakInside,
+                contact: getComputedStyle(document.querySelector('.site-contact')!).display,
+                backdrop: getComputedStyle(document.body, '::before').display,
+                visibleRows: [...document.querySelectorAll('.student-notebook__sources tbody tr')].filter(r => r.getBoundingClientRect().height > 0).length,
+                rail: getComputedStyle(document.querySelector('.lesson-shell__rail')!).display }
+            })
+            expect(printable.svgWidth).toBeGreaterThan(200)
+            expect(printable).toMatchObject({ keepTogether: 'avoid', visibleRows: 122, rail: 'none', contact: 'none', backdrop: 'none' })
+            await page.pdf({ path: nodePath.join(out, 'notebook.pdf'), format: 'A4', printBackground: true, margin: { top: '12mm', right: '14mm', bottom: '12mm', left: '14mm' } })
+            await page.emulateMediaType('screen')
+          }
           await page.evaluate(() => {
             const button = [...document.querySelectorAll<HTMLButtonElement>('.lesson-nav button')].find((item) => item.innerText.includes('العودة إلى الدرس'))!
             button.click()

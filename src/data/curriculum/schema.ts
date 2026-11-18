@@ -224,10 +224,12 @@ export type LessonStep = {
 export type NotebookNote = {
   text: string
   notation?: 'nuclide' | 'formula' | 'ion' | 'configuration' | 'math'
-  /** Platform clarification shown apart from quoted textbook text. */
-  role?: 'textbook' | 'platform'
+  /** `appendix`: provenance is on the numbered source row, not an inline label. */
+  role?: 'textbook' | 'platform' | 'appendix'
   /** TeX for `notation: 'math'`, e.g. `y = 2(n)^2`. */
   tex?: string
+  /** Arabic names in printed LTR reaction order, with `text` as the caption. */
+  wordEquation?: Pick<Extract<ContentBlock, { kind: 'word-equation' }>, 'reactants' | 'products'>
 }
 
 /** A complete scientific definition, kept in one block, never shortened. */
@@ -313,6 +315,7 @@ export type NotebookEnrichment = {
 }
 
 export type NotebookFigure =
+  | { id: string; kind: 'lesson6-zinc-hcl'; caption: string; reconstruction: true }
   | { id: string; kind: 'lesson2-static'; figureKey: 'valence' | 'charge' | 'nacl' | 'mgo' | 'research-lewis' | 'cao' | 'na2o' | 'mgcl2' | 'hetero' | 'compare'; caption: string }
   | {
       id: string
