@@ -1,6 +1,7 @@
 import { Component, lazy, Suspense, type ReactNode } from 'react'
 import { Lesson2NotebookFigure } from './lesson2NotebookFigures'
 import { Lesson5NotebookFigure } from './lesson5NotebookFigures'
+import { Lesson6ZincNotebookFigure } from '@/simulations/Lesson6ZincHclSchematic'
 const Lesson2NotebookTool = lazy(() => import('./lesson2NotebookWidgets'))
 class NotebookToolBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false }
@@ -18,6 +19,7 @@ import {
   NuclearNotation,
   Sci,
   ScientificNotationText,
+  WordEquation,
   parseCompactFormulaNotation,
 } from '@/scientific'
 import { parseCompactNuclearNotation } from '@/scientific/NuclearNotation'
@@ -349,6 +351,12 @@ function NotebookEnrichmentView({ items }: { items: NotebookEnrichment[] }) {
 
 /** A sentence whose core is notation rather than prose. */
 function NotebookNoteView({ note }: { note: NotebookNote }) {
+  if (note.wordEquation) return (
+    <div className="student-notebook__word-note">
+      <ScientificNotationText as="span">{note.text}</ScientificNotationText>
+      <WordEquation {...note.wordEquation} />
+    </div>
+  )
   if (!note.notation) {
     return <ScientificNotationText as="span">{note.text}</ScientificNotationText>
   }
@@ -483,6 +491,7 @@ function NotebookFigureView({ figure }: { figure: NotebookFigure }) {
     )
   }
 
+  if (figure.kind === 'lesson6-zinc-hcl') return <Lesson6ZincNotebookFigure figure={figure} />
   if (figure.kind === 'lesson5-figure') return <Lesson5NotebookFigure figure={figure} />
 
   if (figure.kind === 'interactive') {

@@ -286,11 +286,10 @@ describe('student notebook — Lesson 1 page tags and figures', () => {
     expect(sodium.querySelectorAll('.bohr__electron').length).toBe(11)
   })
 
-  it('does not hide definition page chips on Lessons 3, 4 and 6', () => {
+  it('does not hide definition page chips on Lessons 3 and 4', () => {
     for (const notebook of [
       chemistryLesson3StudentNotebook,
       chemistryLesson4StudentNotebook,
-      chemistryLesson6StudentNotebook,
     ]) {
       expect(notebook.hidePageTagsInBody).toBeUndefined()
       const { container } = renderWithTheme(<StudentNotebookView notebook={notebook} />)
@@ -299,9 +298,10 @@ describe('student notebook — Lesson 1 page tags and figures', () => {
     }
   })
 
-  it('hides page chips inside the body for the complete Lesson 5 notebook', () => {
-    expect(chemistryLesson5StudentNotebook.hidePageTagsInBody).toBe(true)
-    const { container } = renderWithTheme(<StudentNotebookView notebook={chemistryLesson5StudentNotebook} />)
+  it.each([chemistryLesson5StudentNotebook, chemistryLesson6StudentNotebook])('hides page chips in the complete $title and retains the appendix', notebook => {
+    expect(notebook.hidePageTagsInBody).toBe(true)
+    const { container } = renderWithTheme(<StudentNotebookView notebook={notebook} />)
+    expect(container.querySelector('.student-notebook__sources table tbody')?.childElementCount).toBe(notebook.sourcesAppendix!.rows.length)
     const body = container.querySelector('.student-notebook__sections')!
     expect(body.textContent ?? '').not.toMatch(/ص\d/)
     expect(container.querySelectorAll('.student-notebook__source')).toHaveLength(0)

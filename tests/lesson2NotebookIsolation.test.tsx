@@ -36,7 +36,7 @@ const protectedHashes: Record<string, string> = {
   "src/data/curriculum/chemistryLesson5Test.ts": "4da54b3c618a7df3f06d7fc5dcf71acd9cc110a117003bd80458cd72dc01a185",
   "src/data/curriculum/chemistryLesson6.ts": "cb6d16b99689694fe1361d83c66037bf2f458745d0f3ee6bef4aa53739efecd6",
   "src/data/curriculum/chemistryLesson6Book.ts": "f31e603ae6bba2ee9cb129d3142e5752e75fe3829753ea43b3b25eaf270fff38",
-  "src/data/curriculum/chemistryLesson6Notebook.ts": "38fad2fec55a028632eb17a5af7cca87c466a9745433a0c3d7cd5a2f618ce9ad",
+  "src/data/curriculum/chemistryLesson6Notebook.ts": "677b3616be4d16a4a121d781170928df9a140998b8329016901fbffec6dad17a",
   "src/data/curriculum/chemistryLesson6Practice.ts": "a3a69fa2ecfec89b4ece77f93c933a56929ca4f704e85ada7b78138aa4f069aa",
   "src/data/curriculum/chemistryLesson6TeacherGuide.ts": "09adf1b36f2ca6ff6423c7c123b09587e958f81afb4a4142310023e42e695edb",
   "src/data/curriculum/chemistryLesson6Test.ts": "553f82f1a3a582684b8b6550233e6691f2f32359d24a0bd5d5fb5bf753c28add",
@@ -46,7 +46,7 @@ const protectedHashes: Record<string, string> = {
   "src/data/curriculum/chemistryLesson7TeacherGuide.ts": "46181fd9978a5a357865d41af5885399ef137875eef100112f89db319fc2d584",
   "src/data/curriculum/chemistryLesson7Test.ts": "3ff3d883a94ce148d7daf67ceff0a084b764c8c4f3cf13e1a4ab953aa7b361be",
   "src/lessons/LessonFlow.tsx": "95bb8bd36795426865835096f873c007070be04887eae7f2f988395ea4e17dd7",
-  "src/lessons/StudentNotebookView.tsx": "cfe2713256cdebb5b25c652383a8552ec58ea8b5e87204afebda676a7c6f2a90",
+  "src/lessons/StudentNotebookView.tsx": "ccc450b1f822fb70c7837f743f4c09902b12e2fcbf7c80866759f125db696e7f",
   "src/lessons/notebookStaticFigures.tsx": "dfae7e6c21747b184505a8df8773bbca0d1c529885eba1c6956f0e38d213dbe6"
 }
 
