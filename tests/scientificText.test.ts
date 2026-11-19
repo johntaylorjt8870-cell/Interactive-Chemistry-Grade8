@@ -34,6 +34,26 @@ describe('splitScientificRuns — RTL/LTR separation', () => {
     expect(runs.find((run) => run.kind === 'science')?.value).toBe('44 g/mol')
   })
 
+  it('keeps textbook dot-separated molar units (g.mol⁻¹) in one LTR run without swallowing a trailing period', () => {
+    expect(splitScientificRuns('الكتلة المولية 98 g.mol⁻¹.')).toEqual([
+      { kind: 'prose', value: 'الكتلة المولية ' },
+      { kind: 'science', value: '98 g.mol⁻¹' },
+      { kind: 'prose', value: '.' },
+    ])
+  })
+
+  it('keeps stoichiometric coefficients attached to subscripted chemical formulas', () => {
+    expect(splitScientificRuns('حجم 3SO₂ و2O₂ و3CH₄ في الشرطين النظاميين')).toEqual([
+      { kind: 'prose', value: 'حجم ' },
+      { kind: 'science', value: '3SO₂' },
+      { kind: 'prose', value: ' و' },
+      { kind: 'science', value: '2O₂' },
+      { kind: 'prose', value: ' و' },
+      { kind: 'science', value: '3CH₄' },
+      { kind: 'prose', value: ' في الشرطين النظاميين' },
+    ])
+  })
+
   it('isolates latin identifiers inside Arabic sentences', () => {
     const runs = splitScientificRuns('العالم Avogadro قدّر عدد الجسيمات')
     expect(runs.filter((run) => run.kind === 'science').map((run) => run.value)).toEqual(['Avogadro'])

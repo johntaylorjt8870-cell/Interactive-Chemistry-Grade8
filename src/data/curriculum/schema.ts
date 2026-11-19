@@ -315,6 +315,13 @@ export type NotebookEnrichment = {
 }
 
 export type NotebookFigure =
+  | {
+      id: string
+      kind: 'lesson7-figure'
+      figureKey: 'counting-objects' | 'balance-original' | 'gases-original' | 'stoichiometry-map' | 'jabir-original'
+      caption: string
+      reconstruction?: true
+    }
   | { id: string; kind: 'lesson6-zinc-hcl'; caption: string; reconstruction: true }
   | { id: string; kind: 'lesson2-static'; figureKey: 'valence' | 'charge' | 'nacl' | 'mgo' | 'research-lewis' | 'cao' | 'na2o' | 'mgcl2' | 'hetero' | 'compare'; caption: string }
   | {
@@ -441,11 +448,15 @@ export type StudentNotebook = {
    * copy, so it is rendered as a separate card beside the notebook.
    */
   checklist?: { title: string; items: string[] }
-  /** Provenance for each notebook item; rendered after the student-facing notes. */
+  /**
+   * Single final provenance table («جدول مصادر بنود دفتر الطالب»): one 5-field
+   * row per numbered notebook item, required on every standard lesson notebook.
+   */
   sourcesAppendix?: { caption: string; rows: NotebookSourceRow[] }
   /**
-   * Lesson 1 only: hide `صN` chips on definitions in the student-facing body.
-   * Other notebooks omit this so their definition sources stay visible.
+   * Hide `صN` page chips inside the student-facing notebook body so provenance
+   * appears only in `sourcesAppendix` (required `true` on every new notebook;
+   * omitted only by grandfathered Lessons 3–4).
    */
   hidePageTagsInBody?: boolean
 }
@@ -471,8 +482,10 @@ export type LessonDefinition = {
   summary?: string
   steps: LessonStep[]
   /**
-   * Optional student notebook (دفتر الطالب) for this lesson. When present it is
-   * shown as the last tab of the lesson, after the last teaching step.
+   * Complete student notebook (دفتر الطالب), shown as the final lesson tab.
+   * Optional only while a lesson is `awaiting-source` or `in-progress`; every
+   * `source-verified` lesson must ship a complete, source-documented notebook
+   * passing `validateStudentNotebook` in `src/data/sourceFidelity.ts`.
    */
   studentNotebook?: StudentNotebook
   /** Independent «إضافي» tab; never counted or visited as a teaching step. */

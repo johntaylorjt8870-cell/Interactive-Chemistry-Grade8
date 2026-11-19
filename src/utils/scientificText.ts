@@ -18,8 +18,9 @@ export type ScientificRun =
   | { kind: 'prose'; value: string }
   | { kind: 'science'; value: string; notation?: ScientificNotation }
 
-/** Latin identifier / unit / symbol fragment, e.g. `Cl`, `mol`, `g/mol`, `°C`. */
-const UNIT = String.raw`[A-Za-zµΩÅ%°][A-Za-z0-9µΩÅ°⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺/^·\-]*`
+/** Latin identifier / unit / symbol fragment, e.g. `Cl`, `mol`, `g/mol`, `g.mol⁻¹`, `°C`. */
+const UNIT_PART = String.raw`[A-Za-zµΩÅ%°][A-Za-z0-9µΩÅ°₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺/^·\-]*`
+const UNIT = String.raw`${UNIT_PART}(?:\.[A-Za-z][A-Za-z0-9µΩÅ°₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺/^·\-]*)*`
 const NUMBER = String.raw`\d+(?:[.,]\d+)?`
 /**
  * Subscript and superscript glyphs printed inside Chemistry symbols travel

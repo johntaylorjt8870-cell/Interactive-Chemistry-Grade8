@@ -2,6 +2,7 @@ import { Component, lazy, Suspense, type ReactNode } from 'react'
 import { Lesson2NotebookFigure } from './lesson2NotebookFigures'
 import { Lesson5NotebookFigure } from './lesson5NotebookFigures'
 import { Lesson6ZincNotebookFigure } from '@/simulations/Lesson6ZincHclSchematic'
+import { Lesson7NotebookFigure } from './lesson7NotebookFigures'
 const Lesson2NotebookTool = lazy(() => import('./lesson2NotebookWidgets'))
 class NotebookToolBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false }
@@ -491,6 +492,7 @@ function NotebookFigureView({ figure }: { figure: NotebookFigure }) {
     )
   }
 
+  if (figure.kind === 'lesson7-figure') return <Lesson7NotebookFigure figure={figure} />
   if (figure.kind === 'lesson6-zinc-hcl') return <Lesson6ZincNotebookFigure figure={figure} />
   if (figure.kind === 'lesson5-figure') return <Lesson5NotebookFigure figure={figure} />
 
