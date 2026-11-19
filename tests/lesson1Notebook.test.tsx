@@ -211,19 +211,14 @@ describe('student notebook — placement in the lesson', () => {
   })
 })
 
-describe('student notebooks — scope remains limited to the opted-in lessons', () => {
-  it('attaches notebooks only to the lessons reviewed for one', () => {
+describe('student notebooks — permanent requirement across all verified lessons', () => {
+  it('attaches a complete notebook to every source-verified lesson', () => {
     const lessons = listSubjects().flatMap((subject) => subject.units.flatMap((unit) => unit.lessons))
-    const withNotebook = lessons.filter((lesson) => lesson.studentNotebook)
-    // Lessons 1–6 have approved notebooks; Lesson 7 remains unchanged.
-    expect(withNotebook.map((lesson) => lesson.id)).toEqual([
-      'chem-u1-l1',
-      'chem-u1-l2',
-      'chem-u1-l3',
-      'chem-u1-l4',
-      'chem-u1-l5',
-      'chem-u1-l6',
-    ])
+    const verifiedLessons = lessons.filter((lesson) => lesson.status === 'source-verified')
+    const withNotebook = verifiedLessons.filter((lesson) => lesson.studentNotebook)
+    // Every source-verified lesson (currently Lessons 1–7, and every future verified lesson) ships a studentNotebook.
+    expect(withNotebook.map((lesson) => lesson.id)).toEqual(verifiedLessons.map((lesson) => lesson.id))
+    expect(verifiedLessons.length).toBeGreaterThanOrEqual(7)
   })
 
   it('does not change the lesson step count, the step kinds or the curriculum totals', () => {

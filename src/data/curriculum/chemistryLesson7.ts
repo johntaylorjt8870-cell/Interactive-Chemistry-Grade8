@@ -4,6 +4,7 @@ import { bookActivitySolutions, bookAssessment, bookQuestions, lesson7BookQuesti
 import { formativeQuestions, lesson7PracticeQuestions, practiceApplicationQuestions, practiceAssessment, practiceFoundationalQuestions, practiceReasoningQuestions } from './chemistryLesson7Practice'
 import { finalTest } from './chemistryLesson7Test'
 import { lesson7TeacherGuide } from './chemistryLesson7TeacherGuide'
+import { chemistryLesson7Notebook } from './chemistryLesson7Notebook'
 import { LESSON7_LEDGER, lesson7SourceText } from './lesson7SourceLedger'
 import countingObjects from '../../assets/textbook/lesson7/p40-counting-objects.png'
 import balanceOriginal from '../../assets/textbook/lesson7/p41-balance-original.png'
@@ -443,5 +444,6 @@ export const chemistryLesson7: LessonDefinition = {
   },
   summary: 'المول والكتلة المولية والحجم المولي في الشرطين النظاميين، وتطبيقات الحساب الكيميائي كما وردت في صفحات الكتاب 40–49.',
   steps,
+  studentNotebook: chemistryLesson7Notebook,
   tests: [bookAssessment, practiceAssessment, finalTest],
 }

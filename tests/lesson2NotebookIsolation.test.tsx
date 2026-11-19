@@ -40,13 +40,13 @@ const protectedHashes: Record<string, string> = {
   "src/data/curriculum/chemistryLesson6Practice.ts": "a3a69fa2ecfec89b4ece77f93c933a56929ca4f704e85ada7b78138aa4f069aa",
   "src/data/curriculum/chemistryLesson6TeacherGuide.ts": "09adf1b36f2ca6ff6423c7c123b09587e958f81afb4a4142310023e42e695edb",
   "src/data/curriculum/chemistryLesson6Test.ts": "553f82f1a3a582684b8b6550233e6691f2f32359d24a0bd5d5fb5bf753c28add",
-  "src/data/curriculum/chemistryLesson7.ts": "79c5e2cca9c4f94d87c62e30b30aeefa3c917a79f5e4e26449e58b6163fe630a",
+  "src/data/curriculum/chemistryLesson7.ts": "8fef73a76145f4ae7a57b7531c5a2b305d35adecbd4975f05bed8abc6c2872ec",
   "src/data/curriculum/chemistryLesson7Book.ts": "d784973c7d327fa5d0cb226d7f085e39dcd5432d30b9995ef8e03dc20495064c",
   "src/data/curriculum/chemistryLesson7Practice.ts": "6c9005aee811966cc4b646f9aed02bc927fba412d2e085db1c8b0bafacc306ad",
   "src/data/curriculum/chemistryLesson7TeacherGuide.ts": "46181fd9978a5a357865d41af5885399ef137875eef100112f89db319fc2d584",
   "src/data/curriculum/chemistryLesson7Test.ts": "3ff3d883a94ce148d7daf67ceff0a084b764c8c4f3cf13e1a4ab953aa7b361be",
   "src/lessons/LessonFlow.tsx": "95bb8bd36795426865835096f873c007070be04887eae7f2f988395ea4e17dd7",
-  "src/lessons/StudentNotebookView.tsx": "ccc450b1f822fb70c7837f743f4c09902b12e2fcbf7c80866759f125db696e7f",
+  "src/lessons/StudentNotebookView.tsx": "4efa1689ea26f2ceda64166be6081467a8a65529e4ccf33fc08157a0cd4d10ed",
   "src/lessons/notebookStaticFigures.tsx": "dfae7e6c21747b184505a8df8773bbca0d1c529885eba1c6956f0e38d213dbe6"
 }
 
