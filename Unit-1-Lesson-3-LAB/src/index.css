@@ -1,0 +1,269 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   الثيم: أخضر هادئ (غابة · نعناع · ورق) + لمسات ذهبية/طينية/بحرية
+   ===================================================================== */
+@theme {
+  --font-sans: 'KaTeX Digits', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, sans-serif;
+  --font-math: 'KaTeX_Main', 'Times New Roman', serif;
+
+  --color-mint-50: #f3faf6;
+  --color-mint-100: #e4f3ec;
+  --color-mint-200: #c9e6d7;
+  --color-mint-300: #a5d4bd;
+  --color-leaf-400: #6cbf9b;
+  --color-leaf-500: #3fa47e;
+  --color-leaf-600: #2b8666;
+  --color-forest-700: #1d6a50;
+  --color-forest-800: #165240;
+  --color-forest-900: #0f3b2e;
+  --color-forest-950: #0a2a20;
+
+  --color-gold-100: #faf0d6;
+  --color-gold-400: #e3b355;
+  --color-gold-500: #d29a2e;
+  --color-gold-600: #a97614;
+
+  --color-clay-100: #fbe7dc;
+  --color-clay-400: #e8956b;
+  --color-clay-500: #d9784a;
+  --color-clay-600: #b95d33;
+
+  --color-lagoon-100: #dcf0f6;
+  --color-lagoon-400: #5bb0ca;
+  --color-lagoon-500: #2f8aa8;
+  --color-lagoon-600: #226f8a;
+
+  --color-plum-100: #ece5f6;
+  --color-plum-400: #9d87c9;
+  --color-plum-500: #7b64ab;
+  --color-plum-600: #624d90;
+
+  --color-ink: #12302a;
+  --color-wa: #25d366;
+  --color-wa-dark: #128c7e;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(1100px 520px at 88% -8%, rgba(108, 191, 155, 0.24), transparent 62%),
+    radial-gradient(900px 520px at -8% 28%, rgba(227, 179, 85, 0.1), transparent 60%),
+    radial-gradient(800px 600px at 60% 110%, rgba(91, 176, 202, 0.1), transparent 60%),
+    #f3f9f5;
+  background-attachment: fixed;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--color-mint-300);
+}
+
+/* =====================================================================
+   RTL / LTR — الكيمياء والرياضيات تُعزل دائماً كـ LTR
+   ===================================================================== */
+.font-math {
+  font-family: var(--font-math);
+}
+
+.ltr-iso {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.rtl-iso {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+.tex {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
+  line-height: 1.25;
+  vertical-align: middle;
+  max-width: 100%;
+}
+
+.tex-block {
+  display: block;
+  text-align: center;
+  margin-block: 0.25rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.katex {
+  font-size: 1.1em;
+  text-indent: 0;
+}
+
+.katex-display {
+  margin: 0.4em 0;
+}
+
+.svg-ltr {
+  direction: ltr;
+}
+
+.svg-ltr text {
+  direction: ltr;
+}
+
+.svg-math {
+  font-family: 'KaTeX_Main', 'Times New Roman', serif;
+}
+
+/* ===================================================================== */
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.dots-bg {
+  background-image: radial-gradient(rgba(20, 82, 64, 0.1) 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(20, 82, 64, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 82, 64, 0.06) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* =====================================================================
+   حركات
+   ===================================================================== */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes spin-rev {
+  to { transform: rotate(-360deg); }
+}
+@keyframes pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
+  100% { box-shadow: 0 0 0 18px rgba(37, 211, 102, 0); }
+}
+@keyframes shine {
+  from { transform: translateX(-130%) skewX(-20deg); }
+  to { transform: translateX(260%) skewX(-20deg); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  60% { transform: translateX(7px); }
+  80% { transform: translateX(-3px); }
+}
+@keyframes dash-flow {
+  to { stroke-dashoffset: -28; }
+}
+@keyframes draw {
+  from { stroke-dashoffset: var(--len, 300); }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes fly-out {
+  from { opacity: 1; transform: translate(0, 0) scale(1); }
+  to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.5); }
+}
+@keyframes fly-in {
+  from { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.5); }
+  to { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-5px) rotate(1deg); }
+}
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(63, 164, 126, 0)); }
+  50% { filter: drop-shadow(0 0 10px rgba(63, 164, 126, 0.65)); }
+}
+@keyframes stamp {
+  0% { transform: scale(2.4) rotate(-18deg); opacity: 0; }
+  60% { transform: scale(0.92) rotate(-8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+}
+
+.anim-float { animation: float-y 6s ease-in-out infinite; }
+.anim-pop { animation: pop 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+.anim-up { animation: fade-up 0.5s ease both; }
+.anim-shake { animation: shake 0.45s ease; }
+.anim-bob { animation: bob 3.4s ease-in-out infinite; }
+.anim-glow { animation: glow 2s ease-in-out infinite; }
+.anim-stamp { animation: stamp 0.5s cubic-bezier(0.3, 1.2, 0.5, 1) both; }
+
+.fly-out { animation: fly-out 0.9s ease-in forwards; }
+.fly-in { animation: fly-in 0.9s ease-out both; }
+.dash-flow { stroke-dasharray: 6 8; animation: dash-flow 1.2s linear infinite; }
+.draw-line { stroke-dasharray: var(--len, 300); animation: draw 0.9s ease forwards; }
+
+/* زر واتساب: نبض + لمعان */
+.wa-pulse { animation: pulse-ring 2s ease-out infinite; }
+.wa-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: shine 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* بطاقة تنقلب (الأسماء الشائعة) */
+.flip-scene { perspective: 900px; }
+.flip-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+.flip-card.is-flipped { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back { transform: rotateY(180deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
