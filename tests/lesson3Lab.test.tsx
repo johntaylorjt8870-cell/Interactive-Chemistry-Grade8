@@ -119,7 +119,15 @@ describe('Lesson 3 «المخبر» tab integration', () => {
     expect(step).toHaveAttribute('hidden')
     expect(progressStore.getLesson(chemistryLesson3.id)?.seenStepIds ?? []).toEqual(seenBefore)
 
-    await user.click(screen.getByRole('button', { name: /العودة إلى الدرس/ }))
+    // During Full Page there must be exactly one accessible button named
+    // "العودة إلى الدرس" — the one rendered by LessonLabView. The legacy
+    // button in lesson-shell__nav is not rendered in the DOM while the lab
+    // is active, so getByRole returns a single element and the round-trip
+    // preserves the step content and answer without reloading.
+    const closeButtons = screen.getAllByRole('button', { name: /العودة إلى الدرس/ })
+    expect(closeButtons).toHaveLength(1)
+
+    await user.click(closeButtons[0])
     expect(step).not.toHaveAttribute('hidden')
     expect(answer).toHaveValue('H2O')
   })
