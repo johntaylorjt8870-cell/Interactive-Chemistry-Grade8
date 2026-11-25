@@ -3732,3 +3732,112 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   }
 }
 
+/* --- وضع المخبر الكامل (Full Page Mode) ----------------------------------- */
+/* عند تفعيل هذه الحالة، يملأ المخبر مساحة المتصفح بالكامل ويتجاوز قيود
+   حاويات المنصة (max-width، الهوامش، الحشوات). */
+
+.lesson-lab[data-lab-full-page="true"] {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  inline-size: 100vw;
+  block-size: 100dvh;
+  margin: 0;
+  padding: 0;
+  background: var(--surface-base);
+  overflow: hidden;
+}
+
+.lesson-lab[data-lab-full-page="true"] .lesson-lab__frame {
+  inline-size: 100vw;
+  block-size: 100dvh;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--surface-base);
+}
+
+.lesson-lab__close-button {
+  position: absolute;
+  top: var(--space-4);
+  inset-inline-end: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-inline-size: auto;
+  min-block-size: 44px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-raised);
+  color: var(--text-strong);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+  z-index: 1;
+}
+
+.lesson-lab__close-button:hover {
+  background: var(--surface-sunken);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.lesson-lab__close-button:active {
+  transform: translateY(0);
+}
+
+/* على الشاشات الضيقة، نوضع الزر في الأسفل لسهولة الوصول */
+@media (max-width: 640px) {
+  .lesson-lab__close-button {
+    top: auto;
+    bottom: var(--space-4);
+    inset-inline-end: var(--space-4);
+    flex-direction: row;
+  }
+}
+
+/* إخفاء الهوامش الداخلية لحاويتي المنصة عند تفعيل وضع Full Page */
+.lesson-shell[data-lab-full-page="true"] .container--lesson {
+  max-width: none;
+  padding-inline: 0;
+}
+
+.lesson-shell[data-lab-full-page="true"] .lesson-shell__body {
+  gap: 0;
+  padding-block-start: 0;
+}
+
+/* إخفاء مخطط الدرس والإطار المحيط أثناء وضع Full Page */
+.lesson-shell[data-lab-full-page="true"] .lesson-shell__rail {
+  display: none;
+}
+
+.lesson-shell[data-lab-full-page="true"] .lesson-shell__nav {
+  display: none;
+}
+
+/* --- إخفاء واجهة المنصة المحيطة أثناء وضع Full Page ------------------------ */
+/* عندما يكون المخبر في وضع Full Page، نخفي رأس الموقع وأي عناصر منصة أخرى
+   تحيط بالدرس حتى يتمكن المخبر منoccupation مساحة المتصفح بالكامل. */
+
+html[data-lab-full-page="true"] .site-header {
+  display: none;
+}
+
+html[data-lab-full-page="true"] .site-contact {
+  display: none;
+}
+
+/* على الأجهزة الضيقة، نضمن أن المخبر يملأ الشاشة بالكامل */
+@media (max-width: 640px) {
+  html[data-lab-full-page="true"] .site-header {
+    display: none;
+  }
+}
+

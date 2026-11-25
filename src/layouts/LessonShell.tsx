@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { RtlRun } from '@/components/BidiText'
-import { ArrowEndGlyph } from '@/components/Icons'
 import { useLessonLab } from '@/labs/LessonLabContext'
 import { LessonLabView } from '@/labs/LessonLabView'
 
@@ -100,7 +99,11 @@ export function LessonShell({
   }, [isLabActive, children])
 
   return (
-    <div className="lesson-shell" data-lesson-id={lessonId}>
+    <div
+      className="lesson-shell"
+      data-lesson-id={lessonId}
+      data-lab-full-page={isLabActive ? 'true' : 'false'}
+    >
       <div className="container container--lesson lesson-shell__body">
         <aside className="lesson-shell__rail" aria-label="مخطط الدرس">
           <div className="lesson-rail__identity">
@@ -154,20 +157,20 @@ export function LessonShell({
         >
           {children}
           {isLabMounted && labCtx ? (
-            <LessonLabView lab={labCtx.lab} hidden={!isLabActive} />
+            <LessonLabView
+              lab={labCtx.lab}
+              hidden={!isLabActive}
+              onClose={labCtx.closeLabToLesson}
+            />
           ) : null}
           <div className="lesson-shell__nav">
             {isLabActive && labCtx ? (
-              <div className="lesson-nav">
-                <button
-                  type="button"
-                  className="button button--primary"
-                  onClick={labCtx.closeLabToLesson}
-                >
-                  <ArrowEndGlyph size={17} />
-                  <span>العودة إلى الدرس</span>
-                </button>
-              </div>
+              // When the lab is open, the close button lives in LessonLabView
+              // (rendered as a fixed-position element in Full Page mode).
+              // Do not render a second button here to keep the accessible name
+              // unique: getByRole('button', { name: 'العودة إلى الدرس' }) must
+              // return exactly one element during Full Page.
+              null
             ) : (
               navigation
             )}
