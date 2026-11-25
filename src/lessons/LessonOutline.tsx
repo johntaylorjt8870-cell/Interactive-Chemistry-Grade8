@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { ScientificNotationText } from '@/scientific'
-import { NotebookGlyph } from '@/components/Icons'
+import { FlaskGlyph, NotebookGlyph } from '@/components/Icons'
+import { useLessonLab } from '@/labs/LessonLabContext'
 import { STEP_KIND_META } from './stepKinds'
 import type { LessonDefinition } from '@/data/curriculum/schema'
 
@@ -19,6 +20,8 @@ export type LessonOutlineProps = {
   notebook?: { title: string; open: boolean; onSelect: () => void }
   /** Optional independent supplement, before the unchanged final notebook tab. */
   extra?: { open: boolean; onSelect: () => void }
+  /** Optional independent interactive lab tab, rendered before the final notebook tab. */
+  lab?: { title: string; open: boolean; onSelect: () => void }
 }
 
 /**
@@ -35,9 +38,21 @@ export function LessonOutline({
   variant = 'sidebar',
   notebook,
   extra,
+  lab,
 }: LessonOutlineProps) {
   const seen = new Set(seenStepIds)
   const currentRef = useRef<HTMLButtonElement>(null)
+  const labCtx = useLessonLab()
+  const resolvedLab =
+    lab ??
+    (labCtx && labCtx.lab.lessonId === lesson.id
+      ? {
+          title: labCtx.lab.tabTitle,
+          open: labCtx.labOpen,
+          onSelect: () => labCtx.openLab({ fromDrawer: variant === 'drawer' }),
+        }
+      : undefined)
+  const effectiveCurrentIndex = resolvedLab?.open ? -1 : currentIndex
 
   /**
    * The desktop rail scrolls on its own: a long lesson outline must never
@@ -60,7 +75,7 @@ export function LessonOutline({
       <ol className="lesson-outline__list">
         {lesson.steps.map((step, index) => {
           const meta = STEP_KIND_META[step.kind]
-          const isCurrent = index === currentIndex
+          const isCurrent = index === effectiveCurrentIndex
           const isSeen = seen.has(step.id)
           const status = isCurrent ? 'الحالية' : isSeen ? 'تمت زيارتها' : 'لم تُفتح بعد'
 
@@ -73,7 +88,12 @@ export function LessonOutline({
                 data-current={isCurrent ? 'true' : undefined}
                 data-seen={isSeen ? 'true' : undefined}
                 aria-current={isCurrent ? 'step' : undefined}
-                onClick={() => onSelect?.(index)}
+                onClick={() => {
+                  if (resolvedLab?.open) {
+                    labCtx?.closeLabToStep(index + 1)
+                  }
+                  onSelect?.(index)
+                }}
                 disabled={!onSelect}
               >
                 <span className="lesson-outline__index" aria-hidden="true">
@@ -102,17 +122,49 @@ export function LessonOutline({
             <button
               type="button"
               className="lesson-outline__button"
-              data-current={extra.open ? 'true' : undefined}
+              data-current={extra.open && !resolvedLab?.open ? 'true' : undefined}
               data-tab="extra"
-              aria-current={extra.open ? 'page' : undefined}
-              onClick={extra.onSelect}
+              aria-current={extra.open && !resolvedLab?.open ? 'page' : undefined}
+              onClick={() => {
+                labCtx?.closeLabSilently()
+                extra.onSelect()
+              }}
             >
               <span className="lesson-outline__index" aria-hidden="true">+</span>
               <span className="lesson-outline__text">
                 <span className="lesson-outline__title">إضافي</span>
                 <span className="lesson-outline__meta">
                   <span className="lesson-outline__kind">محتوى السبورة</span>
-                  <span className="lesson-outline__status">{extra.open ? 'مفتوح' : 'مرجع إضافي'}</span>
+                  <span className="lesson-outline__status">
+                    {extra.open && !resolvedLab?.open ? 'مفتوح' : 'مرجع إضافي'}
+                  </span>
+                </span>
+              </span>
+            </button>
+          </li>
+        ) : null}
+        {resolvedLab ? (
+          <li className="lesson-outline__item lesson-outline__item--lab">
+            <button
+              type="button"
+              className="lesson-outline__button lesson-outline__button--lab"
+              data-current={resolvedLab.open ? 'true' : undefined}
+              data-tab="lab"
+              aria-current={resolvedLab.open ? 'page' : undefined}
+              onClick={resolvedLab.onSelect}
+            >
+              <span className="lesson-outline__index" aria-hidden="true">
+                <FlaskGlyph size={16} />
+              </span>
+              <span className="lesson-outline__text">
+                <span className="lesson-outline__title">
+                  <span>{resolvedLab.title}</span>
+                </span>
+                <span className="lesson-outline__meta">
+                  <span className="lesson-outline__kind">مخبر تفاعلي</span>
+                  <span className="lesson-outline__status">
+                    {resolvedLab.open ? 'مفتوح' : 'تطبيق عملي'}
+                  </span>
                 </span>
               </span>
             </button>
@@ -123,10 +175,13 @@ export function LessonOutline({
             <button
               type="button"
               className="lesson-outline__button lesson-outline__button--notebook"
-              data-current={notebook.open ? 'true' : undefined}
+              data-current={notebook.open && !resolvedLab?.open ? 'true' : undefined}
               data-tab="notebook"
-              aria-current={notebook.open ? 'page' : undefined}
-              onClick={notebook.onSelect}
+              aria-current={notebook.open && !resolvedLab?.open ? 'page' : undefined}
+              onClick={() => {
+                labCtx?.closeLabToNotebook(notebook.open)
+                notebook.onSelect()
+              }}
             >
               <span className="lesson-outline__index" aria-hidden="true">
                 <NotebookGlyph size={16} />
@@ -138,7 +193,7 @@ export function LessonOutline({
                 <span className="lesson-outline__meta">
                   <span className="lesson-outline__kind">دفتر الطالب</span>
                   <span className="lesson-outline__status">
-                    {notebook.open ? 'مفتوح' : 'آخر تبويب'}
+                    {notebook.open && !resolvedLab?.open ? 'مفتوح' : 'آخر تبويب'}
                   </span>
                 </span>
               </span>

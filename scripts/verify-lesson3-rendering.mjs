@@ -381,13 +381,16 @@ try {
       const buttons = [...nav.querySelectorAll('button')]
       return {
         count: buttons.length,
+        labTab: buttons.at(-2)?.getAttribute('data-tab') ?? null,
         lastTab: buttons.at(-1)?.getAttribute('data-tab') ?? null,
         lastTitle: buttons.at(-1)?.textContent?.trim() ?? '',
       }
     })
     check(
-      `${viewport.name}: notebook is the only tab after all 32 teaching steps`,
-      placement.count === chemistryLesson3.steps.length + 1 && placement.lastTab === 'notebook',
+      `${viewport.name}: lab and notebook tabs follow all 32 teaching steps with notebook last`,
+      placement.count === chemistryLesson3.steps.length + 2 &&
+        placement.labTab === 'lab' &&
+        placement.lastTab === 'notebook',
       placement,
     )
     await page.click(

@@ -245,7 +245,8 @@ describe('student notebook — Lesson 3 integration', () => {
 
     const nav = screen.getByRole('navigation', { name: 'خطوات الدرس' })
     const buttons = within(nav).getAllByRole('button')
-    expect(buttons).toHaveLength(chemistryLesson3.steps.length + 1)
+    expect(buttons).toHaveLength(chemistryLesson3.steps.length + 2)
+    expect(buttons.at(-2)).toHaveAttribute('data-tab', 'lab')
     expect(buttons.at(-1)).toHaveAttribute('data-tab', 'notebook')
 
     await user.click(buttons.at(-1)!)

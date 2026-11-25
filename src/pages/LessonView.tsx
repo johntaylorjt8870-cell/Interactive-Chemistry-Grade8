@@ -6,6 +6,7 @@ import { BookGlyph, HourglassGlyph } from '@/components/Icons'
 import { routes } from '@/app/navigation'
 import { Sci } from '@/scientific'
 import { LessonFlow } from '@/lessons/LessonFlow'
+import { LessonLabProvider } from '@/labs/LessonLabContext'
 import { InlineQuestion } from '@/assessment/InlineQuestion'
 import { FinalTestRunner } from '@/assessment/FinalTestRunner'
 import { InteractiveHost } from '@/components/InteractiveHost'
@@ -106,32 +107,34 @@ function LessonContent({
   )
 
   return (
-    <LessonFlow
-      lesson={lesson}
-      breadcrumb={
-        <>
-          <Link to={routes.home}>المنصة</Link>
-          <span aria-hidden="true">/</span>
-          <Link to={routes.subject(subject)}>{definition.title}</Link>
-          {unit ? (
-            <>
-              <span aria-hidden="true">/</span>
-              <Link to={routes.unit(subject, unit.slug)}>{unit.title}</Link>
-            </>
-          ) : null}
-          <span aria-hidden="true">/</span>
-          <span aria-current="page">{lesson.title}</span>
-        </>
-      }
-      renderQuestion={renderQuestion}
-      renderDiagram={renderDiagram}
-      renderTest={renderTest}
-      finishAction={
-        <Link className="button button--secondary" to={routes.subject(subject)}>
-          العودة إلى مسار {definition.title}
-        </Link>
-      }
-    />
+    <LessonLabProvider lessonId={lesson.id}>
+      <LessonFlow
+        lesson={lesson}
+        breadcrumb={
+          <>
+            <Link to={routes.home}>المنصة</Link>
+            <span aria-hidden="true">/</span>
+            <Link to={routes.subject(subject)}>{definition.title}</Link>
+            {unit ? (
+              <>
+                <span aria-hidden="true">/</span>
+                <Link to={routes.unit(subject, unit.slug)}>{unit.title}</Link>
+              </>
+            ) : null}
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{lesson.title}</span>
+          </>
+        }
+        renderQuestion={renderQuestion}
+        renderDiagram={renderDiagram}
+        renderTest={renderTest}
+        finishAction={
+          <Link className="button button--secondary" to={routes.subject(subject)}>
+            العودة إلى مسار {definition.title}
+          </Link>
+        }
+      />
+    </LessonLabProvider>
   )
 }
 
