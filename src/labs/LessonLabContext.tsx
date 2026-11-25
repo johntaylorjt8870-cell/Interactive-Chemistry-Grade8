@@ -65,6 +65,17 @@ export function LessonLabProvider({
     }
   }, [lab, labOpen])
 
+  // When the lab is open, hide the platform chrome (site header, etc.)
+  // so the lab can occupy the full viewport without visual competition.
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    if (labOpen && lab) {
+      document.documentElement.dataset.labFullPage = 'true'
+    } else {
+      delete document.documentElement.dataset.labFullPage
+    }
+  }, [labOpen, lab])
+
   const focusLessonContent = useCallback(() => {
     if (typeof document !== 'undefined') {
       document.getElementById('lesson-content')?.focus?.()

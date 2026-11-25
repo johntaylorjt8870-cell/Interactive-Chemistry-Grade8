@@ -100,7 +100,11 @@ export function LessonShell({
   }, [isLabActive, children])
 
   return (
-    <div className="lesson-shell" data-lesson-id={lessonId}>
+    <div
+      className="lesson-shell"
+      data-lesson-id={lessonId}
+      data-lab-full-page={isLabActive ? 'true' : 'false'}
+    >
       <div className="container container--lesson lesson-shell__body">
         <aside className="lesson-shell__rail" aria-label="مخطط الدرس">
           <div className="lesson-rail__identity">
@@ -154,7 +158,11 @@ export function LessonShell({
         >
           {children}
           {isLabMounted && labCtx ? (
-            <LessonLabView lab={labCtx.lab} hidden={!isLabActive} />
+            <LessonLabView
+              lab={labCtx.lab}
+              hidden={!isLabActive}
+              onClose={labCtx.closeLabToLesson}
+            />
           ) : null}
           <div className="lesson-shell__nav">
             {isLabActive && labCtx ? (

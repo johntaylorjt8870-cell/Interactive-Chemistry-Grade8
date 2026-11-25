@@ -1,8 +1,10 @@
 import { buildLabSandboxAttribute, resolveLabUrl, type LessonLabDefinition } from './registry'
+import { ArrowEndGlyph } from '@/components/Icons'
 
 export type LessonLabViewProps = {
   lab: LessonLabDefinition
   hidden?: boolean
+  onClose: () => void
 }
 
 /**
@@ -15,7 +17,7 @@ export type LessonLabViewProps = {
  * - `allow=""` denies powerful browser features (camera, microphone, geolocation, etc.).
  * - No Storage Shim is injected unless explicitly authorized for a lab that requires it.
  */
-export function LessonLabView({ lab, hidden = false }: LessonLabViewProps) {
+export function LessonLabView({ lab, hidden = false, onClose }: LessonLabViewProps) {
   const sandbox = buildLabSandboxAttribute(lab.sandbox)
   const src = resolveLabUrl(lab)
 
@@ -23,6 +25,7 @@ export function LessonLabView({ lab, hidden = false }: LessonLabViewProps) {
     <section
       className="lesson-lab"
       data-lab-lesson={lab.lessonId}
+      data-lab-full-page={!hidden}
       aria-label={lab.frameTitle}
       hidden={hidden}
     >
@@ -34,6 +37,17 @@ export function LessonLabView({ lab, hidden = false }: LessonLabViewProps) {
         referrerPolicy="no-referrer"
         allow=""
       />
+      {!hidden && (
+        <button
+          type="button"
+          className="lesson-lab__close-button"
+          onClick={onClose}
+          aria-label="العودة إلى الدرس"
+        >
+          <ArrowEndGlyph size={17} />
+          <span>العودة إلى الدرس</span>
+        </button>
+      )}
     </section>
   )
 }
