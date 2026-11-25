@@ -1,5 +1,8 @@
+import { existsSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vitest/config'
 
 /**
@@ -12,9 +15,28 @@ import { defineConfig } from 'vitest/config'
  */
 export const PAGES_BASE_PATH = '/Interactive-Chemistry-Grade8/'
 
+function serveBuiltLabsInDev(): Plugin {
+  const rootDir = fileURLToPath(new URL('.', import.meta.url))
+  return {
+    name: 'serve-built-labs-in-dev',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const pathname = req.url?.split('?')[0] ?? ''
+        const match = pathname.match(/^\/(?:Interactive-Chemistry-Grade8\/)?labs\/([a-z0-9-]+)\/index\.html$/)
+        if (!match) return next()
+        const labFile = resolve(rootDir, 'labs', match[1]!, 'dist', 'index.html')
+        if (!existsSync(labFile)) return next()
+        res.statusCode = 200
+        res.setHeader('Content-Type', 'text/html; charset=utf-8')
+        res.end(readFileSync(labFile))
+      })
+    },
+  }
+}
+
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? (process.env.VITE_BASE_PATH ?? PAGES_BASE_PATH) : '/',
-  plugins: [react()],
+  plugins: [react(), serveBuiltLabsInDev()],
   server: {
     // Development and preview servers are bound to all interfaces and accept
     // proxied preview hosts; production hosting is GitHub Pages and never

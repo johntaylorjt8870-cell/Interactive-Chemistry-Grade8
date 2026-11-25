@@ -3693,3 +3693,42 @@ a.teacher-lesson-tab { text-decoration: none; color: var(--text-primary); }
   direction: ltr;
   unicode-bidi: isolate;
 }
+
+/* --- المخبر التفاعلي المعزول (Lesson Lab iframe) --------------------------- */
+
+.lesson-lab {
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.lesson-lab__frame {
+  display: block;
+  inline-size: 100%;
+  block-size: min(86dvh, 920px);
+  min-block-size: 680px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-base);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 1080px) {
+  .lesson-lab__frame {
+    block-size: 82dvh;
+    min-block-size: 560px;
+    border-radius: var(--radius-md);
+  }
+}
+
+@media (max-width: 640px) {
+  .lesson-lab {
+    margin-inline: calc(-1 * var(--layout-gutter));
+    inline-size: calc(100% + 2 * var(--layout-gutter));
+  }
+
+  .lesson-lab__frame {
+    border-inline: 0;
+    border-radius: 0;
+  }
+}
+

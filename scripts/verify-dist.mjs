@@ -115,6 +115,37 @@ export function verifyDist(root, { basePath = EXPECTED_BASE_PATH } = {}) {
   notes.push(`bundles: ${bundleNames.join(', ')}`)
   notes.push(`assets: ${files.length} files`)
 
+  // Verify isolated lesson lab bundles emitted under dist/labs/<lessonId>/.
+  const expectedLabs = ['chem-u1-l3']
+  for (const labId of expectedLabs) {
+    const labIndexPath = join(dist, 'labs', labId, 'index.html')
+    if (!existsSync(labIndexPath)) {
+      fail('labs/missing', `dist/labs/${labId}/index.html is missing from the production build.`)
+      continue
+    }
+    const labHtml = readFileSync(labIndexPath, 'utf8')
+    if (!/<html lang="ar" dir="rtl">/.test(labHtml)) {
+      fail('labs/direction', `dist/labs/${labId}/index.html must declare lang="ar" and dir="rtl".`)
+    }
+    if (/\/src\/main\.tsx/.test(labHtml)) {
+      fail('labs/unbundled-source', `dist/labs/${labId}/index.html still references /src/main.tsx.`)
+    }
+    if (/\.\.\/assets\/fonts\//.test(labHtml)) {
+      fail('labs/unresolved-fonts', `dist/labs/${labId}/index.html contains unresolved ../assets/fonts/ paths.`)
+    }
+    const inlinedFontCount = [...labHtml.matchAll(/data:font\/woff2;base64,/g)].length
+    if (inlinedFontCount < 28) {
+      fail(
+        'labs/missing-inlined-fonts',
+        `dist/labs/${labId}/index.html inlined ${inlinedFontCount} woff2 fonts (expected at least 28).`,
+      )
+    }
+    if (/(localhost|127\.0\.0\.1)(:\d+)?/.test(labHtml)) {
+      fail('labs/localhost', `dist/labs/${labId}/index.html contains a localhost reference.`)
+    }
+    notes.push(`lab ${labId}: verified (${inlinedFontCount} woff2 @font-face entries inlined)`)
+  }
+
   return { issues, notes }
 }
 

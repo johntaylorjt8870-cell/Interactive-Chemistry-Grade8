@@ -1,5 +1,8 @@
-import type { ReactNode } from 'react'
+import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { RtlRun } from '@/components/BidiText'
+import { ArrowEndGlyph } from '@/components/Icons'
+import { useLessonLab } from '@/labs/LessonLabContext'
+import { LessonLabView } from '@/labs/LessonLabView'
 
 export type LessonShellProps = {
   /** Optional identity for lesson-scoped styling/inspection. */
@@ -63,6 +66,38 @@ export function LessonShell({
 }: LessonShellProps) {
   const percent = Math.round(progress.ratio * 100)
   const progressValue = progress.visited ?? progress.current
+  const labCtx = useLessonLab()
+  const isLabActive = Boolean(labCtx && labCtx.lab.lessonId === lessonId && labCtx.labOpen)
+  const isLabMounted = Boolean(
+    labCtx && labCtx.lab.lessonId === lessonId && (labCtx.labMounted || labCtx.labOpen),
+  )
+  const mainRef = useRef<HTMLElement>(null)
+
+  useLayoutEffect(() => {
+    const main = mainRef.current
+    if (!main) return
+    for (const child of Array.from(main.children)) {
+      if (!(child instanceof HTMLElement)) continue
+      if (
+        child.classList.contains('lesson-lab') ||
+        child.classList.contains('lesson-shell__nav') ||
+        child.getAttribute('role') === 'status'
+      ) {
+        continue
+      }
+      if (isLabActive) {
+        if (child.dataset.labPrevHidden === undefined) {
+          child.dataset.labPrevHidden = child.hasAttribute('hidden') ? 'true' : 'false'
+        }
+        child.setAttribute('hidden', '')
+      } else if (child.dataset.labPrevHidden !== undefined) {
+        if (child.dataset.labPrevHidden === 'false') {
+          child.removeAttribute('hidden')
+        }
+        delete child.dataset.labPrevHidden
+      }
+    }
+  }, [isLabActive, children])
 
   return (
     <div className="lesson-shell" data-lesson-id={lessonId}>
@@ -110,6 +145,7 @@ export function LessonShell({
         </aside>
 
         <section
+          ref={mainRef}
           className="lesson-shell__main"
           id="lesson-content"
           tabIndex={-1}
@@ -117,7 +153,25 @@ export function LessonShell({
           aria-label="محتوى الدرس"
         >
           {children}
-          <div className="lesson-shell__nav">{navigation}</div>
+          {isLabMounted && labCtx ? (
+            <LessonLabView lab={labCtx.lab} hidden={!isLabActive} />
+          ) : null}
+          <div className="lesson-shell__nav">
+            {isLabActive && labCtx ? (
+              <div className="lesson-nav">
+                <button
+                  type="button"
+                  className="button button--primary"
+                  onClick={labCtx.closeLabToLesson}
+                >
+                  <ArrowEndGlyph size={17} />
+                  <span>العودة إلى الدرس</span>
+                </button>
+              </div>
+            ) : (
+              navigation
+            )}
+          </div>
         </section>
       </div>
     </div>
